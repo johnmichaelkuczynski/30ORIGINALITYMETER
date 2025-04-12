@@ -32,11 +32,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestSchema = z.object({
         passageA: z.object({
-          title: z.string(),
+          title: z.string().optional().default(""),
           text: z.string().min(1, "Passage A text is required"),
         }),
         passageB: z.object({
-          title: z.string(),
+          title: z.string().optional().default(""),
           text: z.string().min(1, "Passage B text is required"),
         }),
       });
@@ -81,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const requestSchema = z.object({
         passageA: z.object({
-          title: z.string(),
+          title: z.string().optional().default(""),
           text: z.string().min(1, "Passage text is required"),
         }),
       });
