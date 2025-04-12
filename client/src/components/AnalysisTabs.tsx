@@ -7,6 +7,7 @@ interface AnalysisTabsProps {
   setActiveTab: (tab: string) => void;
   passageATitle: string;
   passageBTitle: string;
+  isSinglePassageMode?: boolean;
 }
 
 export default function AnalysisTabs({
@@ -15,6 +16,7 @@ export default function AnalysisTabs({
   setActiveTab,
   passageATitle,
   passageBTitle,
+  isSinglePassageMode = false,
 }: AnalysisTabsProps) {
   const tabs = [
     { id: "conceptual-lineage", label: "Conceptual Lineage" },
@@ -47,7 +49,7 @@ export default function AnalysisTabs({
       <CardContent className="p-6">
         {/* Conceptual Lineage */}
         {activeTab === "conceptual-lineage" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
             <div>
               <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageATitle} Conceptual Lineage</h3>
               <div className="space-y-4">
@@ -62,19 +64,21 @@ export default function AnalysisTabs({
               </div>
             </div>
             
-            <div>
-              <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageBTitle} Conceptual Lineage</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
-                  <p className="text-secondary-600">{result.conceptualLineage.passageB.primaryInfluences}</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
-                  <p className="text-secondary-600">{result.conceptualLineage.passageB.intellectualTrajectory}</p>
+            {!isSinglePassageMode && (
+              <div>
+                <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageBTitle} Conceptual Lineage</h3>
+                <div className="space-y-4">
+                  <div className="p-4 bg-gray-50 rounded-md">
+                    <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
+                    <p className="text-secondary-600">{result.conceptualLineage.passageB.primaryInfluences}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-md">
+                    <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
+                    <p className="text-secondary-600">{result.conceptualLineage.passageB.intellectualTrajectory}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -83,12 +87,19 @@ export default function AnalysisTabs({
           <div>
             <div className="mb-6">
               <h3 className="text-lg font-medium text-secondary-800 mb-2">Semantic Distance Analysis</h3>
-              <p className="text-secondary-600">Measuring how far each passage moves from its conceptual predecessors and establishes new territory.</p>
+              <p className="text-secondary-600">
+                {isSinglePassageMode 
+                  ? "Measuring how far the passage moves from common conceptual norms and establishes new territory."
+                  : "Measuring how far each passage moves from its conceptual predecessors and establishes new territory."
+                }
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
               <div className="bg-gray-50 p-5 rounded-lg">
-                <h4 className="font-medium text-secondary-700 mb-4">Distance Comparison</h4>
+                <h4 className="font-medium text-secondary-700 mb-4">
+                  {isSinglePassageMode ? "Semantic Distance from Norm" : "Distance Comparison"}
+                </h4>
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-1">
@@ -103,18 +114,20 @@ export default function AnalysisTabs({
                     </div>
                   </div>
                   
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium text-secondary-700">{passageBTitle}</span>
-                      <span className="text-sm text-secondary-500">{result.semanticDistance.passageB.label}</span>
+                  {!isSinglePassageMode && (
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium text-secondary-700">{passageBTitle}</span>
+                        <span className="text-sm text-secondary-500">{result.semanticDistance.passageB.label}</span>
+                      </div>
+                      <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary-500" 
+                          style={{ width: `${result.semanticDistance.passageB.distance}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-primary-500" 
-                        style={{ width: `${result.semanticDistance.passageB.distance}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
               
@@ -141,10 +154,15 @@ export default function AnalysisTabs({
           <div>
             <div className="mb-6">
               <h3 className="text-lg font-medium text-secondary-800 mb-2">Novelty Heatmap</h3>
-              <p className="text-secondary-600">Visualizing where conceptual originality is concentrated in each passage.</p>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Visualizing where conceptual originality is concentrated in the passage."
+                  : "Visualizing where conceptual originality is concentrated in each passage."
+                }
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
               <div>
                 <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
                 <div className="space-y-3">
@@ -166,26 +184,28 @@ export default function AnalysisTabs({
                 </div>
               </div>
               
-              <div>
-                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
-                <div className="space-y-3">
-                  {result.noveltyHeatmap.passageB.map((paragraph, index) => (
-                    <div 
-                      key={index}
-                      className="p-3 rounded-md" 
-                      style={{ backgroundColor: `rgba(12, 150, 230, ${paragraph.heat / 100 * 0.5})` }}
-                    >
-                      <p className="text-secondary-700 text-sm">{paragraph.content}</p>
-                      <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
-                          style={{ width: `${paragraph.heat}%` }}
-                        ></div>
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="space-y-3">
+                    {result.noveltyHeatmap.passageB.map((paragraph, index) => (
+                      <div 
+                        key={index}
+                        className="p-3 rounded-md" 
+                        style={{ backgroundColor: `rgba(12, 150, 230, ${paragraph.heat / 100 * 0.5})` }}
+                      >
+                        <p className="text-secondary-700 text-sm">{paragraph.content}</p>
+                        <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
+                            style={{ width: `${paragraph.heat}%` }}
+                          ></div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -195,10 +215,15 @@ export default function AnalysisTabs({
           <div>
             <div className="mb-6">
               <h3 className="text-lg font-medium text-secondary-800 mb-2">Derivative Index</h3>
-              <p className="text-secondary-600">A comprehensive score from 0 (entirely derivative) to 10 (wholly original) for each passage.</p>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "A comprehensive score from 0 (entirely derivative) to 10 (wholly original) for the passage."
+                  : "A comprehensive score from 0 (entirely derivative) to 10 (wholly original) for each passage."
+                }
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
               <div>
                 <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
                 <div className="bg-gray-50 p-5 rounded-lg">
@@ -227,33 +252,35 @@ export default function AnalysisTabs({
                 </div>
               </div>
               
-              <div>
-                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
-                <div className="bg-gray-50 p-5 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs text-secondary-500">Derivative</span>
-                    <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageB.score.toFixed(1)}/10</span>
-                    <span className="text-xs text-secondary-500">Original</span>
-                  </div>
-                  <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
-                    <div 
-                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
-                      style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
-                    >
-                      {result.derivativeIndex.passageB.score.toFixed(1)}
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs text-secondary-500">Derivative</span>
+                      <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageB.score.toFixed(1)}/10</span>
+                      <span className="text-xs text-secondary-500">Original</span>
+                    </div>
+                    <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
+                      <div 
+                        className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                        style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
+                      >
+                        {result.derivativeIndex.passageB.score.toFixed(1)}
+                      </div>
+                    </div>
+                    <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
+                    <div className="space-y-2">
+                      {result.derivativeIndex.passageB.components.map((component, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-sm text-secondary-600">{component.name}</span>
+                          <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
-                  <div className="space-y-2">
-                    {result.derivativeIndex.passageB.components.map((component, index) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <span className="text-sm text-secondary-600">{component.name}</span>
-                        <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -263,10 +290,15 @@ export default function AnalysisTabs({
           <div>
             <div className="mb-6">
               <h3 className="text-lg font-medium text-secondary-800 mb-2">Conceptual Parasite Detection</h3>
-              <p className="text-secondary-600">Identifying passages that operate within existing debates without adding original contributions.</p>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Identifying if the passage operates within existing debates without adding original contributions."
+                  : "Identifying passages that operate within existing debates without adding original contributions."
+                }
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
               <div>
                 <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
                 <div className="bg-gray-50 p-5 rounded-lg">
@@ -299,37 +331,39 @@ export default function AnalysisTabs({
                 </div>
               </div>
               
-              <div>
-                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
-                <div className="bg-gray-50 p-5 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-4">
-                    <div 
-                      className={`h-3 w-3 rounded-full ${
-                        result.conceptualParasite.passageB.level === "High" ? "bg-warning-600" : 
-                        result.conceptualParasite.passageB.level === "Moderate" ? "bg-warning-500" : 
-                        "bg-warning-400"
-                      }`}
-                    ></div>
-                    <span className="text-sm font-medium text-secondary-700">
-                      {result.conceptualParasite.passageB.level} Parasite Index
-                    </span>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Detected Parasitic Elements:</h5>
-                      <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
-                        {result.conceptualParasite.passageB.elements.map((element, index) => (
-                          <li key={index}>{element}</li>
-                        ))}
-                      </ul>
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-4">
+                      <div 
+                        className={`h-3 w-3 rounded-full ${
+                          result.conceptualParasite.passageB.level === "High" ? "bg-warning-600" : 
+                          result.conceptualParasite.passageB.level === "Moderate" ? "bg-warning-500" : 
+                          "bg-warning-400"
+                        }`}
+                      ></div>
+                      <span className="text-sm font-medium text-secondary-700">
+                        {result.conceptualParasite.passageB.level} Parasite Index
+                      </span>
                     </div>
-                    <div>
-                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Overall Assessment:</h5>
-                      <p className="text-sm text-secondary-600">{result.conceptualParasite.passageB.assessment}</p>
+                    <div className="space-y-4">
+                      <div>
+                        <h5 className="text-sm font-medium text-secondary-700 mb-1">Detected Parasitic Elements:</h5>
+                        <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                          {result.conceptualParasite.passageB.elements.map((element, index) => (
+                            <li key={index}>{element}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h5 className="text-sm font-medium text-secondary-700 mb-1">Overall Assessment:</h5>
+                        <p className="text-sm text-secondary-600">{result.conceptualParasite.passageB.assessment}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}

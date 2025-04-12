@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { ZodError } from "zod";
 import { z } from "zod";
-import { analyzePassages } from "./lib/openai";
+import { analyzePassages, analyzeSinglePassage } from "./lib/openai";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
@@ -70,6 +70,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error analyzing passages:", error);
         res.status(500).json({ 
           message: "Failed to analyze passages", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
+  // Analyze a single passage against an internal norm
+  app.post("/api/analyze/single", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        passageA: z.object({
+          title: z.string(),
+          text: z.string().min(1, "Passage text is required"),
+        }),
+      });
+
+      const { passageA } = requestSchema.parse(req.body);
+
+      // Get OpenAI's analysis of the single passage
+      const analysisResult = await analyzeSinglePassage(passageA);
+
+      // Validate the response against our schema
+      const validatedResult = analysisResultSchema.parse(analysisResult);
+
+      // Store the analysis in our database with a special flag for single mode
+      await storage.createAnalysis({
+        passageA: passageA.text,
+        passageB: "norm-comparison",
+        passageATitle: passageA.title,
+        passageBTitle: "Norm Baseline",
+        result: validatedResult,
+        createdAt: new Date().toISOString(),
+      });
+
+      res.json(validatedResult);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error analyzing single passage:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze passage", 
           error: error instanceof Error ? error.message : "Unknown error" 
         });
       }

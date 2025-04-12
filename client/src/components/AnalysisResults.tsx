@@ -9,6 +9,7 @@ interface AnalysisResultsProps {
   passageATitle: string;
   passageBTitle: string;
   onNewComparison: () => void;
+  isSinglePassageMode?: boolean;
 }
 
 export default function AnalysisResults({
@@ -16,6 +17,7 @@ export default function AnalysisResults({
   passageATitle,
   passageBTitle,
   onNewComparison,
+  isSinglePassageMode = false,
 }: AnalysisResultsProps) {
   const [activeTab, setActiveTab] = useState("conceptual-lineage");
 
@@ -31,7 +33,7 @@ export default function AnalysisResults({
             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
           </svg>
-          New Comparison
+          New {isSinglePassageMode ? "Analysis" : "Comparison"}
         </Button>
       </div>
 
@@ -39,6 +41,7 @@ export default function AnalysisResults({
         result={result}
         passageATitle={passageATitle}
         passageBTitle={passageBTitle}
+        isSinglePassageMode={isSinglePassageMode}
       />
 
       <AnalysisTabs
@@ -47,6 +50,7 @@ export default function AnalysisResults({
         setActiveTab={setActiveTab}
         passageATitle={passageATitle}
         passageBTitle={passageBTitle}
+        isSinglePassageMode={isSinglePassageMode}
       />
     </div>
   );
