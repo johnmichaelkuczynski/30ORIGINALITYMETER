@@ -26,17 +26,31 @@ export default function SemanticAnalyzer() {
 
   const analysisMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", isSinglePassageMode ? "/api/analyze/single" : "/api/analyze", {
+      console.log("Analyzing in mode:", isSinglePassageMode ? "Single passage" : "Comparison");
+      console.log("Request payload:", {
         passageA,
         ...(isSinglePassageMode ? {} : { passageB }),
       });
-      return response.json();
+      
+      try {
+        const response = await apiRequest("POST", isSinglePassageMode ? "/api/analyze/single" : "/api/analyze", {
+          passageA,
+          ...(isSinglePassageMode ? {} : { passageB }),
+        });
+        const data = await response.json();
+        console.log("Analysis response:", data);
+        return data;
+      } catch (err) {
+        console.error("Error during analysis:", err);
+        throw err;
+      }
     },
     onSuccess: (data) => {
       setAnalysisResult(data);
       setShowResults(true);
     },
     onError: (error) => {
+      console.error("Analysis error:", error);
       toast({
         title: "Analysis Failed",
         description: error.message || "Failed to analyze the passages. Please try again.",

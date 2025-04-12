@@ -128,7 +128,7 @@ export default function PassageInput({
           <div className="w-full">
             <input
               type="text"
-              placeholder={`Passage ${label} Title (Optional)`}
+              placeholder={label ? `Passage ${label} Title (Optional)` : "Passage Title (Optional)"}
               className="w-full border-0 p-0 focus:ring-0 bg-transparent text-secondary-800 font-medium placeholder-gray-400"
               value={passage.title}
               onChange={handleTitleChange}
@@ -143,7 +143,7 @@ export default function PassageInput({
       <CardContent className="p-4 flex-grow">
         <textarea
           rows={12}
-          placeholder={`Paste or type the ${label === "A" ? "first" : "second"} passage here...`}
+          placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}
           className="w-full p-0 border-0 focus:ring-0 resize-none bg-transparent text-secondary-800"
           value={passage.text}
           onChange={handleTextChange}
