@@ -127,7 +127,7 @@ export default function SemanticAnalyzer() {
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-lg font-semibold text-green-700 mb-1">What is Originality Meter?</h3>
+            <h3 className="text-lg font-bold text-green-800 mb-1">What is Originality Meter?</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
               Originality Meter is an AI-powered app that analyzes philosophical and scholarly writing for true conceptual originality—not just rewording or citation games. It evaluates your work based on semantic distance, lineage, parasite detection, and more. Stop wondering if your ideas are original. Measure them.
             </p>

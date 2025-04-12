@@ -9,7 +9,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <FaBrain className="text-primary text-xl" />
-            <h1 className="text-xl font-semibold text-primary-800">Semantic Originality Analyzer</h1>
+            <div>
+              <h1 className="text-xl font-bold text-green-800">Originality Meter</h1>
+              <p className="text-sm text-secondary-600">Semantic Originality Analyzer</p>
+            </div>
           </div>
         </div>
       </header>
@@ -25,7 +28,7 @@ export default function Home() {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-secondary-500 text-sm">
-            Semantic Originality Analyzer — Evaluating conceptual innovation, not plagiarism
+            Originality Meter — Evaluating conceptual innovation, not plagiarism
           </p>
         </div>
       </footer>
