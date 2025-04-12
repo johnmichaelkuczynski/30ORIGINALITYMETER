@@ -1,0 +1,339 @@
+import { AnalysisResult } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface AnalysisTabsProps {
+  result: AnalysisResult;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  passageATitle: string;
+  passageBTitle: string;
+}
+
+export default function AnalysisTabs({
+  result,
+  activeTab,
+  setActiveTab,
+  passageATitle,
+  passageBTitle,
+}: AnalysisTabsProps) {
+  const tabs = [
+    { id: "conceptual-lineage", label: "Conceptual Lineage" },
+    { id: "semantic-distance", label: "Semantic Distance" },
+    { id: "novelty-heatmap", label: "Novelty Heatmap" },
+    { id: "derivative-index", label: "Derivative Index" },
+    { id: "parasite-detection", label: "Parasite Detection" },
+  ];
+
+  return (
+    <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="border-b border-gray-200">
+        <nav className="flex -mb-px overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`px-6 py-4 text-center border-b-2 font-medium text-sm whitespace-nowrap min-w-max transition-colors ${
+                activeTab === tab.id
+                  ? "border-primary-600 text-primary-600"
+                  : "border-transparent text-secondary-500 hover:text-secondary-700 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <CardContent className="p-6">
+        {/* Conceptual Lineage */}
+        {activeTab === "conceptual-lineage" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageATitle} Conceptual Lineage</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
+                  <p className="text-secondary-600">{result.conceptualLineage.passageA.primaryInfluences}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
+                  <p className="text-secondary-600">{result.conceptualLineage.passageA.intellectualTrajectory}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageBTitle} Conceptual Lineage</h3>
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
+                  <p className="text-secondary-600">{result.conceptualLineage.passageB.primaryInfluences}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
+                  <p className="text-secondary-600">{result.conceptualLineage.passageB.intellectualTrajectory}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Semantic Distance */}
+        {activeTab === "semantic-distance" && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Semantic Distance Analysis</h3>
+              <p className="text-secondary-600">Measuring how far each passage moves from its conceptual predecessors and establishes new territory.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-gray-50 p-5 rounded-lg">
+                <h4 className="font-medium text-secondary-700 mb-4">Distance Comparison</h4>
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-secondary-700">{passageATitle}</span>
+                      <span className="text-sm text-secondary-500">{result.semanticDistance.passageA.label}</span>
+                    </div>
+                    <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary-500" 
+                        style={{ width: `${result.semanticDistance.passageA.distance}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium text-secondary-700">{passageBTitle}</span>
+                      <span className="text-sm text-secondary-500">{result.semanticDistance.passageB.label}</span>
+                    </div>
+                    <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary-500" 
+                        style={{ width: `${result.semanticDistance.passageB.distance}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Key Findings</h4>
+                  <ul className="list-disc pl-5 text-secondary-600 space-y-2">
+                    {result.semanticDistance.keyFindings.map((finding, index) => (
+                      <li key={index}>{finding}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h4 className="font-medium text-secondary-700 mb-1">Semantic Innovation</h4>
+                  <p className="text-secondary-600">{result.semanticDistance.semanticInnovation}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Novelty Heatmap */}
+        {activeTab === "novelty-heatmap" && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Novelty Heatmap</h3>
+              <p className="text-secondary-600">Visualizing where conceptual originality is concentrated in each passage.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="space-y-3">
+                  {result.noveltyHeatmap.passageA.map((paragraph, index) => (
+                    <div 
+                      key={index}
+                      className="p-3 rounded-md" 
+                      style={{ backgroundColor: `rgba(12, 150, 230, ${paragraph.heat / 100 * 0.5})` }}
+                    >
+                      <p className="text-secondary-700 text-sm">{paragraph.content}</p>
+                      <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
+                          style={{ width: `${paragraph.heat}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                <div className="space-y-3">
+                  {result.noveltyHeatmap.passageB.map((paragraph, index) => (
+                    <div 
+                      key={index}
+                      className="p-3 rounded-md" 
+                      style={{ backgroundColor: `rgba(12, 150, 230, ${paragraph.heat / 100 * 0.5})` }}
+                    >
+                      <p className="text-secondary-700 text-sm">{paragraph.content}</p>
+                      <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
+                          style={{ width: `${paragraph.heat}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Derivative Index */}
+        {activeTab === "derivative-index" && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Derivative Index</h3>
+              <p className="text-secondary-600">A comprehensive score from 0 (entirely derivative) to 10 (wholly original) for each passage.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-secondary-500">Derivative</span>
+                    <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageA.score.toFixed(1)}/10</span>
+                    <span className="text-xs text-secondary-500">Original</span>
+                  </div>
+                  <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
+                    <div 
+                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                      style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
+                    >
+                      {result.derivativeIndex.passageA.score.toFixed(1)}
+                    </div>
+                  </div>
+                  <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
+                  <div className="space-y-2">
+                    {result.derivativeIndex.passageA.components.map((component, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm text-secondary-600">{component.name}</span>
+                        <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-secondary-500">Derivative</span>
+                    <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageB.score.toFixed(1)}/10</span>
+                    <span className="text-xs text-secondary-500">Original</span>
+                  </div>
+                  <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
+                    <div 
+                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                      style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
+                    >
+                      {result.derivativeIndex.passageB.score.toFixed(1)}
+                    </div>
+                  </div>
+                  <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
+                  <div className="space-y-2">
+                    {result.derivativeIndex.passageB.components.map((component, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm text-secondary-600">{component.name}</span>
+                        <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Parasite Detection */}
+        {activeTab === "parasite-detection" && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Conceptual Parasite Detection</h3>
+              <p className="text-secondary-600">Identifying passages that operate within existing debates without adding original contributions.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <div 
+                      className={`h-3 w-3 rounded-full ${
+                        result.conceptualParasite.passageA.level === "High" ? "bg-warning-600" : 
+                        result.conceptualParasite.passageA.level === "Moderate" ? "bg-warning-500" : 
+                        "bg-warning-400"
+                      }`}
+                    ></div>
+                    <span className="text-sm font-medium text-secondary-700">
+                      {result.conceptualParasite.passageA.level} Parasite Index
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Detected Parasitic Elements:</h5>
+                      <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                        {result.conceptualParasite.passageA.elements.map((element, index) => (
+                          <li key={index}>{element}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Overall Assessment:</h5>
+                      <p className="text-sm text-secondary-600">{result.conceptualParasite.passageA.assessment}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <div 
+                      className={`h-3 w-3 rounded-full ${
+                        result.conceptualParasite.passageB.level === "High" ? "bg-warning-600" : 
+                        result.conceptualParasite.passageB.level === "Moderate" ? "bg-warning-500" : 
+                        "bg-warning-400"
+                      }`}
+                    ></div>
+                    <span className="text-sm font-medium text-secondary-700">
+                      {result.conceptualParasite.passageB.level} Parasite Index
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Detected Parasitic Elements:</h5>
+                      <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                        {result.conceptualParasite.passageB.elements.map((element, index) => (
+                          <li key={index}>{element}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Overall Assessment:</h5>
+                      <p className="text-sm text-secondary-600">{result.conceptualParasite.passageB.assessment}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
