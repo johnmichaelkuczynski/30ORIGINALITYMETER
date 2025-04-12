@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { AnalysisResult } from "@/lib/types";
 import SummarySection from "./SummarySection";
 import AnalysisTabs from "./AnalysisTabs";
+import DownloadReportButton from "./DownloadReportButton";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -20,10 +21,19 @@ export default function AnalysisResults({
   isSinglePassageMode = false,
 }: AnalysisResultsProps) {
   const [activeTab, setActiveTab] = useState("conceptual-lineage");
+  const resultsContainerId = useId().replace(/:/g, '') + "-results";
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
+    <div className="space-y-6" id={resultsContainerId}>
+      <div className="flex justify-between items-center">
+        <DownloadReportButton 
+          result={result}
+          passageATitle={passageATitle}
+          passageBTitle={passageBTitle}
+          resultsContainerId={resultsContainerId}
+          isSinglePassageMode={isSinglePassageMode}
+        />
+        
         <Button 
           variant="outline" 
           onClick={onNewComparison}
