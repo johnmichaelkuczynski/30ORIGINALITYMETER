@@ -4,8 +4,12 @@ import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Use environment variable for OpenAI API key
+const apiKey = process.env.OPENAI_API_KEY;
+console.log("OpenAI API Key status:", apiKey ? "Present" : "Missing");
+
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || "sk-your-api-key" 
+  apiKey 
 });
 
 export async function analyzePassages(
