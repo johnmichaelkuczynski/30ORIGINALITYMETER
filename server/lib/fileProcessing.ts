@@ -1,5 +1,34 @@
 import mammoth from 'mammoth';
 
+interface ErrorWithMessage {
+  message: string;
+}
+
+function isErrorWithMessage(error: unknown): error is ErrorWithMessage {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
+function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
+  if (isErrorWithMessage(maybeError)) return maybeError;
+  
+  try {
+    return new Error(JSON.stringify(maybeError));
+  } catch {
+    // fallback in case there's an error stringifying the maybeError
+    // like with circular references for example.
+    return new Error(String(maybeError));
+  }
+}
+
+function getErrorMessage(error: unknown): string {
+  return toErrorWithMessage(error).message;
+}
+
 /**
  * Extracts text from a docx file buffer
  * @param buffer - The docx file as a buffer
@@ -9,9 +38,9 @@ export async function extractTextFromDocx(buffer: Buffer): Promise<string> {
   try {
     const result = await mammoth.extractRawText({ buffer });
     return result.value;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error extracting text from DOCX:', error);
-    throw new Error(`Failed to extract text from DOCX: ${error.message || 'Unknown error'}`);
+    throw new Error(`Failed to extract text from DOCX: ${getErrorMessage(error)}`);
   }
 }
 
@@ -35,8 +64,8 @@ export async function processFile(buffer: Buffer, fileType: string): Promise<str
       default:
         throw new Error(`Unsupported file type: ${fileType}`);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error processing file:', error);
-    throw new Error(`Failed to process file: ${error.message || 'Unknown error'}`);
+    throw new Error(`Failed to process file: ${getErrorMessage(error)}`);
   }
 }

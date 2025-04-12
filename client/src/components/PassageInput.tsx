@@ -40,7 +40,7 @@ export default function PassageInput({
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -65,37 +65,50 @@ export default function PassageInput({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
+    // Create form data to send to the server
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Show loading toast
+      toast({
+        title: "Processing file",
+        description: "Please wait while we process your file...",
+      });
+
+      // Send file to server for processing
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process file');
+      }
+
+      // Get processed text from server
+      const data = await response.json();
       
-      // Update with new file content
+      // Update with processed file content
       onChange({
         ...passage,
-        title: file.name.split('.')[0], // Use filename as title
-        text: content,
+        title: data.title || file.name.split('.')[0], // Use filename as title
+        text: data.text,
       });
-    };
 
-    reader.onerror = () => {
       toast({
-        title: "Error reading file",
-        description: "Failed to read the uploaded file. Please try again.",
-        variant: "destructive",
-      });
-    };
-
-    if (fileType === 'txt') {
-      reader.readAsText(file);
-    } else if (fileType === 'docx') {
-      // For now just show a message that DOCX isn't fully supported
-      // In a production app, would use a library like mammoth.js to extract text
-      toast({
-        title: "DOCX Support Limited",
-        description: "DOCX file detected. Currently only plain text content will be extracted.",
+        title: "File uploaded successfully",
+        description: `${file.name} has been processed and loaded.`,
         variant: "default",
       });
-      reader.readAsText(file);
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast({
+        title: "Error processing file",
+        description: error instanceof Error ? error.message : "Failed to process the file. Please try again.",
+        variant: "destructive",
+      });
     }
 
     // Reset the file input
