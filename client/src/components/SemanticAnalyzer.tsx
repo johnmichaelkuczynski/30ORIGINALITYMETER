@@ -153,12 +153,12 @@ export default function SemanticAnalyzer() {
       </div>
 
       {/* Compare Button Card - More Prominent */}
-      <Card className="bg-white shadow-md border border-gray-200 overflow-hidden">
-        <CardContent className="p-6 flex justify-center items-center">
+      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 shadow-lg border-2 border-green-100 overflow-hidden rounded-xl">
+        <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-medium text-secondary-800">Ready to Analyze?</h3>
-              <p className="text-sm text-secondary-600">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
+              <p className="text-base text-slate-600 mt-2">
                 {isSinglePassageMode 
                   ? "Click the button below to analyze the semantic originality of your passage"
                   : "Click the button below to compare the semantic originality of both passages"
@@ -174,31 +174,33 @@ export default function SemanticAnalyzer() {
                 !passageA.text.trim() || 
                 (!isSinglePassageMode && !passageB.text.trim())
               }
-              className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition flex items-center justify-center"
+              className="w-full py-6 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg shadow-lg transition-all border-2 border-green-500 hover:border-green-600 cursor-pointer flex items-center justify-center"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
                 {isSinglePassageMode ? (
                   <>
-                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="9" />
                     <line x1="12" y1="16" x2="12" y2="12" />
                     <line x1="12" y1="8" x2="12" y2="8" />
+                    <circle cx="12" cy="12" r="3" fill="currentColor" />
                   </>
                 ) : (
                   <>
-                    <path d="M18 4H6"></path>
-                    <path d="M6 20h12"></path>
-                    <path d="M12 4v16"></path>
+                    <rect x="2" y="4" width="6" height="16" rx="1" strokeWidth="2.5" />
+                    <rect x="16" y="4" width="6" height="16" rx="1" strokeWidth="2.5" />
+                    <line x1="8" y1="12" x2="16" y2="12" strokeWidth="2.5" />
+                    <line x1="12" y1="8" x2="12" y2="16" strokeWidth="2.5" />
                   </>
                 )}
               </svg>
-              <span className="text-lg">
-                {isSinglePassageMode ? "Analyze Passage" : "Compare Passages"}
+              <span className="text-xl font-bold tracking-wide">
+                {isSinglePassageMode ? "ANALYZE PASSAGE" : "COMPARE PASSAGES"}
               </span>
             </Button>
             
-            <div className="text-center mt-2">
-              <p className="text-xs text-secondary-500">
-                Tip: You can also press Ctrl+Enter to analyze
+            <div className="text-center mt-4">
+              <p className="text-sm font-medium text-green-700 bg-green-50 py-2 px-4 rounded-lg inline-block border border-green-200">
+                💡 Tip: You can also press Ctrl+Enter to analyze
               </p>
             </div>
           </div>
