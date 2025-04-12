@@ -47,11 +47,12 @@ export default function DownloadReportButton({
         title: "Download Complete",
         description: "Your analysis report has been downloaded.",
       });
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       console.error("Error generating PDF:", error);
       toast({
         title: "Download Failed",
-        description: "Could not generate the PDF report. Please try again.",
+        description: `Could not generate the PDF report: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -78,11 +79,12 @@ export default function DownloadReportButton({
         title: "Download Complete",
         description: "Your text report has been downloaded.",
       });
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       console.error("Error generating text report:", error);
       toast({
         title: "Download Failed",
-        description: "Could not generate the text report. Please try again.",
+        description: `Could not generate the text report: ${error.message}`,
         variant: "destructive",
       });
     } finally {
