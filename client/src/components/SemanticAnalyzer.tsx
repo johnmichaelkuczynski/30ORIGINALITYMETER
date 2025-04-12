@@ -6,6 +6,7 @@ import { AnalysisResult, PassageData } from "@/lib/types";
 import PassageInput from "./PassageInput";
 import AnalysisResults from "./AnalysisResults";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function SemanticAnalyzer() {
   const { toast } = useToast();
@@ -85,22 +86,39 @@ export default function SemanticAnalyzer() {
         />
       </div>
 
-      {/* Compare Button */}
-      <div className="flex justify-center">
-        <Button
-          size="lg"
-          onClick={handleCompare}
-          disabled={analysisMutation.isPending || !passageA.text.trim() || !passageB.text.trim()}
-          className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition flex items-center space-x-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-            <path d="M18 4H6"></path>
-            <path d="M6 20h12"></path>
-            <path d="M12 4v16"></path>
-          </svg>
-          <span>Compare Passages</span>
-        </Button>
-      </div>
+      {/* Compare Button Card - More Prominent */}
+      <Card className="bg-white shadow-md border border-gray-200 overflow-hidden">
+        <CardContent className="p-6 flex justify-center items-center">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-medium text-secondary-800">Ready to Analyze?</h3>
+              <p className="text-sm text-secondary-600">
+                Click the button below to compare the semantic originality of both passages
+              </p>
+            </div>
+            
+            <Button
+              size="lg"
+              onClick={handleCompare}
+              disabled={analysisMutation.isPending || !passageA.text.trim() || !passageB.text.trim()}
+              className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition flex items-center justify-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                <path d="M18 4H6"></path>
+                <path d="M6 20h12"></path>
+                <path d="M12 4v16"></path>
+              </svg>
+              <span className="text-lg">Compare Passages</span>
+            </Button>
+            
+            <div className="text-center mt-2">
+              <p className="text-xs text-secondary-500">
+                Tip: You can also press Ctrl+Enter to compare
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Results Section */}
       {(showResults || analysisMutation.isPending) && (
