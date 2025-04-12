@@ -116,6 +116,25 @@ export default function SemanticAnalyzer() {
 
   return (
     <div className="flex flex-col space-y-6" onKeyDown={handleKeyDown}>
+      {/* Originality Meter Description */}
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 rounded-lg border border-slate-200 shadow-sm">
+        <div className="flex items-start">
+          <div className="flex-shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 16v-4"></path>
+              <path d="M12 8h.01"></path>
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-lg font-semibold text-green-700 mb-1">What is Originality Meter?</h3>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Originality Meter is an AI-powered app that analyzes philosophical and scholarly writing for true conceptual originality—not just rewording or citation games. It evaluates your work based on semantic distance, lineage, parasite detection, and more. Stop wondering if your ideas are original. Measure them.
+            </p>
+          </div>
+        </div>
+      </div>
+      
       {/* Mode Toggle */}
       <div className="flex justify-end">
         <div className="bg-white px-4 py-2 rounded-md shadow-sm border border-gray-200 flex items-center space-x-4">
