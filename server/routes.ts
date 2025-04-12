@@ -42,24 +42,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const { passageA, passageB } = requestSchema.parse(req.body);
-
-      // Get OpenAI's analysis of the passages
-      const analysisResult = await analyzePassages(passageA, passageB);
-
-      // Validate the response against our schema
-      const validatedResult = analysisResultSchema.parse(analysisResult);
-
-      // Store the analysis in our database
-      await storage.createAnalysis({
-        passageA: passageA.text,
-        passageB: passageB.text,
+      
+      console.log("Comparing passages:", {
         passageATitle: passageA.title,
+        passageALength: passageA.text.length,
         passageBTitle: passageB.title,
-        result: validatedResult,
-        createdAt: new Date().toISOString(),
+        passageBLength: passageB.text.length
       });
 
-      res.json(validatedResult);
+      try {
+        // Get OpenAI's analysis of the passages
+        const analysisResult = await analyzePassages(passageA, passageB);
+
+        // Validate the response against our schema
+        const validatedResult = analysisResultSchema.parse(analysisResult);
+
+        // Store the analysis in our database
+        await storage.createAnalysis({
+          passageA: passageA.text,
+          passageB: passageB.text,
+          passageATitle: passageA.title,
+          passageBTitle: passageB.title,
+          result: validatedResult,
+          createdAt: new Date().toISOString(),
+        });
+
+        res.json(validatedResult);
+      } catch (aiError) {
+        console.error("Error with AI comparison:", aiError);
+        
+        // Return a valid response for when API calls fail
+        const fallbackResponse = {
+          conceptualLineage: {
+            passageA: {
+              primaryInfluences: "Analysis currently unavailable - please try again later.",
+              intellectualTrajectory: "Analysis currently unavailable - please try again later.",
+            },
+            passageB: {
+              primaryInfluences: "Analysis currently unavailable - please try again later.", 
+              intellectualTrajectory: "Analysis currently unavailable - please try again later.",
+            },
+          },
+          semanticDistance: {
+            passageA: {
+              distance: 50,
+              label: "Analysis Unavailable",
+            },
+            passageB: {
+              distance: 50,
+              label: "Analysis Unavailable",
+            },
+            keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
+            semanticInnovation: "Analysis currently unavailable - please try again later.",
+          },
+          noveltyHeatmap: {
+            passageA: [
+              { content: "Analysis currently unavailable - please try again later.", heat: 50 },
+            ],
+            passageB: [
+              { content: "Analysis currently unavailable - please try again later.", heat: 50 },
+            ],
+          },
+          derivativeIndex: {
+            passageA: {
+              score: 5,
+              components: [
+                { name: "Conceptual Innovation", score: 5 },
+                { name: "Methodological Novelty", score: 5 },
+                { name: "Contextual Application", score: 5 },
+              ],
+            },
+            passageB: {
+              score: 5,
+              components: [
+                { name: "Conceptual Innovation", score: 5 },
+                { name: "Methodological Novelty", score: 5 },
+                { name: "Contextual Application", score: 5 },
+              ],
+            },
+          },
+          conceptualParasite: {
+            passageA: {
+              level: "Moderate",
+              elements: ["Analysis currently unavailable"],
+              assessment: "Analysis currently unavailable - please try again later.",
+            },
+            passageB: {
+              level: "Moderate",
+              elements: ["Analysis currently unavailable"],
+              assessment: "Analysis currently unavailable - please try again later.",
+            },
+          },
+          verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
+        };
+        
+        // Store the fallback analysis
+        await storage.createAnalysis({
+          passageA: passageA.text,
+          passageB: passageB.text,
+          passageATitle: passageA.title,
+          passageBTitle: passageB.title,
+          result: fallbackResponse,
+          createdAt: new Date().toISOString(),
+        });
+
+        // Return the fallback response
+        res.json(fallbackResponse);
+      }
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({ 
@@ -114,34 +203,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (aiError) {
         console.error("Error with AI analysis:", aiError);
         
-        // Return a valid mock response for testing purposes
-        const mockResponse = {
+        // Return a valid response for testing purposes
+        const fallbackResponse = {
           conceptualLineage: {
             passageA: {
-              primaryInfluences: "Test influences for passage",
-              intellectualTrajectory: "Test trajectory for passage",
+              primaryInfluences: "Analysis currently unavailable - please try again later.",
+              intellectualTrajectory: "Analysis currently unavailable - please try again later.",
             },
             passageB: {
-              primaryInfluences: "Test influences for norm",
-              intellectualTrajectory: "Test trajectory for norm",
+              primaryInfluences: "Standard sources and common knowledge in this domain.",
+              intellectualTrajectory: "Typical writing following established patterns.",
             },
           },
           semanticDistance: {
             passageA: {
-              distance: 65,
-              label: "Moderate Distance",
+              distance: 50,
+              label: "Analysis Unavailable",
             },
             passageB: {
               distance: 50,
               label: "Average/Typical Distance (Norm Baseline)",
             },
-            keyFindings: ["Finding 1", "Finding 2", "Finding 3"],
-            semanticInnovation: "Test innovation description",
+            keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
+            semanticInnovation: "Analysis currently unavailable - please try again later.",
           },
           noveltyHeatmap: {
             passageA: [
-              { content: "First paragraph content", heat: 75 },
-              { content: "Second paragraph content", heat: 60 },
+              { content: "Analysis currently unavailable - please try again later.", heat: 50 },
             ],
             passageB: [
               { content: "Typical paragraph pattern in this domain", heat: 50 },
@@ -150,11 +238,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 7.5,
+              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 8 },
-                { name: "Methodological Novelty", score: 7 },
-                { name: "Contextual Application", score: 7.5 },
+                { name: "Conceptual Innovation", score: 5 },
+                { name: "Methodological Novelty", score: 5 },
+                { name: "Contextual Application", score: 5 },
               ],
             },
             passageB: {
@@ -168,31 +256,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           conceptualParasite: {
             passageA: {
-              level: "Low",
-              elements: ["Element 1", "Element 2"],
-              assessment: "Test assessment for passage",
+              level: "Moderate",
+              elements: ["Analysis currently unavailable"],
+              assessment: "Analysis currently unavailable - please try again later.",
             },
             passageB: {
               level: "Moderate",
-              elements: ["Typical parasitic element 1", "Typical parasitic element 2"],
+              elements: ["Typical writing patterns"],
               assessment: "Baseline assessment of typical texts in this domain",
             },
           },
-          verdict: "This is a test verdict comparing the passage against the norm. The passage shows moderate originality overall.",
+          verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
         };
         
-        // Store the mock analysis
+        // Store the fallback analysis
         await storage.createAnalysis({
           passageA: passageA.text,
           passageB: "norm-comparison",
           passageATitle: passageA.title,
           passageBTitle: "Norm Baseline",
-          result: mockResponse,
+          result: fallbackResponse,
           createdAt: new Date().toISOString(),
         });
 
-        // Return the mock response
-        res.json(mockResponse);
+        // Return the fallback response
+        res.json(fallbackResponse);
       }
     } catch (error) {
       if (error instanceof ZodError) {
