@@ -27,16 +27,26 @@ export default function SemanticAnalyzer() {
   const analysisMutation = useMutation({
     mutationFn: async () => {
       console.log("Analyzing in mode:", isSinglePassageMode ? "Single passage" : "Comparison");
-      console.log("Request payload:", {
-        passageA,
-        ...(isSinglePassageMode ? {} : { passageB }),
-      });
+      
+      // Ensure passageB exists in single-passage mode with default values
+      const payload = isSinglePassageMode 
+        ? { 
+            passageA,
+            // We don't need passageB for the single passage endpoint
+          } 
+        : { 
+            passageA, 
+            passageB 
+          };
+      
+      console.log("Request payload:", payload);
       
       try {
-        const response = await apiRequest("POST", isSinglePassageMode ? "/api/analyze/single" : "/api/analyze", {
-          passageA,
-          ...(isSinglePassageMode ? {} : { passageB }),
-        });
+        const response = await apiRequest(
+          "POST", 
+          isSinglePassageMode ? "/api/analyze/single" : "/api/analyze", 
+          payload
+        );
         const data = await response.json();
         console.log("Analysis response:", data);
         return data;
