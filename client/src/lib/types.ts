@@ -30,10 +30,14 @@ export interface AnalysisResult {
     passageA: Array<{
       content: string;
       heat: number;
+      quote?: string;
+      explanation?: string;
     }>;
     passageB: Array<{
       content: string;
       heat: number;
+      quote?: string;
+      explanation?: string;
     }>;
   };
   derivativeIndex: {
