@@ -42,6 +42,11 @@ export const analysisResultSchema = z.object({
       primaryInfluences: z.string(),
       intellectualTrajectory: z.string(),
     }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
   }),
   semanticDistance: z.object({
     passageA: z.object({
@@ -54,6 +59,11 @@ export const analysisResultSchema = z.object({
     }),
     keyFindings: z.array(z.string()),
     semanticInnovation: z.string(),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
   }),
   noveltyHeatmap: z.object({
     passageA: z.array(z.object({
@@ -68,6 +78,11 @@ export const analysisResultSchema = z.object({
       quote: z.string().optional(),
       explanation: z.string().optional(),
     })),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
   }),
   derivativeIndex: z.object({
     passageA: z.object({
@@ -84,6 +99,11 @@ export const analysisResultSchema = z.object({
         score: z.number(),
       })),
     }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
   }),
   conceptualParasite: z.object({
     passageA: z.object({
@@ -96,8 +116,17 @@ export const analysisResultSchema = z.object({
       elements: z.array(z.string()),
       assessment: z.string(),
     }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
   }),
   verdict: z.string(),
+  supportingDocuments: z.array(z.object({
+    title: z.string(),
+    content: z.string(),
+  })).optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

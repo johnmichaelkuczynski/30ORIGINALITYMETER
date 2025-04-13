@@ -3,6 +3,17 @@ export interface PassageData {
   text: string;
 }
 
+export interface FeedbackData {
+  comment: string;
+  aiResponse: string;
+  isRevised: boolean;
+}
+
+export interface SupportingDocument {
+  title: string;
+  content: string;
+}
+
 export interface AnalysisResult {
   conceptualLineage: {
     passageA: {
@@ -13,6 +24,7 @@ export interface AnalysisResult {
       primaryInfluences: string;
       intellectualTrajectory: string;
     };
+    feedback?: FeedbackData;
   };
   semanticDistance: {
     passageA: {
@@ -25,6 +37,7 @@ export interface AnalysisResult {
     };
     keyFindings: string[];
     semanticInnovation: string;
+    feedback?: FeedbackData;
   };
   noveltyHeatmap: {
     passageA: Array<{
@@ -39,6 +52,7 @@ export interface AnalysisResult {
       quote?: string;
       explanation?: string;
     }>;
+    feedback?: FeedbackData;
   };
   derivativeIndex: {
     passageA: {
@@ -55,6 +69,7 @@ export interface AnalysisResult {
         score: number;
       }>;
     };
+    feedback?: FeedbackData;
   };
   conceptualParasite: {
     passageA: {
@@ -67,11 +82,24 @@ export interface AnalysisResult {
       elements: string[];
       assessment: string;
     };
+    feedback?: FeedbackData;
   };
   verdict: string;
+  supportingDocuments?: SupportingDocument[];
 }
 
 export interface AnalyzePassagesRequest {
   passageA: PassageData;
   passageB: PassageData;
+}
+
+export interface SubmitFeedbackRequest {
+  analysisId: number;
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite';
+  feedback: string;
+  supportingDocument?: SupportingDocument;
+  originalResult: AnalysisResult;
+  passageA: PassageData;
+  passageB: PassageData;
+  isSinglePassageMode: boolean;
 }
