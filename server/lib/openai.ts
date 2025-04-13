@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { PassageData, SupportingDocument } from "../../client/src/lib/types";
+import { PassageData, SupportingDocument, StyleOption } from "../../client/src/lib/types";
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 
@@ -432,6 +432,157 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
  * Process user feedback on a previously generated analysis and provide a response
  * with possible re-evaluation
  */
+/**
+ * Generates a more original version of a passage based on the analysis results
+ * @param passage The original passage
+ * @param analysisResult The analysis results containing originality metrics
+ * @param styleOption Optional style preference (keep-voice, academic, punchy, prioritize-originality)
+ * @returns The improved passage with associated metadata
+ */
+export async function generateMoreOriginalVersion(
+  passage: PassageData,
+  analysisResult: AnalysisResult,
+  styleOption?: StyleOption
+): Promise<{
+  originalPassage: PassageData;
+  improvedPassage: PassageData;
+  estimatedDerivativeIndex: number;
+  improvementSummary: string;
+}> {
+  try {
+    const passageTitle = passage.title || "Your Passage";
+    
+    // Extract key areas for improvement from the analysis
+    const derivativeScore = analysisResult.derivativeIndex.passageA.score;
+    const semanticDistance = analysisResult.semanticDistance.passageA.distance;
+    const parasiteLevel = analysisResult.conceptualParasite.passageA.level;
+    const parasiteElements = analysisResult.conceptualParasite.passageA.elements.join(", ");
+    
+    // Find low heat areas from the heatmap
+    const lowHeatAreas = analysisResult.noveltyHeatmap.passageA
+      .filter(item => item.heat < 60)
+      .map(item => item.content)
+      .join("\n- ");
+    
+    // Determine style instructions based on styleOption
+    let styleInstructions = "";
+    switch(styleOption) {
+      case 'keep-voice':
+        styleInstructions = "Maintain the original voice, tone, and writing style of the author.";
+        break;
+      case 'academic':
+        styleInstructions = "Make the passage more formal and academic, with appropriate terminology and structure for scholarly contexts.";
+        break;
+      case 'punchy':
+        styleInstructions = "Make the passage more concise, direct, and impactful with clear, punchy language.";
+        break;
+      default:
+        styleInstructions = "Prioritize originality above all other considerations, while maintaining coherence and purpose.";
+    }
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert editor specializing in improving the conceptual originality and intellectual contribution of academic and philosophical texts.
+          
+Your task is to generate a more intellectually original version of a passage while preserving its core intent. 
+
+You must NOT simply reword or paraphrase the original text. Instead, make genuine intellectual improvements that increase conceptual depth and originality, such as:
+
+1. Reframing the problem in a novel way
+2. Introducing new conceptual distinctions 
+3. Challenging implicit assumptions in the original
+4. Offering sharper or broader applications of the ideas
+5. Making connections to unexpected but relevant domains
+6. Adding intellectual depth where the original is derivative
+
+${styleInstructions}
+
+You will receive a passage along with its originality analysis. Use the analysis to identify specific areas where the passage lacks originality, and focus your improvements there.`
+        },
+        {
+          role: "user",
+          content: `Here is the passage to improve:
+
+Title: ${passageTitle}
+Text: ${passage.text}
+
+Analysis of originality issues:
+- Derivative Index Score: ${derivativeScore}/10 (higher is more original)
+- Semantic Distance: ${semanticDistance}/100 (higher is more distant from predecessors)
+- Conceptual Parasite Level: ${parasiteLevel}
+- Parasitic Elements: ${parasiteElements}
+- Areas with low originality:
+  ${lowHeatAreas || "Various sections throughout the text"}
+
+Generate a more original version that addresses these weaknesses while preserving the core intent. Aim for a significantly higher originality score by making genuine intellectual improvements, not just rewording.
+
+Respond with:
+1. The improved passage text
+2. A brief explanation of the key improvements made
+3. An estimated new derivative index score (0-10)`
+        }
+      ],
+      max_tokens: 4000,
+    });
+
+    const content = response.choices[0].message.content || "";
+    
+    // Extract the improved passage and estimated score from the response
+    let improvedText = "";
+    let improvementSummary = "";
+    let estimatedScore = 0;
+    
+    // Parse the response - typically the improved passage comes first, followed by explanation
+    const parts = content.split(/\n\n|(?=\d+\.\s)/);
+    
+    if (parts.length >= 1) {
+      // First substantial part should be the improved passage
+      improvedText = parts[0].replace(/^(Improved Passage|Title:).*?\n/i, '').trim();
+      
+      // Look for the explanation/summary
+      const summaryMatch = content.match(/(?:Key Improvements|Explanation of improvements|Brief explanation):([\s\S]*?)(?=\d+\.|Estimated|$)/i);
+      if (summaryMatch && summaryMatch[1]) {
+        improvementSummary = summaryMatch[1].trim();
+      } else {
+        // Fallback if pattern not found
+        improvementSummary = "The passage has been improved with greater conceptual originality, clearer framing, and more innovative connections.";
+      }
+      
+      // Extract estimated new score
+      const scoreMatch = content.match(/(?:Estimated.*?score|New.*?score).*?(\d+(?:\.\d+)?)/i);
+      if (scoreMatch && scoreMatch[1]) {
+        estimatedScore = parseFloat(scoreMatch[1]);
+        // Ensure it's in range
+        estimatedScore = Math.max(0, Math.min(10, estimatedScore));
+      } else {
+        // If no score found, estimate an improvement
+        estimatedScore = Math.min(10, derivativeScore + 2);
+      }
+    } else {
+      // Fallback if parsing fails
+      improvedText = content;
+      improvementSummary = "The passage has been improved for greater originality.";
+      estimatedScore = Math.min(10, derivativeScore + 2);
+    }
+    
+    return {
+      originalPassage: passage,
+      improvedPassage: {
+        title: passage.title,
+        text: improvedText
+      },
+      estimatedDerivativeIndex: estimatedScore,
+      improvementSummary
+    };
+  } catch (error) {
+    console.error("Error generating more original version:", error);
+    throw new Error(`Failed to generate improved passage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
 export async function processFeedback(
   category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite',
   feedback: string,

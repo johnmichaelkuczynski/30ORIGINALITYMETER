@@ -103,3 +103,18 @@ export interface SubmitFeedbackRequest {
   passageB: PassageData;
   isSinglePassageMode: boolean;
 }
+
+export type StyleOption = 'keep-voice' | 'academic' | 'punchy' | 'prioritize-originality';
+
+export interface GenerateOriginalVersionRequest {
+  passage: PassageData;
+  analysisResult: AnalysisResult;
+  styleOption?: StyleOption;
+}
+
+export interface GeneratedPassageResult {
+  originalPassage: PassageData;
+  improvedPassage: PassageData;
+  estimatedDerivativeIndex: number;
+  improvementSummary: string;
+}

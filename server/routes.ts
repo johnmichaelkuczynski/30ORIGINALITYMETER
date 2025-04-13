@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { ZodError } from "zod";
 import { z } from "zod";
-import { analyzePassages, analyzeSinglePassage, processFeedback } from "./lib/openai";
+import { analyzePassages, analyzeSinglePassage, processFeedback, generateMoreOriginalVersion } from "./lib/openai";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
@@ -509,6 +509,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to process supporting document",
         error: error instanceof Error ? error.message : "Unknown error",
       });
+    }
+  });
+
+  // Generate a more original version of a passage
+  app.post("/api/generate-original", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        passage: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required")
+        }),
+        analysisResult: analysisResultSchema.passthrough(),
+        styleOption: z.enum(['keep-voice', 'academic', 'punchy', 'prioritize-originality']).optional()
+      });
+
+      const { passage, analysisResult, styleOption } = requestSchema.parse(req.body);
+      
+      console.log("Generating more original version:", {
+        title: passage.title,
+        textLength: passage.text.length,
+        styleOption
+      });
+
+      try {
+        // Generate a more original version using OpenAI
+        const generatedResult = await generateMoreOriginalVersion(passage, analysisResult, styleOption);
+        
+        console.log("Generated more original version:", {
+          originalLength: generatedResult.originalPassage.text.length,
+          improvedLength: generatedResult.improvedPassage.text.length,
+          estimatedScore: generatedResult.estimatedDerivativeIndex
+        });
+
+        res.json(generatedResult);
+      } catch (aiError) {
+        console.error("Error generating more original version:", aiError);
+        
+        res.status(500).json({
+          message: "Failed to generate more original version",
+          error: aiError instanceof Error ? aiError.message : "Unknown AI processing error"
+        });
+      }
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationErrors = error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message,
+          code: err.code
+        }));
+        
+        console.error("Validation errors:", JSON.stringify(validationErrors, null, 2));
+        
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: validationErrors
+        });
+      } else {
+        console.error("Error generating more original version:", error);
+        res.status(500).json({ 
+          message: "Failed to process request", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
     }
   });
 
