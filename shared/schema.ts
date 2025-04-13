@@ -59,10 +59,14 @@ export const analysisResultSchema = z.object({
     passageA: z.array(z.object({
       content: z.string(),
       heat: z.number(),
+      quote: z.string().optional(),
+      explanation: z.string().optional(),
     })),
     passageB: z.array(z.object({
       content: z.string(),
       heat: z.number(),
+      quote: z.string().optional(),
+      explanation: z.string().optional(),
     })),
   }),
   derivativeIndex: z.object({
