@@ -55,16 +55,47 @@ export default function FeedbackForm({
       });
 
       try {
-        const response = await apiRequest("POST", "/api/feedback", {
+        // Initial safeguards in case of empty data
+        if (!passageA.text) {
+          throw new Error("Invalid passage A data");
+        }
+        
+        if (!isSinglePassageMode && !passageB.text) {
+          throw new Error("Invalid passage B data");
+        }
+        
+        if (!result) {
+          throw new Error("Missing original analysis result");
+        }
+
+        // Ensure we have the minimum viable data for the category
+        const categoryKey = data.category as keyof AnalysisResult;
+        const categoryData = result[categoryKey];
+        if (!categoryData) {
+          throw new Error(`Missing data for category: ${data.category}`);
+        }
+
+        // Now make the request with validated data
+        const payload = {
           category: data.category,
           feedback: data.feedback,
           supportingDocument: data.supportingDocument,
           originalResult: result,
-          passageA,
-          passageB,
-          isSinglePassageMode
-        });
+          passageA: {
+            title: passageA.title || "",
+            text: passageA.text
+          },
+          passageB: {
+            title: passageB.title || "",
+            text: passageB.text || ""
+          },
+          isSinglePassageMode: !!isSinglePassageMode
+        };
+
+        // Log the structure without accessing properties by string index
+        console.log("Feedback payload contains:", Object.keys(payload).join(", "));
         
+        const response = await apiRequest("POST", "/api/feedback", payload);
         return await response.json();
       } catch (error) {
         console.error("Feedback submission error:", error);

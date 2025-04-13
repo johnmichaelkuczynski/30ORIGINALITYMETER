@@ -412,11 +412,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error with feedback submission:", error);
       if (error instanceof ZodError) {
+        // Log detailed validation errors
+        const validationErrors = error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message,
+          code: err.code
+        }));
+        console.error("Validation errors:", JSON.stringify(validationErrors, null, 2));
+        
         res.status(400).json({ 
           message: "Invalid request data", 
-          errors: error.errors 
+          errors: validationErrors
         });
       } else {
+        console.error("Non-validation error:", error instanceof Error ? error.message : "Unknown error");
         res.status(500).json({ 
           message: "Failed to process feedback", 
           error: error instanceof Error ? error.message : "Unknown error" 
