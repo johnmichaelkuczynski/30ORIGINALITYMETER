@@ -329,6 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Submit feedback on an analysis
   app.post("/api/feedback", async (req, res) => {
     try {
+      console.log("Received feedback request:", JSON.stringify({
+        category: req.body.category,
+        feedback: req.body.feedback?.substring(0, 20) + "...",
+        hasOriginalResult: !!req.body.originalResult,
+        passageA: req.body.passageA?.text?.substring(0, 20) + "...",
+        passageB: req.body.passageB?.text?.substring(0, 20) + "...",
+        isSinglePassageMode: req.body.isSinglePassageMode
+      }));
+
+      // More permissive schema for validation errors
       const requestSchema = z.object({
         analysisId: z.number().optional(),
         category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite']),
@@ -340,11 +350,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         originalResult: analysisResultSchema,
         passageA: z.object({
           title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage A text is required"),
+          text: z.string()
         }),
         passageB: z.object({
           title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage B text is required"),
+          text: z.string()
         }),
         isSinglePassageMode: z.boolean().optional().default(false)
       });
@@ -362,59 +372,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`Processing feedback for category '${category}'`);
 
-      try {
-        // Process the feedback and get a response
-        const feedbackResult = await processFeedback(
-          category,
-          feedback,
-          originalResult,
-          passageA,
-          passageB,
-          isSinglePassageMode,
-          supportingDocument
-        );
+      // Process the feedback and get a response
+      const feedbackResult = await processFeedback(
+        category,
+        feedback,
+        originalResult,
+        passageA,
+        passageB,
+        isSinglePassageMode,
+        supportingDocument
+      );
 
-        // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
+      // Validate the response against our schema
+      const validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
 
-        // If we have an analysis ID, update it in the database
-        if (analysisId) {
-          const existingAnalysis = await storage.getAnalysis(analysisId);
-          
-          if (existingAnalysis) {
-            // Update the analysis with the revised result
-            await storage.createAnalysis({
-              passageA: existingAnalysis.passageA,
-              passageB: existingAnalysis.passageB,
-              passageATitle: existingAnalysis.passageATitle,
-              passageBTitle: existingAnalysis.passageBTitle,
-              result: validatedResult,
-              createdAt: new Date().toISOString(),
-            });
-          }
+      // If we have an analysis ID, update it in the database
+      if (analysisId) {
+        const existingAnalysis = await storage.getAnalysis(analysisId);
+        
+        if (existingAnalysis) {
+          // Update the analysis with the revised result
+          await storage.createAnalysis({
+            passageA: existingAnalysis.passageA,
+            passageB: existingAnalysis.passageB,
+            passageATitle: existingAnalysis.passageATitle,
+            passageBTitle: existingAnalysis.passageBTitle,
+            result: validatedResult,
+            createdAt: new Date().toISOString(),
+          });
         }
-
-        // Return the feedback result
-        res.json({
-          aiResponse: feedbackResult.aiResponse,
-          isRevised: feedbackResult.isRevised,
-          revisedResult: validatedResult
-        });
-      } catch (aiError) {
-        console.error("Error processing feedback:", aiError);
-        res.status(500).json({ 
-          message: "Failed to process feedback", 
-          error: aiError instanceof Error ? aiError.message : "Unknown error" 
-        });
       }
+
+      // Return the feedback result
+      res.json({
+        aiResponse: feedbackResult.aiResponse,
+        isRevised: feedbackResult.isRevised,
+        revisedResult: validatedResult
+      });
     } catch (error) {
+      console.error("Error with feedback submission:", error);
       if (error instanceof ZodError) {
         res.status(400).json({ 
           message: "Invalid request data", 
           errors: error.errors 
         });
       } else {
-        console.error("Error with feedback submission:", error);
         res.status(500).json({ 
           message: "Failed to process feedback", 
           error: error instanceof Error ? error.message : "Unknown error" 

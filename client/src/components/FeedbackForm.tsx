@@ -45,12 +45,17 @@ export default function FeedbackForm({
       feedback: string;
       supportingDocument?: SupportingDocument;
     }) => {
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      console.log("Submitting feedback:", {
+        category: data.category,
+        feedback: data.feedback.substring(0, 20) + "...",
+        supportingDocument: data.supportingDocument ? "Provided" : "None",
+        passageA: passageA.text ? passageA.text.substring(0, 20) + "..." : "Empty",
+        passageB: passageB.text ? passageB.text.substring(0, 20) + "..." : "Empty",
+        isSinglePassageMode
+      });
+
+      try {
+        const response = await apiRequest("POST", "/api/feedback", {
           category: data.category,
           feedback: data.feedback,
           supportingDocument: data.supportingDocument,
@@ -58,15 +63,13 @@ export default function FeedbackForm({
           passageA,
           passageB,
           isSinglePassageMode
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit feedback');
+        });
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Feedback submission error:", error);
+        throw error;
       }
-      
-      return response.json();
     },
     onSuccess: (data) => {
       toast({
