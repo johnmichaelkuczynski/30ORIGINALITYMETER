@@ -338,7 +338,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isSinglePassageMode: req.body.isSinglePassageMode
       }));
 
-      // More permissive schema for validation errors
+      // Create a more permissive schema for validation issues
+      // First, log the raw structure to help debug
+      console.log("Feedback request structure validation:", {
+        hasCategory: typeof req.body.category === 'string',
+        categoryValue: req.body.category,
+        hasFeedback: typeof req.body.feedback === 'string',
+        feedbackLength: req.body.feedback?.length,
+        hasOriginalResult: !!req.body.originalResult,
+        hasPassageA: !!req.body.passageA,
+        passageAHasText: !!req.body.passageA?.text, 
+        passageATextType: typeof req.body.passageA?.text,
+        hasPassageB: !!req.body.passageB,
+        passageBHasText: !!req.body.passageB?.text,
+        passageBTextType: typeof req.body.passageB?.text,
+        isSinglePassageModeType: typeof req.body.isSinglePassageMode,
+        hasSupportingDoc: !!req.body.supportingDocument,
+      });
+      
+      // More permissive validation schema
       const requestSchema = z.object({
         analysisId: z.number().optional(),
         category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite']),
@@ -347,14 +365,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: z.string(),
           content: z.string()
         }).optional(),
-        originalResult: analysisResultSchema,
+        // Use a partial validator for the original result to be more forgiving
+        originalResult: analysisResultSchema.passthrough(),
         passageA: z.object({
           title: z.string().optional().default(""),
-          text: z.string()
+          text: z.string().min(1, "Passage A text is required")
         }),
         passageB: z.object({
           title: z.string().optional().default(""),
-          text: z.string()
+          text: z.string().optional().default("")
         }),
         isSinglePassageMode: z.boolean().optional().default(false)
       });
@@ -383,8 +402,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         supportingDocument
       );
 
-      // Validate the response against our schema
-      const validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
+      // Validate the response against our schema with more leniency
+      console.log("Validating revised result from feedback processing");
+      
+      // Add more robust error handling for the validation
+      let validatedResult;
+      try {
+        validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
+      } catch (validationError) {
+        console.error("Validation error with revised result:", validationError);
+        
+        // Fall back to the original result with feedback attached if validation fails
+        // This ensures we don't lose the user's feedback
+        validatedResult = {
+          ...originalResult,
+          [category]: {
+            ...originalResult[category],
+            feedback: {
+              comment: feedback,
+              aiResponse: feedbackResult.aiResponse,
+              isRevised: feedbackResult.isRevised
+            }
+          }
+        };
+        
+        if (supportingDocument) {
+          validatedResult.supportingDocuments = [
+            ...(validatedResult.supportingDocuments || []),
+            supportingDocument
+          ];
+        }
+        
+        console.log("Using fallback result with feedback attached");
+      }
 
       // If we have an analysis ID, update it in the database
       if (analysisId) {
