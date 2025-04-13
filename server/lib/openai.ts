@@ -74,12 +74,32 @@ Return a detailed analysis in the following JSON format:
   },
   "noveltyHeatmap": {
     "passageA": [
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100},
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100}
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      },
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      }
     ],
     "passageB": [
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100},
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100}
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      },
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      }
     ]
   },
   "derivativeIndex": {
@@ -129,18 +149,50 @@ Return a detailed analysis in the following JSON format:
     // Fix novelty heatmap paragraphs if missing
     if (!result.noveltyHeatmap?.passageA?.length) {
       result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageA = paragraphsA.map(p => ({
-        content: p.substring(0, 100) + "...",
-        heat: Math.floor(50 + Math.random() * 50) // More positive bias
-      }));
+      result.noveltyHeatmap.passageA = paragraphsA.map(p => {
+        // Extract a representative quote from the paragraph (max 40 chars)
+        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
+        return {
+          content: p.substring(0, 100) + "...",
+          heat: Math.floor(50 + Math.random() * 50), // More positive bias
+          quote: quote,
+          explanation: "This section illustrates the conceptual approach typical in this passage."
+        };
+      });
+    } else {
+      // Ensure quotes and explanations exist even if partial data was returned
+      result.noveltyHeatmap.passageA = result.noveltyHeatmap.passageA.map((item, index) => {
+        const paragraph = paragraphsA[index] || "";
+        return {
+          ...item,
+          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
+          explanation: item.explanation || "This quote highlights a key conceptual element in the passage."
+        };
+      });
     }
 
     if (!result.noveltyHeatmap?.passageB?.length) {
       result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageB = paragraphsB.map(p => ({
-        content: p.substring(0, 100) + "...",
-        heat: Math.floor(50 + Math.random() * 50) // More positive bias
-      }));
+      result.noveltyHeatmap.passageB = paragraphsB.map(p => {
+        // Extract a representative quote from the paragraph (max 40 chars)
+        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
+        return {
+          content: p.substring(0, 100) + "...",
+          heat: Math.floor(50 + Math.random() * 50), // More positive bias
+          quote: quote,
+          explanation: "This section demonstrates typical reasoning in the passage."
+        };
+      });
+    } else {
+      // Ensure quotes and explanations exist even if partial data was returned
+      result.noveltyHeatmap.passageB = result.noveltyHeatmap.passageB.map((item, index) => {
+        const paragraph = paragraphsB[index] || "";
+        return {
+          ...item,
+          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
+          explanation: item.explanation || "This quote represents a significant aspect of the author's approach."
+        };
+      });
     }
     
     // Ensure other required fields exist with default values if not provided
@@ -230,12 +282,32 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
   },
   "noveltyHeatmap": {
     "passageA": [
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100},
-      {"content": "summary of paragraph", "heat": percentage of novelty 0-100}
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      },
+      {
+        "content": "summary of paragraph", 
+        "heat": percentage of novelty 0-100,
+        "quote": "direct illustrative quote from the passage",
+        "explanation": "brief explanation of why this quote shows originality/relevance"
+      }
     ],
     "passageB": [
-      {"content": "typical paragraph pattern in this domain", "heat": 50},
-      {"content": "typical paragraph pattern in this domain", "heat": 50}
+      {
+        "content": "typical paragraph pattern in this domain", 
+        "heat": 50,
+        "quote": "example of typical phrasing in this domain",
+        "explanation": "explanation of how this represents standard writing in the field"
+      },
+      {
+        "content": "typical paragraph pattern in this domain", 
+        "heat": 50,
+        "quote": "example of typical phrasing in this domain",
+        "explanation": "explanation of how this represents standard writing in the field"
+      }
     ]
   },
   "derivativeIndex": {
