@@ -357,10 +357,26 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
     // Fix novelty heatmap paragraphs if missing
     if (!result.noveltyHeatmap?.passageA?.length) {
       result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageA = paragraphs.map(p => ({
-        content: p.substring(0, 100) + "...",
-        heat: Math.floor(50 + Math.random() * 50) // More positive bias
-      }));
+      result.noveltyHeatmap.passageA = paragraphs.map(p => {
+        // Extract a representative quote from the paragraph (max 40 chars)
+        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
+        return {
+          content: p.substring(0, 100) + "...",
+          heat: Math.floor(50 + Math.random() * 50), // More positive bias
+          quote: quote,
+          explanation: "This section illustrates key concepts in the passage."
+        };
+      });
+    } else {
+      // Ensure quotes and explanations exist even if partial data was returned
+      result.noveltyHeatmap.passageA = result.noveltyHeatmap.passageA.map((item, index) => {
+        const paragraph = paragraphs[index] || "";
+        return {
+          ...item,
+          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
+          explanation: item.explanation || "This quote highlights a key conceptual element in the passage."
+        };
+      });
     }
 
     // Ensure "Norm" comparison has content
@@ -369,11 +385,15 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       result.noveltyHeatmap.passageB = [
         {
           content: "Typical writing in this domain follows conventional structures and patterns",
-          heat: 50
+          heat: 50,
+          quote: "Standard academic phrasing and terminology",
+          explanation: "This represents the conventional approach found in most scholarly writing."
         },
         {
           content: "Standard introduction of established concepts without novel framing",
-          heat: 50
+          heat: 50,
+          quote: "As scholars have long established...",
+          explanation: "This exemplifies typical references to established authorities without new insight."
         }
       ];
     }

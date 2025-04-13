@@ -179,6 +179,16 @@ export default function AnalysisTabs({
                           style={{ width: `${paragraph.heat}%` }}
                         ></div>
                       </div>
+                      {paragraph.quote && (
+                        <div className="mt-3 pt-2 border-t border-gray-200">
+                          <blockquote className="text-secondary-700 italic text-sm pl-2 border-l-2 border-primary-400">
+                            "{paragraph.quote}"
+                          </blockquote>
+                          {paragraph.explanation && (
+                            <p className="mt-1 text-xs text-secondary-600">{paragraph.explanation}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -201,6 +211,16 @@ export default function AnalysisTabs({
                             style={{ width: `${paragraph.heat}%` }}
                           ></div>
                         </div>
+                        {paragraph.quote && (
+                          <div className="mt-3 pt-2 border-t border-gray-200">
+                            <blockquote className="text-secondary-700 italic text-sm pl-2 border-l-2 border-primary-400">
+                              "{paragraph.quote}"
+                            </blockquote>
+                            {paragraph.explanation && (
+                              <p className="mt-1 text-xs text-secondary-600">{paragraph.explanation}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
