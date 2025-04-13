@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -113,6 +113,31 @@ export default function SemanticAnalyzer() {
       setShowResults(false);
     }
   };
+
+  // Event listener for analyzing an improved passage
+  useEffect(() => {
+    const handleImprovedPassage = (event: Event) => {
+      const customEvent = event as CustomEvent<{passage: PassageData}>;
+      if (customEvent.detail && customEvent.detail.passage) {
+        // Set the passage data and enable single passage mode
+        setIsSinglePassageMode(true);
+        setPassageA(customEvent.detail.passage);
+        
+        // Trigger analysis
+        setTimeout(() => {
+          handleCompare();
+        }, 100);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('analyze-improved-passage', handleImprovedPassage);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('analyze-improved-passage', handleImprovedPassage);
+    };
+  }, [handleCompare]);
 
   return (
     <div className="flex flex-col space-y-6" onKeyDown={handleKeyDown}>

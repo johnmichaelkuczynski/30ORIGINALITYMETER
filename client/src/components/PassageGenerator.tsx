@@ -64,6 +64,16 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
 
   const handleReanalyze = () => {
     if (!generatedResult) return;
+    
+    // Dispatch custom event for main component to handle
+    const event = new CustomEvent('analyze-improved-passage', {
+      detail: {
+        passage: generatedResult.improvedPassage
+      }
+    });
+    document.dispatchEvent(event);
+    
+    // Also call the prop callback
     onReanalyze(generatedResult.improvedPassage);
   };
 
