@@ -3,6 +3,7 @@ import { AnalysisResult, PassageData } from "@/lib/types";
 import SummarySection from "./SummarySection";
 import AnalysisTabs from "./AnalysisTabs";
 import DownloadReportButton from "./DownloadReportButton";
+import PassageGenerator from "./PassageGenerator";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -71,6 +72,24 @@ export default function AnalysisResults({
         passageBTitle={passageBTitle}
         isSinglePassageMode={isSinglePassageMode}
       />
+
+      {isSinglePassageMode && (
+        <PassageGenerator
+          analysisResult={result}
+          passage={passageA}
+          onReanalyze={(improvedPassage) => {
+            // When user wants to re-analyze the improved passage
+            onNewComparison();
+            setTimeout(() => {
+              // Wait a moment to ensure the form is reset then programmatically trigger analysis
+              const analyzeEvent = new CustomEvent('analyze-improved-passage', {
+                detail: { passage: improvedPassage }
+              });
+              document.dispatchEvent(analyzeEvent);
+            }, 100);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { ArrowClockwise, Download, RefreshCcw, Sparkle } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle } from 'lucide-react';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -27,14 +27,17 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   // Mutation for generating a more original passage
   const generateMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest<GeneratedPassageResult>('/api/generate-original', {
-        method: 'POST',
-        data: {
+      const response = await apiRequest(
+        'POST',
+        '/api/generate-original',
+        {
           passage,
           analysisResult,
           styleOption
         }
-      });
+      );
+      const data = await response.json();
+      return data as GeneratedPassageResult;
     },
     onSuccess: (data) => {
       setGeneratedResult(data);
@@ -203,7 +206,7 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
           >
             {generateMutation.isPending ? (
               <>
-                <ArrowClockwise className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Generating...
               </>
             ) : generatedResult ? (
