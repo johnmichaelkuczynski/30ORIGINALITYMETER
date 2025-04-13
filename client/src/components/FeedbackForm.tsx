@@ -1,0 +1,264 @@
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { AnalysisResult, PassageData, SupportingDocument } from "@/lib/types";
+
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface FeedbackFormProps {
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite';
+  categoryName: string;
+  result: AnalysisResult;
+  passageA: PassageData;
+  passageB: PassageData;
+  isSinglePassageMode?: boolean;
+  onFeedbackProcessed: (updatedResult: AnalysisResult) => void;
+}
+
+export default function FeedbackForm({
+  category,
+  categoryName,
+  result,
+  passageA,
+  passageB,
+  isSinglePassageMode = false,
+  onFeedbackProcessed
+}: FeedbackFormProps) {
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [supportingDocument, setSupportingDocument] = useState<SupportingDocument | null>(null);
+  const [fileUploading, setFileUploading] = useState(false);
+  
+  // Check if this category already has feedback
+  const existingFeedback = result[category]?.feedback;
+
+  // Mutation for submitting feedback
+  const feedbackMutation = useMutation({
+    mutationFn: async (data: {
+      category: string;
+      feedback: string;
+      supportingDocument?: SupportingDocument;
+    }) => {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: data.category,
+          feedback: data.feedback,
+          supportingDocument: data.supportingDocument,
+          originalResult: result,
+          passageA,
+          passageB,
+          isSinglePassageMode
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit feedback');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Feedback submitted",
+        description: "Your feedback has been processed.",
+      });
+      onFeedbackProcessed(data.revisedResult);
+      setIsOpen(false);
+      setFeedback("");
+      setSupportingDocument(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error submitting feedback",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle file upload for supporting documents
+  const handleFileUpload = async (file: File) => {
+    // Validate file type
+    const fileType = file.name.split('.').pop()?.toLowerCase();
+    if (fileType !== 'txt' && fileType !== 'docx') {
+      toast({
+        title: "Unsupported file format",
+        description: "Please upload a .txt or .docx file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFileUploading(true);
+    
+    try {
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload file
+      const response = await fetch('/api/upload/supporting', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const data = await response.json();
+      setSupportingDocument({
+        title: data.title,
+        content: data.content
+      });
+
+      toast({
+        title: "File uploaded",
+        description: "Your supporting document has been processed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error uploading file",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setFileUploading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedback.trim()) {
+      toast({
+        title: "Feedback required",
+        description: "Please provide your feedback before submitting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    feedbackMutation.mutate({
+      category,
+      feedback,
+      supportingDocument: supportingDocument || undefined
+    });
+  };
+
+  // If this category already has feedback and a response
+  if (existingFeedback) {
+    return (
+      <Card className="mt-4 border border-slate-200 bg-slate-50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-slate-700">Feedback on {categoryName}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="bg-white p-3 rounded-md border border-slate-200">
+              <p className="text-sm font-medium text-slate-700 mb-1">Your feedback:</p>
+              <p className="text-sm text-slate-600">{existingFeedback.comment}</p>
+            </div>
+            
+            <div className="bg-white p-3 rounded-md border border-slate-200">
+              <p className="text-sm font-medium text-slate-700 mb-1">AI Response:</p>
+              <p className="text-sm text-slate-600">{existingFeedback.aiResponse}</p>
+            </div>
+            
+            {existingFeedback.isRevised && (
+              <Alert className="bg-green-50 border-green-200">
+                <AlertDescription className="text-sm text-green-800">
+                  The analysis was revised based on your feedback.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-4">
+      <CollapsibleTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full border-dashed border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+        >
+          <span className="text-sm">Don't agree? Tell us why.</span>
+        </Button>
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent className="mt-2">
+        <Card className="border border-slate-200">
+          <form onSubmit={handleSubmit}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Submit Feedback on {categoryName}</CardTitle>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              <Textarea
+                placeholder="Explain why you disagree with the analysis..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="min-h-[100px]"
+              />
+              
+              <div className="space-y-2">
+                <p className="text-sm text-slate-600">Upload supporting document (optional)</p>
+                <input
+                  type="file"
+                  accept=".txt,.docx"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                  disabled={fileUploading || feedbackMutation.isPending}
+                  className="text-sm text-slate-600 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                />
+                
+                {supportingDocument && (
+                  <div className="bg-slate-50 p-2 rounded-md mt-2">
+                    <p className="text-xs text-slate-700 font-medium">{supportingDocument.title}</p>
+                    <p className="text-xs text-slate-600 truncate">{supportingDocument.content.substring(0, 100)}...</p>
+                  </div>
+                )}
+                
+                {fileUploading && (
+                  <p className="text-xs text-slate-600">Processing file...</p>
+                )}
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-end gap-2 pt-0">
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsOpen(false)}
+                disabled={feedbackMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                size="sm"
+                disabled={feedbackMutation.isPending || !feedback.trim()}
+              >
+                {feedbackMutation.isPending ? "Submitting..." : "Submit & Re-Evaluate"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}

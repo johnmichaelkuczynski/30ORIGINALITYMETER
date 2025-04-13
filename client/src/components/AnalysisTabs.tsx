@@ -1,10 +1,15 @@
-import { AnalysisResult } from "@/lib/types";
+import { useState } from "react";
+import { AnalysisResult, PassageData } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
+import FeedbackForm from "./FeedbackForm";
 
 interface AnalysisTabsProps {
   result: AnalysisResult;
+  setResult: (result: AnalysisResult) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  passageA: PassageData;
+  passageB: PassageData;
   passageATitle: string;
   passageBTitle: string;
   isSinglePassageMode?: boolean;
@@ -12,8 +17,11 @@ interface AnalysisTabsProps {
 
 export default function AnalysisTabs({
   result,
+  setResult,
   activeTab,
   setActiveTab,
+  passageA,
+  passageB,
   passageATitle,
   passageBTitle,
   isSinglePassageMode = false,
@@ -49,36 +57,49 @@ export default function AnalysisTabs({
       <CardContent className="p-6">
         {/* Conceptual Lineage */}
         {activeTab === "conceptual-lineage" && (
-          <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
-            <div>
-              <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageATitle} Conceptual Lineage</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
-                  <p className="text-secondary-600">{result.conceptualLineage.passageA.primaryInfluences}</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
-                  <p className="text-secondary-600">{result.conceptualLineage.passageA.intellectualTrajectory}</p>
-                </div>
-              </div>
-            </div>
-            
-            {!isSinglePassageMode && (
+          <div>
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
               <div>
-                <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageBTitle} Conceptual Lineage</h3>
+                <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageATitle} Conceptual Lineage</h3>
                 <div className="space-y-4">
                   <div className="p-4 bg-gray-50 rounded-md">
                     <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
-                    <p className="text-secondary-600">{result.conceptualLineage.passageB.primaryInfluences}</p>
+                    <p className="text-secondary-600">{result.conceptualLineage.passageA.primaryInfluences}</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-md">
                     <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
-                    <p className="text-secondary-600">{result.conceptualLineage.passageB.intellectualTrajectory}</p>
+                    <p className="text-secondary-600">{result.conceptualLineage.passageA.intellectualTrajectory}</p>
                   </div>
                 </div>
               </div>
-            )}
+              
+              {!isSinglePassageMode && (
+                <div>
+                  <h3 className="text-lg font-medium text-secondary-800 mb-4">{passageBTitle} Conceptual Lineage</h3>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gray-50 rounded-md">
+                      <h4 className="font-medium text-secondary-700 mb-1">Primary Influences</h4>
+                      <p className="text-secondary-600">{result.conceptualLineage.passageB.primaryInfluences}</p>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-md">
+                      <h4 className="font-medium text-secondary-700 mb-1">Intellectual Trajectory</h4>
+                      <p className="text-secondary-600">{result.conceptualLineage.passageB.intellectualTrajectory}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Feedback Form for Conceptual Lineage */}
+            <FeedbackForm
+              category="conceptualLineage"
+              categoryName="Conceptual Lineage"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
           </div>
         )}
 
