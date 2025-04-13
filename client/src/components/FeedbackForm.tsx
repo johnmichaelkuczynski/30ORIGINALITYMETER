@@ -192,6 +192,37 @@ export default function FeedbackForm({
 
   // If this category already has feedback and a response
   if (existingFeedback) {
+    // Add state for continuing the conversation
+    const [continuingConversation, setContinuingConversation] = useState(false);
+    const [followUpFeedback, setFollowUpFeedback] = useState("");
+    
+    const handleFollowUpSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!followUpFeedback.trim()) return;
+      
+      // Reset the form fields before submitting
+      const currentFeedback = followUpFeedback;
+      setFollowUpFeedback("");
+      setContinuingConversation(false);
+      
+      // Submit the follow-up feedback
+      feedbackMutation.mutate({
+        category,
+        feedback: currentFeedback,
+        supportingDocument: supportingDocument || undefined
+      });
+    };
+    
+    // Handle keydown for pressing Enter
+    const handleFollowUpKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        if (followUpFeedback.trim()) {
+          handleFollowUpSubmit(e);
+        }
+      }
+    };
+    
     return (
       <Card className="mt-4 border border-slate-200 bg-slate-50">
         <CardHeader className="pb-2">
@@ -215,6 +246,47 @@ export default function FeedbackForm({
                   The analysis was revised based on your feedback.
                 </AlertDescription>
               </Alert>
+            )}
+            
+            {/* Continue conversation section */}
+            {continuingConversation ? (
+              <form onSubmit={handleFollowUpSubmit} className="pt-2">
+                <Textarea
+                  placeholder="Continue the conversation..."
+                  value={followUpFeedback}
+                  onChange={(e) => setFollowUpFeedback(e.target.value)}
+                  onKeyDown={handleFollowUpKeyDown}
+                  className="min-h-[80px] text-sm"
+                  autoFocus
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setContinuingConversation(false)}
+                    disabled={feedbackMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    size="sm"
+                    disabled={feedbackMutation.isPending || !followUpFeedback.trim()}
+                  >
+                    {feedbackMutation.isPending ? "Submitting..." : "Submit"}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-2"
+                onClick={() => setContinuingConversation(true)}
+              >
+                Continue Conversation
+              </Button>
             )}
           </div>
         </CardContent>
@@ -246,6 +318,14 @@ export default function FeedbackForm({
                 placeholder="Explain why you disagree with the analysis..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (feedback.trim()) {
+                      handleSubmit(e);
+                    }
+                  }
+                }}
                 className="min-h-[100px]"
               />
               
