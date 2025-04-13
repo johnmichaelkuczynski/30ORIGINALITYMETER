@@ -236,7 +236,10 @@ export default function SemanticAnalyzer() {
             </div>
           ) : analysisResult ? (
             <AnalysisResults 
-              result={analysisResult} 
+              result={analysisResult}
+              setResult={setAnalysisResult}
+              passageA={passageA}
+              passageB={passageB}
               passageATitle={passageA.title || (isSinglePassageMode ? "Your Passage" : "Passage A")} 
               passageBTitle={isSinglePassageMode ? "Norm" : (passageB.title || "Passage B")}
               onNewComparison={handleResetComparison}

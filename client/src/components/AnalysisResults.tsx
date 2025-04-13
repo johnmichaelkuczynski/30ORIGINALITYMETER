@@ -1,5 +1,5 @@
 import { useState, useId } from "react";
-import { AnalysisResult } from "@/lib/types";
+import { AnalysisResult, PassageData } from "@/lib/types";
 import SummarySection from "./SummarySection";
 import AnalysisTabs from "./AnalysisTabs";
 import DownloadReportButton from "./DownloadReportButton";
@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
+  setResult: (result: AnalysisResult) => void;
+  passageA: PassageData;
+  passageB: PassageData;
   passageATitle: string;
   passageBTitle: string;
   onNewComparison: () => void;
@@ -15,6 +18,9 @@ interface AnalysisResultsProps {
 
 export default function AnalysisResults({
   result,
+  setResult,
+  passageA,
+  passageB,
   passageATitle,
   passageBTitle,
   onNewComparison,
@@ -56,8 +62,11 @@ export default function AnalysisResults({
 
       <AnalysisTabs
         result={result}
+        setResult={setResult}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        passageA={passageA}
+        passageB={passageB}
         passageATitle={passageATitle}
         passageBTitle={passageBTitle}
         isSinglePassageMode={isSinglePassageMode}

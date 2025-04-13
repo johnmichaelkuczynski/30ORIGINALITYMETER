@@ -167,6 +167,17 @@ export default function AnalysisTabs({
                 </div>
               </div>
             </div>
+            
+            {/* Feedback Form for Semantic Distance */}
+            <FeedbackForm
+              category="semanticDistance"
+              categoryName="Semantic Distance"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
           </div>
         )}
 
@@ -248,6 +259,17 @@ export default function AnalysisTabs({
                 </div>
               )}
             </div>
+            
+            {/* Feedback Form for Novelty Heatmap */}
+            <FeedbackForm
+              category="noveltyHeatmap"
+              categoryName="Novelty Heatmap"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
           </div>
         )}
 
@@ -323,6 +345,17 @@ export default function AnalysisTabs({
                 </div>
               )}
             </div>
+            
+            {/* Feedback Form for Derivative Index */}
+            <FeedbackForm
+              category="derivativeIndex"
+              categoryName="Derivative Index"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
           </div>
         )}
 
@@ -406,6 +439,17 @@ export default function AnalysisTabs({
                 </div>
               )}
             </div>
+            
+            {/* Feedback Form for Conceptual Parasite */}
+            <FeedbackForm
+              category="conceptualParasite"
+              categoryName="Conceptual Parasite Detection"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
           </div>
         )}
       </CardContent>
