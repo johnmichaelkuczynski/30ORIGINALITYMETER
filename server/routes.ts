@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { ZodError } from "zod";
 import { z } from "zod";
-import { analyzePassages, analyzeSinglePassage } from "./lib/openai";
+import { analyzePassages, analyzeSinglePassage, processFeedback } from "./lib/openai";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
@@ -321,6 +321,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error processing uploaded file:", error);
       res.status(500).json({
         message: "Failed to process file",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // Submit feedback on an analysis
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        analysisId: z.number().optional(),
+        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite']),
+        feedback: z.string().min(1, "Feedback is required"),
+        supportingDocument: z.object({
+          title: z.string(),
+          content: z.string()
+        }).optional(),
+        originalResult: analysisResultSchema,
+        passageA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage A text is required"),
+        }),
+        passageB: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage B text is required"),
+        }),
+        isSinglePassageMode: z.boolean().optional().default(false)
+      });
+
+      const { 
+        analysisId, 
+        category, 
+        feedback, 
+        supportingDocument, 
+        originalResult, 
+        passageA, 
+        passageB, 
+        isSinglePassageMode 
+      } = requestSchema.parse(req.body);
+      
+      console.log(`Processing feedback for category '${category}'`);
+
+      try {
+        // Process the feedback and get a response
+        const feedbackResult = await processFeedback(
+          category,
+          feedback,
+          originalResult,
+          passageA,
+          passageB,
+          isSinglePassageMode,
+          supportingDocument
+        );
+
+        // Validate the response against our schema
+        const validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
+
+        // If we have an analysis ID, update it in the database
+        if (analysisId) {
+          const existingAnalysis = await storage.getAnalysis(analysisId);
+          
+          if (existingAnalysis) {
+            // Update the analysis with the revised result
+            await storage.createAnalysis({
+              passageA: existingAnalysis.passageA,
+              passageB: existingAnalysis.passageB,
+              passageATitle: existingAnalysis.passageATitle,
+              passageBTitle: existingAnalysis.passageBTitle,
+              result: validatedResult,
+              createdAt: new Date().toISOString(),
+            });
+          }
+        }
+
+        // Return the feedback result
+        res.json({
+          aiResponse: feedbackResult.aiResponse,
+          isRevised: feedbackResult.isRevised,
+          revisedResult: validatedResult
+        });
+      } catch (aiError) {
+        console.error("Error processing feedback:", aiError);
+        res.status(500).json({ 
+          message: "Failed to process feedback", 
+          error: aiError instanceof Error ? aiError.message : "Unknown error" 
+        });
+      }
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error with feedback submission:", error);
+        res.status(500).json({ 
+          message: "Failed to process feedback", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
+  // Process uploaded file for supporting documents
+  app.post("/api/upload/supporting", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const fileBuffer = req.file.buffer;
+      const fileType = path.extname(req.file.originalname).substring(1); // Remove the dot
+      const fileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
+
+      // Process the file based on its type
+      const textContent = await processFile(fileBuffer, fileType);
+
+      // Return the processed content
+      res.json({
+        title: fileName,
+        content: textContent,
+      });
+    } catch (error) {
+      console.error("Error processing supporting document:", error);
+      res.status(500).json({
+        message: "Failed to process supporting document",
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }

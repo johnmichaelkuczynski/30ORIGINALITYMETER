@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { PassageData } from "../../client/src/lib/types";
+import { PassageData, SupportingDocument } from "../../client/src/lib/types";
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 
@@ -425,5 +425,286 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
   } catch (error) {
     console.error("Error calling OpenAI for single passage analysis:", error);
     throw new Error(`Failed to analyze passage: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Process user feedback on a previously generated analysis and provide a response
+ * with possible re-evaluation
+ */
+export async function processFeedback(
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite',
+  feedback: string,
+  originalResult: AnalysisResult,
+  passageA: PassageData,
+  passageB: PassageData,
+  isSinglePassageMode: boolean,
+  supportingDocument?: SupportingDocument
+): Promise<{ 
+  aiResponse: string; 
+  isRevised: boolean; 
+  revisedResult: AnalysisResult 
+}> {
+  try {
+    const passageATitle = passageA.title || (isSinglePassageMode ? "Your Passage" : "Passage A");
+    const passageBTitle = isSinglePassageMode ? "Norm" : (passageB.title || "Passage B");
+    
+    // Create prompt based on category
+    let categoryDescription = "";
+    let originalAnalysis = "";
+    
+    switch(category) {
+      case 'conceptualLineage':
+        categoryDescription = "Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas";
+        originalAnalysis = `
+        Passage A: 
+        Primary Influences: ${originalResult.conceptualLineage.passageA.primaryInfluences}
+        Intellectual Trajectory: ${originalResult.conceptualLineage.passageA.intellectualTrajectory}
+        
+        Passage B:
+        Primary Influences: ${originalResult.conceptualLineage.passageB.primaryInfluences}
+        Intellectual Trajectory: ${originalResult.conceptualLineage.passageB.intellectualTrajectory}`;
+        break;
+      case 'semanticDistance':
+        categoryDescription = "Semantic Distance - How far each passage moves from predecessors; is it reshuffling or truly novel";
+        originalAnalysis = `
+        Passage A: 
+        Distance Score: ${originalResult.semanticDistance.passageA.distance}/100
+        Label: ${originalResult.semanticDistance.passageA.label}
+        
+        Passage B:
+        Distance Score: ${originalResult.semanticDistance.passageB.distance}/100
+        Label: ${originalResult.semanticDistance.passageB.label}
+        
+        Key Findings: ${originalResult.semanticDistance.keyFindings.join(", ")}
+        
+        Semantic Innovation: ${originalResult.semanticDistance.semanticInnovation}`;
+        break;
+      case 'noveltyHeatmap':
+        categoryDescription = "Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph";
+        originalAnalysis = `
+        Passage A Heat Levels: ${originalResult.noveltyHeatmap.passageA.map(item => `[${item.heat}%: ${item.content.substring(0, 50)}...]`).join(", ")}
+        
+        Passage B Heat Levels: ${originalResult.noveltyHeatmap.passageB.map(item => `[${item.heat}%: ${item.content.substring(0, 50)}...]`).join(", ")}`;
+        break;
+      case 'derivativeIndex':
+        categoryDescription = "Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original";
+        originalAnalysis = `
+        Passage A:
+        Overall Score: ${originalResult.derivativeIndex.passageA.score}/10
+        Components: ${originalResult.derivativeIndex.passageA.components.map(c => `${c.name}: ${c.score}/10`).join(", ")}
+        
+        Passage B:
+        Overall Score: ${originalResult.derivativeIndex.passageB.score}/10
+        Components: ${originalResult.derivativeIndex.passageB.components.map(c => `${c.name}: ${c.score}/10`).join(", ")}`;
+        break;
+      case 'conceptualParasite':
+        categoryDescription = "Conceptual Parasite Detection - Passages that operate in old debates without adding anything new";
+        originalAnalysis = `
+        Passage A:
+        Level: ${originalResult.conceptualParasite.passageA.level}
+        Elements: ${originalResult.conceptualParasite.passageA.elements.join(", ")}
+        Assessment: ${originalResult.conceptualParasite.passageA.assessment}
+        
+        Passage B:
+        Level: ${originalResult.conceptualParasite.passageB.level}
+        Elements: ${originalResult.conceptualParasite.passageB.elements.join(", ")}
+        Assessment: ${originalResult.conceptualParasite.passageB.assessment}`;
+        break;
+    }
+
+    // Create messages array for OpenAI
+    const messages = [
+      {
+        role: "system" as const,
+        content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts. 
+        You're now engaging with a user who is providing feedback on your previous analysis.
+        
+        You should respond in a conversational style, addressing their feedback directly.
+        
+        Consider the user's feedback carefully and determine whether your original assessment should be modified or maintained.
+        If the user's argument has merit, acknowledge it and explain how your assessment changes.
+        If you maintain your original assessment, respectfully explain why, referencing the text to justify your position.
+        
+        FORMAT YOUR RESPONSE IN THIS WAY:
+        - Start with a direct response to the user's feedback
+        - Engage with their specific concerns
+        - If revising your assessment, clearly state what changes and why
+        - If maintaining your assessment, explain your reasoning respectfully
+        - End with a question or invitation for further dialogue if appropriate
+        
+        Your response should be thoughtful and substantive, showing you've carefully considered their perspective.`
+      },
+      {
+        role: "user" as const,
+        content: `I previously analyzed ${isSinglePassageMode ? "a passage against a typical norm" : "two passages"} and provided an evaluation of their conceptual originality.
+
+The category being addressed is: ${categoryDescription}
+
+${isSinglePassageMode ? "Passage:" : "Passages:"}
+
+${passageATitle}:
+${passageA.text}
+
+${isSinglePassageMode ? "" : `${passageBTitle}:
+${passageB.text}
+
+`}
+
+My original analysis for this category was:
+${originalAnalysis}
+
+The user has provided this feedback about my analysis:
+"${feedback}"
+${supportingDocument ? `\nThe user has also provided a supporting document titled "${supportingDocument.title}" with this content:
+${supportingDocument.content}` : ""}
+
+Please respond to this feedback directly, in a conversational style, either revising or justifying the original assessment.`
+      }
+    ];
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: messages,
+      max_tokens: 2000,
+    });
+
+    const aiResponse = response.choices[0].message.content || "I apologize, but I couldn't process your feedback at this time.";
+    
+    // Check if the response indicates a revision is needed
+    const isRevised = 
+      aiResponse.toLowerCase().includes("revise") || 
+      aiResponse.toLowerCase().includes("adjust") || 
+      aiResponse.toLowerCase().includes("change") || 
+      aiResponse.toLowerCase().includes("update") || 
+      aiResponse.toLowerCase().includes("modify");
+    
+    // If a revision is indicated, make a second call to update the analysis
+    let revisedResult = { ...originalResult };
+    
+    if (isRevised) {
+      // Make another call to specifically get the revised analysis
+      const revisionMessages = [
+        {
+          role: "system" as const,
+          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts.
+          Based on user feedback, you need to provide a revised analysis for a specific category.
+          Return only the revised JSON data for the category in question.`
+        },
+        {
+          role: "user" as const,
+          content: `I need a revised analysis for the category "${category}" based on this user feedback:
+          "${feedback}"
+          
+          ${supportingDocument ? `The user provided this supporting document:
+          Title: ${supportingDocument.title}
+          Content: ${supportingDocument.content}
+          
+          ` : ""}Original passages:
+          
+          ${passageATitle}:
+          ${passageA.text}
+          
+          ${isSinglePassageMode ? "" : `${passageBTitle}:
+          ${passageB.text}
+          
+          `}Original analysis:
+          ${originalAnalysis}
+          
+          Please provide only the revised JSON data for the "${category}" category.`
+        }
+      ];
+
+      const revisionResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: revisionMessages,
+        response_format: { type: "json_object" },
+        max_tokens: 2000,
+      });
+
+      try {
+        const revisionJson = JSON.parse(revisionResponse.choices[0].message.content || "{}");
+        
+        // Update the relevant category in the result with type safety
+        if (revisionJson[category]) {
+          // Create a copy of the result with the feedback added
+          const updatedCategory = {
+            ...revisedResult[category],
+            feedback: {
+              comment: feedback,
+              aiResponse,
+              isRevised: true
+            }
+          };
+          
+          // Apply the revision data from the AI
+          if (revisionJson[category]) {
+            // Merge the revision data while preserving the structure
+            revisedResult = {
+              ...revisedResult,
+              [category]: {
+                ...updatedCategory,
+                ...(revisionJson[category] || {})
+              }
+            };
+          } else {
+            // Just add the feedback
+            revisedResult = {
+              ...revisedResult,
+              [category]: updatedCategory
+            };
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing revision JSON:", error);
+        
+        // If parsing fails, just add the feedback without changing the core data
+        const updatedCategory = {
+          ...revisedResult[category],
+          feedback: {
+            comment: feedback,
+            aiResponse,
+            isRevised: true
+          }
+        };
+        
+        revisedResult = {
+          ...revisedResult,
+          [category]: updatedCategory
+        };
+      }
+    } else {
+      // Just add the feedback to the original result without changing the core data
+      const updatedCategory = {
+        ...revisedResult[category],
+        feedback: {
+          comment: feedback,
+          aiResponse,
+          isRevised: false
+        }
+      };
+      
+      revisedResult = {
+        ...revisedResult,
+        [category]: updatedCategory
+      };
+    }
+    
+    // Add the supporting document if provided
+    if (supportingDocument) {
+      revisedResult.supportingDocuments = [
+        ...(revisedResult.supportingDocuments || []),
+        supportingDocument
+      ];
+    }
+    
+    return {
+      aiResponse,
+      isRevised,
+      revisedResult
+    };
+  } catch (error) {
+    console.error("Error processing feedback:", error);
+    throw new Error(`Failed to process feedback: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
