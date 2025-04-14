@@ -26,6 +26,8 @@ export default function AnalysisTabs({
   passageBTitle,
   isSinglePassageMode = false,
 }: AnalysisTabsProps) {
+  const [viewType, setViewType] = useState<'label' | 'grid'>('label');
+  const [emphasisOption, setEmphasisOption] = useState<'clarity' | 'novelty' | 'balanced'>('clarity');
   const tabs = [
     { id: "conceptual-lineage", label: "Conceptual Lineage" },
     { id: "semantic-distance", label: "Semantic Distance" },
@@ -557,10 +559,182 @@ export default function AnalysisTabs({
 
             {/* Overall Coherence Category */}
             <div className="bg-gray-50 p-5 rounded-lg mb-6">
-              <h4 className="font-medium text-secondary-700 mb-3">Overall Coherence Category</h4>
-              <div className="flex items-center justify-center">
-                <div className="inline-block bg-primary-100 text-primary-800 px-4 py-2 rounded-md text-center border border-primary-200">
-                  <span className="text-lg font-medium">{result.coherence.coherenceCategory}</span>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-secondary-700">Overall Coherence Category</h4>
+                <div 
+                  className="ml-1 text-gray-500 cursor-help"
+                  title="This is a high-level diagnosis based on both the Derivative Index and the Coherence Score. It's not a separate metric, but a qualitative synthesis."
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-4 h-4">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4M12 8h.01" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
+                {result.coherence.coherenceCategory === "Original and Coherent" && (
+                  <div className="flex items-center space-x-2 text-green-700">
+                    <span className="text-lg">✅</span>
+                    <span className="text-base font-medium">Original and Coherent</span>
+                  </div>
+                )}
+                {result.coherence.coherenceCategory === "Original but Incoherent" && (
+                  <div className="flex items-center space-x-2 text-amber-700">
+                    <span className="text-lg">⚠️</span>
+                    <span className="text-base font-medium">Original but Incoherent</span>
+                  </div>
+                )}
+                {result.coherence.coherenceCategory === "Conventional but Coherent" && (
+                  <div className="flex items-center space-x-2 text-blue-700">
+                    <span className="text-lg">🟡</span>
+                    <span className="text-base font-medium">Conventional but Coherent</span>
+                  </div>
+                )}
+                {result.coherence.coherenceCategory === "Derivative and Incoherent" && (
+                  <div className="flex items-center space-x-2 text-red-700">
+                    <span className="text-lg">❌</span>
+                    <span className="text-base font-medium">Derivative and Incoherent</span>
+                  </div>
+                )}
+                <p className="mt-3 text-sm text-secondary-600 text-center">
+                  {result.coherence.coherenceCategory === "Original and Coherent" && 
+                    "This passage achieves both originality and clear, coherent expression. Excellent balance of innovation and structure."}
+                  {result.coherence.coherenceCategory === "Original but Incoherent" && 
+                    "This passage appears to be original but lacks coherence. Consider refining structure or clarity."}
+                  {result.coherence.coherenceCategory === "Conventional but Coherent" && 
+                    "This passage is well-structured and coherent, but relies on conventional ideas. Consider adding more innovative concepts."}
+                  {result.coherence.coherenceCategory === "Derivative and Incoherent" && 
+                    "This passage lacks both originality and coherence. Consider significant revision of both content and structure."}
+                </p>
+              </div>
+              
+              {/* Visualization toggle */}
+              <div className="mt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm font-medium text-secondary-700">Display as:</div>
+                  <div className="flex gap-2">
+                    <button 
+                      className={`px-3 py-1 text-xs rounded-full border ${viewType === 'label' ? 'bg-primary-100 border-primary-200 text-primary-800' : 'bg-white border-gray-200 text-gray-600'}`}
+                      title="Show as diagnostic label"
+                      onClick={() => setViewType('label')}
+                    >
+                      Label View
+                    </button>
+                    <button 
+                      className={`px-3 py-1 text-xs rounded-full border ${viewType === 'grid' ? 'bg-primary-100 border-primary-200 text-primary-800' : 'bg-white border-gray-200 text-gray-600'}`}
+                      title="Show as 2x2 grid"
+                      onClick={() => setViewType('grid')}
+                    >
+                      Grid View
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Diagnostic Label View */}
+                <div className={viewType === 'label' ? 'block' : 'hidden'}>
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
+                    {result.coherence.coherenceCategory === "Original and Coherent" && (
+                      <div className="flex items-center space-x-2 text-green-700">
+                        <span className="text-lg">✅</span>
+                        <span className="text-base font-medium">Original and Coherent</span>
+                      </div>
+                    )}
+                    {result.coherence.coherenceCategory === "Original but Incoherent" && (
+                      <div className="flex items-center space-x-2 text-amber-700">
+                        <span className="text-lg">⚠️</span>
+                        <span className="text-base font-medium">Original but Incoherent</span>
+                      </div>
+                    )}
+                    {result.coherence.coherenceCategory === "Conventional but Coherent" && (
+                      <div className="flex items-center space-x-2 text-blue-700">
+                        <span className="text-lg">🟡</span>
+                        <span className="text-base font-medium">Conventional but Coherent</span>
+                      </div>
+                    )}
+                    {result.coherence.coherenceCategory === "Derivative and Incoherent" && (
+                      <div className="flex items-center space-x-2 text-red-700">
+                        <span className="text-lg">❌</span>
+                        <span className="text-base font-medium">Derivative and Incoherent</span>
+                      </div>
+                    )}
+                    <p className="mt-3 text-sm text-secondary-600 text-center">
+                      {result.coherence.coherenceCategory === "Original and Coherent" && 
+                        "This passage achieves both originality and clear, coherent expression. Excellent balance of innovation and structure."}
+                      {result.coherence.coherenceCategory === "Original but Incoherent" && 
+                        "This passage appears to be original but lacks coherence. Consider refining structure or clarity."}
+                      {result.coherence.coherenceCategory === "Conventional but Coherent" && 
+                        "This passage is well-structured and coherent, but relies on conventional ideas. Consider adding more innovative concepts."}
+                      {result.coherence.coherenceCategory === "Derivative and Incoherent" && 
+                        "This passage lacks both originality and coherence. Consider significant revision of both content and structure."}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 2x2 Grid View */}
+                <div className={`mt-2 ${viewType === 'grid' ? 'block' : 'hidden'}`}>
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="grid grid-cols-2 text-center">
+                      <div className="py-2 bg-gray-100 font-medium border-b">Coherent</div>
+                      <div className="py-2 bg-gray-100 font-medium border-b border-l">Incoherent</div>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <div className={`p-3 text-sm border-b ${result.coherence.coherenceCategory === "Original and Coherent" ? 'bg-green-50' : ''}`}>
+                        <div className="flex justify-center mb-1">
+                          <span className="text-lg">✅</span>
+                        </div>
+                        <div className="text-center text-xs font-medium">Original and Coherent</div>
+                        <div className="text-center text-xs mt-1 text-gray-600">Best Case</div>
+                      </div>
+                      <div className={`p-3 text-sm border-b border-l ${result.coherence.coherenceCategory === "Original but Incoherent" ? 'bg-amber-50' : ''}`}>
+                        <div className="flex justify-center mb-1">
+                          <span className="text-lg">⚠️</span>
+                        </div>
+                        <div className="text-center text-xs font-medium">Original but Incoherent</div>
+                        <div className="text-center text-xs mt-1 text-gray-600">High-Risk Genius</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2">
+                      <div className={`p-3 text-sm ${result.coherence.coherenceCategory === "Conventional but Coherent" ? 'bg-blue-50' : ''}`}>
+                        <div className="flex justify-center mb-1">
+                          <span className="text-lg">🟡</span>
+                        </div>
+                        <div className="text-center text-xs font-medium">Conventional but Coherent</div>
+                        <div className="text-center text-xs mt-1 text-gray-600">Safe but Boring</div>
+                      </div>
+                      <div className={`p-3 text-sm border-l ${result.coherence.coherenceCategory === "Derivative and Incoherent" ? 'bg-red-50' : ''}`}>
+                        <div className="flex justify-center mb-1">
+                          <span className="text-lg">❌</span>
+                        </div>
+                        <div className="text-center text-xs font-medium">Derivative and Incoherent</div>
+                        <div className="text-center text-xs mt-1 text-gray-600">Why does this exist?</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Analysis Emphasis */}
+                <div className="mt-4">
+                  <div className="text-sm font-medium text-secondary-700 mb-2">Analysis Emphasis:</div>
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      className={`px-3 py-1 text-xs rounded-full border ${'bg-primary-100 border-primary-200 text-primary-800'}`}
+                      title="Give greater weight to structural coherence and clarity"
+                    >
+                      Emphasize clarity
+                    </button>
+                    <button 
+                      className={`px-3 py-1 text-xs rounded-full border ${'bg-white border-gray-200 text-gray-600'}`}
+                      title="Give greater weight to conceptual novelty and innovation"
+                    >
+                      Emphasize novelty
+                    </button>
+                    <button 
+                      className={`px-3 py-1 text-xs rounded-full border ${'bg-white border-gray-200 text-gray-600'}`}
+                      title="Give equal weight to both novelty and coherence"
+                    >
+                      Balanced view
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
