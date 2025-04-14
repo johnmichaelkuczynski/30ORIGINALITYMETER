@@ -22,27 +22,51 @@ export default function SummarySection({
 }: SummarySectionProps) {
   const [verdictTone, setVerdictTone] = useState<StyleOption>('academic');
   // Calculate aggregate scores
-  const calculateAggregateScore = (originalityScore: number, coherenceScore: number): number => {
+  const calculateAggregateScore = (
+    originalityScore: number, 
+    coherenceScore: number,
+    accuracyScore?: number,
+    depthScore?: number,
+    clarityScore?: number
+  ): number => {
+    // Get scores with defaults if not provided
+    const accuracy = accuracyScore || 5;
+    const depth = depthScore || 5;
+    const clarity = clarityScore || 5;
+    
+    // Calculate base score from originality and coherence
+    let baseScore = 0;
     if (coherenceScore < 3) {
       // Very incoherent content gets heavily penalized regardless of originality
-      return Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
+      baseScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
     } else if (coherenceScore >= 3 && coherenceScore < 6) {
       // Moderate coherence - weighted blend
-      return (coherenceScore * 0.6) + (originalityScore * 0.4);
+      baseScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
     } else {
       // Good coherence - more balanced weighting
-      return (coherenceScore * 0.5) + (originalityScore * 0.5);
+      baseScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
     }
+    
+    // New comprehensive score calculation with all five metrics
+    // Originality (30%), Coherence (20%), Accuracy (20%), Depth (15%), Clarity (15%)
+    return (originalityScore * 0.3) + (coherenceScore * 0.2) + 
+           (accuracy * 0.2) + (depth * 0.15) + (clarity * 0.15);
   };
 
   const aggregateScoreA = calculateAggregateScore(
     result.derivativeIndex.passageA.score,
-    result.coherence.passageA.score
+    result.coherence.passageA.score,
+    result.accuracy?.passageA?.score,
+    result.depth?.passageA?.score,
+    result.clarity?.passageA?.score
   );
 
   const aggregateScoreB = isSinglePassageMode ? 0 : calculateAggregateScore(
     result.derivativeIndex.passageB.score,
-    result.coherence.passageB.score
+    result.coherence.passageB.score,
+    result.accuracy?.passageB?.score,
+    result.depth?.passageB?.score,
+    result.clarity?.passageB?.score
   );
 
   // Compare passages
@@ -53,6 +77,18 @@ export default function SummarySection({
   const moreCoherent = isSinglePassageMode ? null :
     result.coherence.passageA.score > result.coherence.passageB.score ? 'A' : 
     result.coherence.passageB.score > result.coherence.passageA.score ? 'B' : null;
+    
+  const moreAccurate = isSinglePassageMode ? null :
+    result.accuracy?.passageA?.score > result.accuracy?.passageB?.score ? 'A' : 
+    result.accuracy?.passageB?.score > result.accuracy?.passageA?.score ? 'B' : null;
+    
+  const moreDepth = isSinglePassageMode ? null :
+    result.depth?.passageA?.score > result.depth?.passageB?.score ? 'A' : 
+    result.depth?.passageB?.score > result.depth?.passageA?.score ? 'B' : null;
+    
+  const moreClear = isSinglePassageMode ? null :
+    result.clarity?.passageA?.score > result.clarity?.passageB?.score ? 'A' : 
+    result.clarity?.passageB?.score > result.clarity?.passageA?.score ? 'B' : null;
 
   return (
     <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -294,6 +330,189 @@ export default function SummarySection({
                 )}
               </div>
             </div>
+            
+            {/* Box 3: Accuracy Comparison */}
+            {result.accuracy && (
+              <div className="border rounded-lg shadow-sm overflow-hidden">
+                <div className="px-4 py-2 bg-indigo-50 border-b">
+                  <h3 className="font-medium text-indigo-800">Accuracy Comparison</h3>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Passage A Accuracy */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage A – Accuracy Score: {result.accuracy.passageA.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.accuracy.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.accuracy.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.accuracy.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Passage B Accuracy */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage B – Accuracy Score: {result.accuracy.passageB.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.accuracy.passageB.score >= 7 ? 'bg-green-500' : 
+                            result.accuracy.passageB.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.accuracy.passageB.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Winner Badge */}
+                  {moreAccurate && (
+                    <div className="flex justify-end">
+                      <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200">
+                        Passage {moreAccurate} is more accurate
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Box 4: Depth Comparison */}
+            {result.depth && (
+              <div className="border rounded-lg shadow-sm overflow-hidden">
+                <div className="px-4 py-2 bg-amber-50 border-b">
+                  <h3 className="font-medium text-amber-800">Depth Comparison</h3>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Passage A Depth */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage A – Depth Score: {result.depth.passageA.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.depth.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.depth.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.depth.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Passage B Depth */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage B – Depth Score: {result.depth.passageB.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.depth.passageB.score >= 7 ? 'bg-green-500' : 
+                            result.depth.passageB.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.depth.passageB.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Winner Badge */}
+                  {moreDepth && (
+                    <div className="flex justify-end">
+                      <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                        Passage {moreDepth} has more depth
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Box 5: Clarity Comparison */}
+            {result.clarity && (
+              <div className="border rounded-lg shadow-sm overflow-hidden">
+                <div className="px-4 py-2 bg-teal-50 border-b">
+                  <h3 className="font-medium text-teal-800">Clarity Comparison</h3>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Passage A Clarity */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage A – Clarity Score: {result.clarity.passageA.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.clarity.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.clarity.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.clarity.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Passage B Clarity */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-secondary-700">
+                        Passage B – Clarity Score: {result.clarity.passageB.score.toFixed(1)}/10
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.clarity.passageB.score >= 7 ? 'bg-green-500' : 
+                            result.clarity.passageB.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.clarity.passageB.score * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Winner Badge */}
+                  {moreClear && (
+                    <div className="flex justify-end">
+                      <Badge className="bg-teal-100 text-teal-800 hover:bg-teal-200">
+                        Passage {moreClear} is clearer
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             
             {/* Box 3: Aggregate Evaluation */}
             <div className="border rounded-lg shadow-sm overflow-hidden">

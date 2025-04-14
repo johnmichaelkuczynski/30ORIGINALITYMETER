@@ -464,14 +464,17 @@ export async function analyzeSinglePassage(
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts (not plagiarism or surface similarity). Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across six metrics:
+          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality and quality of texts (not plagiarism or surface similarity). Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across nine metrics:
 
 1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
 2. Semantic Distance - How far the passage moves from common norms; is it reshuffling or truly novel
 3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph
 4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original
 5. Conceptual Parasite Detection - Does the passage operate within existing debates without adding original contributions
-6. Coherence - Whether the passage, despite being original or not, is logically and conceptually coherent
+6. Coherence - Whether the passage is logically and conceptually coherent
+7. Accuracy - Factual and inferential correctness of the passage
+8. Depth - Non-triviality and conceptual insight of the passage
+9. Clarity - Readability, transparency, and semantic accessibility of the passage
 
 For coherence, evaluate:
 - Internal consistency (no contradictions)
@@ -480,11 +483,32 @@ For coherence, evaluate:
 - Consistent terminology use
 - Intelligibility as a unified argument or narrative
 
-IMPORTANT FORMATTING INSTRUCTIONS FOR COHERENCE:
-- Provide a score from 0-10 for coherence (where 10 is perfectly coherent)
-- List clear strengths and weaknesses of the passage's coherence
-- Provide a detailed assessment of coherence
-- Focus on logical structure, clarity, and flow of ideas
+For accuracy, evaluate:
+- Factual correctness
+- Valid inference structures
+- Absence of misrepresentation
+- Logical validity
+- Conceptual precision
+
+For depth, evaluate:
+- Conceptual richness
+- Identification of meaningful structures
+- Exposure of assumptions
+- Reframing of problems
+- Moving beyond surface-level observations
+
+For clarity, evaluate:
+- Clean sentence structure
+- Stable terminology
+- Coherent expression of ideas
+- Accessibility to intended audience
+- Precision of language
+
+IMPORTANT FORMATTING INSTRUCTIONS FOR SCORE-BASED METRICS:
+- Provide a score from 0-10 for each metric (where 10 is perfect)
+- List clear strengths and weaknesses for each metric
+- Provide a detailed assessment for each metric
+- Focus on aspects specific to each metric
 
 Format your response as JSON with these specific sections that match the exact schema used for comparative analysis.`,
         },
@@ -594,6 +618,48 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       "weaknesses": ["typical weaknesses of average texts"]
     }
   },
+  "accuracy": {
+    "passageA": {
+      "score": number from 0-10,
+      "assessment": "string explaining the accuracy evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "passageB": {
+      "score": 5,
+      "assessment": "string explaining typical accuracy level in this domain",
+      "strengths": ["typical strengths of average texts"],
+      "weaknesses": ["typical weaknesses of average texts"]
+    }
+  },
+  "depth": {
+    "passageA": {
+      "score": number from 0-10,
+      "assessment": "string explaining the depth evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "passageB": {
+      "score": 5,
+      "assessment": "string explaining typical depth level in this domain",
+      "strengths": ["typical strengths of average texts"],
+      "weaknesses": ["typical weaknesses of average texts"]
+    }
+  },
+  "clarity": {
+    "passageA": {
+      "score": number from 0-10,
+      "assessment": "string explaining the clarity evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "passageB": {
+      "score": 5,
+      "assessment": "string explaining typical clarity level in this domain",
+      "strengths": ["typical strengths of average texts"],
+      "weaknesses": ["typical weaknesses of average texts"]
+    }
+  },
   "verdict": "comprehensive one-paragraph judgment on how original the passage is compared to the norm, with specific mentions of strengths and limitations"
 }`,
         },
@@ -689,8 +755,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
           assessment: "This represents an average level of coherence typical for texts in this domain.",
           strengths: ["Standard logical flow", "Conventional structure"],
           weaknesses: ["Typical clarity issues found in average texts"]
-        },
-
+        }
       };
     } else {
       // Ensure all required fields exist
@@ -707,8 +772,105 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
         strengths: ["Standard logical flow", "Conventional structure"],
         weaknesses: ["Typical clarity issues found in average texts"]
       };
+    }
+    
+    // Ensure accuracy data is properly structured
+    if (!result.accuracy) {
+      result.accuracy = {
+        passageA: {
+          score: 5,
+          assessment: "The accuracy of this passage has not been fully evaluated.",
+          strengths: ["Standard factual content", "Basic inferential structure"],
+          weaknesses: ["Some claims may require verification"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "This represents an average level of accuracy in this domain.",
+          strengths: ["Typical factual content", "Conventional logical structure"],
+          weaknesses: ["May contain some unverified assertions"]
+        }
+      };
+    } else {
+      // Ensure all required fields exist
+      result.accuracy.passageA = result.accuracy.passageA || {
+        score: 5,
+        assessment: "The accuracy of this passage has not been fully evaluated.",
+        strengths: ["Standard factual content", "Basic inferential structure"],
+        weaknesses: ["Some claims may require verification"]
+      };
       
-      // No need to validate coherence category since it's been removed
+      result.accuracy.passageB = result.accuracy.passageB || {
+        score: 5,
+        assessment: "This represents an average level of accuracy in this domain.",
+        strengths: ["Typical factual content", "Conventional logical structure"],
+        weaknesses: ["May contain some unverified assertions"]
+      };
+    }
+    
+    // Ensure depth data is properly structured
+    if (!result.depth) {
+      result.depth = {
+        passageA: {
+          score: 5,
+          assessment: "The depth of this passage has not been fully evaluated.",
+          strengths: ["Addresses core concepts", "Provides some analysis"],
+          weaknesses: ["Could explore implications further"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "This represents an average level of depth in this domain.",
+          strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
+          weaknesses: ["Lacks deeper exploration of underlying structures"]
+        }
+      };
+    } else {
+      // Ensure all required fields exist
+      result.depth.passageA = result.depth.passageA || {
+        score: 5,
+        assessment: "The depth of this passage has not been fully evaluated.",
+        strengths: ["Addresses core concepts", "Provides some analysis"],
+        weaknesses: ["Could explore implications further"]
+      };
+      
+      result.depth.passageB = result.depth.passageB || {
+        score: 5,
+        assessment: "This represents an average level of depth in this domain.",
+        strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
+        weaknesses: ["Lacks deeper exploration of underlying structures"]
+      };
+    }
+    
+    // Ensure clarity data is properly structured
+    if (!result.clarity) {
+      result.clarity = {
+        passageA: {
+          score: 5,
+          assessment: "The clarity of this passage has not been fully evaluated.",
+          strengths: ["Basic structural organization", "Standard terminology"],
+          weaknesses: ["Some sentences could be more precise"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "This represents an average level of clarity in this domain.",
+          strengths: ["Conventional sentence structure", "Standard organization"],
+          weaknesses: ["Typical readability issues found in average texts"]
+        }
+      };
+    } else {
+      // Ensure all required fields exist
+      result.clarity.passageA = result.clarity.passageA || {
+        score: 5,
+        assessment: "The clarity of this passage has not been fully evaluated.",
+        strengths: ["Basic structural organization", "Standard terminology"],
+        weaknesses: ["Some sentences could be more precise"]
+      };
+      
+      result.clarity.passageB = result.clarity.passageB || {
+        score: 5,
+        assessment: "This represents an average level of clarity in this domain.",
+        strengths: ["Conventional sentence structure", "Standard organization"],
+        weaknesses: ["Typical readability issues found in average texts"]
+      };
     }
     
     return result;
@@ -874,7 +1036,7 @@ Respond with:
 }
 
 export async function processFeedback(
-  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence',
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence' | 'accuracy' | 'depth' | 'clarity',
   feedback: string,
   originalResult: AnalysisResult,
   passageA: PassageData,
@@ -966,6 +1128,54 @@ export async function processFeedback(
         Assessment: ${originalResult.coherence?.passageB?.assessment || 'Not evaluated'}
         Strengths: ${originalResult.coherence?.passageB?.strengths?.join(', ') || 'Not evaluated'}
         Weaknesses: ${originalResult.coherence?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
+        `;
+        break;
+      case 'accuracy':
+        categoryDescription = "Accuracy - Factual and inferential correctness of the passage";
+        originalAnalysis = `
+        Passage A:
+        Score: ${originalResult.accuracy?.passageA?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.accuracy?.passageA?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.accuracy?.passageA?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.accuracy?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
+        
+        Passage B:
+        Score: ${originalResult.accuracy?.passageB?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.accuracy?.passageB?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.accuracy?.passageB?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.accuracy?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
+        `;
+        break;
+      case 'depth':
+        categoryDescription = "Depth - Non-triviality and conceptual insight of the passage";
+        originalAnalysis = `
+        Passage A:
+        Score: ${originalResult.depth?.passageA?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.depth?.passageA?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.depth?.passageA?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.depth?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
+        
+        Passage B:
+        Score: ${originalResult.depth?.passageB?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.depth?.passageB?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.depth?.passageB?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.depth?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
+        `;
+        break;
+      case 'clarity':
+        categoryDescription = "Clarity - Readability, transparency, and semantic accessibility of the passage";
+        originalAnalysis = `
+        Passage A:
+        Score: ${originalResult.clarity?.passageA?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.clarity?.passageA?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.clarity?.passageA?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.clarity?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
+        
+        Passage B:
+        Score: ${originalResult.clarity?.passageB?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.clarity?.passageB?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.clarity?.passageB?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.clarity?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
         `;
         break;
     }
