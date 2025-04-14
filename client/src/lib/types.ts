@@ -99,6 +99,51 @@ export interface AnalysisResult {
     };
     feedback?: FeedbackData;
   };
+  accuracy?: {
+    passageA: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    passageB: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    feedback?: FeedbackData;
+  };
+  depth?: {
+    passageA: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    passageB: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    feedback?: FeedbackData;
+  };
+  clarity?: {
+    passageA: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    passageB: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    feedback?: FeedbackData;
+  };
   verdict: string;
   supportingDocuments?: SupportingDocument[];
 }
@@ -110,7 +155,7 @@ export interface AnalyzePassagesRequest {
 
 export interface SubmitFeedbackRequest {
   analysisId: number;
-  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence';
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence' | 'accuracy' | 'depth' | 'clarity';
   feedback: string;
   supportingDocument?: SupportingDocument;
   originalResult: AnalysisResult;

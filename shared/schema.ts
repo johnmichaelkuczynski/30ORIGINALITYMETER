@@ -141,6 +141,63 @@ export const analysisResultSchema = z.object({
       isRevised: z.boolean(),
     }).optional(),
   }).optional(),
+  accuracy: z.object({
+    passageA: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    passageB: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
+  }).optional(),
+  depth: z.object({
+    passageA: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    passageB: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
+  }).optional(),
+  clarity: z.object({
+    passageA: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    passageB: z.object({
+      score: z.number(),
+      assessment: z.string(),
+      strengths: z.array(z.string()),
+      weaknesses: z.array(z.string()),
+    }),
+    feedback: z.object({
+      comment: z.string(),
+      aiResponse: z.string(),
+      isRevised: z.boolean(),
+    }).optional(),
+  }).optional(),
   verdict: z.string(),
   supportingDocuments: z.array(z.object({
     title: z.string(),
