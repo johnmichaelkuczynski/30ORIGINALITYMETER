@@ -45,8 +45,15 @@ export default function AnalysisTabs({
         <nav className="flex -mb-px overflow-x-auto">
           {tabs.map((tab) => {
             // Skip optional tabs if the data doesn't exist
-            if (tab.optional && !result[tab.id]) {
-              return null;
+            if (tab.optional) {
+              // Type-safe check for optional metrics
+              if (
+                (tab.id === 'accuracy' && !result.accuracy) || 
+                (tab.id === 'depth' && !result.depth) || 
+                (tab.id === 'clarity' && !result.clarity)
+              ) {
+                return null;
+              }
             }
             
             return (
@@ -759,6 +766,384 @@ export default function AnalysisTabs({
             <FeedbackForm
               category="coherence"
               categoryName="Coherence Analysis"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
+          </div>
+        )}
+        
+        {/* Accuracy */}
+        {activeTab === "accuracy" && result.accuracy && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Accuracy Analysis</h3>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Evaluating the factual and inferential correctness of the passage."
+                  : "Comparing the factual and inferential correctness of both passages."
+                }
+              </p>
+            </div>
+            
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm text-secondary-600">Accuracy Score</span>
+                    <div className="flex justify-between items-center">
+                      <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.accuracy.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.accuracy.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.accuracy.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                      <span className={`text-base font-semibold ${result.accuracy.passageA.score > 7 ? 'text-green-600' : result.accuracy.passageA.score > 4 ? 'text-indigo-600' : 'text-amber-600'}`}>
+                        {result.accuracy.passageA.score.toFixed(1)}/10
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-md">
+                    <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                    <p className="text-secondary-600 text-sm">{result.accuracy.passageA.assessment}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 rounded-md">
+                      <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.accuracy.passageA.strengths.map((strength, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-md">
+                      <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.accuracy.passageA.weaknesses.map((weakness, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm text-secondary-600">Accuracy Score</span>
+                      <div className="flex justify-between items-center">
+                        <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                          <div 
+                            className={`absolute top-0 left-0 h-full ${
+                              result.accuracy.passageB.score >= 7 ? 'bg-green-500' : 
+                              result.accuracy.passageB.score >= 4 ? 'bg-amber-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${result.accuracy.passageB.score * 10}%` }}
+                          ></div>
+                        </div>
+                        <span className={`text-base font-semibold ${result.accuracy.passageB.score > 7 ? 'text-green-600' : result.accuracy.passageB.score > 4 ? 'text-indigo-600' : 'text-amber-600'}`}>
+                          {result.accuracy.passageB.score.toFixed(1)}/10
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-white rounded-md">
+                      <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                      <p className="text-secondary-600 text-sm">{result.accuracy.passageB.assessment}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-green-50 rounded-md">
+                        <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.accuracy.passageB.strengths.map((strength, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="p-4 bg-red-50 rounded-md">
+                        <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.accuracy.passageB.weaknesses.map((weakness, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Feedback Form for Accuracy */}
+            <FeedbackForm
+              category="accuracy"
+              categoryName="Accuracy Analysis"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
+          </div>
+        )}
+        
+        {/* Depth */}
+        {activeTab === "depth" && result.depth && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Depth Analysis</h3>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Evaluating the conceptual insight and non-triviality of the passage."
+                  : "Comparing the conceptual insight and non-triviality of both passages."
+                }
+              </p>
+            </div>
+            
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm text-secondary-600">Depth Score</span>
+                    <div className="flex justify-between items-center">
+                      <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.depth.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.depth.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.depth.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                      <span className={`text-base font-semibold ${result.depth.passageA.score > 7 ? 'text-green-600' : result.depth.passageA.score > 4 ? 'text-amber-600' : 'text-red-600'}`}>
+                        {result.depth.passageA.score.toFixed(1)}/10
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-md">
+                    <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                    <p className="text-secondary-600 text-sm">{result.depth.passageA.assessment}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 rounded-md">
+                      <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.depth.passageA.strengths.map((strength, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-md">
+                      <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.depth.passageA.weaknesses.map((weakness, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm text-secondary-600">Depth Score</span>
+                      <div className="flex justify-between items-center">
+                        <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                          <div 
+                            className={`absolute top-0 left-0 h-full ${
+                              result.depth.passageB.score >= 7 ? 'bg-green-500' : 
+                              result.depth.passageB.score >= 4 ? 'bg-amber-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${result.depth.passageB.score * 10}%` }}
+                          ></div>
+                        </div>
+                        <span className={`text-base font-semibold ${result.depth.passageB.score > 7 ? 'text-green-600' : result.depth.passageB.score > 4 ? 'text-amber-600' : 'text-red-600'}`}>
+                          {result.depth.passageB.score.toFixed(1)}/10
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-white rounded-md">
+                      <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                      <p className="text-secondary-600 text-sm">{result.depth.passageB.assessment}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-green-50 rounded-md">
+                        <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.depth.passageB.strengths.map((strength, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="p-4 bg-red-50 rounded-md">
+                        <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.depth.passageB.weaknesses.map((weakness, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Feedback Form for Depth */}
+            <FeedbackForm
+              category="depth"
+              categoryName="Depth Analysis"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
+          </div>
+        )}
+        
+        {/* Clarity */}
+        {activeTab === "clarity" && result.clarity && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Clarity Analysis</h3>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Evaluating the readability, transparency, and semantic accessibility of the passage."
+                  : "Comparing the readability, transparency, and semantic accessibility of both passages."
+                }
+              </p>
+            </div>
+            
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8`}>
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-sm text-secondary-600">Clarity Score</span>
+                    <div className="flex justify-between items-center">
+                      <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            result.clarity.passageA.score >= 7 ? 'bg-green-500' : 
+                            result.clarity.passageA.score >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${result.clarity.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                      <span className={`text-base font-semibold ${result.clarity.passageA.score > 7 ? 'text-green-600' : result.clarity.passageA.score > 4 ? 'text-teal-600' : 'text-amber-600'}`}>
+                        {result.clarity.passageA.score.toFixed(1)}/10
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-white rounded-md">
+                    <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                    <p className="text-secondary-600 text-sm">{result.clarity.passageA.assessment}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 rounded-md">
+                      <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.clarity.passageA.strengths.map((strength, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-md">
+                      <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                      <ul className="list-disc list-inside space-y-1">
+                        {result.clarity.passageA.weaknesses.map((weakness, idx) => (
+                          <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg space-y-4">
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-sm text-secondary-600">Clarity Score</span>
+                      <div className="flex justify-between items-center">
+                        <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
+                          <div 
+                            className={`absolute top-0 left-0 h-full ${
+                              result.clarity.passageB.score >= 7 ? 'bg-green-500' : 
+                              result.clarity.passageB.score >= 4 ? 'bg-amber-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${result.clarity.passageB.score * 10}%` }}
+                          ></div>
+                        </div>
+                        <span className={`text-base font-semibold ${result.clarity.passageB.score > 7 ? 'text-green-600' : result.clarity.passageB.score > 4 ? 'text-teal-600' : 'text-amber-600'}`}>
+                          {result.clarity.passageB.score.toFixed(1)}/10
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-white rounded-md">
+                      <h5 className="font-medium text-secondary-700 mb-2">Assessment</h5>
+                      <p className="text-secondary-600 text-sm">{result.clarity.passageB.assessment}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-green-50 rounded-md">
+                        <h5 className="font-medium text-green-800 mb-2">Strengths</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.clarity.passageB.strengths.map((strength, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="p-4 bg-red-50 rounded-md">
+                        <h5 className="font-medium text-red-800 mb-2">Weaknesses</h5>
+                        <ul className="list-disc list-inside space-y-1">
+                          {result.clarity.passageB.weaknesses.map((weakness, idx) => (
+                            <li key={idx} className="text-secondary-600 text-sm">{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Feedback Form for Clarity */}
+            <FeedbackForm
+              category="clarity"
+              categoryName="Clarity Analysis"
               result={result}
               passageA={passageA}
               passageB={passageB}
