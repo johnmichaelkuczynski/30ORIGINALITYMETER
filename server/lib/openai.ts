@@ -45,9 +45,10 @@ For coherence, evaluate:
 - Intelligibility as a unified argument or narrative
 
 IMPORTANT FORMATTING INSTRUCTIONS FOR COHERENCE:
-For the coherenceCategory field, assign exactly ONE of these categories:
-"Original and Coherent", "Original but Incoherent", "Conventional but Coherent", or "Derivative and Incoherent".
-DO NOT prefix with "Passage A:" or "Passage B:" or include any other text.
+- Provide a score from 0-10 for coherence (where 10 is perfectly coherent)
+- List clear strengths and weaknesses of the passage's coherence
+- Provide a detailed assessment of coherence
+- Focus on logical structure, clarity, and flow of ideas
 
 Format your response as JSON with these specific sections that match the exact schema below.`,
         },
@@ -318,9 +319,10 @@ For coherence, evaluate:
 - Intelligibility as a unified argument or narrative
 
 IMPORTANT FORMATTING INSTRUCTIONS FOR COHERENCE:
-For the coherenceCategory field, assign exactly ONE of these categories:
-"Original and Coherent", "Original but Incoherent", "Conventional but Coherent", or "Derivative and Incoherent".
-DO NOT prefix with "Passage A:" or "Passage B:" or include any other text.
+- Provide a score from 0-10 for coherence (where 10 is perfectly coherent)
+- List clear strengths and weaknesses of the passage's coherence
+- Provide a detailed assessment of coherence
+- Focus on logical structure, clarity, and flow of ideas
 
 Format your response as JSON with these specific sections that match the exact schema used for comparative analysis.`,
         },
