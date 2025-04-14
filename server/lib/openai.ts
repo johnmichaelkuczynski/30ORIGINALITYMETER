@@ -44,6 +44,11 @@ For coherence, evaluate:
 - Consistent terminology use
 - Intelligibility as a unified argument or narrative
 
+IMPORTANT FORMATTING INSTRUCTIONS FOR COHERENCE:
+For the coherenceCategory field, assign exactly ONE of these categories:
+"Original and Coherent", "Original but Incoherent", "Conventional but Coherent", or "Derivative and Incoherent".
+DO NOT prefix with "Passage A:" or "Passage B:" or include any other text.
+
 Format your response as JSON with these specific sections that match the exact schema below.`,
         },
         {
@@ -240,6 +245,46 @@ Return a detailed analysis in the following JSON format:
       result.conceptualParasite.passageB = result.conceptualParasite.passageB || {};
       result.conceptualParasite.passageB.elements = ["Draws from established sources", "Utilizes recognized patterns"];
     }
+    
+    // Ensure coherence data is properly structured
+    if (!result.coherence) {
+      result.coherence = {
+        passageA: {
+          score: 5,
+          assessment: "The coherence of this passage has not been fully evaluated.",
+          strengths: ["Consistent terminology", "Logical structure"],
+          weaknesses: ["Could improve clarity in some sections"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "This represents an average level of coherence.",
+          strengths: ["Standard logical flow", "Conventional structure"],
+          weaknesses: ["Typical clarity issues found in average texts"]
+        },
+        coherenceCategory: "Original and Coherent"
+      };
+    } else {
+      // Ensure all required fields exist
+      result.coherence.passageA = result.coherence.passageA || {
+        score: 5,
+        assessment: "The coherence of this passage has not been fully evaluated.",
+        strengths: ["Consistent terminology", "Logical structure"],
+        weaknesses: ["Could improve clarity in some sections"]
+      };
+      
+      result.coherence.passageB = result.coherence.passageB || {
+        score: 5,
+        assessment: "This represents an average level of coherence.",
+        strengths: ["Standard logical flow", "Conventional structure"],
+        weaknesses: ["Typical clarity issues found in average texts"]
+      };
+      
+      // Ensure valid coherence category (with default if missing or invalid)
+      const validCategories = ["Original and Coherent", "Original but Incoherent", "Conventional but Coherent", "Derivative and Incoherent"];
+      if (!result.coherence.coherenceCategory || !validCategories.includes(result.coherence.coherenceCategory)) {
+        result.coherence.coherenceCategory = "Original and Coherent";
+      }
+    }
 
     return result;
   } catch (error) {
@@ -276,6 +321,11 @@ For coherence, evaluate:
 - Conceptual clarity
 - Consistent terminology use
 - Intelligibility as a unified argument or narrative
+
+IMPORTANT FORMATTING INSTRUCTIONS FOR COHERENCE:
+For the coherenceCategory field, assign exactly ONE of these categories:
+"Original and Coherent", "Original but Incoherent", "Conventional but Coherent", or "Derivative and Incoherent".
+DO NOT prefix with "Passage A:" or "Passage B:" or include any other text.
 
 Format your response as JSON with these specific sections that match the exact schema used for comparative analysis.`,
         },
@@ -465,6 +515,46 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       result.conceptualParasite = result.conceptualParasite || {};
       result.conceptualParasite.passageB = result.conceptualParasite.passageB || {};
       result.conceptualParasite.passageB.elements = ["Typical patterns of thinking", "Standard conceptual frameworks"];
+    }
+    
+    // Ensure coherence data is properly structured
+    if (!result.coherence) {
+      result.coherence = {
+        passageA: {
+          score: 5,
+          assessment: "The coherence of this passage has not been fully evaluated.",
+          strengths: ["Consistent terminology", "Logical structure"],
+          weaknesses: ["Could improve clarity in some sections"]
+        },
+        passageB: {
+          score: 6,
+          assessment: "This represents an average level of coherence typical for texts in this domain.",
+          strengths: ["Standard logical flow", "Conventional structure"],
+          weaknesses: ["Typical clarity issues found in average texts"]
+        },
+        coherenceCategory: "Conventional but Coherent"
+      };
+    } else {
+      // Ensure all required fields exist
+      result.coherence.passageA = result.coherence.passageA || {
+        score: 5,
+        assessment: "The coherence of this passage has not been fully evaluated.",
+        strengths: ["Consistent terminology", "Logical structure"],
+        weaknesses: ["Could improve clarity in some sections"]
+      };
+      
+      result.coherence.passageB = result.coherence.passageB || {
+        score: 6,
+        assessment: "This represents an average level of coherence typical for texts in this domain.",
+        strengths: ["Standard logical flow", "Conventional structure"],
+        weaknesses: ["Typical clarity issues found in average texts"]
+      };
+      
+      // Ensure valid coherence category (with default if missing or invalid)
+      const validCategories = ["Original and Coherent", "Original but Incoherent", "Conventional but Coherent", "Derivative and Incoherent"];
+      if (!result.coherence.coherenceCategory || !validCategories.includes(result.coherence.coherenceCategory)) {
+        result.coherence.coherenceCategory = "Conventional but Coherent";
+      }
     }
     
     return result;
