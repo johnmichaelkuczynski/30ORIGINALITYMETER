@@ -129,14 +129,16 @@ export default function AnalysisTabs({
                       <span className="text-sm font-medium text-secondary-700">{passageATitle}</span>
                       <span className="text-sm text-secondary-500">{result.semanticDistance.passageA.label}</span>
                     </div>
-                    <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                    <div className="relative h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`h-full ${
-                          result.semanticDistance.passageA.distance > 60 ? 'bg-green-600' : 
-                          result.semanticDistance.passageA.distance > 40 ? 'bg-green-500' : 
-                          result.semanticDistance.passageA.distance > 20 ? 'bg-amber-500' : 'bg-red-500'
+                          result.semanticDistance.passageA.distance > 80 ? 'bg-green-600' : 
+                          result.semanticDistance.passageA.distance > 60 ? 'bg-green-500' : 
+                          result.semanticDistance.passageA.distance > 40 ? 'bg-amber-500' : 
+                          result.semanticDistance.passageA.distance > 20 ? 'bg-orange-500' : 'bg-red-500'
                         }`}
                         style={{ width: `${result.semanticDistance.passageA.distance}%` }}
+                        title={`Semantic Distance: ${result.semanticDistance.passageA.distance}%`}
                       >
                       </div>
                       {/* Vertical markers for scale */}
@@ -152,14 +154,16 @@ export default function AnalysisTabs({
                         <span className="text-sm font-medium text-secondary-700">{passageBTitle}</span>
                         <span className="text-sm text-secondary-500">{result.semanticDistance.passageB.label}</span>
                       </div>
-                      <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+                      <div className="relative h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`h-full ${
-                            result.semanticDistance.passageB.distance > 60 ? 'bg-green-600' : 
-                            result.semanticDistance.passageB.distance > 40 ? 'bg-green-500' : 
-                            result.semanticDistance.passageB.distance > 20 ? 'bg-amber-500' : 'bg-red-500'
+                            result.semanticDistance.passageB.distance > 80 ? 'bg-green-600' : 
+                            result.semanticDistance.passageB.distance > 60 ? 'bg-green-500' : 
+                            result.semanticDistance.passageB.distance > 40 ? 'bg-amber-500' : 
+                            result.semanticDistance.passageB.distance > 20 ? 'bg-orange-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${result.semanticDistance.passageB.distance}%` }}
+                          title={`Semantic Distance: ${result.semanticDistance.passageB.distance}%`}
                         >
                         </div>
                         {/* Vertical markers for scale */}
