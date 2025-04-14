@@ -359,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // More permissive validation schema
       const requestSchema = z.object({
         analysisId: z.number().optional(),
-        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite']),
+        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite', 'coherence']),
         feedback: z.string().min(1, "Feedback is required"),
         supportingDocument: z.object({
           title: z.string(),

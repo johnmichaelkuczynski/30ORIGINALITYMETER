@@ -139,6 +139,62 @@ export default function SummarySection({
           </div>
         )}
         
+        {/* Coherence Summary (if available) */}
+        {result.coherence && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-secondary-800 mb-3">Coherence Assessment</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-center mb-4">
+                <span className="inline-block bg-primary-100 text-primary-800 px-3 py-1 rounded-md text-md font-medium border border-primary-200">
+                  {result.coherence.coherenceCategory}
+                </span>
+              </div>
+              
+              {isSinglePassageMode ? (
+                <div className="flex items-center justify-between p-2">
+                  <span className="text-sm text-secondary-600">Coherence Score</span>
+                  <div className="flex items-center">
+                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+                      <div 
+                        className="h-full bg-success-500" 
+                        style={{ width: `${result.coherence.passageA.score * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium">{result.coherence.passageA.score.toFixed(1)}/10</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center justify-between p-2">
+                    <span className="text-xs text-secondary-600">{passageATitle}</span>
+                    <div className="flex items-center">
+                      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden mr-1">
+                        <div 
+                          className="h-full bg-success-500" 
+                          style={{ width: `${result.coherence.passageA.score * 10}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-medium">{result.coherence.passageA.score.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-2">
+                    <span className="text-xs text-secondary-600">{passageBTitle}</span>
+                    <div className="flex items-center">
+                      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden mr-1">
+                        <div 
+                          className="h-full bg-success-500" 
+                          style={{ width: `${result.coherence.passageB.score * 10}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-medium">{result.coherence.passageB.score.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Verdict */}
         <div className="border-t border-gray-200 pt-6">
           <h3 className="text-lg font-medium text-secondary-800 mb-2">

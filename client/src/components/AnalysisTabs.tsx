@@ -453,6 +453,130 @@ export default function AnalysisTabs({
             />
           </div>
         )}
+
+        {/* Coherence */}
+        {activeTab === "coherence" && result.coherence && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-secondary-800 mb-2">Coherence Analysis</h3>
+              <p className="text-secondary-600">
+                {isSinglePassageMode
+                  ? "Evaluating the logical and conceptual coherence of the passage, regardless of originality."
+                  : "Evaluating the logical and conceptual coherence of each passage, regardless of originality."
+                }
+              </p>
+            </div>
+            
+            <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "md:grid-cols-2"} gap-8 mb-6`}>
+              <div>
+                <h4 className="font-medium text-secondary-700 mb-3">{passageATitle}</h4>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
+                    <span className="text-sm font-semibold text-primary-700">
+                      {result.coherence.passageA.score.toFixed(1)}/10
+                    </span>
+                  </div>
+                  <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
+                    <div 
+                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                      style={{ width: `${result.coherence.passageA.score * 10}%` }}
+                    >
+                      {result.coherence.passageA.score.toFixed(1)}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Assessment:</h5>
+                      <p className="text-sm text-secondary-600">{result.coherence.passageA.assessment}</p>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Strengths:</h5>
+                      <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                        {result.coherence.passageA.strengths.map((strength, index) => (
+                          <li key={index}>{strength}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-medium text-secondary-700 mb-1">Weaknesses:</h5>
+                      <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                        {result.coherence.passageA.weaknesses.map((weakness, index) => (
+                          <li key={index}>{weakness}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {!isSinglePassageMode && (
+                <div>
+                  <h4 className="font-medium text-secondary-700 mb-3">{passageBTitle}</h4>
+                  <div className="bg-gray-50 p-5 rounded-lg">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
+                      <span className="text-sm font-semibold text-primary-700">
+                        {result.coherence.passageB.score.toFixed(1)}/10
+                      </span>
+                    </div>
+                    <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
+                      <div 
+                        className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                        style={{ width: `${result.coherence.passageB.score * 10}%` }}
+                      >
+                        {result.coherence.passageB.score.toFixed(1)}
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <h5 className="text-sm font-medium text-secondary-700 mb-1">Assessment:</h5>
+                        <p className="text-sm text-secondary-600">{result.coherence.passageB.assessment}</p>
+                      </div>
+                      <div>
+                        <h5 className="text-sm font-medium text-secondary-700 mb-1">Strengths:</h5>
+                        <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                          {result.coherence.passageB.strengths.map((strength, index) => (
+                            <li key={index}>{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h5 className="text-sm font-medium text-secondary-700 mb-1">Weaknesses:</h5>
+                        <ul className="list-disc pl-5 text-secondary-600 text-sm space-y-1">
+                          {result.coherence.passageB.weaknesses.map((weakness, index) => (
+                            <li key={index}>{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Overall Coherence Category */}
+            <div className="bg-gray-50 p-5 rounded-lg mb-6">
+              <h4 className="font-medium text-secondary-700 mb-3">Overall Coherence Category</h4>
+              <div className="flex items-center justify-center">
+                <div className="inline-block bg-primary-100 text-primary-800 px-4 py-2 rounded-md text-center border border-primary-200">
+                  <span className="text-lg font-medium">{result.coherence.coherenceCategory}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Feedback Form for Coherence */}
+            <FeedbackForm
+              category="coherence"
+              categoryName="Coherence Analysis"
+              result={result}
+              passageA={passageA}
+              passageB={passageB}
+              isSinglePassageMode={isSinglePassageMode}
+              onFeedbackProcessed={setResult}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
