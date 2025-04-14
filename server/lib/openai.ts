@@ -939,7 +939,9 @@ export async function generateMoreOriginalVersion(
           role: "system",
           content: `You are an expert editor specializing in improving the conceptual originality and intellectual contribution of academic and philosophical texts.
           
-Your task is to generate a more intellectually original version of a passage while preserving its core intent. 
+Your task is to write a COMPLETE, MORE ORIGINAL VERSION of a passage. The new version must be a standalone, cohesive text that can replace the original. 
+
+IMPORTANT: DO NOT provide bullet points or suggestions. Write a COMPLETE, FULLY-FORMED PASSAGE that is ready to use.
 
 You must NOT simply reword or paraphrase the original text. Instead, make genuine intellectual improvements that increase conceptual depth and originality, such as:
 
@@ -969,12 +971,13 @@ Analysis of originality issues:
 - Areas with low originality:
   ${lowHeatAreas || "Various sections throughout the text"}
 
-Generate a more original version that addresses these weaknesses while preserving the core intent. Aim for a significantly higher originality score by making genuine intellectual improvements, not just rewording.
+Respond with exactly these three sections in this order:
 
-Respond with:
-1. The improved passage text
-2. A brief explanation of the key improvements made
-3. An estimated new derivative index score (0-10)`
+1. IMPROVED PASSAGE TEXT - Write a complete, standalone, more original version of the passage. This must be a fully-formed text that can directly replace the original, not bullet points or guidelines.
+
+2. KEY IMPROVEMENTS - Briefly explain the key improvements you made to increase originality.
+
+3. ESTIMATED NEW SCORE - Provide an estimated new derivative index score (0-10) based on how much you improved the originality.`
         }
       ],
       max_tokens: 4000,
@@ -987,37 +990,64 @@ Respond with:
     let improvementSummary = "";
     let estimatedScore = 0;
     
-    // Parse the response - typically the improved passage comes first, followed by explanation
-    const parts = content.split(/\n\n|(?=\d+\.\s)/);
+    // Look for the improved passage - it should be the main content before any numbered points
+    // First, try to find a clear section break
+    const improvedSectionMatch = content.match(/1\.\s*(?:Improved|The improved) passage text:?\s*([\s\S]*?)(?=\n\s*2\.|$)/i);
     
-    if (parts.length >= 1) {
-      // First substantial part should be the improved passage
-      improvedText = parts[0].replace(/^(Improved Passage|Title:).*?\n/i, '').trim();
-      
-      // Look for the explanation/summary
-      const summaryMatch = content.match(/(?:Key Improvements|Explanation of improvements|Brief explanation):([\s\S]*?)(?=\d+\.|Estimated|$)/i);
-      if (summaryMatch && summaryMatch[1]) {
-        improvementSummary = summaryMatch[1].trim();
-      } else {
-        // Fallback if pattern not found
-        improvementSummary = "The passage has been improved with greater conceptual originality, clearer framing, and more innovative connections.";
-      }
-      
-      // Extract estimated new score
-      const scoreMatch = content.match(/(?:Estimated.*?score|New.*?score).*?(\d+(?:\.\d+)?)/i);
-      if (scoreMatch && scoreMatch[1]) {
-        estimatedScore = parseFloat(scoreMatch[1]);
-        // Ensure it's in range
-        estimatedScore = Math.max(0, Math.min(10, estimatedScore));
-      } else {
-        // If no score found, estimate an improvement
-        estimatedScore = Math.min(10, derivativeScore + 2);
-      }
+    if (improvedSectionMatch && improvedSectionMatch[1]) {
+      // Successfully found a clearly marked improved passage section
+      improvedText = improvedSectionMatch[1].trim();
     } else {
-      // Fallback if parsing fails
-      improvedText = content;
-      improvementSummary = "The passage has been improved for greater originality.";
+      // Try to find the improved text by identifying where the explanations start
+      const explanationStart = content.search(/(?:2\.|Key Improvements:|Brief explanation|Explanation of improvements)/i);
+      
+      if (explanationStart > 0) {
+        // Extract everything before the explanation as the improved passage
+        improvedText = content.substring(0, explanationStart).trim()
+          .replace(/^(1\.|Improved Passage:|Title:).*?\n/i, '') // Remove any numbering or headings
+          .trim();
+      } else {
+        // If we can't find a clear separation, check if the content starts with numbered sections
+        const numberedStart = content.match(/^1\.\s*([\s\S]*?)\n\s*2\./);
+        if (numberedStart && numberedStart[1]) {
+          improvedText = numberedStart[1].trim();
+        } else {
+          // Last resort: assume the entire content is the improved passage until we find explanations
+          improvedText = content
+            .replace(/(?:Key Improvements|Explanation|Estimated)[\s\S]*$/i, '')
+            .trim();
+        }
+      }
+    }
+    
+    // Look for the explanation/summary
+    const summaryMatch = content.match(/(?:2\.|Key Improvements:|Explanation of improvements:|Brief explanation:)\s*([\s\S]*?)(?=\s*(?:3\.|Estimated|New Derivative|$))/i);
+    if (summaryMatch && summaryMatch[1]) {
+      improvementSummary = summaryMatch[1].trim();
+    } else {
+      // Fallback if pattern not found
+      improvementSummary = "The passage has been improved with greater conceptual originality, clearer framing, and more innovative connections.";
+    }
+    
+    // Extract estimated new score
+    const scoreMatch = content.match(/(?:3\.|Estimated.*?score|New.*?score).*?(\d+(?:\.\d+)?)/i);
+    if (scoreMatch && scoreMatch[1]) {
+      estimatedScore = parseFloat(scoreMatch[1]);
+      // Ensure it's in range
+      estimatedScore = Math.max(0, Math.min(10, estimatedScore));
+    } else {
+      // If no score found, estimate an improvement
       estimatedScore = Math.min(10, derivativeScore + 2);
+    }
+    
+    // Final check - if we somehow got no improved text or just bullet points
+    if (!improvedText || improvedText.length < 50 || /^[-•*]\s/.test(improvedText)) {
+      // Retry with a simpler approach - take the entire response and clean it
+      console.log("Improved text extraction failed, using fallback method");
+      improvedText = content
+        .replace(/(?:Key Improvements|Explanation|Estimated|Brief explanation)[\s\S]*$/i, '') // Remove everything after explanations
+        .replace(/^\d+\.\s*(?:Improved|The improved) passage text:?\s*/i, '') // Remove numbered headers
+        .trim();
     }
     
     return {
