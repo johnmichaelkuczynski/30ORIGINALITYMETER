@@ -560,10 +560,10 @@ export default function AnalysisTabs({
             {/* Overall Coherence Category */}
             <div className="bg-gray-50 p-5 rounded-lg mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-secondary-700">Originality & Coherence Matrix</h4>
+                <h4 className="font-medium text-secondary-700">Passage Quality Assessment</h4>
                 <div 
                   className="ml-1 text-gray-500 cursor-help"
-                  title="This visualization shows how the passage ranks on two separate measures: originality and coherence. It is not a combined metric."
+                  title="This section shows three distinct measurements: Originality Score, Coherence Score, and an Aggregate Quality Score that combines both factors."
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-4 h-4">
                     <circle cx="12" cy="12" r="10" />
@@ -574,7 +574,70 @@ export default function AnalysisTabs({
               
               {/* Separate Scores Display */}
               <div className="flex flex-col p-4 border rounded-lg mb-3">
-                <div className="grid grid-cols-2 gap-4 mb-3">
+                <div className="grid grid-cols-1 gap-4 mb-4">
+                  {/* Aggregate Score - Prominently displayed */}
+                  <div className="bg-gray-50 rounded-lg p-3 border">
+                    <h4 className="text-base font-medium text-secondary-700 mb-2">Aggregate Quality Score</h4>
+                    
+                    {/* Calculate aggregate - weighted to favor both originality and coherence */}
+                    {(() => {
+                      const originalityScore = result.derivativeIndex.passageA.score;
+                      const coherenceScore = result.coherence.passageA.score;
+                      
+                      // Heavier penalty for low coherence than low originality
+                      let aggregateScore: number;
+                      
+                      if (coherenceScore < 3) {
+                        // Very incoherent content gets heavily penalized regardless of originality
+                        aggregateScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
+                      } else if (coherenceScore >= 3 && coherenceScore < 6) {
+                        // Moderate coherence - weighted blend
+                        aggregateScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
+                      } else {
+                        // Good coherence - more balanced weighting
+                        aggregateScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
+                      }
+                      
+                      // Color based on score
+                      const scoreColor = 
+                        aggregateScore >= 8 ? 'text-green-600' : 
+                        aggregateScore >= 6 ? 'text-blue-600' : 
+                        aggregateScore >= 4 ? 'text-amber-600' : 'text-red-600';
+                      
+                      // Quality label
+                      const qualityLabel = 
+                        aggregateScore >= 8 ? 'Excellent' : 
+                        aggregateScore >= 6 ? 'Good' : 
+                        aggregateScore >= 4 ? 'Fair' : 'Poor';
+                      
+                      return (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-baseline">
+                            <span className={`text-2xl font-bold ${scoreColor}`}>
+                              {aggregateScore.toFixed(1)}
+                            </span>
+                            <span className="text-sm text-secondary-500 ml-1">/10</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className={`font-medium px-2 py-1 rounded text-sm ${
+                              aggregateScore >= 8 ? 'bg-green-100 text-green-800' : 
+                              aggregateScore >= 6 ? 'bg-blue-100 text-blue-800' : 
+                              aggregateScore >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {qualityLabel}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    
+                    <p className="text-xs text-secondary-600 mt-2">
+                      This score balances originality with coherence, with incoherent text receiving a heavier penalty.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mb-3 border-t pt-4">
                   <div>
                     <h5 className="text-sm font-medium text-secondary-700 mb-1">Originality Score</h5>
                     <div className="flex items-center justify-between">
@@ -603,13 +666,14 @@ export default function AnalysisTabs({
                 </div>
                 
                 <div className="text-xs text-secondary-600 border-t pt-3">
-                  <p>This passage has separate scores for originality and coherence. These are independent qualities that should be evaluated separately.</p>
+                  <p>The independent scores above are used to calculate the Aggregate Quality Score. The aggregate scoring system prioritizes coherence while still recognizing the value of originality.</p>
                 </div>
               </div>
               
-              {/* Matrix Position */}
+              {/* Quadrant Classification - Visual aid only */}
               <div className="px-4 py-3 bg-gray-50 rounded border mb-3">
-                <div className="flex items-center space-x-2 mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h5 className="text-sm font-medium text-secondary-700">Position on Originality-Coherence Matrix</h5>
                   {result.coherence.coherenceCategory === "Original and Coherent" && (
                     <div className="flex items-center space-x-2 text-green-700">
                       <span className="text-lg">✅</span>
