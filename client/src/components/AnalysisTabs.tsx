@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AnalysisResult, PassageData } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import FeedbackForm from "./FeedbackForm";
+import { getScoreColorClass, getScoreTextColorClass, getScoreLabel } from "@/lib/utils";
 
 interface AnalysisTabsProps {
   result: AnalysisResult;
@@ -130,9 +131,18 @@ export default function AnalysisTabs({
                     </div>
                     <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-primary-500" 
+                        className={`h-full ${
+                          result.semanticDistance.passageA.distance > 60 ? 'bg-green-600' : 
+                          result.semanticDistance.passageA.distance > 40 ? 'bg-green-500' : 
+                          result.semanticDistance.passageA.distance > 20 ? 'bg-amber-500' : 'bg-red-500'
+                        }`}
                         style={{ width: `${result.semanticDistance.passageA.distance}%` }}
-                      ></div>
+                      >
+                      </div>
+                      {/* Vertical markers for scale */}
+                      <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                      <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                      <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                     </div>
                   </div>
                   
@@ -144,9 +154,18 @@ export default function AnalysisTabs({
                       </div>
                       <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-primary-500" 
+                          className={`h-full ${
+                            result.semanticDistance.passageB.distance > 60 ? 'bg-green-600' : 
+                            result.semanticDistance.passageB.distance > 40 ? 'bg-green-500' : 
+                            result.semanticDistance.passageB.distance > 20 ? 'bg-amber-500' : 'bg-red-500'
+                          }`}
                           style={{ width: `${result.semanticDistance.passageB.distance}%` }}
-                        ></div>
+                        >
+                        </div>
+                        {/* Vertical markers for scale */}
+                        <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                        <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                        <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                       </div>
                     </div>
                   )}
@@ -298,11 +317,15 @@ export default function AnalysisTabs({
                   </div>
                   <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                     <div 
-                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                      className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.derivativeIndex.passageA.score)} text-white text-xs font-medium`}
                       style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                     >
                       {result.derivativeIndex.passageA.score.toFixed(1)}
                     </div>
+                    {/* Vertical markers for scale */}
+                    <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                    <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                    <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                   </div>
                   <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
                   <div className="space-y-2">
@@ -327,11 +350,15 @@ export default function AnalysisTabs({
                     </div>
                     <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                       <div 
-                        className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                        className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.derivativeIndex.passageB.score)} text-white text-xs font-medium`}
                         style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
                       >
                         {result.derivativeIndex.passageB.score.toFixed(1)}
                       </div>
+                      {/* Vertical markers for scale */}
+                      <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                      <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                      <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                     </div>
                     <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
                     <div className="space-y-2">
@@ -479,11 +506,15 @@ export default function AnalysisTabs({
                   </div>
                   <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                     <div 
-                      className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                      className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.coherence.passageA.score)} text-white text-xs font-medium`}
                       style={{ width: `${result.coherence.passageA.score * 10}%` }}
                     >
                       {result.coherence.passageA.score.toFixed(1)}
                     </div>
+                    {/* Vertical markers for scale */}
+                    <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                    <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                    <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                   </div>
                   <div className="space-y-4">
                     <div>
@@ -522,11 +553,15 @@ export default function AnalysisTabs({
                     </div>
                     <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                       <div 
-                        className="absolute top-0 bottom-0 left-0 flex items-center justify-center bg-primary-600 text-white text-xs font-medium" 
+                        className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.coherence.passageB.score)} text-white text-xs font-medium`} 
                         style={{ width: `${result.coherence.passageB.score * 10}%` }}
                       >
                         {result.coherence.passageB.score.toFixed(1)}
                       </div>
+                      {/* Vertical markers for scale */}
+                      <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
+                      <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-400"></div>
+                      <div className="absolute top-0 bottom-0 left-3/4 w-px bg-gray-300"></div>
                     </div>
                     <div className="space-y-4">
                       <div>

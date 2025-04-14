@@ -18,3 +18,50 @@ export function splitIntoParagraphs(text: string): string[] {
   
   return paragraphs;
 }
+
+/**
+ * Returns a tailwind color class based on the score value
+ * @param score A score from 0-10
+ * @returns A Tailwind CSS class for background color
+ */
+export function getScoreColorClass(score: number): string {
+  if (score >= 8) return 'bg-green-600';
+  if (score >= 6) return 'bg-green-500';
+  if (score >= 4) return 'bg-amber-500';
+  if (score >= 2) return 'bg-orange-500';
+  return 'bg-red-500';
+}
+
+/**
+ * Returns a tailwind text color class based on the score value
+ * @param score A score from 0-10
+ * @returns A Tailwind CSS class for text color
+ */
+export function getScoreTextColorClass(score: number): string {
+  if (score >= 8) return 'text-green-600';
+  if (score >= 6) return 'text-green-500';
+  if (score >= 4) return 'text-amber-500';
+  if (score >= 2) return 'text-orange-500';
+  return 'text-red-500';
+}
+
+/**
+ * Returns a label for a score
+ * @param score A score from 0-10
+ * @param type The type of score (originality, coherence, etc.)
+ * @returns A human-readable label for the score
+ */
+export function getScoreLabel(score: number, type: 'originality' | 'coherence' | 'quality' = 'quality'): string {
+  const highLabel = type === 'originality' ? 'High Originality' : 
+                    type === 'coherence' ? 'High Coherence' : 'Excellent';
+  
+  const moderateLabel = type === 'originality' ? 'Moderate Originality' : 
+                        type === 'coherence' ? 'Moderate Coherence' : 'Good';
+  
+  const lowLabel = type === 'originality' ? 'Low Originality' : 
+                   type === 'coherence' ? 'Low Coherence' : 'Fair';
+  
+  if (score >= 7) return highLabel;
+  if (score >= 4) return moderateLabel;
+  return lowLabel;
+}
