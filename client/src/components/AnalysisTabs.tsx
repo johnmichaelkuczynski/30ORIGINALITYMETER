@@ -227,8 +227,19 @@ export default function AnalysisTabs({
                       <p className="text-secondary-700 text-sm">{paragraph.content}</p>
                       <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
+                          className={`h-full ${
+                            paragraph.heat > 80 ? 'bg-green-600' : 
+                            paragraph.heat > 60 ? 'bg-green-500' : 
+                            paragraph.heat > 40 ? 'bg-amber-500' : 
+                            paragraph.heat > 20 ? 'bg-orange-500' : 'bg-red-500'
+                          }`}
                           style={{ width: `${paragraph.heat}%` }}
+                          title={`Novelty Level: ${paragraph.heat}% - ${
+                            paragraph.heat > 80 ? 'Highly Original' : 
+                            paragraph.heat > 60 ? 'Quite Original' : 
+                            paragraph.heat > 40 ? 'Moderately Original' : 
+                            paragraph.heat > 20 ? 'Somewhat Derivative' : 'Highly Derivative'
+                          }`}
                         ></div>
                       </div>
                       {paragraph.quote && (
@@ -259,8 +270,19 @@ export default function AnalysisTabs({
                         <p className="text-secondary-700 text-sm">{paragraph.content}</p>
                         <div className="mt-1 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
                           <div 
-                            className={`h-full ${paragraph.heat > 60 ? 'bg-primary-600' : paragraph.heat > 40 ? 'bg-primary-500' : 'bg-primary-400'}`} 
+                            className={`h-full ${
+                              paragraph.heat > 80 ? 'bg-green-600' : 
+                              paragraph.heat > 60 ? 'bg-green-500' : 
+                              paragraph.heat > 40 ? 'bg-amber-500' : 
+                              paragraph.heat > 20 ? 'bg-orange-500' : 'bg-red-500'
+                            }`}
                             style={{ width: `${paragraph.heat}%` }}
+                            title={`Novelty Level: ${paragraph.heat}% - ${
+                              paragraph.heat > 80 ? 'Highly Original' : 
+                              paragraph.heat > 60 ? 'Quite Original' : 
+                              paragraph.heat > 40 ? 'Moderately Original' : 
+                              paragraph.heat > 20 ? 'Somewhat Derivative' : 'Highly Derivative'
+                            }`}
                           ></div>
                         </div>
                         {paragraph.quote && (
@@ -331,8 +353,15 @@ export default function AnalysisTabs({
                   <div className="space-y-2">
                     {result.derivativeIndex.passageA.components.map((component, index) => (
                       <div key={index} className="flex justify-between items-center">
-                        <span className="text-sm text-secondary-600">{component.name}</span>
-                        <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                        <div 
+                          className="flex items-center text-sm text-secondary-600 cursor-help"
+                          title={`${component.name}: Measures how much this passage borrows ideas or approaches from existing work`}
+                        >
+                          {component.name}
+                        </div>
+                        <span className={`text-sm font-medium ${getScoreTextColorClass(component.score)}`}>
+                          {component.score.toFixed(1)}/10
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -364,8 +393,15 @@ export default function AnalysisTabs({
                     <div className="space-y-2">
                       {result.derivativeIndex.passageB.components.map((component, index) => (
                         <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm text-secondary-600">{component.name}</span>
-                          <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                          <div 
+                            className="flex items-center text-sm text-secondary-600 cursor-help"
+                            title={`${component.name}: Measures how much this passage borrows ideas or approaches from existing work`}
+                          >
+                            {component.name}
+                          </div>
+                          <span className={`text-sm font-medium ${getScoreTextColorClass(component.score)}`}>
+                            {component.score.toFixed(1)}/10
+                          </span>
                         </div>
                       ))}
                     </div>
