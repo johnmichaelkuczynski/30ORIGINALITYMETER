@@ -429,8 +429,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       "assessment": "string explaining typical coherence level in this domain",
       "strengths": ["typical strengths of average texts"],
       "weaknesses": ["typical weaknesses of average texts"]
-    },
-    "coherenceCategory": "Original and Coherent"/"Original but Incoherent"/"Conventional but Coherent"/"Derivative and Incoherent"
+    }
   },
   "verdict": "comprehensive one-paragraph judgment on how original the passage is compared to the norm, with specific mentions of strengths and limitations"
 }`,
