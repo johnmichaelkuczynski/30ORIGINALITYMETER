@@ -84,6 +84,22 @@ export interface AnalysisResult {
     };
     feedback?: FeedbackData;
   };
+  coherence: {
+    passageA: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    passageB: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+    };
+    coherenceCategory: "Original and Coherent" | "Original but Incoherent" | "Conventional but Coherent" | "Derivative and Incoherent";
+    feedback?: FeedbackData;
+  };
   verdict: string;
   supportingDocuments?: SupportingDocument[];
 }
@@ -95,7 +111,7 @@ export interface AnalyzePassagesRequest {
 
 export interface SubmitFeedbackRequest {
   analysisId: number;
-  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite';
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence';
   feedback: string;
   supportingDocument?: SupportingDocument;
   originalResult: AnalysisResult;

@@ -28,13 +28,21 @@ export async function analyzePassages(
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts (not plagiarism or surface similarity). Analyze the two passages for originality across five metrics:
+          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts (not plagiarism or surface similarity). Analyze the two passages for originality across six metrics:
 
 1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
 2. Semantic Distance - How far each passage moves from predecessors; is it reshuffling or truly novel
 3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph
 4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original
 5. Conceptual Parasite Detection - Passages that operate in old debates without adding anything new
+6. Coherence - Whether the passage, despite being original or not, is logically and conceptually coherent
+
+For coherence, evaluate:
+- Internal consistency (no contradictions)
+- Logical flow of ideas
+- Conceptual clarity
+- Consistent terminology use
+- Intelligibility as a unified argument or narrative
 
 Format your response as JSON with these specific sections that match the exact schema below.`,
         },
@@ -131,6 +139,21 @@ Return a detailed analysis in the following JSON format:
       "elements": ["string1", "string2"],
       "assessment": "string summarizing parasite evaluation"
     }
+  },
+  "coherence": {
+    "passageA": {
+      "score": number from 0-10,
+      "assessment": "string explaining the coherence evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "passageB": {
+      "score": number from 0-10,
+      "assessment": "string explaining the coherence evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "coherenceCategory": "Original and Coherent"/"Original but Incoherent"/"Conventional but Coherent"/"Derivative and Incoherent"
   },
   "verdict": "comprehensive one-paragraph judgment on which passage is more original and why"
 }`,
