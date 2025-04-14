@@ -32,6 +32,7 @@ export default function AnalysisTabs({
     { id: "novelty-heatmap", label: "Novelty Heatmap" },
     { id: "derivative-index", label: "Derivative Index" },
     { id: "parasite-detection", label: "Parasite Detection" },
+    { id: "coherence", label: "Coherence" },
   ];
 
   return (

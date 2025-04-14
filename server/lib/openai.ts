@@ -261,13 +261,21 @@ export async function analyzeSinglePassage(
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts (not plagiarism or surface similarity). Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across five metrics:
+          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts (not plagiarism or surface similarity). Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across six metrics:
 
 1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
 2. Semantic Distance - How far the passage moves from common norms; is it reshuffling or truly novel
 3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph
 4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original
 5. Conceptual Parasite Detection - Does the passage operate within existing debates without adding original contributions
+6. Coherence - Whether the passage, despite being original or not, is logically and conceptually coherent
+
+For coherence, evaluate:
+- Internal consistency (no contradictions)
+- Logical flow of ideas
+- Conceptual clarity
+- Consistent terminology use
+- Intelligibility as a unified argument or narrative
 
 Format your response as JSON with these specific sections that match the exact schema used for comparative analysis.`,
         },
@@ -362,6 +370,21 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       "elements": ["typical parasitic elements in average texts"],
       "assessment": "baseline assessment of typical texts in this domain"
     }
+  },
+  "coherence": {
+    "passageA": {
+      "score": number from 0-10,
+      "assessment": "string explaining the coherence evaluation",
+      "strengths": ["string1", "string2"],
+      "weaknesses": ["string1", "string2"]
+    },
+    "passageB": {
+      "score": 6,
+      "assessment": "string explaining typical coherence level in this domain",
+      "strengths": ["typical strengths of average texts"],
+      "weaknesses": ["typical weaknesses of average texts"]
+    },
+    "coherenceCategory": "Original and Coherent"/"Original but Incoherent"/"Conventional but Coherent"/"Derivative and Incoherent"
   },
   "verdict": "comprehensive one-paragraph judgment on how original the passage is compared to the norm, with specific mentions of strengths and limitations"
 }`,
@@ -607,7 +630,7 @@ Respond with:
 }
 
 export async function processFeedback(
-  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite',
+  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence',
   feedback: string,
   originalResult: AnalysisResult,
   passageA: PassageData,
@@ -684,6 +707,23 @@ export async function processFeedback(
         Level: ${originalResult.conceptualParasite.passageB.level}
         Elements: ${originalResult.conceptualParasite.passageB.elements.join(", ")}
         Assessment: ${originalResult.conceptualParasite.passageB.assessment}`;
+        break;
+      case 'coherence':
+        categoryDescription = "Coherence - Whether the passage, despite being original or not, is logically and conceptually coherent";
+        originalAnalysis = `
+        Passage A:
+        Score: ${originalResult.coherence?.passageA?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.coherence?.passageA?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.coherence?.passageA?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.coherence?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
+        
+        Passage B:
+        Score: ${originalResult.coherence?.passageB?.score || 'Not evaluated'}/10
+        Assessment: ${originalResult.coherence?.passageB?.assessment || 'Not evaluated'}
+        Strengths: ${originalResult.coherence?.passageB?.strengths?.join(', ') || 'Not evaluated'}
+        Weaknesses: ${originalResult.coherence?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
+        
+        Overall Category: ${originalResult.coherence?.coherenceCategory || 'Not evaluated'}`;
         break;
     }
 
