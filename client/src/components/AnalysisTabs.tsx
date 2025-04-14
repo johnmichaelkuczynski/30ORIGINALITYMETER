@@ -560,10 +560,10 @@ export default function AnalysisTabs({
             {/* Overall Coherence Category */}
             <div className="bg-gray-50 p-5 rounded-lg mb-6">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-secondary-700">Overall Coherence Category</h4>
+                <h4 className="font-medium text-secondary-700">Originality & Coherence Matrix</h4>
                 <div 
                   className="ml-1 text-gray-500 cursor-help"
-                  title="This is a high-level diagnosis based on both the Derivative Index and the Coherence Score. It's not a separate metric, but a qualitative synthesis."
+                  title="This visualization shows how the passage ranks on two separate measures: originality and coherence. It is not a combined metric."
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-4 h-4">
                     <circle cx="12" cy="12" r="10" />
@@ -571,31 +571,70 @@ export default function AnalysisTabs({
                   </svg>
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
-                {result.coherence.coherenceCategory === "Original and Coherent" && (
-                  <div className="flex items-center space-x-2 text-green-700">
-                    <span className="text-lg">✅</span>
-                    <span className="text-base font-medium">Original and Coherent</span>
+              
+              {/* Separate Scores Display */}
+              <div className="flex flex-col p-4 border rounded-lg mb-3">
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <h5 className="text-sm font-medium text-secondary-700 mb-1">Originality Score</h5>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-base font-semibold ${result.derivativeIndex.passageA.score > 7 ? 'text-green-600' : result.derivativeIndex.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
+                        {result.derivativeIndex.passageA.score.toFixed(1)}/10
+                      </span>
+                      <span className="text-xs text-secondary-500">
+                        {result.derivativeIndex.passageA.score > 7 ? 'High Originality' : 
+                         result.derivativeIndex.passageA.score > 4 ? 'Moderate Originality' : 'Low Originality'}
+                      </span>
+                    </div>
                   </div>
-                )}
-                {result.coherence.coherenceCategory === "Original but Incoherent" && (
-                  <div className="flex items-center space-x-2 text-amber-700">
-                    <span className="text-lg">⚠️</span>
-                    <span className="text-base font-medium">Original but Incoherent</span>
+                  
+                  <div>
+                    <h5 className="text-sm font-medium text-secondary-700 mb-1">Coherence Score</h5>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-base font-semibold ${result.coherence.passageA.score > 7 ? 'text-green-600' : result.coherence.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
+                        {result.coherence.passageA.score.toFixed(1)}/10
+                      </span>
+                      <span className="text-xs text-secondary-500">
+                        {result.coherence.passageA.score > 7 ? 'High Coherence' : 
+                         result.coherence.passageA.score > 4 ? 'Moderate Coherence' : 'Low Coherence'}
+                      </span>
+                    </div>
                   </div>
-                )}
-                {result.coherence.coherenceCategory === "Conventional but Coherent" && (
-                  <div className="flex items-center space-x-2 text-blue-700">
-                    <span className="text-lg">🟡</span>
-                    <span className="text-base font-medium">Conventional but Coherent</span>
-                  </div>
-                )}
-                {result.coherence.coherenceCategory === "Derivative and Incoherent" && (
-                  <div className="flex items-center space-x-2 text-red-700">
-                    <span className="text-lg">❌</span>
-                    <span className="text-base font-medium">Derivative and Incoherent</span>
-                  </div>
-                )}
+                </div>
+                
+                <div className="text-xs text-secondary-600 border-t pt-3">
+                  <p>This passage has separate scores for originality and coherence. These are independent qualities that should be evaluated separately.</p>
+                </div>
+              </div>
+              
+              {/* Matrix Position */}
+              <div className="px-4 py-3 bg-gray-50 rounded border mb-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  {result.coherence.coherenceCategory === "Original and Coherent" && (
+                    <div className="flex items-center space-x-2 text-green-700">
+                      <span className="text-lg">✅</span>
+                      <span className="text-base font-medium">Quadrant: High Quality</span>
+                    </div>
+                  )}
+                  {result.coherence.coherenceCategory === "Original but Incoherent" && (
+                    <div className="flex items-center space-x-2 text-amber-700">
+                      <span className="text-lg">⚠️</span>
+                      <span className="text-base font-medium">Quadrant: Promising but Fragmented</span>
+                    </div>
+                  )}
+                  {result.coherence.coherenceCategory === "Conventional but Coherent" && (
+                    <div className="flex items-center space-x-2 text-blue-700">
+                      <span className="text-lg">🟡</span>
+                      <span className="text-base font-medium">Quadrant: Clear but Unoriginal</span>
+                    </div>
+                  )}
+                  {result.coherence.coherenceCategory === "Derivative and Incoherent" && (
+                    <div className="flex items-center space-x-2 text-red-700">
+                      <span className="text-lg">❌</span>
+                      <span className="text-base font-medium">Quadrant: Low Value</span>
+                    </div>
+                  )}
+                </div>
                 <p className="mt-3 text-sm text-secondary-600 text-center">
                   {result.coherence.coherenceCategory === "Original and Coherent" && 
                     "This passage achieves both originality and clear, coherent expression. Excellent balance of innovation and structure."}
