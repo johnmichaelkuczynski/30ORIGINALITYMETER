@@ -164,22 +164,24 @@ export default function SummarySection({
                   aggregateScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
                 }
                 
-                // Quality label
-                const qualityLabel = 
-                  aggregateScore >= 8 ? 'Excellent Quality' : 
-                  aggregateScore >= 6 ? 'Good Quality' : 
-                  aggregateScore >= 4 ? 'Fair Quality' : 'Poor Quality';
-                
                 return (
                   <div className="text-center mb-4">
-                    <span className={`inline-block px-3 py-1 rounded-md text-md font-medium border ${
-                      aggregateScore >= 8 ? 'bg-green-100 text-green-800 border-green-200' : 
-                      aggregateScore >= 6 ? 'bg-blue-100 text-blue-800 border-blue-200' : 
-                      aggregateScore >= 4 ? 'bg-amber-100 text-amber-800 border-amber-200' : 
-                      'bg-red-100 text-red-800 border-red-200'
-                    }`}>
-                      {qualityLabel}: {aggregateScore.toFixed(1)}/10
-                    </span>
+                    <div className="inline-flex items-center">
+                      <span className={`inline-block px-3 py-1 rounded-md text-md font-medium border ${
+                        aggregateScore >= 8 ? 'bg-green-100 text-green-800 border-green-200' : 
+                        aggregateScore >= 6 ? 'bg-blue-100 text-blue-800 border-blue-200' : 
+                        aggregateScore >= 4 ? 'bg-amber-100 text-amber-800 border-amber-200' : 
+                        'bg-red-100 text-red-800 border-red-200'
+                      }`}>
+                        Aggregate Thought Quality: {aggregateScore.toFixed(1)}/10
+                      </span>
+                      <div className="ml-1 relative group">
+                        <span className="cursor-help text-gray-500 hover:text-gray-700 font-medium">?</span>
+                        <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-white text-xs text-left text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
+                          This score combines originality and coherence metrics, with coherence weighted slightly more heavily. Higher scores indicate writing that is both original and logically structured.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
@@ -187,11 +189,23 @@ export default function SummarySection({
               {/* Display the two component scores */}
               <div className="grid grid-cols-2 gap-4 mb-2">
                 <div className="bg-white p-3 rounded border">
-                  <h4 className="text-sm font-medium text-secondary-700 mb-2">Originality</h4>
+                  <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
+                    Originality
+                    <div className="ml-1 relative group">
+                      <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
+                        Measures how conceptually novel and innovative the passage is, from 0 (entirely derivative) to 10 (groundbreaking).
+                      </div>
+                    </div>
+                  </h4>
                   <div className="flex items-center">
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
                       <div 
-                        className="h-full bg-primary-500" 
+                        className={`h-full ${
+                          result.derivativeIndex.passageA.score >= 7 ? 'bg-green-500' : 
+                          result.derivativeIndex.passageA.score >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        } transition-all`}
                         style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                       ></div>
                     </div>
@@ -199,11 +213,23 @@ export default function SummarySection({
                   </div>
                 </div>
                 <div className="bg-white p-3 rounded border">
-                  <h4 className="text-sm font-medium text-secondary-700 mb-2">Coherence</h4>
+                  <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
+                    Coherence
+                    <div className="ml-1 relative group">
+                      <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
+                        Evaluates how logically structured, clear, and internally consistent the passage is, from 0 (incoherent) to 10 (masterfully coherent).
+                      </div>
+                    </div>
+                  </h4>
                   <div className="flex items-center">
-                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
                       <div 
-                        className="h-full bg-success-500" 
+                        className={`h-full ${
+                          result.coherence.passageA.score >= 7 ? 'bg-green-500' : 
+                          result.coherence.passageA.score >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        } transition-all`}
                         style={{ width: `${result.coherence.passageA.score * 10}%` }}
                       ></div>
                     </div>
