@@ -97,7 +97,6 @@ export interface AnalysisResult {
       strengths: string[];
       weaknesses: string[];
     };
-    coherenceCategory: "Original and Coherent" | "Original but Incoherent" | "Conventional but Coherent" | "Derivative and Incoherent";
     feedback?: FeedbackData;
   };
   verdict: string;
