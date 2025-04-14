@@ -1,5 +1,6 @@
 import { AnalysisResult } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface SummarySectionProps {
   result: AnalysisResult;
@@ -14,6 +15,39 @@ export default function SummarySection({
   passageBTitle,
   isSinglePassageMode = false,
 }: SummarySectionProps) {
+  // Calculate aggregate scores
+  const calculateAggregateScore = (originalityScore: number, coherenceScore: number): number => {
+    if (coherenceScore < 3) {
+      // Very incoherent content gets heavily penalized regardless of originality
+      return Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
+    } else if (coherenceScore >= 3 && coherenceScore < 6) {
+      // Moderate coherence - weighted blend
+      return (coherenceScore * 0.6) + (originalityScore * 0.4);
+    } else {
+      // Good coherence - more balanced weighting
+      return (coherenceScore * 0.5) + (originalityScore * 0.5);
+    }
+  };
+
+  const aggregateScoreA = calculateAggregateScore(
+    result.derivativeIndex.passageA.score,
+    result.coherence.passageA.score
+  );
+
+  const aggregateScoreB = isSinglePassageMode ? 0 : calculateAggregateScore(
+    result.derivativeIndex.passageB.score,
+    result.coherence.passageB.score
+  );
+
+  // Compare passages
+  const moreOriginal = isSinglePassageMode ? null : 
+    result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score ? 'A' : 
+    result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'B' : null;
+    
+  const moreCoherent = isSinglePassageMode ? null :
+    result.coherence.passageA.score > result.coherence.passageB.score ? 'A' : 
+    result.coherence.passageB.score > result.coherence.passageA.score ? 'B' : null;
+
   return (
     <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 bg-primary-50 border-b border-gray-200">
@@ -103,186 +137,219 @@ export default function SummarySection({
             </div>
           </div>
         ) : (
-          // Comparison Mode - Show both passages
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Passage A Summary */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-secondary-800">{passageATitle}</h3>
-                <span className="text-sm text-secondary-500">
-                  Originality Score: <span className="font-semibold">{result.derivativeIndex.passageA.score.toFixed(1)}</span>/10
-                </span>
+          // Comparison Mode - Show both passages in separate boxes with clear labels
+          <div className="space-y-6">
+            {/* Box 1: Originality Comparison */}
+            <div className="border rounded-lg shadow-sm overflow-hidden">
+              <div className="px-4 py-2 bg-green-50 border-b">
+                <h3 className="font-medium text-green-800">Originality Comparison</h3>
               </div>
-              <div className="relative h-3 bg-gray-200 rounded overflow-hidden mb-3">
-                <div 
-                  className={`absolute top-0 left-0 h-full ${
-                    result.derivativeIndex.passageA.score >= 7 ? 'bg-green-500' : 
-                    result.derivativeIndex.passageA.score >= 4 ? 'bg-amber-500' : 
-                    'bg-red-500'
-                  }`}
-                  style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
-                ></div>
-              </div>
-              
-              {result.coherence && (
-                <div className="text-xs text-secondary-600 flex flex-wrap justify-between">
-                  <span>Originality: {result.derivativeIndex.passageA.score.toFixed(1)}</span>
-                  <span>Coherence: {result.coherence.passageA.score.toFixed(1)}</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Passage B Summary */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-secondary-800">{passageBTitle}</h3>
-                <span className="text-sm text-secondary-500">
-                  Originality Score: <span className="font-semibold">{result.derivativeIndex.passageB.score.toFixed(1)}</span>/10
-                </span>
-              </div>
-              <div className="relative h-3 bg-gray-200 rounded overflow-hidden mb-3">
-                <div 
-                  className={`absolute top-0 left-0 h-full ${
-                    result.derivativeIndex.passageB.score >= 7 ? 'bg-green-500' : 
-                    result.derivativeIndex.passageB.score >= 4 ? 'bg-amber-500' : 
-                    'bg-red-500'
-                  }`}
-                  style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
-                ></div>
-              </div>
-              
-              {result.coherence && (
-                <div className="text-xs text-secondary-600 flex flex-wrap justify-between">
-                  <span>Originality: {result.derivativeIndex.passageB.score.toFixed(1)}</span>
-                  <span>Coherence: {result.coherence.passageB.score.toFixed(1)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {/* Quality Assessment Summary */}
-        {result.coherence && (
-          <div className="mb-6">
-            <h3 className="text-lg font-medium text-secondary-800 mb-3">
-              Quality Assessment {isSinglePassageMode ? "" : `– ${passageATitle}`}
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              {/* Calculate aggregate score */}
-              {(() => {
-                // We're calculating this in summary just like in the detailed tab
-                const originalityScore = result.derivativeIndex.passageA.score;
-                const coherenceScore = result.coherence.passageA.score;
-                
-                // Heavier penalty for low coherence than low originality
-                let aggregateScore: number;
-                
-                if (coherenceScore < 3) {
-                  // Very incoherent content gets heavily penalized regardless of originality
-                  aggregateScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
-                } else if (coherenceScore >= 3 && coherenceScore < 6) {
-                  // Moderate coherence - weighted blend
-                  aggregateScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
-                } else {
-                  // Good coherence - more balanced weighting
-                  aggregateScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
-                }
-                
-                return (
-                  <div className="text-center mb-4">
-                    <div className="inline-flex items-center">
-                      <span className={`inline-block px-3 py-1 rounded-md text-md font-medium border ${
-                        aggregateScore >= 8 ? 'bg-green-100 text-green-800 border-green-200' : 
-                        aggregateScore >= 6 ? 'bg-blue-100 text-blue-800 border-blue-200' : 
-                        aggregateScore >= 4 ? 'bg-amber-100 text-amber-800 border-amber-200' : 
-                        'bg-red-100 text-red-800 border-red-200'
-                      }`}>
-                        Composite Score: {aggregateScore.toFixed(1)}/10
-                      </span>
-                      <div className="ml-1 relative group">
-                        <span className="cursor-help text-gray-500 hover:text-gray-700 font-medium">?</span>
-                        <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-white text-xs text-left text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
-                          This score is calculated from originality and coherence, with coherence given slightly more weight.
-                        </div>
-                      </div>
-                    </div>
+              <div className="p-4 space-y-4">
+                {/* Passage A Originality */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-secondary-700">
+                      Passage A – Originality Score: {result.derivativeIndex.passageA.score.toFixed(1)}/10
+                    </h4>
                   </div>
-                );
-              })()}
-
-              {/* Divider with label */}
-              <div className="mb-4 relative flex py-2 items-center">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink mx-4 text-xs font-medium text-gray-500">DETAILED METRICS</span>
-                <div className="flex-grow border-t border-gray-200"></div>
-              </div>
-              
-              {/* Display the two component scores */}
-              <div className="grid grid-cols-2 gap-4 mb-2">
-                <div className="bg-white p-3 rounded border">
-                  <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
-                    Originality {isSinglePassageMode ? "" : `(${passageATitle})`}
-                    <div className="ml-1 relative group">
-                      <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
-                        Measures how conceptually novel and innovative the passage is, from 0 (entirely derivative) to 10 (groundbreaking).
-                      </div>
-                    </div>
-                  </h4>
-                  <div className="flex items-center">
-                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
-                        className={`h-full ${
+                        className={`absolute top-0 left-0 h-full ${
                           result.derivativeIndex.passageA.score >= 7 ? 'bg-green-500' : 
                           result.derivativeIndex.passageA.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
-                        } transition-all`}
+                        }`}
                         style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium whitespace-nowrap">{result.derivativeIndex.passageA.score.toFixed(1)}/10</span>
                   </div>
                 </div>
-                <div className="bg-white p-3 rounded border">
-                  <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
-                    Coherence {isSinglePassageMode ? "" : `(${passageATitle})`}
-                    <div className="ml-1 relative group">
-                      <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
-                        Evaluates how logically structured, clear, and internally consistent the passage is, from 0 (incoherent) to 10 (masterfully coherent).
-                      </div>
-                    </div>
-                  </h4>
-                  <div className="flex items-center">
-                    <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
+                
+                {/* Passage B Originality */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-secondary-700">
+                      Passage B – Originality Score: {result.derivativeIndex.passageB.score.toFixed(1)}/10
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
-                        className={`h-full ${
+                        className={`absolute top-0 left-0 h-full ${
+                          result.derivativeIndex.passageB.score >= 7 ? 'bg-green-500' : 
+                          result.derivativeIndex.passageB.score >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Winner Badge */}
+                {moreOriginal && (
+                  <div className="flex justify-end">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                      Passage {moreOriginal} is more original
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Box 2: Coherence Comparison */}
+            <div className="border rounded-lg shadow-sm overflow-hidden">
+              <div className="px-4 py-2 bg-blue-50 border-b">
+                <h3 className="font-medium text-blue-800">Coherence Comparison</h3>
+              </div>
+              <div className="p-4 space-y-4">
+                {/* Passage A Coherence */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-secondary-700">
+                      Passage A – Coherence Score: {result.coherence.passageA.score.toFixed(1)}/10
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`absolute top-0 left-0 h-full ${
                           result.coherence.passageA.score >= 7 ? 'bg-green-500' : 
                           result.coherence.passageA.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
-                        } transition-all`}
+                        }`}
                         style={{ width: `${result.coherence.passageA.score * 10}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium whitespace-nowrap">{result.coherence.passageA.score.toFixed(1)}/10</span>
                   </div>
                 </div>
+                
+                {/* Passage B Coherence */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-secondary-700">
+                      Passage B – Coherence Score: {result.coherence.passageB.score.toFixed(1)}/10
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`absolute top-0 left-0 h-full ${
+                          result.coherence.passageB.score >= 7 ? 'bg-green-500' : 
+                          result.coherence.passageB.score >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${result.coherence.passageB.score * 10}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Winner Badge */}
+                {moreCoherent && (
+                  <div className="flex justify-end">
+                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                      Passage {moreCoherent} is more coherent
+                    </Badge>
+                  </div>
+                )}
               </div>
-              
-              <div className="text-xs text-secondary-600 mt-3 bg-gray-100 p-2 rounded">
-                <p>The composite score balances originality with coherence metrics.</p>
+            </div>
+            
+            {/* Box 3: Aggregate Evaluation */}
+            <div className="border rounded-lg shadow-sm overflow-hidden">
+              <div className="px-4 py-2 bg-purple-50 border-b">
+                <h3 className="font-medium text-purple-800">Overall Quality Assessment</h3>
+              </div>
+              <div className="p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Passage A Composite */}
+                  <div className="bg-white p-3 rounded border">
+                    <h4 className="text-sm font-medium text-secondary-700 mb-2">
+                      Passage A – Composite Score: {aggregateScoreA.toFixed(1)}/10
+                    </h4>
+                    <div className="flex items-center">
+                      <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
+                        <div 
+                          className={`h-full ${
+                            aggregateScoreA >= 7 ? 'bg-green-500' : 
+                            aggregateScoreA >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          } transition-all`}
+                          style={{ width: `${aggregateScoreA * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Passage B Composite */}
+                  <div className="bg-white p-3 rounded border">
+                    <h4 className="text-sm font-medium text-secondary-700 mb-2">
+                      Passage B – Composite Score: {aggregateScoreB.toFixed(1)}/10
+                    </h4>
+                    <div className="flex items-center">
+                      <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mr-2">
+                        <div 
+                          className={`h-full ${
+                            aggregateScoreB >= 7 ? 'bg-green-500' : 
+                            aggregateScoreB >= 4 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          } transition-all`}
+                          style={{ width: `${aggregateScoreB * 10}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-secondary-600 mt-2 bg-gray-100 p-2 rounded">
+                  <p>This score weights originality and coherence, with slightly more weight given to coherence.</p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Verdict */}
-        <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-medium text-secondary-800 mb-2">
+        {/* Verdict - Revised to be more structured */}
+        <div className="border-t border-gray-200 pt-6 mt-6">
+          <h3 className="text-lg font-medium text-secondary-800 mb-3">
             {isSinglePassageMode ? "Analysis Summary" : "Comparison Verdict"}
           </h3>
-          <div className="bg-primary-50 p-4 rounded-md">
-            <p className="text-secondary-700">{result.verdict}</p>
+          <div className="bg-primary-50 p-4 rounded-md space-y-3">
+            {!isSinglePassageMode && (
+              <>
+                <div>
+                  <p className="text-sm font-medium text-secondary-800">Originality:</p> 
+                  <p className="text-secondary-700">{
+                    result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
+                      ? `Passage A explores ${passageATitle ? passageATitle + ' ' : ''}more novel concepts, earning a higher originality score.`
+                      : result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score
+                      ? `Passage B demonstrates ${passageBTitle ? passageBTitle + ' ' : ''}more conceptual innovation, earning a higher originality score.`
+                      : `Both passages demonstrate similar levels of originality in their approach.`
+                  }</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-secondary-800">Coherence:</p>
+                  <p className="text-secondary-700">{
+                    result.coherence.passageA.score > result.coherence.passageB.score
+                      ? `Passage A presents ${passageATitle ? passageATitle + ' ' : ''}ideas more cohesively, with better logical flow and clarity.`
+                      : result.coherence.passageB.score > result.coherence.passageA.score
+                      ? `Passage B structures ${passageBTitle ? passageBTitle + ' ' : ''}arguments more coherently, with superior logical organization.`
+                      : `Both passages demonstrate comparable levels of coherence and logical structure.`
+                  }</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-secondary-800">Overall:</p>
+                  <p className="text-secondary-700">{result.verdict}</p>
+                </div>
+              </>
+            )}
+            {isSinglePassageMode && (
+              <p className="text-secondary-700">{result.verdict}</p>
+            )}
           </div>
         </div>
       </CardContent>
