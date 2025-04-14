@@ -1,6 +1,11 @@
-import { AnalysisResult } from "@/lib/types";
+import { AnalysisResult, StyleOption } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Copy, Download } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { generateReportFromData } from "@/lib/reportGenerator";
 
 interface SummarySectionProps {
   result: AnalysisResult;
@@ -15,6 +20,7 @@ export default function SummarySection({
   passageBTitle,
   isSinglePassageMode = false,
 }: SummarySectionProps) {
+  const [verdictTone, setVerdictTone] = useState<StyleOption>('academic');
   // Calculate aggregate scores
   const calculateAggregateScore = (originalityScore: number, coherenceScore: number): number => {
     if (coherenceScore < 3) {
