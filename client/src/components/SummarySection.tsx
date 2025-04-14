@@ -71,71 +71,103 @@ export default function SummarySection({
                 </span>
               </div>
               
-              {/* Bell curve style gauge */}
-              <div className="mt-4 mb-5 relative w-full h-16">
-                <div className="absolute top-0 left-0 w-full h-10 bg-gray-100 rounded-lg"></div>
-                
-                {/* Bell curve shape */}
-                <div className="absolute top-0 left-0 w-full h-10 overflow-hidden">
-                  <svg viewBox="0 0 100 30" className="w-full h-10 fill-none">
-                    <path
-                      d="M0,30 C20,30 20,5 50,5 C80,5 80,30 100,30 Z"
-                      fill="rgba(12, 150, 230, 0.1)"
-                      stroke="none"
-                    />
-                    <path
-                      d="M0,30 C20,30 20,5 50,5 C80,5 80,30 100,30"
-                      stroke="rgba(12, 150, 230, 0.5)"
-                      strokeWidth="1"
-                      fill="none"
-                    />
-                  </svg>
+              {/* Score bar with proper visualization */}
+              <div className="mt-4 mb-10 relative w-full">
+                {/* Score bar container */}
+                <div className="relative h-8 bg-gray-200 rounded-lg overflow-hidden mb-1">
+                  {/* Gradient background to show scale */}
+                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-red-500 via-amber-500 to-green-600"></div>
+                  
+                  {/* Actual score fill */}
+                  <div 
+                    className={`absolute top-0 left-0 h-full ${
+                      result.derivativeIndex.passageA.score > 8.4 ? 'bg-green-600' : 
+                      result.derivativeIndex.passageA.score > 6.9 ? 'bg-green-500' : 
+                      result.derivativeIndex.passageA.score > 3.9 ? 'bg-amber-500' : 
+                      'bg-red-500'
+                    } transition-all flex items-center justify-end pr-2`}
+                    style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
+                  >
+                    <span className="text-white text-xs font-bold">
+                      {result.derivativeIndex.passageA.score.toFixed(1)}
+                    </span>
+                  </div>
+                  
+                  {/* Vertical markers for scale */}
+                  <div className="absolute top-0 bottom-0 left-1/4 w-px bg-white bg-opacity-70"></div>
+                  <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white bg-opacity-70"></div>
+                  <div className="absolute top-0 bottom-0 left-3/4 w-px bg-white bg-opacity-70"></div>
+                  
+                  {/* Score indicator marker */}
+                  <div 
+                    className="absolute top-0 bottom-0 w-1 bg-white shadow-md" 
+                    style={{ 
+                      left: `${result.derivativeIndex.passageA.score * 10}%`,
+                      zIndex: 5
+                    }}
+                  ></div>
                 </div>
                 
-                {/* Score indicator */}
+                {/* Score tooltip - positioned above the score marker */}
                 <div 
-                  className="absolute top-0 w-1 h-14 bg-primary-600 rounded transition-all" 
+                  className="absolute -top-6 bg-white px-2 py-1 text-xs font-semibold text-primary-700 border border-primary-200 rounded-lg shadow-sm"
                   style={{ 
                     left: `${result.derivativeIndex.passageA.score * 10}%`,
-                    transform: 'translateX(-50%)'
+                    transform: 'translateX(-50%)',
+                    zIndex: 10
                   }}
-                ></div>
-                <div 
-                  className="absolute top-14 bg-white px-2 py-1 text-xs font-semibold text-primary-700 border border-primary-200 rounded shadow-sm transition-all"
-                  style={{ 
-                    left: `${result.derivativeIndex.passageA.score * 10}%`,
-                    transform: 'translateX(-50%)'
-                  }}
+                  title="Originality is calculated using conceptual innovation, methodological novelty, and contextual application"
                 >
-                  {result.derivativeIndex.passageA.score.toFixed(1)}
+                  {result.derivativeIndex.passageA.score.toFixed(1)}/10
                 </div>
                 
                 {/* Labels */}
-                <div className="absolute top-0 left-0 mt-11 text-xs text-secondary-500">
-                  Common
+                <div className="flex justify-between text-xs text-secondary-600 px-1 mt-1">
+                  <div>Derivative</div>
+                  <div>Average</div>
+                  <div>Original</div>
+                  <div>Innovative</div>
                 </div>
-                <div className="absolute top-0 left-1/4 mt-11 text-xs text-secondary-500 transform -translate-x-1/2">
-                  Derivative
-                </div>
-                <div className="absolute top-0 left-1/2 mt-11 text-xs text-secondary-500 transform -translate-x-1/2">
-                  Average
-                </div>
-                <div className="absolute top-0 left-3/4 mt-11 text-xs text-secondary-500 transform -translate-x-1/2">
-                  Original
-                </div>
-                <div className="absolute top-0 right-0 mt-11 text-xs text-secondary-500">
-                  Innovative
+                
+                {/* Tooltip explanation */}
+                <div className="mt-3 text-xs text-secondary-500 bg-gray-50 p-2 rounded-md">
+                  Originality is calculated using conceptual innovation, methodological novelty, and contextual application. Higher scores indicate greater semantic distance from conventional texts.
                 </div>
               </div>
               
-              {/* Component scores */}
+              {/* Component scores with visual bars */}
               <div className="mt-6">
-                <h4 className="text-sm font-medium text-secondary-700 mb-2">Originality Component Scores</h4>
-                <div className="space-y-2">
+                <h4 className="text-sm font-medium text-secondary-700 mb-3">Originality Component Scores</h4>
+                <div className="space-y-3">
                   {result.derivativeIndex.passageA.components.map((component, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm text-secondary-600">{component.name}</span>
-                      <span className="text-sm font-medium text-secondary-700">{component.score.toFixed(1)}/10</span>
+                    <div key={index} className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <div 
+                          className="text-sm text-secondary-600 cursor-help"
+                          title={`${component.name}: Evaluates how this passage introduces or reinvents concepts in its field`}
+                        >
+                          {component.name}
+                        </div>
+                        <span className={`text-sm font-medium ${
+                          component.score > 8.4 ? 'text-green-600' : 
+                          component.score > 6.9 ? 'text-green-500' : 
+                          component.score > 3.9 ? 'text-amber-500' : 
+                          'text-red-500'
+                        }`}>
+                          {component.score.toFixed(1)}/10
+                        </span>
+                      </div>
+                      <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full ${
+                            component.score > 8.4 ? 'bg-green-600' : 
+                            component.score > 6.9 ? 'bg-green-500' : 
+                            component.score > 3.9 ? 'bg-amber-500' : 
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${component.score * 10}%` }}
+                        ></div>
+                      </div>
                     </div>
                   ))}
                 </div>
