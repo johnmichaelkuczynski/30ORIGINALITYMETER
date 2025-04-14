@@ -145,8 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
-            },
-            coherenceCategory: "Original but Incoherent"
+            }
           },
           verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
         };
@@ -293,8 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               assessment: "Baseline coherence assessment",
               strengths: ["Typical logical structure", "Standard flow of ideas"],
               weaknesses: ["No significant weaknesses identified in the baseline"]
-            },
-            coherenceCategory: "Conventional but Coherent"
+            }
           },
           verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
         };

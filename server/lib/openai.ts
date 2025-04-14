@@ -260,8 +260,7 @@ Return a detailed analysis in the following JSON format:
           assessment: "This represents an average level of coherence.",
           strengths: ["Standard logical flow", "Conventional structure"],
           weaknesses: ["Typical clarity issues found in average texts"]
-        },
-        coherenceCategory: "Original and Coherent"
+        }
       };
     } else {
       // Ensure all required fields exist
@@ -279,11 +278,7 @@ Return a detailed analysis in the following JSON format:
         weaknesses: ["Typical clarity issues found in average texts"]
       };
       
-      // Ensure valid coherence category (with default if missing or invalid)
-      const validCategories = ["Original and Coherent", "Original but Incoherent", "Conventional but Coherent", "Derivative and Incoherent"];
-      if (!result.coherence.coherenceCategory || !validCategories.includes(result.coherence.coherenceCategory)) {
-        result.coherence.coherenceCategory = "Original and Coherent";
-      }
+      // No need to validate coherence category since it's been removed
     }
 
     return result;
@@ -532,7 +527,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
           strengths: ["Standard logical flow", "Conventional structure"],
           weaknesses: ["Typical clarity issues found in average texts"]
         },
-        coherenceCategory: "Conventional but Coherent"
+
       };
     } else {
       // Ensure all required fields exist
@@ -550,11 +545,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
         weaknesses: ["Typical clarity issues found in average texts"]
       };
       
-      // Ensure valid coherence category (with default if missing or invalid)
-      const validCategories = ["Original and Coherent", "Original but Incoherent", "Conventional but Coherent", "Derivative and Incoherent"];
-      if (!result.coherence.coherenceCategory || !validCategories.includes(result.coherence.coherenceCategory)) {
-        result.coherence.coherenceCategory = "Conventional but Coherent";
-      }
+      // No need to validate coherence category since it's been removed
     }
     
     return result;
@@ -812,8 +803,7 @@ export async function processFeedback(
         Assessment: ${originalResult.coherence?.passageB?.assessment || 'Not evaluated'}
         Strengths: ${originalResult.coherence?.passageB?.strengths?.join(', ') || 'Not evaluated'}
         Weaknesses: ${originalResult.coherence?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
-        
-        Overall Category: ${originalResult.coherence?.coherenceCategory || 'Not evaluated'}`;
+        `;
         break;
     }
 
