@@ -110,15 +110,26 @@ export default function SummarySection({
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-secondary-800">{passageATitle}</h3>
                 <span className="text-sm text-secondary-500">
-                  Score: <span className="font-semibold">{result.derivativeIndex.passageA.score.toFixed(1)}</span>/10
+                  Originality Score: <span className="font-semibold">{result.derivativeIndex.passageA.score.toFixed(1)}</span>/10
                 </span>
               </div>
-              <div className="relative h-2 bg-gray-200 rounded overflow-hidden">
+              <div className="relative h-3 bg-gray-200 rounded overflow-hidden mb-3">
                 <div 
-                  className="absolute top-0 left-0 h-full bg-primary-500" 
+                  className={`absolute top-0 left-0 h-full ${
+                    result.derivativeIndex.passageA.score >= 7 ? 'bg-green-500' : 
+                    result.derivativeIndex.passageA.score >= 4 ? 'bg-amber-500' : 
+                    'bg-red-500'
+                  }`}
                   style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                 ></div>
               </div>
+              
+              {result.coherence && (
+                <div className="text-xs text-secondary-600 flex flex-wrap justify-between">
+                  <span>Originality: {result.derivativeIndex.passageA.score.toFixed(1)}</span>
+                  <span>Coherence: {result.coherence.passageA.score.toFixed(1)}</span>
+                </div>
+              )}
             </div>
             
             {/* Passage B Summary */}
@@ -126,15 +137,26 @@ export default function SummarySection({
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-secondary-800">{passageBTitle}</h3>
                 <span className="text-sm text-secondary-500">
-                  Score: <span className="font-semibold">{result.derivativeIndex.passageB.score.toFixed(1)}</span>/10
+                  Originality Score: <span className="font-semibold">{result.derivativeIndex.passageB.score.toFixed(1)}</span>/10
                 </span>
               </div>
-              <div className="relative h-2 bg-gray-200 rounded overflow-hidden">
+              <div className="relative h-3 bg-gray-200 rounded overflow-hidden mb-3">
                 <div 
-                  className="absolute top-0 left-0 h-full bg-primary-500" 
+                  className={`absolute top-0 left-0 h-full ${
+                    result.derivativeIndex.passageB.score >= 7 ? 'bg-green-500' : 
+                    result.derivativeIndex.passageB.score >= 4 ? 'bg-amber-500' : 
+                    'bg-red-500'
+                  }`}
                   style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
                 ></div>
               </div>
+              
+              {result.coherence && (
+                <div className="text-xs text-secondary-600 flex flex-wrap justify-between">
+                  <span>Originality: {result.derivativeIndex.passageB.score.toFixed(1)}</span>
+                  <span>Coherence: {result.coherence.passageB.score.toFixed(1)}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -142,7 +164,9 @@ export default function SummarySection({
         {/* Quality Assessment Summary */}
         {result.coherence && (
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-secondary-800 mb-3">Quality Assessment</h3>
+            <h3 className="text-lg font-medium text-secondary-800 mb-3">
+              Quality Assessment {isSinglePassageMode ? "" : `– ${passageATitle}`}
+            </h3>
             <div className="bg-gray-50 p-4 rounded-lg">
               {/* Calculate aggregate score */}
               {(() => {
@@ -173,24 +197,31 @@ export default function SummarySection({
                         aggregateScore >= 4 ? 'bg-amber-100 text-amber-800 border-amber-200' : 
                         'bg-red-100 text-red-800 border-red-200'
                       }`}>
-                        Aggregate Thought Quality: {aggregateScore.toFixed(1)}/10
+                        Composite Score: {aggregateScore.toFixed(1)}/10
                       </span>
                       <div className="ml-1 relative group">
                         <span className="cursor-help text-gray-500 hover:text-gray-700 font-medium">?</span>
                         <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-white text-xs text-left text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
-                          This score combines originality and coherence metrics, with coherence weighted slightly more heavily. Higher scores indicate writing that is both original and logically structured.
+                          This score is calculated from originality and coherence, with coherence given slightly more weight.
                         </div>
                       </div>
                     </div>
                   </div>
                 );
               })()}
+
+              {/* Divider with label */}
+              <div className="mb-4 relative flex py-2 items-center">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="flex-shrink mx-4 text-xs font-medium text-gray-500">DETAILED METRICS</span>
+                <div className="flex-grow border-t border-gray-200"></div>
+              </div>
               
               {/* Display the two component scores */}
               <div className="grid grid-cols-2 gap-4 mb-2">
                 <div className="bg-white p-3 rounded border">
                   <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
-                    Originality
+                    Originality {isSinglePassageMode ? "" : `(${passageATitle})`}
                     <div className="ml-1 relative group">
                       <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
                       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
@@ -214,7 +245,7 @@ export default function SummarySection({
                 </div>
                 <div className="bg-white p-3 rounded border">
                   <h4 className="text-sm font-medium text-secondary-700 mb-2 flex items-center">
-                    Coherence
+                    Coherence {isSinglePassageMode ? "" : `(${passageATitle})`}
                     <div className="ml-1 relative group">
                       <span className="cursor-help text-gray-400 hover:text-gray-600">?</span>
                       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2 bg-white text-xs text-gray-700 rounded shadow-lg border border-gray-200 hidden group-hover:block z-10">
@@ -238,8 +269,8 @@ export default function SummarySection({
                 </div>
               </div>
               
-              <div className="text-xs text-secondary-600 mt-1">
-                <p>The quality score combines originality and coherence, with coherence given slightly more weight.</p>
+              <div className="text-xs text-secondary-600 mt-3 bg-gray-100 p-2 rounded">
+                <p>The composite score balances originality with coherence metrics.</p>
               </div>
             </div>
           </div>
