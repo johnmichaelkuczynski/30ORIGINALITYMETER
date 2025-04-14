@@ -34,25 +34,35 @@ export default function AnalysisTabs({
     { id: "derivative-index", label: "Derivative Index" },
     { id: "parasite-detection", label: "Parasite Detection" },
     { id: "coherence", label: "Coherence" },
+    { id: "accuracy", label: "Accuracy", optional: true },
+    { id: "depth", label: "Depth", optional: true },
+    { id: "clarity", label: "Clarity", optional: true },
   ];
 
   return (
     <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="border-b border-gray-200">
         <nav className="flex -mb-px overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`px-6 py-4 text-center border-b-2 font-medium text-sm whitespace-nowrap min-w-max transition-colors ${
-                activeTab === tab.id
-                  ? "border-primary-600 text-primary-600"
-                  : "border-transparent text-secondary-500 hover:text-secondary-700 hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            // Skip optional tabs if the data doesn't exist
+            if (tab.optional && !result[tab.id]) {
+              return null;
+            }
+            
+            return (
+              <button
+                key={tab.id}
+                className={`px-6 py-4 text-center border-b-2 font-medium text-sm whitespace-nowrap min-w-max transition-colors ${
+                  activeTab === tab.id
+                    ? "border-primary-600 text-primary-600"
+                    : "border-transparent text-secondary-500 hover:text-secondary-700 hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </nav>
       </div>
 

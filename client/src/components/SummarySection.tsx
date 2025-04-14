@@ -78,17 +78,28 @@ export default function SummarySection({
     result.coherence.passageA.score > result.coherence.passageB.score ? 'A' : 
     result.coherence.passageB.score > result.coherence.passageA.score ? 'B' : null;
     
-  const moreAccurate = isSinglePassageMode ? null :
-    result.accuracy?.passageA?.score > result.accuracy?.passageB?.score ? 'A' : 
-    result.accuracy?.passageB?.score > result.accuracy?.passageA?.score ? 'B' : null;
+  // For metrics that may be undefined, we use fallback values
+  const getScoreA = (metric: 'accuracy' | 'depth' | 'clarity'): number => {
+    if (!result[metric]) return 0;
+    return result[metric]?.passageA?.score ?? 0;
+  };
+  
+  const getScoreB = (metric: 'accuracy' | 'depth' | 'clarity'): number => {
+    if (!result[metric]) return 0;
+    return result[metric]?.passageB?.score ?? 0; 
+  };
+  
+  const moreAccurate = isSinglePassageMode || !result.accuracy ? null :
+    getScoreA('accuracy') > getScoreB('accuracy') ? 'A' : 
+    getScoreB('accuracy') > getScoreA('accuracy') ? 'B' : null;
     
-  const moreDepth = isSinglePassageMode ? null :
-    result.depth?.passageA?.score > result.depth?.passageB?.score ? 'A' : 
-    result.depth?.passageB?.score > result.depth?.passageA?.score ? 'B' : null;
+  const moreDepth = isSinglePassageMode || !result.depth ? null :
+    getScoreA('depth') > getScoreB('depth') ? 'A' : 
+    getScoreB('depth') > getScoreA('depth') ? 'B' : null;
     
-  const moreClear = isSinglePassageMode ? null :
-    result.clarity?.passageA?.score > result.clarity?.passageB?.score ? 'A' : 
-    result.clarity?.passageB?.score > result.clarity?.passageA?.score ? 'B' : null;
+  const moreClear = isSinglePassageMode || !result.clarity ? null :
+    getScoreA('clarity') > getScoreB('clarity') ? 'A' : 
+    getScoreB('clarity') > getScoreA('clarity') ? 'B' : null;
 
   return (
     <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
