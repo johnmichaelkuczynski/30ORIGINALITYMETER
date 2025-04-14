@@ -158,8 +158,7 @@ Return a detailed analysis in the following JSON format:
       "assessment": "string explaining the coherence evaluation",
       "strengths": ["string1", "string2"],
       "weaknesses": ["string1", "string2"]
-    },
-    "coherenceCategory": "Original and Coherent"/"Original but Incoherent"/"Conventional but Coherent"/"Derivative and Incoherent"
+    }
   },
   "verdict": "comprehensive one-paragraph judgment on which passage is more original and why"
 }`,
