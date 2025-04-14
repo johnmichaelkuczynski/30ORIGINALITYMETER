@@ -658,13 +658,31 @@ export default function AnalysisTabs({
                       </div>
                     )}
                     <p className="mt-3 text-sm text-secondary-600 text-center">
-                      {result.coherence.coherenceCategory === "Original and Coherent" && 
+                      {result.coherence.coherenceCategory === "Original and Coherent" && emphasisOption === 'clarity' && 
+                        "This passage achieves excellent clarity and coherence while also being original. A well-structured, novel contribution."}
+                      {result.coherence.coherenceCategory === "Original but Incoherent" && emphasisOption === 'clarity' && 
+                        "While the passage shows originality, it lacks coherence. Focus on improving structure and clarity first."}
+                      {result.coherence.coherenceCategory === "Conventional but Coherent" && emphasisOption === 'clarity' && 
+                        "The passage is highly coherent with strong structure, though conventional in content. Excellent clarity is its strength."}
+                      {result.coherence.coherenceCategory === "Derivative and Incoherent" && emphasisOption === 'clarity' && 
+                        "This passage shows significant weakness in coherence and structure. Focus on clarifying ideas and improving flow."}
+                      
+                      {result.coherence.coherenceCategory === "Original and Coherent" && emphasisOption === 'novelty' && 
+                        "This passage demonstrates exceptional originality with solid coherence. Its innovative approach makes it stand out."}
+                      {result.coherence.coherenceCategory === "Original but Incoherent" && emphasisOption === 'novelty' && 
+                        "The passage shows impressive originality despite coherence issues. Its innovative ideas have potential with refinement."}
+                      {result.coherence.coherenceCategory === "Conventional but Coherent" && emphasisOption === 'novelty' && 
+                        "Though well-structured, this passage lacks originality. Consider introducing more innovative concepts or perspectives."}
+                      {result.coherence.coherenceCategory === "Derivative and Incoherent" && emphasisOption === 'novelty' && 
+                        "This passage lacks originality and innovation. Focus on developing more original concepts and arguments."}
+                      
+                      {result.coherence.coherenceCategory === "Original and Coherent" && emphasisOption === 'balanced' && 
                         "This passage achieves both originality and clear, coherent expression. Excellent balance of innovation and structure."}
-                      {result.coherence.coherenceCategory === "Original but Incoherent" && 
+                      {result.coherence.coherenceCategory === "Original but Incoherent" && emphasisOption === 'balanced' && 
                         "This passage appears to be original but lacks coherence. Consider refining structure or clarity."}
-                      {result.coherence.coherenceCategory === "Conventional but Coherent" && 
+                      {result.coherence.coherenceCategory === "Conventional but Coherent" && emphasisOption === 'balanced' && 
                         "This passage is well-structured and coherent, but relies on conventional ideas. Consider adding more innovative concepts."}
-                      {result.coherence.coherenceCategory === "Derivative and Incoherent" && 
+                      {result.coherence.coherenceCategory === "Derivative and Incoherent" && emphasisOption === 'balanced' && 
                         "This passage lacks both originality and coherence. Consider significant revision of both content and structure."}
                     </p>
                   </div>
@@ -710,6 +728,27 @@ export default function AnalysisTabs({
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="mt-4 px-3 py-2 bg-gray-50 rounded-lg text-xs text-secondary-600">
+                    {emphasisOption === 'clarity' && (
+                      <p>
+                        This 2×2 grid classifies content based on coherence (logical flow and clarity) and originality.
+                        When emphasizing clarity, coherent passages (left side) are preferred regardless of originality.
+                      </p>
+                    )}
+                    {emphasisOption === 'novelty' && (
+                      <p>
+                        This 2×2 grid classifies content based on coherence and originality.
+                        When emphasizing novelty, original passages (top row) are preferred even if they have some coherence issues.
+                      </p>
+                    )}
+                    {emphasisOption === 'balanced' && (
+                      <p>
+                        This 2×2 grid classifies content based on coherence and originality.
+                        A balanced approach values both aspects equally, with "Original and Coherent" being the ideal outcome.
+                      </p>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Analysis Emphasis */}
@@ -717,20 +756,35 @@ export default function AnalysisTabs({
                   <div className="text-sm font-medium text-secondary-700 mb-2">Analysis Emphasis:</div>
                   <div className="flex flex-wrap gap-2">
                     <button 
-                      className={`px-3 py-1 text-xs rounded-full border ${'bg-primary-100 border-primary-200 text-primary-800'}`}
+                      className={`px-3 py-1 text-xs rounded-full border ${
+                        emphasisOption === 'clarity' 
+                          ? 'bg-primary-100 border-primary-200 text-primary-800' 
+                          : 'bg-white border-gray-200 text-gray-600'
+                      }`}
                       title="Give greater weight to structural coherence and clarity"
+                      onClick={() => setEmphasisOption('clarity')}
                     >
                       Emphasize clarity
                     </button>
                     <button 
-                      className={`px-3 py-1 text-xs rounded-full border ${'bg-white border-gray-200 text-gray-600'}`}
+                      className={`px-3 py-1 text-xs rounded-full border ${
+                        emphasisOption === 'novelty' 
+                          ? 'bg-primary-100 border-primary-200 text-primary-800' 
+                          : 'bg-white border-gray-200 text-gray-600'
+                      }`}
                       title="Give greater weight to conceptual novelty and innovation"
+                      onClick={() => setEmphasisOption('novelty')}
                     >
                       Emphasize novelty
                     </button>
                     <button 
-                      className={`px-3 py-1 text-xs rounded-full border ${'bg-white border-gray-200 text-gray-600'}`}
+                      className={`px-3 py-1 text-xs rounded-full border ${
+                        emphasisOption === 'balanced' 
+                          ? 'bg-primary-100 border-primary-200 text-primary-800' 
+                          : 'bg-white border-gray-200 text-gray-600'
+                      }`}
                       title="Give equal weight to both novelty and coherence"
+                      onClick={() => setEmphasisOption('balanced')}
                     >
                       Balanced view
                     </button>
