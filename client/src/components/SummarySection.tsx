@@ -139,58 +139,82 @@ export default function SummarySection({
           </div>
         )}
         
-        {/* Coherence Summary (if available) */}
+        {/* Quality Assessment Summary */}
         {result.coherence && (
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-secondary-800 mb-3">Coherence Assessment</h3>
+            <h3 className="text-lg font-medium text-secondary-800 mb-3">Quality Assessment</h3>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-center mb-4">
-                <span className="inline-block bg-primary-100 text-primary-800 px-3 py-1 rounded-md text-md font-medium border border-primary-200">
-                  {result.coherence.coherenceCategory}
-                </span>
-              </div>
+              {/* Calculate aggregate score */}
+              {(() => {
+                // We're calculating this in summary just like in the detailed tab
+                const originalityScore = result.derivativeIndex.passageA.score;
+                const coherenceScore = result.coherence.passageA.score;
+                
+                // Heavier penalty for low coherence than low originality
+                let aggregateScore: number;
+                
+                if (coherenceScore < 3) {
+                  // Very incoherent content gets heavily penalized regardless of originality
+                  aggregateScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
+                } else if (coherenceScore >= 3 && coherenceScore < 6) {
+                  // Moderate coherence - weighted blend
+                  aggregateScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
+                } else {
+                  // Good coherence - more balanced weighting
+                  aggregateScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
+                }
+                
+                // Quality label
+                const qualityLabel = 
+                  aggregateScore >= 8 ? 'Excellent Quality' : 
+                  aggregateScore >= 6 ? 'Good Quality' : 
+                  aggregateScore >= 4 ? 'Fair Quality' : 'Poor Quality';
+                
+                return (
+                  <div className="text-center mb-4">
+                    <span className={`inline-block px-3 py-1 rounded-md text-md font-medium border ${
+                      aggregateScore >= 8 ? 'bg-green-100 text-green-800 border-green-200' : 
+                      aggregateScore >= 6 ? 'bg-blue-100 text-blue-800 border-blue-200' : 
+                      aggregateScore >= 4 ? 'bg-amber-100 text-amber-800 border-amber-200' : 
+                      'bg-red-100 text-red-800 border-red-200'
+                    }`}>
+                      {qualityLabel}: {aggregateScore.toFixed(1)}/10
+                    </span>
+                  </div>
+                );
+              })()}
               
-              {isSinglePassageMode ? (
-                <div className="flex items-center justify-between p-2">
-                  <span className="text-sm text-secondary-600">Coherence Score</span>
+              {/* Display the two component scores */}
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <div className="bg-white p-3 rounded border">
+                  <h4 className="text-sm font-medium text-secondary-700 mb-2">Originality</h4>
                   <div className="flex items-center">
-                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
+                      <div 
+                        className="h-full bg-primary-500" 
+                        style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-sm font-medium whitespace-nowrap">{result.derivativeIndex.passageA.score.toFixed(1)}/10</span>
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded border">
+                  <h4 className="text-sm font-medium text-secondary-700 mb-2">Coherence</h4>
+                  <div className="flex items-center">
+                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mr-2">
                       <div 
                         className="h-full bg-success-500" 
                         style={{ width: `${result.coherence.passageA.score * 10}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium">{result.coherence.passageA.score.toFixed(1)}/10</span>
+                    <span className="text-sm font-medium whitespace-nowrap">{result.coherence.passageA.score.toFixed(1)}/10</span>
                   </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center justify-between p-2">
-                    <span className="text-xs text-secondary-600">{passageATitle}</span>
-                    <div className="flex items-center">
-                      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden mr-1">
-                        <div 
-                          className="h-full bg-success-500" 
-                          style={{ width: `${result.coherence.passageA.score * 10}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-xs font-medium">{result.coherence.passageA.score.toFixed(1)}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-2">
-                    <span className="text-xs text-secondary-600">{passageBTitle}</span>
-                    <div className="flex items-center">
-                      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden mr-1">
-                        <div 
-                          className="h-full bg-success-500" 
-                          style={{ width: `${result.coherence.passageB.score * 10}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-xs font-medium">{result.coherence.passageB.score.toFixed(1)}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
+              
+              <div className="text-xs text-secondary-600 mt-1">
+                <p>The quality score combines originality and coherence, with coherence given slightly more weight.</p>
+              </div>
             </div>
           </div>
         )}

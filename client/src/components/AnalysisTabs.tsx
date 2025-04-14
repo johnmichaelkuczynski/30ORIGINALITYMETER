@@ -26,8 +26,6 @@ export default function AnalysisTabs({
   passageBTitle,
   isSinglePassageMode = false,
 }: AnalysisTabsProps) {
-  const [viewType, setViewType] = useState<'label' | 'grid'>('label');
-  const [emphasisOption, setEmphasisOption] = useState<'clarity' | 'novelty' | 'balanced'>('clarity');
   const tabs = [
     { id: "conceptual-lineage", label: "Conceptual Lineage" },
     { id: "semantic-distance", label: "Semantic Distance" },

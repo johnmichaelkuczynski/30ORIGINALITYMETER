@@ -135,12 +135,6 @@ export const analysisResultSchema = z.object({
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
     }),
-    coherenceCategory: z.enum([
-      "Original and Coherent", 
-      "Original but Incoherent", 
-      "Conventional but Coherent", 
-      "Derivative and Incoherent"
-    ]),
     feedback: z.object({
       comment: z.string(),
       aiResponse: z.string(),
