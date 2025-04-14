@@ -317,44 +317,157 @@ export default function SummarySection({
           </div>
         )}
 
-        {/* Verdict - Revised to be more structured */}
+        {/* Enhanced Comparison Verdict Section */}
         <div className="border-t border-gray-200 pt-6 mt-6">
-          <h3 className="text-lg font-medium text-secondary-800 mb-3">
-            {isSinglePassageMode ? "Analysis Summary" : "Comparison Verdict"}
-          </h3>
-          <div className="bg-primary-50 p-4 rounded-md space-y-3">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-lg font-medium text-secondary-800">
+              {isSinglePassageMode ? "Analysis Summary" : "Comparison Verdict"}
+            </h3>
+            
+            {!isSinglePassageMode && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-secondary-600">Tone:</span>
+                <Select value={verdictTone} onValueChange={(value) => setVerdictTone(value as StyleOption)}>
+                  <SelectTrigger className="w-[180px] h-8 text-sm">
+                    <SelectValue placeholder="Select Tone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="academic">Academic / Formal</SelectItem>
+                    <SelectItem value="keep-voice">Clear & Plain-English</SelectItem>
+                    <SelectItem value="punchy">Short & Punchy</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          
+          <div className="bg-slate-50 border border-slate-200 rounded-lg shadow-sm overflow-hidden">
             {!isSinglePassageMode && (
               <>
-                <div>
-                  <p className="text-sm font-medium text-secondary-800">Originality:</p> 
-                  <p className="text-secondary-700">{
-                    result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
-                      ? `Passage A explores ${passageATitle ? passageATitle + ' ' : ''}more novel concepts, earning a higher originality score.`
-                      : result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score
-                      ? `Passage B demonstrates ${passageBTitle ? passageBTitle + ' ' : ''}more conceptual innovation, earning a higher originality score.`
-                      : `Both passages demonstrate similar levels of originality in their approach.`
-                  }</p>
+                {/* Header bar */}
+                <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                  <h4 className="font-medium text-slate-800">Detailed Comparative Analysis</h4>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 px-2"
+                      onClick={() => {
+                        const verdict = document.getElementById('verdict-content');
+                        if (verdict) {
+                          navigator.clipboard.writeText(verdict.innerText);
+                        }
+                      }}
+                    >
+                      <Copy className="h-4 w-4 mr-1" />
+                      <span className="text-xs">Copy</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 px-2"
+                      onClick={() => generateReportFromData(result, passageATitle, passageBTitle, isSinglePassageMode)}
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      <span className="text-xs">Download</span>
+                    </Button>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-sm font-medium text-secondary-800">Coherence:</p>
-                  <p className="text-secondary-700">{
-                    result.coherence.passageA.score > result.coherence.passageB.score
-                      ? `Passage A presents ${passageATitle ? passageATitle + ' ' : ''}ideas more cohesively, with better logical flow and clarity.`
-                      : result.coherence.passageB.score > result.coherence.passageA.score
-                      ? `Passage B structures ${passageBTitle ? passageBTitle + ' ' : ''}arguments more coherently, with superior logical organization.`
-                      : `Both passages demonstrate comparable levels of coherence and logical structure.`
-                  }</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm font-medium text-secondary-800">Overall:</p>
-                  <p className="text-secondary-700">{result.verdict}</p>
+                {/* Verdict content */}
+                <div id="verdict-content" className="p-5 space-y-4">
+                  {/* Originality */}
+                  <div>
+                    <h5 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-1 mb-2">Originality</h5>
+                    <p className="text-slate-700 leading-relaxed">
+                      {verdictTone === 'academic' && `Passage ${moreOriginal || 'A'} scored ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)} in originality, demonstrating ${
+                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
+                        ? `a more sophisticated intellectual framework compared to Passage B (${result.derivativeIndex.passageB.score.toFixed(1)}). The primary distinction lies in ${passageATitle}'s willingness to engage with conceptual terrain that extends beyond established paradigms.`
+                        : `greater conceptual innovation compared to Passage A (${result.derivativeIndex.passageA.score.toFixed(1)}). The distinguishing factor is ${passageBTitle}'s approach to reframing key concepts in a manner that challenges conventional understanding.`
+                      }`}
+                      
+                      {verdictTone === 'keep-voice' && `Passage ${moreOriginal || 'A'} is more original (scoring ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)}) because it ${
+                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
+                        ? `introduces fresher ideas and perspectives compared to Passage B (${result.derivativeIndex.passageB.score.toFixed(1)}). The main difference is that ${passageATitle || 'Passage A'} explores concepts that feel less familiar and more thought-provoking.`
+                        : `presents more innovative thinking compared to Passage A (${result.derivativeIndex.passageA.score.toFixed(1)}). What stands out is how ${passageBTitle || 'Passage B'} takes standard ideas but presents them in new, unexpected ways.`
+                      }`}
+                      
+                      {verdictTone === 'punchy' && `Passage ${moreOriginal || 'A'}: ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)}/10. ${
+                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
+                        ? `Bolder, fresher, less derivative than B (${result.derivativeIndex.passageB.score.toFixed(1)}). Breaks new ground while B treads familiar territory.`
+                        : `Innovative approach outshines A's conventionality (${result.derivativeIndex.passageA.score.toFixed(1)}). B dares to reimagine; A plays it safe.`
+                      }`}
+                    </p>
+                  </div>
+                  
+                  {/* Coherence */}
+                  <div>
+                    <h5 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-1 mb-2">Coherence</h5>
+                    <p className="text-slate-700 leading-relaxed">
+                      {verdictTone === 'academic' && `Passage ${moreCoherent || 'A'} demonstrated superior coherence (${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10), ${
+                        result.coherence.passageA.score > result.coherence.passageB.score
+                        ? `with a more logically structured argument compared to Passage B (${result.coherence.passageB.score.toFixed(1)}). ${passageATitle || 'Passage A'} exhibits stronger internal consistency, with premises that support conclusions in a more disciplined manner.`
+                        : `presenting a more methodical development of ideas than Passage A (${result.coherence.passageA.score.toFixed(1)}). ${passageBTitle || 'Passage B'} maintains clearer transitions between concepts and employs more precise terminology throughout.`
+                      }`}
+                      
+                      {verdictTone === 'keep-voice' && `Passage ${moreCoherent || 'A'} is more coherent (${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10) because ${
+                        result.coherence.passageA.score > result.coherence.passageB.score
+                        ? `it's easier to follow than Passage B (${result.coherence.passageB.score.toFixed(1)}). The ideas connect better, and the overall structure makes more sense. There's less jumping between topics, and the main points build on each other naturally.`
+                        : `it flows more smoothly than Passage A (${result.coherence.passageA.score.toFixed(1)}). The organization is clearer, and it's easier to see how each part relates to the whole. The argument is laid out step-by-step without confusing detours.`
+                      }`}
+                      
+                      {verdictTone === 'punchy' && `Passage ${moreCoherent || 'A'}: ${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10. ${
+                        result.coherence.passageA.score > result.coherence.passageB.score
+                        ? `Crystal clear compared to B's ${result.coherence.passageB.score.toFixed(1)}. Tight logic, precise flow. B wanders; A marches forward.`
+                        : `Sharp and focused versus A's muddled ${result.coherence.passageA.score.toFixed(1)}. B stays on point; A meanders between ideas.`
+                      }`}
+                    </p>
+                  </div>
+                  
+                  {/* Overall Assessment */}
+                  <div>
+                    <h5 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-1 mb-2">Overall Assessment</h5>
+                    <p className="text-slate-700 leading-relaxed">
+                      {verdictTone === 'academic' && `Considering both metrics, ${
+                        aggregateScoreA > aggregateScoreB
+                        ? `Passage A emerges as the superior text with a composite score of ${aggregateScoreA.toFixed(1)}/10 compared to Passage B's ${aggregateScoreB.toFixed(1)}/10. While ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'B exhibits greater originality' : 'both show comparable originality'}, A's structural integrity and logical coherence elevate its overall scholarly value.`
+                        : aggregateScoreB > aggregateScoreA
+                        ? `Passage B demonstrates greater overall quality with a composite score of ${aggregateScoreB.toFixed(1)}/10 compared to Passage A's ${aggregateScoreA.toFixed(1)}/10. B successfully balances ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'superior originality' : 'strong originality'} with ${result.coherence.passageB.score > result.coherence.passageA.score ? 'exceptional coherence' : 'solid coherence'}.`
+                        : `both passages demonstrate equivalent overall quality, each scoring ${aggregateScoreA.toFixed(1)}/10. However, they achieve this through different strengths: Passage ${moreOriginal || 'A'} excels in originality while Passage ${moreCoherent || 'B'} demonstrates superior coherence. This illustrates how equally valuable scholarship can emerge from different intellectual approaches.`
+                      }`}
+                      
+                      {verdictTone === 'keep-voice' && `Looking at both originality and coherence together, ${
+                        aggregateScoreA > aggregateScoreB
+                        ? `Passage A is overall better with a score of ${aggregateScoreA.toFixed(1)}/10 compared to Passage B's ${aggregateScoreB.toFixed(1)}/10. The main reason is that ${result.coherence.passageA.score > result.coherence.passageB.score ? 'A is much easier to follow' : 'A has a better balance of new ideas and clear writing'}.`
+                        : aggregateScoreB > aggregateScoreA
+                        ? `Passage B comes out on top with a score of ${aggregateScoreB.toFixed(1)}/10, while Passage A scores ${aggregateScoreA.toFixed(1)}/10. B succeeds because it ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'brings fresher ideas to the table' : 'combines solid ideas with clear organization'}.`
+                        : `both passages are equally strong overall, with identical scores of ${aggregateScoreA.toFixed(1)}/10. They just have different strengths - Passage ${moreOriginal || 'A'} is more original, while Passage ${moreCoherent || 'B'} is easier to follow. This shows there's more than one way to write effectively.`
+                      }`}
+                      
+                      {verdictTone === 'punchy' && (
+                        aggregateScoreA > aggregateScoreB
+                        ? `Final verdict: A wins (${aggregateScoreA.toFixed(1)} vs ${aggregateScoreB.toFixed(1)}). ${result.coherence.passageA.score > result.coherence.passageB.score ? "Superior structure trumps B's ambition" : "Better balanced, more complete package"}. Read A for substance, B for inspiration.`
+                        : aggregateScoreB > aggregateScoreA
+                        ? `Final verdict: B takes it (${aggregateScoreB.toFixed(1)} vs ${aggregateScoreA.toFixed(1)}). ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? "Fresh thinking beats familiar clarity" : "Sharper execution, more compelling overall"}. A plays it safe; B takes the prize.`
+                        : `Final verdict: Dead heat: both ${aggregateScoreA.toFixed(1)}/10. A brings ${result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score ? "originality" : "coherence"}, B delivers ${result.coherence.passageB.score > result.coherence.passageA.score ? "clarity" : "innovation"}. Different paths, same destination.`
+                      )}
+                    </p>
+                  </div>
+                  
+                  {/* Optional additional verdict from API */}
+                  {result.verdict && (
+                    <div className="mt-6 pt-4 border-t border-slate-200">
+                      <p className="text-slate-600 italic">{result.verdict}</p>
+                    </div>
+                  )}
                 </div>
               </>
             )}
+            
             {isSinglePassageMode && (
-              <p className="text-secondary-700">{result.verdict}</p>
+              <div className="p-5">
+                <p className="text-secondary-700">{result.verdict}</p>
+              </div>
             )}
           </div>
         </div>
