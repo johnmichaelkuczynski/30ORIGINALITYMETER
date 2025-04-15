@@ -4,15 +4,23 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AnalysisResult, PassageData } from "@/lib/types";
 import PassageInput from "./PassageInput";
+import CorpusComparisonInput from "./CorpusComparisonInput";
 import AnalysisResults from "./AnalysisResults";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function SemanticAnalyzer() {
   const { toast } = useToast();
-  const [isSinglePassageMode, setIsSinglePassageMode] = useState(false);
+  
+  // Analysis modes
+  type AnalysisMode = "comparison" | "single" | "corpus";
+  const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
+  const isSinglePassageMode = analysisMode === "single";
+  const isCorpusMode = analysisMode === "corpus";
+  
   const [passageA, setPassageA] = useState<PassageData>({
     title: "",
     text: "",
@@ -21,32 +29,42 @@ export default function SemanticAnalyzer() {
     title: "",
     text: "",
   });
+  const [corpus, setCorpus] = useState<{
+    title: string;
+    text: string;
+  }>({
+    title: "Reference Corpus",
+    text: "",
+  });
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showResults, setShowResults] = useState(false);
 
   const analysisMutation = useMutation({
     mutationFn: async () => {
-      console.log("Analyzing in mode:", isSinglePassageMode ? "Single passage" : "Comparison");
+      console.log("Analyzing in mode:", analysisMode);
       
-      // Ensure passageB exists in single-passage mode with default values
-      const payload = isSinglePassageMode 
-        ? { 
-            passageA,
-            // We don't need passageB for the single passage endpoint
-          } 
-        : { 
-            passageA, 
-            passageB 
-          };
+      let endpoint = "/api/analyze";
+      let payload: any = {};
+      
+      if (analysisMode === "single") {
+        endpoint = "/api/analyze/single";
+        payload = { passageA };
+      } else if (analysisMode === "comparison") {
+        endpoint = "/api/analyze";
+        payload = { passageA, passageB };
+      } else if (analysisMode === "corpus") {
+        endpoint = "/api/analyze/corpus";
+        payload = { 
+          passage: passageA,
+          corpus: corpus.text,
+          corpusTitle: corpus.title
+        };
+      }
       
       console.log("Request payload:", payload);
       
       try {
-        const response = await apiRequest(
-          "POST", 
-          isSinglePassageMode ? "/api/analyze/single" : "/api/analyze", 
-          payload
-        );
+        const response = await apiRequest("POST", endpoint, payload);
         const data = await response.json();
         console.log("Analysis response:", data);
         return data;
@@ -105,7 +123,7 @@ export default function SemanticAnalyzer() {
   };
 
   const handleModeToggle = (checked: boolean) => {
-    setIsSinglePassageMode(checked);
+    setAnalysisMode(checked ? "single" : "comparison");
     
     // Reset results when switching modes
     if (showResults) {
@@ -120,7 +138,7 @@ export default function SemanticAnalyzer() {
       const customEvent = event as CustomEvent<{passage: PassageData}>;
       if (customEvent.detail && customEvent.detail.passage) {
         // Set the passage data and enable single passage mode
-        setIsSinglePassageMode(true);
+        setAnalysisMode("single");
         setPassageA(customEvent.detail.passage);
         
         // Trigger analysis

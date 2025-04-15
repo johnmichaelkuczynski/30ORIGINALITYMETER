@@ -1191,6 +1191,7 @@ function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: strin
     heatmap.push({
       content: paragraph,
       heat,
+      quote: `Paragraph ${index + 1}`,
       explanation: `Analysis of paragraph ${index + 1} relative to corpus`,
     });
   });

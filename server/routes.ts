@@ -326,6 +326,154 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyze a passage against a corpus
+  app.post("/api/analyze/corpus", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        passage: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required"),
+        }),
+        corpus: z.string().min(1, "Corpus text is required"),
+        corpusTitle: z.string().optional().default("Reference Corpus"),
+      });
+
+      const { passage, corpus, corpusTitle } = requestSchema.parse(req.body);
+      
+      console.log("Corpus comparison request:", {
+        passageTitle: passage.title,
+        passageLength: passage.text.length,
+        corpusTitle,
+        corpusLength: corpus.length,
+      });
+
+      try {
+        // Get OpenAI's analysis of the passage against the corpus
+        const analysisResult = await analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
+
+        // Validate the response against our schema
+        const validatedResult = analysisResultSchema.parse(analysisResult);
+
+        // Store the analysis in our database with a special flag for corpus mode
+        await storage.createAnalysis({
+          passageA: passage.text,
+          passageB: "corpus-comparison",
+          passageATitle: passage.title,
+          passageBTitle: corpusTitle, 
+          result: validatedResult,
+          createdAt: new Date().toISOString(),
+        });
+
+        res.json(validatedResult);
+      } catch (aiError) {
+        console.error("Error with AI corpus analysis:", aiError);
+        
+        // Return a valid response for when API calls fail
+        const fallbackResponse = {
+          conceptualLineage: {
+            passageA: {
+              primaryInfluences: "Analysis currently unavailable - please try again later.",
+              intellectualTrajectory: "Analysis currently unavailable - please try again later.",
+            },
+            passageB: {
+              primaryInfluences: `This analysis compares your passage to "${corpusTitle}"`,
+              intellectualTrajectory: "The reference corpus serves as the intellectual standard.",
+            },
+          },
+          semanticDistance: {
+            passageA: {
+              distance: 50,
+              label: "Analysis Unavailable",
+            },
+            passageB: {
+              distance: 0,
+              label: "Reference Corpus",
+            },
+            keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
+            semanticInnovation: "Analysis currently unavailable - please try again later.",
+          },
+          noveltyHeatmap: {
+            passageA: [
+              { content: "Analysis currently unavailable - please try again later.", heat: 50 },
+            ],
+            passageB: [
+              { content: "Reference Corpus", heat: 0 },
+            ],
+          },
+          derivativeIndex: {
+            passageA: {
+              score: 5,
+              components: [
+                { name: "Conceptual Innovation", score: 5 },
+                { name: "Methodological Novelty", score: 5 },
+                { name: "Contextual Application", score: 5 },
+              ],
+            },
+            passageB: {
+              score: 10,
+              components: [
+                { name: "Reference Standard", score: 10 },
+              ],
+            },
+          },
+          conceptualParasite: {
+            passageA: {
+              level: "Moderate",
+              elements: ["Analysis currently unavailable"],
+              assessment: "Analysis currently unavailable - please try again later.",
+            },
+            passageB: {
+              level: "Low",
+              elements: ["Reference Corpus"],
+              assessment: "This is the reference corpus used for comparison.",
+            },
+          },
+          coherence: {
+            passageA: {
+              score: 5,
+              assessment: "Analysis currently unavailable - please try again later.",
+              strengths: ["Analysis currently unavailable"],
+              weaknesses: ["Analysis currently unavailable"]
+            },
+            passageB: {
+              score: 10,
+              assessment: "Reference corpus used for comparison.",
+              strengths: ["Reference Standard"],
+              weaknesses: []
+            }
+          },
+          verdict: `Analysis temporarily unavailable. Our system was unable to complete the comparison against "${corpusTitle}" at this time due to an API connection issue. Please try again later.`,
+        };
+        
+        // Store the fallback analysis
+        await storage.createAnalysis({
+          passageA: passage.text,
+          passageB: "corpus-comparison",
+          passageATitle: passage.title,
+          passageBTitle: corpusTitle,
+          result: fallbackResponse,
+          createdAt: new Date().toISOString(),
+        });
+
+        // Return the fallback response
+        res.json(fallbackResponse);
+      }
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error analyzing passage against corpus:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze passage against corpus", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
   // Process uploaded file and return its content
   app.post("/api/upload", upload.single('file'), async (req, res) => {
     try {
