@@ -968,7 +968,7 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
 
     // Send the prompt to the model
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -992,7 +992,7 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
       conceptualLineage: {
         analysis: extractSection(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 2000) || "",
         score: extractNumericValue(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       semanticDistance: {
         analysis: extractSection(completionText, "SEMANTIC DISTANCE MEASURE", 2000) || "",
