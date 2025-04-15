@@ -213,24 +213,18 @@ export default function CorpusComparisonInput({
 
             <div className="border-t border-b border-dashed border-gray-200 py-4">
               <Label className="font-medium mb-2 block">Upload Reference Corpus</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="file"
-                  accept=".txt,.docx"
-                  onChange={handleFileUpload}
-                  disabled={disabled || isUploading}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-              </div>
-              {isUploading && (
-                <div className="mt-2">
-                  <Progress value={uploadProgress} className="h-2" />
-                  <p className="text-xs text-gray-500 mt-1">Processing file...</p>
-                </div>
-              )}
-              <p className="text-xs text-gray-500 mt-2">
-                Supported formats: .txt, .docx (Max 10MB)
-              </p>
+              <FileDropzone
+                onFileSelect={(file) => {
+                  const event = { target: { files: [file] } } as unknown as ChangeEvent<HTMLInputElement>;
+                  handleFileUpload(event);
+                }}
+                accept=".txt,.docx" 
+                disabled={disabled}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+                maxSizeInMB={10}
+                className="bg-white"
+              />
             </div>
 
             <div>
