@@ -1105,6 +1105,7 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
           weaknesses: []
         }
       },
+      verdict: extractSection(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 300) || "This passage has been analyzed against the provided corpus to evaluate its originality.",
     };
 
     return result;
@@ -1318,7 +1319,9 @@ Provide a thoughtful response that explains your reasoning and any revised asses
         updatedResult.conceptualParasite.feedback = feedbackData;
         break;
       case "coherence":
-        updatedResult.coherence.feedback = feedbackData;
+        if (updatedResult.coherence) {
+          updatedResult.coherence.feedback = feedbackData;
+        }
         break;
       case "accuracy":
         if (updatedResult.accuracy) {

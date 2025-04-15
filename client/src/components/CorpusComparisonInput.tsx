@@ -49,7 +49,7 @@ export default function CorpusComparisonInput({
     onCorpusChange({ ...corpus, text: e.target.value });
   };
 
-  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, isPassage: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -104,16 +104,26 @@ export default function CorpusComparisonInput({
       
       setUploadProgress(100);
 
-      // Update corpus with file content
-      onCorpusChange({
-        title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension for title
-        text: data.text,
-      });
-
-      toast({
-        title: "Upload successful",
-        description: `'${file.name}' has been loaded as your reference corpus`,
-      });
+      // Update either passage or corpus with file content based on isPassage flag
+      if (isPassage) {
+        onPassageChange({
+          title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension for title
+          text: data.text,
+        });
+        toast({
+          title: "Upload successful",
+          description: `'${file.name}' has been loaded as your passage`,
+        });
+      } else {
+        onCorpusChange({
+          title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension for title
+          text: data.text,
+        });
+        toast({
+          title: "Upload successful",
+          description: `'${file.name}' has been loaded as your reference corpus`,
+        });
+      }
     } catch (error) {
       console.error("Upload error:", error);
       toast({
@@ -156,6 +166,28 @@ export default function CorpusComparisonInput({
                 onChange={handlePassageTitleChange}
                 disabled={disabled}
                 className="mt-1"
+              />
+            </div>
+
+            <div className="border-t border-b border-dashed border-gray-200 py-4">
+              <Label className="font-medium mb-2 block">Upload Passage File</Label>
+              <FileDropzone
+                onFileSelect={(file) => {
+                  // Create a synthetic event with minimal properties needed
+                  const syntheticEvent = {
+                    target: { files: [file] },
+                    preventDefault: () => {}
+                  } as unknown as ChangeEvent<HTMLInputElement>;
+                  handleFileUpload(syntheticEvent, true);
+                }}
+                accept=".txt,.docx" 
+                disabled={disabled}
+                isUploading={isUploading}
+                uploadProgress={uploadProgress}
+                maxSizeInMB={20}
+                className="bg-white"
+                showButton={true}
+                buttonText="Upload Passage File"
               />
             </div>
 
