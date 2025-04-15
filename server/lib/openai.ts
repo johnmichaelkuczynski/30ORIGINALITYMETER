@@ -918,9 +918,13 @@ export async function generateMoreOriginalVersion(
     
     // Get the overall quality score - use the average of all available metrics
     const availableScores = [
-      analysisResult.derivativeIndex.passageA.score,
-      analysisResult.coherence.passageA.score
+      analysisResult.derivativeIndex.passageA.score
     ];
+    
+    // Only add coherence score if it exists
+    if (analysisResult.coherence?.passageA?.score) {
+      availableScores.push(analysisResult.coherence.passageA.score);
+    }
     
     if (analysisResult.accuracy?.passageA?.score) {
       availableScores.push(analysisResult.accuracy.passageA.score);
@@ -946,16 +950,20 @@ export async function generateMoreOriginalVersion(
 Goal: Enrich this already strong passage by adding new, intellectually rigorous material while maintaining its clarity and coherence.
 
 Focus on:
-1. Incorporating examples from other disciplines (mathematics, computer science, psychology, economics, ethics, biology, philosophy, etc.)
+1. Incorporating SPECIFIC examples from other disciplines (mathematics, computer science, psychology, economics, ethics, biology, philosophy, etc.)
 2. Exploring new angles or applications related to the original concept
 3. Adding new examples that broaden the scope and deepen the conceptual engagement
-4. Providing clear explanations of how each added example or new information relates to the original ideas
+4. Providing clear explanations of how each added example or new information DIRECTLY relates to the original ideas
 
 Guidelines:
+- Each example must be CONCRETE and SPECIFIC, not abstract or general
+- Use real-world case studies, specific theories, or empirical data that directly engage with the concepts
+- Examples should be BRIEFLY introduced (2-3 sentences maximum per example)
+- Explicitly state how each example illuminates or solves the original problem
 - The new material should enhance understanding, not simply be decorative
 - Avoid vague metaphors or unnecessary abstraction
-- Focus on adding depth, not just making the text longer
-- Ensure all additions have intellectual rigor and substance
+- Avoid overuse of academic jargon that does not add clarity
+- Use concise language - if an idea can be expressed simply, it should be
 - Maintain the original meaning while broadening its scope with intellectually rich and conceptually relevant examples`;
     } else if (overallScore < 5) {
       // Protocol for low-quality passages (score below 5)
@@ -970,8 +978,14 @@ Focus on:
 4. Enhancing readability: Improve how the information is presented while maintaining intellectual rigor
 
 Guidelines:
-- Ensure the ideas are presented clearly and coherently
-- Create a strong internal structure with logical progression
+- Create a clear, logical progression of ideas with explicit transitions
+- Break long, complex sentences into shorter, clearer ones where appropriate
+- Define any technical terms or jargon when first introduced
+- Use concrete examples to illustrate abstract concepts (1-2 sentences per example)
+- Eliminate redundancy and remove unnecessary verbiage
+- Ensure each paragraph has a clear topic sentence and supporting content
+- Create a consistent and coherent structure throughout
+- Use precise language that accurately captures the intended meaning
 - Simplify complex ideas without sacrificing intellectual depth
 - Make the passage easier to understand and more precise
 - Maintain the original meaning but present it with greater clarity`;
@@ -988,10 +1002,17 @@ Focus on:
 4. Improving precision and specificity of language
 
 Guidelines:
+- Add 1-2 SPECIFIC, CONCRETE examples that directly illustrate key concepts (max 2-3 sentences each)
+- Ensure each example is directly connected to the main argument with an explicit explanation
+- Improve transitions between ideas for smoother logical flow
+- Clarify any vague or ambiguous statements with more precise language
+- Break up any overly dense paragraphs into more digestible sections
 - Strike a balance between clarity and intellectual depth
-- Add some new perspectives or examples where appropriate
+- Use active voice and direct language where possible
 - Refine the structure for better logical progression
-- Improve precision and clarity without oversimplification`;
+- Eliminate unnecessary jargon or add brief definitions where needed
+- Improve precision and clarity without oversimplification
+- Focus on improving organization without adding excessive length`;
     }
     
     // Determine style instructions based on styleOption
