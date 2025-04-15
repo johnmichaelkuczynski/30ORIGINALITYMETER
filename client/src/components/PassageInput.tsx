@@ -3,6 +3,7 @@ import { PassageData } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { FileDropzone } from "@/components/ui/file-dropzone";
 
 interface PassageInputProps {
   passage: PassageData;
@@ -151,8 +152,39 @@ export default function PassageInput({
         />
       </CardContent>
       
-      {/* File Upload Button and Hidden Input */}
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end">
+      {/* File Upload with Drag and Drop */}
+      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+        <FileDropzone
+          onFileSelect={(file) => {
+            // Create a synthetic event that has the minimal properties needed
+            const syntheticEvent = {
+              target: { files: [file] },
+              preventDefault: () => {}
+            } as unknown as React.ChangeEvent<HTMLInputElement>;
+            handleFileUpload(syntheticEvent);
+          }}
+          accept=".txt,.docx"
+          disabled={disabled}
+          maxSizeInMB={5}
+          className="bg-white"
+          showFileInput={false}
+        >
+          <div className="flex flex-col items-center justify-center h-24 p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 mb-2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p className="text-sm font-medium text-gray-600 mb-1">
+              Drag & drop your passage file here
+            </p>
+            <p className="text-xs text-gray-500">
+              Supported formats: txt, docx (Max 5MB)
+            </p>
+          </div>
+        </FileDropzone>
+        
+        {/* Keep the hidden input for backward compatibility */}
         <input
           type="file"
           ref={fileInputRef}
@@ -161,20 +193,6 @@ export default function PassageInput({
           className="hidden"
           disabled={disabled}
         />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={triggerFileUpload}
-          disabled={disabled}
-          className="flex items-center"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-          Upload File
-        </Button>
       </div>
     </Card>
   );

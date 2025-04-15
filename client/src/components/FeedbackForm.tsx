@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AnalysisResult, PassageData, SupportingDocument } from "@/lib/types";
+import { FileDropzone } from "@/components/ui/file-dropzone";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -333,23 +334,36 @@ export default function FeedbackForm({
               
               <div className="space-y-2">
                 <p className="text-sm text-slate-600">Upload supporting document (optional)</p>
-                <input
-                  type="file"
+                
+                <FileDropzone
+                  onFileSelect={handleFileUpload}
                   accept=".txt,.docx"
-                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
                   disabled={fileUploading || feedbackMutation.isPending}
-                  className="text-sm text-slate-600 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-                />
+                  isUploading={fileUploading}
+                  maxSizeInMB={5}
+                  className="bg-white border-slate-200"
+                >
+                  <div className="flex flex-col items-center justify-center h-24 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 mb-2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="12" y1="18" x2="12" y2="12"></line>
+                      <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <p className="text-sm font-medium text-slate-600 mb-1">
+                      Drag & drop supporting document here
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      Supported formats: txt, docx (Max 5MB)
+                    </p>
+                  </div>
+                </FileDropzone>
                 
                 {supportingDocument && (
                   <div className="bg-slate-50 p-2 rounded-md mt-2">
                     <p className="text-xs text-slate-700 font-medium">{supportingDocument.title}</p>
                     <p className="text-xs text-slate-600 truncate">{supportingDocument.content.substring(0, 100)}...</p>
                   </div>
-                )}
-                
-                {fileUploading && (
-                  <p className="text-xs text-slate-600">Processing file...</p>
                 )}
               </div>
             </CardContent>

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { FileDropzone } from "@/components/ui/file-dropzone";
 
 interface CorpusComparisonInputProps {
   passage: {
@@ -215,8 +216,12 @@ export default function CorpusComparisonInput({
               <Label className="font-medium mb-2 block">Upload Reference Corpus</Label>
               <FileDropzone
                 onFileSelect={(file) => {
-                  const event = { target: { files: [file] } } as unknown as ChangeEvent<HTMLInputElement>;
-                  handleFileUpload(event);
+                  // Create a synthetic event with minimal properties needed
+                  const syntheticEvent = {
+                    target: { files: [file] },
+                    preventDefault: () => {}
+                  } as unknown as ChangeEvent<HTMLInputElement>;
+                  handleFileUpload(syntheticEvent);
                 }}
                 accept=".txt,.docx" 
                 disabled={disabled}
