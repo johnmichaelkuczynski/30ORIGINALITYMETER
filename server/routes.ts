@@ -351,8 +351,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get OpenAI's analysis of the passage against the corpus
         const analysisResult = await analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
 
+        // Make sure verdict exists
+        if (!analysisResult.verdict) {
+          analysisResult.verdict = `Analysis comparing your passage "${passage.title}" against corpus "${corpusTitle}"`;
+        }
+
         // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(analysisResult);
+        let validatedResult;
+        try {
+          validatedResult = analysisResultSchema.parse(analysisResult);
+        } catch (validationError) {
+          console.error("Schema validation error for corpus analysis:", validationError);
+          // If validation fails, use the fallback response instead
+          throw new Error(`Schema validation failed: ${validationError.message}`);
+        }
 
         // Store the analysis in our database with a special flag for corpus mode
         await storage.createAnalysis({
@@ -445,18 +457,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           verdict: `Analysis temporarily unavailable. Our system was unable to complete the comparison against "${corpusTitle}" at this time due to an API connection issue. Please try again later.`,
         };
         
-        // Store the fallback analysis
-        await storage.createAnalysis({
-          passageA: passage.text,
-          passageB: "corpus-comparison",
-          passageATitle: passage.title,
-          passageBTitle: corpusTitle,
-          result: fallbackResponse,
-          createdAt: new Date().toISOString(),
-        });
+        // Validate the fallback response
+        try {
+          const validatedFallback = analysisResultSchema.parse(fallbackResponse);
+          
+          // Store the fallback analysis
+          await storage.createAnalysis({
+            passageA: passage.text,
+            passageB: "corpus-comparison",
+            passageATitle: passage.title,
+            passageBTitle: corpusTitle,
+            result: validatedFallback,
+            createdAt: new Date().toISOString(),
+          });
 
-        // Return the fallback response
-        res.json(fallbackResponse);
+          // Return the validated fallback response
+          res.json(validatedFallback);
+        } catch (error) {
+          const fallbackValidationError = error instanceof Error ? error : new Error("Unknown validation error");
+          console.error("Fallback response validation error:", fallbackValidationError);
+          // If even the fallback fails validation, return a generic error
+          res.status(500).json({ 
+            message: "Failed to analyze passage against corpus", 
+            error: "Internal validation error with analysis result"
+          });
+        }
       }
     } catch (error) {
       if (error instanceof ZodError) {
