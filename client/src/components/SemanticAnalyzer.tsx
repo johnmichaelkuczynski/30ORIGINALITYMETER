@@ -88,6 +88,7 @@ export default function SemanticAnalyzer() {
   });
 
   const handleCompare = () => {
+    // Common validation - passage A is always required
     if (!passageA.text.trim()) {
       toast({
         title: "Incomplete Input",
@@ -97,10 +98,20 @@ export default function SemanticAnalyzer() {
       return;
     }
     
-    if (!isSinglePassageMode && !passageB.text.trim()) {
+    // Validate based on mode
+    if (analysisMode === "comparison" && !passageB.text.trim()) {
       toast({
         title: "Incomplete Input",
         description: "Please enter text in both passages before comparing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (analysisMode === "corpus" && !corpus.text.trim()) {
+      toast({
+        title: "Incomplete Input",
+        description: "Please enter or upload a reference corpus for comparison.",
         variant: "destructive",
       });
       return;
@@ -112,6 +123,7 @@ export default function SemanticAnalyzer() {
   const handleResetComparison = () => {
     setPassageA({ title: "", text: "" });
     setPassageB({ title: "", text: "" });
+    setCorpus({ title: "Reference Corpus", text: "" });
     setAnalysisResult(null);
     setShowResults(false);
   };
@@ -119,16 +131,6 @@ export default function SemanticAnalyzer() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && e.ctrlKey) {
       handleCompare();
-    }
-  };
-
-  const handleModeToggle = (checked: boolean) => {
-    setAnalysisMode(checked ? "single" : "comparison");
-    
-    // Reset results when switching modes
-    if (showResults) {
-      setAnalysisResult(null);
-      setShowResults(false);
     }
   };
 
@@ -178,41 +180,88 @@ export default function SemanticAnalyzer() {
         </div>
       </div>
       
-      {/* Mode Toggle */}
-      <div className="flex justify-end">
-        <div className="bg-white px-4 py-2 rounded-md shadow-sm border border-gray-200 flex items-center space-x-4">
-          <Label htmlFor="mode-toggle" className="text-sm text-secondary-600">
-            Compare two passages
-          </Label>
-          <Switch 
-            id="mode-toggle" 
-            checked={isSinglePassageMode} 
-            onCheckedChange={handleModeToggle}
-          />
-          <Label htmlFor="mode-toggle" className="text-sm text-secondary-600">
-            Analyze single passage
-          </Label>
+      {/* Analysis Mode Selector */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="mb-2">
+          <h3 className="text-base font-medium text-secondary-700">Select Analysis Mode</h3>
+          <p className="text-sm text-secondary-500">Choose how you want to analyze your text</p>
+        </div>
+        
+        <RadioGroup
+          value={analysisMode}
+          onValueChange={(value) => {
+            setAnalysisMode(value as AnalysisMode);
+            // Reset results when switching modes
+            if (showResults) {
+              setAnalysisResult(null);
+              setShowResults(false);
+            }
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-2"
+        >
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "comparison" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="comparison" id="comparison" />
+            <Label htmlFor="comparison" className="font-medium">
+              Compare Two Passages
+            </Label>
+          </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "single" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="single" id="single" />
+            <Label htmlFor="single" className="font-medium">
+              Analyze Single Passage
+            </Label>
+          </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "corpus" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="corpus" id="corpus" />
+            <Label htmlFor="corpus" className="font-medium">
+              Compare to Corpus
+            </Label>
+          </div>
+        </RadioGroup>
+        
+        <div className="mt-3 text-xs text-slate-500">
+          {analysisMode === "comparison" && (
+            <p>Compare two passages to see which one is more original and how they relate conceptually.</p>
+          )}
+          {analysisMode === "single" && (
+            <p>Analyze a single passage against general intellectual norms to measure its originality.</p>
+          )}
+          {analysisMode === "corpus" && (
+            <p>Compare your passage against a larger body of work to see how it aligns with a specific style or theorist.</p>
+          )}
         </div>
       </div>
       
       {/* Input Section */}
-      <div className={`grid grid-cols-1 ${isSinglePassageMode ? "" : "lg:grid-cols-2"} gap-6`}>
-        <PassageInput
+      {analysisMode === "corpus" ? (
+        <CorpusComparisonInput
           passage={passageA}
-          onChange={setPassageA}
-          label={isSinglePassageMode ? "" : "A"}
+          corpus={corpus}
+          onPassageChange={setPassageA}
+          onCorpusChange={setCorpus}
           disabled={analysisMutation.isPending}
         />
-        
-        {!isSinglePassageMode && (
+      ) : (
+        <div className={`grid grid-cols-1 ${analysisMode === "single" ? "" : "lg:grid-cols-2"} gap-6`}>
           <PassageInput
-            passage={passageB}
-            onChange={setPassageB}
-            label="B"
+            passage={passageA}
+            onChange={setPassageA}
+            label={analysisMode === "single" ? "" : "A"}
             disabled={analysisMutation.isPending}
           />
-        )}
-      </div>
+          
+          {analysisMode === "comparison" && (
+            <PassageInput
+              passage={passageB}
+              onChange={setPassageB}
+              label="B"
+              disabled={analysisMutation.isPending}
+            />
+          )}
+        </div>
+      )}
 
       {/* Compare Button Card - More Prominent */}
       <Card className="bg-gradient-to-br from-slate-50 to-slate-100 shadow-lg border-2 border-green-100 overflow-hidden rounded-xl">
@@ -221,10 +270,9 @@ export default function SemanticAnalyzer() {
             <div className="text-center mb-6">
               <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
               <p className="text-base text-slate-600 mt-2">
-                {isSinglePassageMode 
-                  ? "Click the button below to analyze the semantic originality of your passage"
-                  : "Click the button below to compare the semantic originality of both passages"
-                }
+                {analysisMode === "single" && "Click the button below to analyze the semantic originality of your passage"}
+                {analysisMode === "comparison" && "Click the button below to compare the semantic originality of both passages"}
+                {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
               </p>
             </div>
             
@@ -234,17 +282,24 @@ export default function SemanticAnalyzer() {
               disabled={
                 analysisMutation.isPending || 
                 !passageA.text.trim() || 
-                (!isSinglePassageMode && !passageB.text.trim())
+                (analysisMode === "comparison" && !passageB.text.trim()) ||
+                (analysisMode === "corpus" && !corpus.text.trim())
               }
               className="w-full py-6 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg shadow-lg transition-all border-2 border-green-500 hover:border-green-600 cursor-pointer flex items-center justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
-                {isSinglePassageMode ? (
+                {analysisMode === "single" ? (
                   <>
                     <circle cx="12" cy="12" r="9" />
                     <line x1="12" y1="16" x2="12" y2="12" />
                     <line x1="12" y1="8" x2="12" y2="8" />
                     <circle cx="12" cy="12" r="3" fill="currentColor" />
+                  </>
+                ) : analysisMode === "corpus" ? (
+                  <>
+                    <rect x="2" y="4" width="9" height="16" rx="1" strokeWidth="2.5" />
+                    <rect x="15" y="4" width="7" height="16" rx="1" strokeWidth="2.5" />
+                    <line x1="11" y1="12" x2="15" y2="12" strokeWidth="2.5" />
                   </>
                 ) : (
                   <>
@@ -256,7 +311,9 @@ export default function SemanticAnalyzer() {
                 )}
               </svg>
               <span className="text-xl font-bold tracking-wide">
-                {isSinglePassageMode ? "ANALYZE PASSAGE" : "COMPARE PASSAGES"}
+                {analysisMode === "single" && "ANALYZE PASSAGE"}
+                {analysisMode === "comparison" && "COMPARE PASSAGES"}
+                {analysisMode === "corpus" && "COMPARE TO CORPUS"}
               </span>
             </Button>
             
@@ -283,10 +340,16 @@ export default function SemanticAnalyzer() {
               setResult={setAnalysisResult}
               passageA={passageA}
               passageB={passageB}
-              passageATitle={passageA.title || (isSinglePassageMode ? "Your Passage" : "Passage A")} 
-              passageBTitle={isSinglePassageMode ? "Norm" : (passageB.title || "Passage B")}
+              passageATitle={passageA.title || (analysisMode === "single" ? "Your Passage" : "Passage A")} 
+              passageBTitle={
+                analysisMode === "single" 
+                  ? "Norm" 
+                  : analysisMode === "corpus"
+                    ? corpus.title || "Reference Corpus"
+                    : (passageB.title || "Passage B")
+              }
               onNewComparison={handleResetComparison}
-              isSinglePassageMode={isSinglePassageMode}
+              isSinglePassageMode={analysisMode !== "comparison"}
             />
           ) : null}
         </div>

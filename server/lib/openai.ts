@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { PassageData, SupportingDocument, StyleOption } from "../../client/src/lib/types";
+import { PassageData, SupportingDocument, StyleOption, FeedbackData, SubmitFeedbackRequest } from "../../client/src/lib/types";
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 
@@ -894,255 +894,210 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
 export async function analyzePassageAgainstCorpus(
   passage: PassageData,
   corpus: string,
-  corpusTitle: string = "Reference Corpus"
+  corpusTitle?: string
 ): Promise<AnalysisResult> {
+  console.log(`Analyzing passage '${passage.title}' against corpus '${corpusTitle || "Unnamed Corpus"}'`);
+  
   try {
-    const paragraphs = splitIntoParagraphs(passage.text);
-    const passageTitle = passage.title || "Your Passage";
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-    // Format a sample of the corpus to include in the prompt
-    // We need to limit the corpus size to avoid token limits
-    let corpusSample = corpus;
-    if (corpus.length > 12000) {
-      corpusSample = corpus.substring(0, 12000) + "...";
-    }
+    // Truncate the passage and corpus if they're too long
+    const truncatedPassageText = passage.text.slice(0, 8000);
+    let truncatedCorpus = corpus.slice(0, 32000); // Use more of the corpus since it's important
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+    // Create a prompt for the analysis
+    const prompt = `
+You are an expert in analyzing the conceptual originality and semantic relationships between texts. You are tasked with comparing an individual passage against a larger corpus (body of work). Your analysis should focus on the following aspects:
+
+1. Conceptual Lineage: Identify how the concepts, ideas, and arguments in the passage trace back to or build upon concepts in the corpus.
+2. Semantic Distance: Assess how similar or different the passage is from the corpus in terms of meaning, style, and theoretical approach.
+3. Novelty Analysis: Determine what aspects of the passage represent novel contributions beyond what's in the corpus.
+4. Derivative Index: Calculate to what extent the passage is derivative of the corpus vs. original.
+5. Conceptual Parasitism: Evaluate if the passage relies too heavily on the corpus without adding sufficient original value.
+6. Coherence: Analyze if the passage effectively structures its ideas in a cohesive manner.
+7. Accuracy: Assess if claims made in the passage are factually accurate.
+8. Depth: Evaluate how deeply the passage explores its concepts compared to the corpus.
+9. Clarity: Determine how effectively the passage communicates ideas compared to the corpus.
+
+PASSAGE TO ANALYZE (titled "${passage.title || 'Untitled Passage'}"):
+${truncatedPassageText}
+
+REFERENCE CORPUS (titled "${corpusTitle || 'Reference Corpus'}"):
+${truncatedCorpus}
+
+Your output must follow this exact structure:
+
+CONCEPTUAL LINEAGE ANALYSIS:
+[Provide a detailed analysis of how the passage's concepts connect to or derive from the corpus. Identify specific conceptual influences, theoretical frameworks, or methodological approaches that appear to have been adapted from the corpus. If you find direct quotations or very close paraphrasing, highlight those. Score from 0-100, where lower scores indicate high derivation from the corpus, higher scores indicate more independence from the corpus.] 
+
+SEMANTIC DISTANCE MEASURE:
+[Analyze how semantically distant or close the passage is to the corpus. Consider vocabulary choices, syntactic structures, argumentative patterns, and disciplinary conventions. Score from 0-100, where 0 means the passage is semantically identical to parts of the corpus, and 100 means it is entirely semantically distinct.]
+
+NOVELTY HEATMAP:
+[Provide a paragraph-by-paragraph analysis of the passage, indicating the degree of novelty in each paragraph relative to the corpus. Score each paragraph's novelty from 0-100. For passages with low novelty scores, include a brief explanation and, if appropriate, identify the specific part of the corpus it most resembles.]
+
+DERIVATIVE INDEX:
+[Calculate a score from 0-100 indicating the extent to which the passage is derivative of the corpus. A lower score indicates high derivation; a higher score indicates more originality. Provide a short explanation for this rating.]
+
+CONCEPTUAL PARASITE DETECTION:
+[Assess if the passage merely repackages ideas from the corpus without significant added value. Classify the result as "Low", "Moderate", or "High" risk of conceptual parasitism. Provide examples from the passage that support your assessment.]
+
+COHERENCE EVALUATION:
+[Analyze how coherently the passage structures its ideas, maintains logical flow, and develops arguments. Compare this to the general coherence of the corpus. Score from 0-100, where higher scores indicate greater coherence. Provide specific examples from the passage.]
+
+ACCURACY ASSESSMENT:
+[Evaluate the factual accuracy of claims made in the passage, especially in relation to claims made in the corpus. Score from 0-100, where higher scores indicate greater accuracy. Note any discrepancies or contradictions between the passage and the corpus.]
+
+DEPTH ANALYSIS:
+[Assess the intellectual depth of the passage compared to the corpus. Does it engage with concepts at a similar level of sophistication? Does it explore implications and nuances with equal or greater thoroughness? Score from 0-100, where higher scores indicate greater depth. Provide examples.]
+
+CLARITY MEASUREMENT:
+[Evaluate how clearly the passage communicates its ideas compared to the corpus. Consider factors like jargon usage, sentence structure, and explanatory quality. Score from 0-100, where higher scores indicate greater clarity. Provide specific examples from the passage.]
+
+SUMMARY OF ORIGINALITY ASSESSMENT:
+[Summarize the overall originality of the passage in relation to the corpus, integrating insights from all the above measures. Provide a final originality score from 0-100.]
+
+KEY STRENGTHS OF THE PASSAGE:
+[List 3-5 specific strengths of the passage in bullet points, particularly noting where it advances beyond or improves upon the corpus.]
+
+ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
+[Provide 3-5 specific recommendations for how the passage could be made more original while maintaining its relationship to the corpus.]
+`;
+
+    // Send the prompt to the model
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality and quality of texts. Your task is to analyze a given passage against a reference corpus to determine how well the passage aligns with the intellectual rigor, tone, and style of the corpus. Analyze the passage across nine metrics:
-
-1. Conceptual Lineage - Where ideas come from, are they responding to ideas in the corpus
-2. Semantic Distance - How far the passage moves from the corpus; is it reshuffling or building on concepts
-3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph compared to the corpus
-4. Derivative Index - Score 0-10 where 0 is highly derivative of the corpus and 10 is wholly original
-5. Conceptual Parasite Detection - Whether the passage operates in the same conceptual space without adding anything new
-6. Coherence - Whether the passage maintains the logical and conceptual coherence seen in the corpus
-7. Accuracy - Factual and inferential correctness compared to the corpus
-8. Depth - Non-triviality and conceptual insight compared to the corpus
-9. Clarity - Readability, transparency, and semantic accessibility compared to the corpus style
-
-Your analysis should be thorough but concise, focusing on both the stylistic alignment and intellectual content.`
+          content: "You are a text analysis expert specializing in semantic originality assessment."
         },
         {
           role: "user",
-          content: `Please analyze the following passage against the reference corpus:
-
-Passage: "${passage.text}"
-
-Reference Corpus Title: "${corpusTitle}"
-Reference Corpus: "${corpusSample}"
-
-Provide a structured analysis showing how the passage compares to the corpus in terms of style, tone, conceptual alignment, and intellectual rigor.`
+          content: prompt
         }
       ],
+      temperature: 0.2,
       max_tokens: 4000,
     });
 
-    // Extract the result from the OpenAI response
-    const analysisText = response.choices[0]?.message?.content || "";
-    
-    // Parse the response into our analysis result structure
-    // This is a simplified version that aligns with our existing schema
+    // Process the response
+    const completionText = completion.choices[0].message.content || "";
+    console.log("OpenAI API responded with analysis");
+
+    // Parse the response to extract the components we need
     const result: AnalysisResult = {
       conceptualLineage: {
-        passageA: {
-          primaryInfluences: extractSection(analysisText, "Conceptual Lineage", 300) || 
-            "Analysis of conceptual influences compared to the corpus.",
-          intellectualTrajectory: extractSubsection(analysisText, "Conceptual Lineage", "trajectory", 300) || 
-            "Trajectory of ideas relative to the corpus.",
-        },
-        passageB: {
-          primaryInfluences: `This analysis examines how the passage aligns with "${corpusTitle}".`,
-          intellectualTrajectory: "The corpus serves as a reference point for comparison.",
-        }
+        analysis: extractSection(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 2000) || "",
+        score: extractNumericValue(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 0, 100) || 50,
+        feedback: null,
       },
       semanticDistance: {
-        passageA: {
-          distance: extractNumericValue(analysisText, "Semantic Distance", 0, 100) || 50,
-          label: extractLabel(analysisText, "Semantic Distance") || "Moderate",
-        },
-        passageB: {
-          distance: 0,
-          label: "Reference Corpus",
-        },
-        keyFindings: extractListItems(analysisText, "Semantic Distance", "key findings", 5) || 
-          ["The passage shows some deviation from the corpus in terms of semantic content."],
-        semanticInnovation: extractSubsection(analysisText, "Semantic Distance", "innovation", 300) || 
-          "Analysis of semantic innovation relative to the corpus."
+        analysis: extractSection(completionText, "SEMANTIC DISTANCE MEASURE", 2000) || "",
+        score: extractNumericValue(completionText, "SEMANTIC DISTANCE MEASURE", 0, 100) || 50,
+        feedback: null,
       },
       noveltyHeatmap: {
-        passageA: generateHeatmapFromParagraphs(paragraphs, analysisText),
-        passageB: [{ content: "Reference Corpus", heat: 0 }]
+        passageA: generateHeatmapFromParagraphs(
+          truncatedPassageText.split("\n\n").filter(p => p.trim()),
+          extractSection(completionText, "NOVELTY HEATMAP", 4000) || ""
+        ),
+        passageB: [], // Not applicable in corpus comparison mode
+        feedback: null,
       },
       derivativeIndex: {
-        passageA: {
-          score: extractNumericValue(analysisText, "Derivative Index", 0, 10) || 5,
-          components: [
-            { 
-              name: "Originality", 
-              score: extractNumericValue(analysisText, "originality", 0, 10) || 5 
-            },
-            { 
-              name: "Conceptual Independence", 
-              score: extractNumericValue(analysisText, "conceptual independence", 0, 10) || 5 
-            },
-            { 
-              name: "Novel Synthesis", 
-              score: extractNumericValue(analysisText, "novel synthesis", 0, 10) || 5 
-            }
-          ]
-        },
-        passageB: {
-          score: 10, // Reference corpus is considered the standard
-          components: [
-            { name: "Reference Standard", score: 10 }
-          ]
-        }
+        analysis: extractSection(completionText, "DERIVATIVE INDEX", 2000) || "",
+        score: extractNumericValue(completionText, "DERIVATIVE INDEX", 0, 100) || 50,
+        feedback: null,
       },
       conceptualParasite: {
-        passageA: {
-          level: extractParasiteLevel(analysisText) || "Moderate",
-          elements: extractListItems(analysisText, "Conceptual Parasite", "elements", 3) || 
-            ["Some recycling of concepts from the corpus"],
-          assessment: extractSection(analysisText, "Conceptual Parasite", 300) || 
-            "Analysis of conceptual dependency on the corpus."
-        },
-        passageB: {
-          level: "Low",
-          elements: ["Reference Corpus"],
-          assessment: "This is the reference corpus used for comparison."
-        }
+        analysis: extractSection(completionText, "CONCEPTUAL PARASITE DETECTION", 2000) || "",
+        level: extractParasiteLevel(completionText) || "Moderate",
+        feedback: null,
       },
       coherence: {
-        passageA: {
-          score: extractNumericValue(analysisText, "Coherence", 0, 10) || 7,
-          assessment: extractSection(analysisText, "Coherence", 300) || 
-            "Analysis of logical and conceptual coherence compared to the corpus.",
-          strengths: extractListItems(analysisText, "Coherence", "strengths", 3) || 
-            ["Maintains some logical flow"],
-          weaknesses: extractListItems(analysisText, "Coherence", "weaknesses", 3) || 
-            ["Areas where coherence could be improved"]
-        },
-        passageB: {
-          score: 10,
-          assessment: "Reference corpus used as the comparison standard.",
-          strengths: ["Reference Standard"],
-          weaknesses: []
-        }
+        analysis: extractSection(completionText, "COHERENCE EVALUATION", 2000) || "",
+        score: extractNumericValue(completionText, "COHERENCE EVALUATION", 0, 100) || 50,
+        feedback: null,
       },
       accuracy: {
-        passageA: {
-          score: extractNumericValue(analysisText, "Accuracy", 0, 10) || 7,
-          assessment: extractSection(analysisText, "Accuracy", 300) || 
-            "Analysis of factual and inferential correctness compared to the corpus.",
-          strengths: extractListItems(analysisText, "Accuracy", "strengths", 3) || 
-            ["Areas of factual alignment with the corpus"],
-          weaknesses: extractListItems(analysisText, "Accuracy", "weaknesses", 3) || 
-            ["Areas where accuracy could be improved"]
-        },
-        passageB: {
-          score: 10,
-          assessment: "Reference corpus used as the comparison standard.",
-          strengths: ["Reference Standard"],
-          weaknesses: []
-        }
+        analysis: extractSection(completionText, "ACCURACY ASSESSMENT", 2000) || "",
+        score: extractNumericValue(completionText, "ACCURACY ASSESSMENT", 0, 100) || 50,
+        feedback: null,
       },
       depth: {
-        passageA: {
-          score: extractNumericValue(analysisText, "Depth", 0, 10) || 6,
-          assessment: extractSection(analysisText, "Depth", 300) || 
-            "Analysis of non-triviality and conceptual insight compared to the corpus.",
-          strengths: extractListItems(analysisText, "Depth", "strengths", 3) || 
-            ["Areas of conceptual depth"],
-          weaknesses: extractListItems(analysisText, "Depth", "weaknesses", 3) || 
-            ["Areas where depth could be improved"]
-        },
-        passageB: {
-          score: 10,
-          assessment: "Reference corpus used as the comparison standard.",
-          strengths: ["Reference Standard"],
-          weaknesses: []
-        }
+        analysis: extractSection(completionText, "DEPTH ANALYSIS", 2000) || "",
+        score: extractNumericValue(completionText, "DEPTH ANALYSIS", 0, 100) || 50,
+        feedback: null,
       },
       clarity: {
-        passageA: {
-          score: extractNumericValue(analysisText, "Clarity", 0, 10) || 7,
-          assessment: extractSection(analysisText, "Clarity", 300) || 
-            "Analysis of readability and stylistic alignment with the corpus.",
-          strengths: extractListItems(analysisText, "Clarity", "strengths", 3) || 
-            ["Areas of stylistic alignment"],
-          weaknesses: extractListItems(analysisText, "Clarity", "weaknesses", 3) || 
-            ["Areas where clarity could be improved"]
-        },
-        passageB: {
-          score: 10,
-          assessment: "Reference corpus used as the comparison standard.",
-          strengths: ["Reference Standard"],
-          weaknesses: []
-        }
+        analysis: extractSection(completionText, "CLARITY MEASUREMENT", 2000) || "",
+        score: extractNumericValue(completionText, "CLARITY MEASUREMENT", 0, 100) || 50,
+        feedback: null,
       },
-      verdict: extractSection(analysisText, "Verdict", 500) || 
-        `Analysis of how well the passage aligns with "${corpusTitle}" in terms of style, tone, and intellectual content.`
+      summary: extractSection(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 2000) || "",
+      strengths: extractListItems(completionText, "KEY STRENGTHS OF THE PASSAGE", "", 5) || [],
+      improvements: extractListItems(completionText, "ORIGINALITY IMPROVEMENT RECOMMENDATIONS", "", 5) || [],
+      overallScore: extractNumericValue(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 0, 100) || 50,
     };
-    
+
     return result;
   } catch (error) {
-    console.error("Error calling OpenAI for corpus comparison:", error);
-    throw new Error(`Failed to analyze passage against corpus: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Error in corpus analysis:", error);
+    throw new Error(`Failed to analyze passage against corpus: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
-// Helper functions for parsing the OpenAI response
-function extractSection(text: string, sectionName: string, maxLength: number = 200): string | null {
+// Helper functions for parsing OpenAI responses
+function extractSection(text: string, sectionName: string, maxLength: number = 200): string {
   const regex = new RegExp(`${sectionName}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
   const match = text.match(regex);
   if (match && match[1]) {
     return match[1].trim().substring(0, maxLength);
   }
-  return null;
+  return "Analysis information unavailable.";
 }
 
-function extractSubsection(text: string, sectionName: string, subsectionKeyword: string, maxLength: number = 200): string | null {
+function extractSubsection(text: string, sectionName: string, subsectionKeyword: string, maxLength: number = 200): string {
   const section = extractSection(text, sectionName, 1000);
-  if (!section) return null;
+  if (!section) return "Subsection information unavailable.";
   
   const regex = new RegExp(`${subsectionKeyword}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
   const match = section.match(regex);
   if (match && match[1]) {
     return match[1].trim().substring(0, maxLength);
   }
-  return null;
+  return "Subsection information unavailable.";
 }
 
-function extractNumericValue(text: string, keyword: string, min: number, max: number): number | null {
+function extractNumericValue(text: string, keyword: string, min: number, max: number): number {
   const regex = new RegExp(`${keyword}[^0-9]*(\\d+(?:\\.\\d+)?)`, 'i');
   const match = text.match(regex);
   if (match && match[1]) {
     const value = parseFloat(match[1]);
     return Math.max(min, Math.min(max, value));
   }
-  return null;
+  return (min + max) / 2; // Default to middle value if not found
 }
 
-function extractLabel(text: string, keyword: string): string | null {
+function extractLabel(text: string, keyword: string): string {
   const regex = new RegExp(`${keyword}[^:]*:[^A-Za-z]*(\\w+)`, 'i');
   const match = text.match(regex);
   if (match && match[1]) {
     return match[1].trim();
   }
-  return null;
+  return "Moderate"; // Default label
 }
 
-function extractListItems(text: string, sectionName: string, subsectionKeyword: string, maxItems: number): string[] | null {
+function extractListItems(text: string, sectionName: string, subsectionKeyword: string, maxItems: number): string[] {
   const section = extractSection(text, sectionName, 1000);
-  if (!section) return null;
+  if (!section) return ["Information not available"];
   
   const subsectionRegex = new RegExp(`${subsectionKeyword}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
   const subsectionMatch = section.match(subsectionRegex);
-  if (!subsectionMatch || !subsectionMatch[1]) return null;
+  if (!subsectionMatch || !subsectionMatch[1]) return ["Information not available"];
   
   const subsection = subsectionMatch[1].trim();
   const itemsRegex = /(?:^|\n)-\s*([^\n]+)/g;
@@ -1153,26 +1108,26 @@ function extractListItems(text: string, sectionName: string, subsectionKeyword: 
     items.push(match[1].trim());
   }
   
-  return items.length > 0 ? items : null;
+  return items.length > 0 ? items : ["Information not available"];
 }
 
-function extractParasiteLevel(text: string): "Low" | "Moderate" | "High" | null {
+function extractParasiteLevel(text: string): "Low" | "Moderate" | "High" {
   const section = extractSection(text, "Conceptual Parasite", 500);
-  if (!section) return null;
+  if (!section) return "Moderate";
   
   if (section.toLowerCase().includes("low")) return "Low";
   if (section.toLowerCase().includes("high")) return "High";
   return "Moderate";
 }
 
-function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: string): Array<{content: string, heat: number}> {
+function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: string): Array<{content: string, heat: number, quote?: string, explanation?: string}> {
   const noveltySection = extractSection(analysisText, "Novelty Heatmap", 1000);
-  const heatmap: Array<{content: string, heat: number}> = [];
+  const heatmap: Array<{content: string, heat: number, quote?: string, explanation?: string}> = [];
   
   // Generate a heatmap based on the analysis or with default values
   paragraphs.forEach((paragraph, index) => {
     // Try to extract heat values from the analysis text
-    let heat = 5; // Default moderate heat
+    let heat = 50; // Default moderate heat
     
     if (noveltySection) {
       // Look for mentions of paragraph numbers or sequential description
@@ -1180,10 +1135,10 @@ function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: strin
       if (paragraphRegex.test(noveltySection)) {
         if (noveltySection.toLowerCase().includes("high novelty") || 
             noveltySection.toLowerCase().includes("innovative")) {
-          heat = 8;
+          heat = 80;
         } else if (noveltySection.toLowerCase().includes("low novelty") || 
                  noveltySection.toLowerCase().includes("derivative")) {
-          heat = 3;
+          heat = 30;
         }
       }
     }
@@ -1192,7 +1147,7 @@ function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: strin
       content: paragraph,
       heat,
       quote: `Paragraph ${index + 1}`,
-      explanation: `Analysis of paragraph ${index + 1} relative to corpus`,
+      explanation: `Analysis of paragraph ${index + 1}`,
     });
   });
   
@@ -1203,6 +1158,129 @@ function getOrdinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+/**
+ * Process user feedback on a previously generated analysis and provide a response
+ * with possible re-evaluation
+ */
+export async function processFeedback(
+  request: SubmitFeedbackRequest
+): Promise<{ 
+  feedback: FeedbackData,
+  updatedResult: AnalysisResult
+}> {
+  try {
+    console.log(`Processing feedback for ${request.category}`);
+    
+    // Format the supporting document if available
+    let supportingDocumentText = "";
+    if (request.supportingDocument) {
+      supportingDocumentText = `
+Supporting Document Title: ${request.supportingDocument.title}
+Supporting Document Content:
+${request.supportingDocument.content}
+`;
+    }
+    
+    // Create a prompt based on the feedback category and original result
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert semantic analysis assistant that helps users improve their writing. 
+You have analyzed a passage and received feedback from the user about your analysis. 
+Your task is to:
+1. Consider the user's feedback carefully
+2. Provide a thoughtful response that addresses their points
+3. Potentially revise your original assessment based on their input
+4. Be willing to change your evaluation if the user provides good arguments or additional context
+5. Format your response to be clear, educational, and actionable`,
+        },
+        {
+          role: "user",
+          content: `I previously received your analysis in the category: ${request.category}. 
+Here is my feedback on your analysis:
+
+${request.feedback}
+
+${supportingDocumentText}
+
+The passages being analyzed are:
+
+Passage A:
+${request.passageA.text}
+
+${request.isSinglePassageMode ? 'This is a single passage analysis compared to a norm.' : `Passage B:
+${request.passageB.text}`}
+
+Please respond to my feedback, making adjustments to your analysis if appropriate. 
+Provide a thoughtful response that explains your reasoning and any revised assessment.`,
+        },
+      ],
+      max_tokens: 1000,
+    });
+    
+    const aiResponse = response.choices[0]?.message?.content || "No response generated.";
+    
+    // Create the feedback data
+    const feedbackData: FeedbackData = {
+      comment: request.feedback,
+      aiResponse: aiResponse,
+      isRevised: aiResponse.toLowerCase().includes("revised") || 
+                aiResponse.toLowerCase().includes("adjustment") ||
+                aiResponse.toLowerCase().includes("reconsidered"),
+    };
+    
+    // Create a copy of the original result
+    const updatedResult: AnalysisResult = JSON.parse(JSON.stringify(request.originalResult));
+    
+    // Update the appropriate category with the feedback
+    switch (request.category) {
+      case "conceptualLineage":
+        updatedResult.conceptualLineage.feedback = feedbackData;
+        break;
+      case "semanticDistance":
+        updatedResult.semanticDistance.feedback = feedbackData;
+        break;
+      case "noveltyHeatmap":
+        updatedResult.noveltyHeatmap.feedback = feedbackData;
+        break;
+      case "derivativeIndex":
+        updatedResult.derivativeIndex.feedback = feedbackData;
+        break;
+      case "conceptualParasite":
+        updatedResult.conceptualParasite.feedback = feedbackData;
+        break;
+      case "coherence":
+        updatedResult.coherence.feedback = feedbackData;
+        break;
+      case "accuracy":
+        if (updatedResult.accuracy) {
+          updatedResult.accuracy.feedback = feedbackData;
+        }
+        break;
+      case "depth":
+        if (updatedResult.depth) {
+          updatedResult.depth.feedback = feedbackData;
+        }
+        break;
+      case "clarity":
+        if (updatedResult.clarity) {
+          updatedResult.clarity.feedback = feedbackData;
+        }
+        break;
+    }
+    
+    return {
+      feedback: feedbackData,
+      updatedResult
+    };
+  } catch (error) {
+    console.error("Error processing feedback:", error);
+    throw new Error(`Failed to process feedback: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 /**
@@ -1280,628 +1358,156 @@ Focus on:
 Guidelines:
 - Each example must be CONCRETE and SPECIFIC, not abstract or general
 - Use real-world case studies, specific theories, or empirical data that directly engage with the concepts
-- Examples should be BRIEFLY introduced (2-3 sentences maximum per example)
-- Explicitly state how each example illuminates or solves the original problem
-- The new material should enhance understanding, not simply be decorative
-- Avoid vague metaphors or unnecessary abstraction
-- Avoid overuse of academic jargon that does not add clarity
-- Use concise language - if an idea can be expressed simply, it should be
-- Maintain the original meaning while broadening its scope with intellectually rich and conceptually relevant examples`;
-    } else if (overallScore < 5) {
-      // Protocol for low-quality passages (score below 5)
-      improvementProtocol = `ENHANCEMENT PROTOCOL FOR LOWER-QUALITY PASSAGE:
+- Examples should be BRIEFLY introduced (2-3 sentences maximum)
+- Maintain the original style and voice`;
+    } else if (overallScore >= 4) {
+      // Protocol for average-quality passages (score 4-7)
+      improvementProtocol = `TRANSFORMATION PROTOCOL FOR AVERAGE-QUALITY PASSAGE:
 
-Goal: Improve the clarity, coherence, and structure of this passage while maintaining its intellectual content.
+Goal: Transform this passage into a more original, intellectually rigorous contribution.
 
 Focus on:
-1. Rewriting for clarity: Make the passage clear, coherent, and precise
-2. Reorganizing and restructuring: Improve the internal structure of the text for logical flow
-3. Simplifying where necessary: Break down complex ideas into simpler, more digestible components
-4. Enhancing readability: Improve how the information is presented while maintaining intellectual rigor
+1. Identifying the most DERIVATIVE sections and replacing them with genuinely novel insights
+2. Adding SPECIFIC examples or case studies that illustrate key points
+3. Incorporating interdisciplinary connections to at least two other fields
+4. Explaining WHY these connections matter and HOW they enhance understanding
+5. Strengthening logical structure and argument coherence
 
 Guidelines:
-- Create a clear, logical progression of ideas with explicit transitions
-- Break long, complex sentences into shorter, clearer ones where appropriate
-- Define any technical terms or jargon when first introduced
-- Use concrete examples to illustrate abstract concepts (1-2 sentences per example)
-- Eliminate redundancy and remove unnecessary verbiage
-- Ensure each paragraph has a clear topic sentence and supporting content
-- Create a consistent and coherent structure throughout
-- Use precise language that accurately captures the intended meaning
-- Simplify complex ideas without sacrificing intellectual depth
-- Make the passage easier to understand and more precise
-- Maintain the original meaning but present it with greater clarity`;
+- Be concrete, not abstract
+- Be specific, not general 
+- Introduce counterintuitive elements that challenge standard interpretations
+- Maintain the original style and voice
+- Keep paragraph structure similar but improve content`;
     } else {
-      // Default protocol for medium-quality passages (score 5-7)
-      improvementProtocol = `ENHANCEMENT PROTOCOL FOR MODERATE-QUALITY PASSAGE:
+      // Protocol for low-quality passages (score under 4)
+      improvementProtocol = `RECONSTRUCTION PROTOCOL FOR LOW-QUALITY PASSAGE:
 
-Goal: Balance improving clarity and structure while adding some intellectual depth.
+Goal: Completely rebuild this passage into a genuinely original, intellectually rigorous contribution.
 
 Focus on:
-1. Enhancing organization and logical flow of ideas
-2. Adding moderate intellectual enrichment through well-chosen examples
-3. Clarifying complex concepts while maintaining their sophistication
-4. Improving precision and specificity of language
+1. Creating a new thesis that goes BEYOND the original conception
+2. Developing a NOVEL framework that incorporates elements from multiple disciplines
+3. Presenting SPECIFIC examples and evidence to support key points
+4. Establishing clear causal relationships and logical structure
+5. Increasing conceptual depth and theoretical sophistication
 
 Guidelines:
-- Add 1-2 SPECIFIC, CONCRETE examples that directly illustrate key concepts (max 2-3 sentences each)
-- Ensure each example is directly connected to the main argument with an explicit explanation
-- Improve transitions between ideas for smoother logical flow
-- Clarify any vague or ambiguous statements with more precise language
-- Break up any overly dense paragraphs into more digestible sections
-- Strike a balance between clarity and intellectual depth
-- Use active voice and direct language where possible
-- Refine the structure for better logical progression
-- Eliminate unnecessary jargon or add brief definitions where needed
-- Improve precision and clarity without oversimplification
-- Focus on improving organization without adding excessive length`;
+- Be concrete, not abstract
+- Be specific, not general
+- Introduce counterintuitive elements that challenge standard interpretations
+- Maintain approximately similar length
+- Keep general topic area consistent`;
     }
     
-    // Determine style instructions based on styleOption
-    let styleInstructions = "";
-    switch(styleOption) {
-      case 'keep-voice':
-        styleInstructions = `KEEP MY VOICE MODE:
-Maintain the user's original tone and style while adding intellectual depth and concrete examples.
-
-IMPORTANT GUIDELINES:
-- Keep the same writing style, sentence structures, and voice patterns
-- Preserve the author's unique vocabulary and expressions
-- Add more intellectual depth and sophisticated reasoning
-- Introduce concrete, relevant examples to strengthen arguments
-- Maintain the same general flow and structure
-- Avoid overly ornate or "bloggy" language
-- Focus on substance, not stylistic flourishes
-- Enhance clarity and precision without introducing unnecessary verbosity
-- Stay true to the core intellectual content
-- The revised text should feel like it was written by the same person, just with more depth`;
-        break;
-        
-      case 'academic':
-        styleInstructions = `MAKE IT MORE FORMAL/ACADEMIC MODE:
-Use a more formal, scholarly tone with precise language, suitable for an academic or professional audience.
-
-IMPORTANT GUIDELINES:
-- Employ formal academic terminology and phrasing
-- Structure the passage with clear, scholarly argumentation
-- Use precise, technical language appropriate for the discipline
-- Follow academic conventions for organizing ideas
-- Include proper framing of concepts within their scholarly context
-- Present ideas with intellectual rigor and logical formality
-- Avoid unnecessary verbosity or pretentious language
-- Focus on clarity and precision in communicating complex ideas
-- Maintain intellectual substance rather than mere formality
-- Aim for a style that would be appropriate in a scholarly journal while remaining accessible`;
-        break;
-        
-      case 'punchy':
-        styleInstructions = `MAKE IT MORE PUNCHY MODE:
-Provide a concise and impactful version that is sharp, direct, and still intellectually rigorous.
-
-IMPORTANT GUIDELINES:
-- Make the writing more concise and impactful
-- Use sharper, more direct language
-- Eliminate unnecessary words and phrases
-- Use active voice and strong verbs
-- Create shorter, more powerful sentences
-- Focus on clarity and brevity while maintaining intellectual depth
-- Make each sentence count with condensed, powerful statements
-- Avoid oversimplification of complex ideas
-- Maintain the intellectual substance while improving directness
-- Strive for precision rather than mere brevity
-- Use concise examples that illuminate rather than decorate`;
-        break;
-        
-      default:
-        styleInstructions = `PRIORITIZE ORIGINALITY MODE:
-Present the content with added complexity and depth, introducing novel examples and applications.
-
-IMPORTANT GUIDELINES:
-- Introduce novel perspectives and approaches
-- Add conceptual complexity and depth
-- Create unexpected but relevant connections to other domains
-- Challenge implicit assumptions in the original text
-- Add intellectual innovations that transform the ideas
-- Focus on maximum originality while ensuring the passage remains coherent
-- Provide unique insights and framings that push beyond conventional thinking
-- Avoid "decorative language" that adds no substance
-- Don't introduce vague, high-level rhetoric
-- Prioritize intellectual engagement over stylistic novelty
-- Emphasize originality through additional examples, applications, or extensions of the ideas
-- Stay grounded in the original intellectual argument while expanding it`;
+    // Add style preferences if provided
+    let styleInstruction = "";
+    if (styleOption) {
+      switch (styleOption) {
+        case 'keep-voice':
+          styleInstruction = "Maintain the exact same style, voice, and tone as the original passage. This is extremely important.";
+          break;
+        case 'academic':
+          styleInstruction = "Use an academic style with precise terminology, thorough explanations, and formal language suitable for scholarly publication.";
+          break;
+        case 'punchy':
+          styleInstruction = "Use a punchy, engaging style with short sentences, vivid examples, and clear takeaways that would appeal to a mainstream audience.";
+          break;
+        case 'prioritize-originality':
+          styleInstruction = "Prioritize originality over all other considerations, introducing the most innovative and thought-provoking concepts possible while maintaining readability.";
+          break;
+      }
     }
     
-    // Add custom instructions if provided
-    let customInstructionsBlock = "";
-    if (customInstructions && customInstructions.trim()) {
-      customInstructionsBlock = `
-CUSTOM USER INSTRUCTIONS:
-The user has provided the following specific instructions for how they want the passage improved:
-"${customInstructions.trim()}"
-
-These custom instructions OVERRIDE any conflicting parts of the standard protocol and style guidelines.
-Prioritize following these user-specific instructions while maintaining intellectual rigor.
-`;
-    }
-
+    // Add any custom instructions if provided
+    const customDirections = customInstructions ? `CUSTOM INSTRUCTIONS:\n${customInstructions}\n\n` : "";
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You are an expert editor specializing in improving the conceptual originality and intellectual contribution of academic and philosophical texts.
-          
-Your task is to write a COMPLETE, IMPROVED VERSION of a passage. The new version must be a standalone, cohesive text that can replace the original. 
+          content: `You are a world-class editor and writing coach specializing in improving the originality and intellectual rigor of academic and philosophical writing. Your task is to take a passage and transform it into a more original version based on specific protocols and analysis results.
 
-IMPORTANT: DO NOT provide bullet points or suggestions. Write a COMPLETE, FULLY-FORMED PASSAGE that is ready to use.
+When improving a passage, you:
+1. Analyze the semantic content and conceptual framework
+2. Identify derivative or unoriginal elements
+3. Replace these with genuinely novel insights and connections
+4. Maintain coherence and clarity throughout
+5. Preserve the general topic area while enhancing originality
 
-You must NOT simply reword or paraphrase the original text. Instead, make genuine intellectual improvements based on the specific enhancement protocol provided.
-
-${improvementProtocol}
-
-QUALITY GUIDELINES:
-- Enhance intellectual depth without introducing unnecessary verbosity
-- Avoid "bloggy" language or decorative flourishes that add no substance
-- Do not use vague, high-level rhetoric - be precise and specific
-- Focus on the conceptual substance, not stylistic novelty
-- Maintain scholarly precision and clarity
-- When adding examples, ensure they genuinely illuminate the concepts
-- Stay grounded in the original intellectual argument while enhancing it
-- Aim for a text that is both improved AND intellectually rigorous
-
-${styleInstructions}
-
-${customInstructionsBlock}
-
-You will receive a passage along with its analysis. Use the analysis to identify specific areas for improvement, and focus your enhancements there.`
+Your improved version should:
+- Contain specific examples and evidence
+- Make concrete interdisciplinary connections
+- Provide novel perspectives on the subject matter
+- Maintain readability and logical structure
+- Increase the passage's derivative index score substantially`,
         },
         {
           role: "user",
-          content: `Here is the passage to improve:
+          content: `Please improve the following passage to make it more conceptually original, intellectually rigorous, and semantically innovative.
 
+PASSAGE TO IMPROVE:
 Title: ${passageTitle}
-Text: ${passage.text}
 
-Analysis of the passage:
-- Overall Score: ${overallScore.toFixed(1)}/10
-- Derivative Index Score: ${derivativeScore}/10 (higher is more original)
-- Semantic Distance: ${semanticDistance}/100 (higher is more distant from predecessors)
+${passage.text}
+
+ANALYSIS RESULTS:
+- Derivative Index: ${derivativeScore}/10
+- Semantic Distance: ${semanticDistance}
 - Conceptual Parasite Level: ${parasiteLevel}
-- Parasitic Elements: ${parasiteElements}
-- Areas needing improvement:
-  ${lowHeatAreas || "Various sections throughout the text"}
+- Parasite Elements: ${parasiteElements}
 
-Respond with exactly these three sections in this order:
+LESS ORIGINAL SECTIONS:
+${lowHeatAreas || "All sections could use improvement for originality"}
 
-1. IMPROVED PASSAGE TEXT - Write a complete, standalone, improved version of the passage. This must be a fully-formed text that can directly replace the original, not bullet points or guidelines.
+${improvementProtocol}
 
-2. KEY IMPROVEMENTS - Briefly explain the key improvements you made to the passage.
+${styleInstruction}
 
-3. ESTIMATED NEW SCORE - Provide an estimated new score (0-10) based on how much you improved the passage.`
-        }
+${customDirections}
+
+Please provide:
+1. An improved version of the passage
+2. An estimate of how much the derivative index would increase (0-10 scale)
+3. A brief summary of the improvements made`,
+        },
       ],
-      max_tokens: 4000,
+      max_tokens: 3000,
     });
-
-    const content = response.choices[0].message.content || "";
     
-    // Extract the improved passage and estimated score from the response
-    let improvedText = "";
-    let improvementSummary = "";
-    let estimatedScore = 0;
+    // Extract the response
+    const responseText = response.choices[0]?.message?.content || "";
     
-    // Look for the improved passage - it should be the main content before any numbered points
-    // First, try to find a clear section break
-    const improvedSectionMatch = content.match(/1\.\s*(?:Improved|The improved) passage text:?\s*([\s\S]*?)(?=\n\s*2\.|$)/i);
+    // Parse the different parts from the response
+    const improvedPassageMatch = responseText.match(/IMPROVED PASSAGE:?\s*([\s\S]*?)(?=\n\s*ESTIMATED|$)/i);
+    const estimatedScoreMatch = responseText.match(/ESTIMATED.*?SCORE:?\s*(\d+(?:\.\d+)?)/i);
+    const summaryMatch = responseText.match(/(?:IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS):?\s*([\s\S]*?)(?=\n\s*$|$)/i);
     
-    if (improvedSectionMatch && improvedSectionMatch[1]) {
-      // Successfully found a clearly marked improved passage section
-      improvedText = improvedSectionMatch[1].trim();
-    } else {
-      // Try to find the improved text by identifying where the explanations start
-      const explanationStart = content.search(/(?:2\.|Key Improvements:|Brief explanation|Explanation of improvements)/i);
+    // Default improved passage to the original if not found
+    const improvedText = improvedPassageMatch ? improvedPassageMatch[1].trim() : passage.text;
+    
+    // Get the estimated score, defaulting to original score + 2 (bounded by 10)
+    const estimatedScore = estimatedScoreMatch 
+      ? Math.min(10, parseFloat(estimatedScoreMatch[1])) 
+      : Math.min(10, derivativeScore + 2);
       
-      if (explanationStart > 0) {
-        // Extract everything before the explanation as the improved passage
-        improvedText = content.substring(0, explanationStart).trim()
-          .replace(/^(1\.|Improved Passage:|Title:).*?\n/i, '') // Remove any numbering or headings
-          .trim();
-      } else {
-        // If we can't find a clear separation, check if the content starts with numbered sections
-        const numberedStart = content.match(/^1\.\s*([\s\S]*?)\n\s*2\./);
-        if (numberedStart && numberedStart[1]) {
-          improvedText = numberedStart[1].trim();
-        } else {
-          // Last resort: assume the entire content is the improved passage until we find explanations
-          improvedText = content
-            .replace(/(?:Key Improvements|Explanation|Estimated)[\s\S]*$/i, '')
-            .trim();
-        }
-      }
-    }
-    
-    // Look for the explanation/summary
-    const summaryMatch = content.match(/(?:2\.|Key Improvements:|Explanation of improvements:|Brief explanation:)\s*([\s\S]*?)(?=\s*(?:3\.|Estimated|New Derivative|$))/i);
-    if (summaryMatch && summaryMatch[1]) {
-      improvementSummary = summaryMatch[1].trim();
-    } else {
-      // Fallback if pattern not found
-      improvementSummary = "The passage has been improved with greater conceptual originality, clearer framing, and more innovative connections.";
-    }
-    
-    // Extract estimated new score
-    const scoreMatch = content.match(/(?:3\.|Estimated.*?score|New.*?score).*?(\d+(?:\.\d+)?)/i);
-    if (scoreMatch && scoreMatch[1]) {
-      estimatedScore = parseFloat(scoreMatch[1]);
-      // Ensure it's in range
-      estimatedScore = Math.max(0, Math.min(10, estimatedScore));
-    } else {
-      // If no score found, estimate an improvement
-      estimatedScore = Math.min(10, derivativeScore + 2);
-    }
-    
-    // Final check - if we somehow got no improved text or just bullet points
-    if (!improvedText || improvedText.length < 50 || /^[-•*]\s/.test(improvedText)) {
-      // Retry with a simpler approach - take the entire response and clean it
-      console.log("Improved text extraction failed, using fallback method");
-      improvedText = content
-        .replace(/(?:Key Improvements|Explanation|Estimated|Brief explanation)[\s\S]*$/i, '') // Remove everything after explanations
-        .replace(/^\d+\.\s*(?:Improved|The improved) passage text:?\s*/i, '') // Remove numbered headers
-        .trim();
-    }
+    // Get the improvement summary
+    const improvementSummary = summaryMatch 
+      ? summaryMatch[1].trim() 
+      : "This passage has been enhanced to improve originality while maintaining coherence and clarity.";
     
     return {
       originalPassage: passage,
       improvedPassage: {
-        title: passage.title,
+        title: `Improved: ${passageTitle}`,
         text: improvedText
       },
       estimatedDerivativeIndex: estimatedScore,
       improvementSummary
     };
   } catch (error) {
-    console.error("Error generating more original version:", error);
-    throw new Error(`Failed to generate improved passage: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
-
-export async function processFeedback(
-  category: 'conceptualLineage' | 'semanticDistance' | 'noveltyHeatmap' | 'derivativeIndex' | 'conceptualParasite' | 'coherence' | 'accuracy' | 'depth' | 'clarity',
-  feedback: string,
-  originalResult: AnalysisResult,
-  passageA: PassageData,
-  passageB: PassageData,
-  isSinglePassageMode: boolean,
-  supportingDocument?: SupportingDocument
-): Promise<{ 
-  aiResponse: string; 
-  isRevised: boolean; 
-  revisedResult: AnalysisResult 
-}> {
-  try {
-    const passageATitle = passageA.title || (isSinglePassageMode ? "Your Passage" : "Passage A");
-    const passageBTitle = isSinglePassageMode ? "Norm" : (passageB.title || "Passage B");
-    
-    // Create prompt based on category
-    let categoryDescription = "";
-    let originalAnalysis = "";
-    
-    switch(category) {
-      case 'conceptualLineage':
-        categoryDescription = "Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas";
-        originalAnalysis = `
-        Passage A: 
-        Primary Influences: ${originalResult.conceptualLineage.passageA.primaryInfluences}
-        Intellectual Trajectory: ${originalResult.conceptualLineage.passageA.intellectualTrajectory}
-        
-        Passage B:
-        Primary Influences: ${originalResult.conceptualLineage.passageB.primaryInfluences}
-        Intellectual Trajectory: ${originalResult.conceptualLineage.passageB.intellectualTrajectory}`;
-        break;
-      case 'semanticDistance':
-        categoryDescription = "Semantic Distance - How far each passage moves from predecessors; is it reshuffling or truly novel";
-        originalAnalysis = `
-        Passage A: 
-        Distance Score: ${originalResult.semanticDistance.passageA.distance}/100
-        Label: ${originalResult.semanticDistance.passageA.label}
-        
-        Passage B:
-        Distance Score: ${originalResult.semanticDistance.passageB.distance}/100
-        Label: ${originalResult.semanticDistance.passageB.label}
-        
-        Key Findings: ${originalResult.semanticDistance.keyFindings.join(", ")}
-        
-        Semantic Innovation: ${originalResult.semanticDistance.semanticInnovation}`;
-        break;
-      case 'noveltyHeatmap':
-        categoryDescription = "Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph";
-        originalAnalysis = `
-        Passage A Heat Levels: ${originalResult.noveltyHeatmap.passageA.map(item => `[${item.heat}%: ${item.content.substring(0, 50)}...]`).join(", ")}
-        
-        Passage B Heat Levels: ${originalResult.noveltyHeatmap.passageB.map(item => `[${item.heat}%: ${item.content.substring(0, 50)}...]`).join(", ")}`;
-        break;
-      case 'derivativeIndex':
-        categoryDescription = "Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original";
-        originalAnalysis = `
-        Passage A:
-        Overall Score: ${originalResult.derivativeIndex.passageA.score}/10
-        Components: ${originalResult.derivativeIndex.passageA.components.map(c => `${c.name}: ${c.score}/10`).join(", ")}
-        
-        Passage B:
-        Overall Score: ${originalResult.derivativeIndex.passageB.score}/10
-        Components: ${originalResult.derivativeIndex.passageB.components.map(c => `${c.name}: ${c.score}/10`).join(", ")}`;
-        break;
-      case 'conceptualParasite':
-        categoryDescription = "Conceptual Parasite Detection - Passages that operate in old debates without adding anything new";
-        originalAnalysis = `
-        Passage A:
-        Level: ${originalResult.conceptualParasite.passageA.level}
-        Elements: ${originalResult.conceptualParasite.passageA.elements.join(", ")}
-        Assessment: ${originalResult.conceptualParasite.passageA.assessment}
-        
-        Passage B:
-        Level: ${originalResult.conceptualParasite.passageB.level}
-        Elements: ${originalResult.conceptualParasite.passageB.elements.join(", ")}
-        Assessment: ${originalResult.conceptualParasite.passageB.assessment}`;
-        break;
-      case 'coherence':
-        categoryDescription = "Coherence - Whether the passage, despite being original or not, is logically and conceptually coherent";
-        originalAnalysis = `
-        Passage A:
-        Score: ${originalResult.coherence?.passageA?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.coherence?.passageA?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.coherence?.passageA?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.coherence?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
-        
-        Passage B:
-        Score: ${originalResult.coherence?.passageB?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.coherence?.passageB?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.coherence?.passageB?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.coherence?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
-        `;
-        break;
-      case 'accuracy':
-        categoryDescription = "Accuracy - Factual and inferential correctness of the passage";
-        originalAnalysis = `
-        Passage A:
-        Score: ${originalResult.accuracy?.passageA?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.accuracy?.passageA?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.accuracy?.passageA?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.accuracy?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
-        
-        Passage B:
-        Score: ${originalResult.accuracy?.passageB?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.accuracy?.passageB?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.accuracy?.passageB?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.accuracy?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
-        `;
-        break;
-      case 'depth':
-        categoryDescription = "Depth - Non-triviality and conceptual insight of the passage";
-        originalAnalysis = `
-        Passage A:
-        Score: ${originalResult.depth?.passageA?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.depth?.passageA?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.depth?.passageA?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.depth?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
-        
-        Passage B:
-        Score: ${originalResult.depth?.passageB?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.depth?.passageB?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.depth?.passageB?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.depth?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
-        `;
-        break;
-      case 'clarity':
-        categoryDescription = "Clarity - Readability, transparency, and semantic accessibility of the passage";
-        originalAnalysis = `
-        Passage A:
-        Score: ${originalResult.clarity?.passageA?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.clarity?.passageA?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.clarity?.passageA?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.clarity?.passageA?.weaknesses?.join(', ') || 'Not evaluated'}
-        
-        Passage B:
-        Score: ${originalResult.clarity?.passageB?.score || 'Not evaluated'}/10
-        Assessment: ${originalResult.clarity?.passageB?.assessment || 'Not evaluated'}
-        Strengths: ${originalResult.clarity?.passageB?.strengths?.join(', ') || 'Not evaluated'}
-        Weaknesses: ${originalResult.clarity?.passageB?.weaknesses?.join(', ') || 'Not evaluated'}
-        `;
-        break;
-    }
-
-    // Create messages array for OpenAI
-    const messages = [
-      {
-        role: "system" as const,
-        content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts. 
-        You're now engaging with a user who is providing feedback on your previous analysis.
-        
-        You should respond in a conversational style, addressing their feedback directly.
-        
-        Consider the user's feedback carefully and determine whether your original assessment should be modified or maintained.
-        If the user's argument has merit, acknowledge it and explain how your assessment changes.
-        If you maintain your original assessment, respectfully explain why, referencing the text to justify your position.
-        
-        FORMAT YOUR RESPONSE IN THIS WAY:
-        - Start with a direct response to the user's feedback
-        - Engage with their specific concerns
-        - If revising your assessment, clearly state what changes and why
-        - If maintaining your assessment, explain your reasoning respectfully
-        - End with a question or invitation for further dialogue if appropriate
-        
-        Your response should be thoughtful and substantive, showing you've carefully considered their perspective.`
-      },
-      {
-        role: "user" as const,
-        content: `I previously analyzed ${isSinglePassageMode ? "a passage against a typical norm" : "two passages"} and provided an evaluation of their conceptual originality.
-
-The category being addressed is: ${categoryDescription}
-
-${isSinglePassageMode ? "Passage:" : "Passages:"}
-
-${passageATitle}:
-${passageA.text}
-
-${isSinglePassageMode ? "" : `${passageBTitle}:
-${passageB.text}
-
-`}
-
-My original analysis for this category was:
-${originalAnalysis}
-
-The user has provided this feedback about my analysis:
-"${feedback}"
-${supportingDocument ? `\nThe user has also provided a supporting document titled "${supportingDocument.title}" with this content:
-${supportingDocument.content}` : ""}
-
-Please respond to this feedback directly, in a conversational style, either revising or justifying the original assessment.`
-      }
-    ];
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages,
-      max_tokens: 2000,
-    });
-
-    const aiResponse = response.choices[0].message.content || "I apologize, but I couldn't process your feedback at this time.";
-    
-    // Check if the response indicates a revision is needed
-    const isRevised = 
-      aiResponse.toLowerCase().includes("revise") || 
-      aiResponse.toLowerCase().includes("adjust") || 
-      aiResponse.toLowerCase().includes("change") || 
-      aiResponse.toLowerCase().includes("update") || 
-      aiResponse.toLowerCase().includes("modify");
-    
-    // If a revision is indicated, make a second call to update the analysis
-    let revisedResult = { ...originalResult };
-    
-    if (isRevised) {
-      // Make another call to specifically get the revised analysis
-      const revisionMessages = [
-        {
-          role: "system" as const,
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality of texts.
-          Based on user feedback, you need to provide a revised analysis for a specific category.
-          Return only the revised JSON data for the category in question.`
-        },
-        {
-          role: "user" as const,
-          content: `I need a revised analysis for the category "${category}" based on this user feedback:
-          "${feedback}"
-          
-          ${supportingDocument ? `The user provided this supporting document:
-          Title: ${supportingDocument.title}
-          Content: ${supportingDocument.content}
-          
-          ` : ""}Original passages:
-          
-          ${passageATitle}:
-          ${passageA.text}
-          
-          ${isSinglePassageMode ? "" : `${passageBTitle}:
-          ${passageB.text}
-          
-          `}Original analysis:
-          ${originalAnalysis}
-          
-          Please provide only the revised JSON data for the "${category}" category.`
-        }
-      ];
-
-      const revisionResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: revisionMessages,
-        response_format: { type: "json_object" },
-        max_tokens: 2000,
-      });
-
-      try {
-        const revisionJson = JSON.parse(revisionResponse.choices[0].message.content || "{}");
-        
-        // Update the relevant category in the result with type safety
-        if (revisionJson[category]) {
-          // Create a copy of the result with the feedback added
-          const updatedCategory = {
-            ...revisedResult[category],
-            feedback: {
-              comment: feedback,
-              aiResponse,
-              isRevised: true
-            }
-          };
-          
-          // Apply the revision data from the AI
-          if (revisionJson[category]) {
-            // Merge the revision data while preserving the structure
-            revisedResult = {
-              ...revisedResult,
-              [category]: {
-                ...updatedCategory,
-                ...(revisionJson[category] || {})
-              }
-            };
-          } else {
-            // Just add the feedback
-            revisedResult = {
-              ...revisedResult,
-              [category]: updatedCategory
-            };
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing revision JSON:", error);
-        
-        // If parsing fails, just add the feedback without changing the core data
-        const updatedCategory = {
-          ...revisedResult[category],
-          feedback: {
-            comment: feedback,
-            aiResponse,
-            isRevised: true
-          }
-        };
-        
-        revisedResult = {
-          ...revisedResult,
-          [category]: updatedCategory
-        };
-      }
-    } else {
-      // Just add the feedback to the original result without changing the core data
-      const updatedCategory = {
-        ...revisedResult[category],
-        feedback: {
-          comment: feedback,
-          aiResponse,
-          isRevised: false
-        }
-      };
-      
-      revisedResult = {
-        ...revisedResult,
-        [category]: updatedCategory
-      };
-    }
-    
-    // Add the supporting document if provided
-    if (supportingDocument) {
-      revisedResult.supportingDocuments = [
-        ...(revisedResult.supportingDocuments || []),
-        supportingDocument
-      ];
-    }
-    
-    return {
-      aiResponse,
-      isRevised,
-      revisedResult
-    };
-  } catch (error) {
-    console.error("Error processing feedback:", error);
-    throw new Error(`Failed to process feedback: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Error generating improved passage:", error);
+    throw new Error(`Failed to generate improved passage: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
