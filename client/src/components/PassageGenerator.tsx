@@ -166,6 +166,21 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                 <SelectItem value="prioritize-originality">Prioritize originality</SelectItem>
               </SelectContent>
             </Select>
+            
+            <div className="mt-2 text-xs text-muted-foreground">
+              {styleOption === 'keep-voice' && (
+                <p>Maintains your original tone and style while adding intellectual depth and concrete examples.</p>
+              )}
+              {styleOption === 'academic' && (
+                <p>Uses a more formal, scholarly tone with precise language suitable for academic or professional audiences.</p>
+              )}
+              {styleOption === 'punchy' && (
+                <p>Creates a concise and impactful version that is sharp, direct, and still intellectually rigorous.</p>
+              )}
+              {styleOption === 'prioritize-originality' && (
+                <p>Maximizes originality by adding complexity, depth, and novel perspectives while maintaining coherence.</p>
+              )}
+            </div>
           </div>
 
           {generatedResult && (

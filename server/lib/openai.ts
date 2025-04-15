@@ -920,16 +920,50 @@ export async function generateMoreOriginalVersion(
     let styleInstructions = "";
     switch(styleOption) {
       case 'keep-voice':
-        styleInstructions = "Maintain the original voice, tone, and writing style of the author.";
+        styleInstructions = `KEEP MY VOICE MODE:
+Maintain the user's original tone and style while adding intellectual depth and concrete examples.
+- Keep the same writing style, sentence structures, and voice patterns
+- Preserve the author's unique vocabulary and expressions
+- Add more intellectual depth and sophisticated reasoning
+- Introduce concrete, relevant examples to strengthen arguments
+- Maintain the same general flow and structure
+- The revised text should feel like it was written by the same person, just with more depth`;
         break;
+        
       case 'academic':
-        styleInstructions = "Make the passage more formal and academic, with appropriate terminology and structure for scholarly contexts.";
+        styleInstructions = `MAKE IT MORE FORMAL/ACADEMIC MODE:
+Use a more formal, scholarly tone with precise language, suitable for an academic or professional audience.
+- Employ formal academic terminology and phrasing
+- Structure the passage with clear, scholarly argumentation
+- Use precise, technical language appropriate for the discipline
+- Follow academic conventions for organizing ideas
+- Include proper framing of concepts within their scholarly context
+- Present ideas with intellectual rigor and logical formality
+- Aim for a style that would be appropriate in a scholarly journal`;
         break;
+        
       case 'punchy':
-        styleInstructions = "Make the passage more concise, direct, and impactful with clear, punchy language.";
+        styleInstructions = `MAKE IT MORE PUNCHY MODE:
+Provide a concise and impactful version that is sharp, direct, and still intellectually rigorous.
+- Make the writing more concise and impactful
+- Use sharper, more direct language
+- Eliminate unnecessary words and phrases
+- Use active voice and strong verbs
+- Create shorter, more powerful sentences
+- Focus on clarity and brevity while maintaining intellectual depth
+- Make each sentence count with condensed, powerful statements`;
         break;
+        
       default:
-        styleInstructions = "Prioritize originality above all other considerations, while maintaining coherence and purpose.";
+        styleInstructions = `PRIORITIZE ORIGINALITY MODE:
+Present the content with added complexity and depth, introducing novel examples and applications.
+- Introduce novel perspectives and approaches
+- Add conceptual complexity and depth
+- Create unexpected but relevant connections to other domains
+- Challenge implicit assumptions in the original text
+- Add intellectual innovations that transform the ideas
+- Focus on maximum originality while ensuring the passage remains coherent
+- Provide unique insights and framings that push beyond conventional thinking`;
     }
     
     const response = await openai.chat.completions.create({
