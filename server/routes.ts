@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { ZodError } from "zod";
 import { z } from "zod";
-import { analyzePassages, analyzeSinglePassage, analyzePassageAgainstCorpus } from "./lib/openai";
+import { analyzePassages, analyzeSinglePassage, analyzePassageAgainstCorpus, processFeedback, generateMoreOriginalVersion } from "./lib/openai";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
@@ -568,7 +568,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Processing feedback for category '${category}'`);
 
       // Process the feedback and get a response
-      const feedbackResult = await processFeedback(
+      const { feedback: feedbackData, updatedResult } = await processFeedback({
         category,
         feedback,
         originalResult,
@@ -576,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passageB,
         isSinglePassageMode,
         supportingDocument
-      );
+      });
 
       // Validate the response against our schema with more leniency
       console.log("Validating revised result from feedback processing");
@@ -584,7 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add more robust error handling for the validation
       let validatedResult;
       try {
-        validatedResult = analysisResultSchema.parse(feedbackResult.revisedResult);
+        validatedResult = analysisResultSchema.parse(updatedResult);
       } catch (validationError) {
         console.error("Validation error with revised result:", validationError);
         
@@ -594,11 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...originalResult,
           [category]: {
             ...originalResult[category],
-            feedback: {
-              comment: feedback,
-              aiResponse: feedbackResult.aiResponse,
-              isRevised: feedbackResult.isRevised
-            }
+            feedback: feedbackData
           }
         };
         
@@ -631,8 +627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Return the feedback result
       res.json({
-        aiResponse: feedbackResult.aiResponse,
-        isRevised: feedbackResult.isRevised,
+        aiResponse: feedbackData.aiResponse,
+        isRevised: feedbackData.isRevised,
         revisedResult: validatedResult
       });
     } catch (error) {

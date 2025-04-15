@@ -997,7 +997,7 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
       semanticDistance: {
         analysis: extractSection(completionText, "SEMANTIC DISTANCE MEASURE", 2000) || "",
         score: extractNumericValue(completionText, "SEMANTIC DISTANCE MEASURE", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       noveltyHeatmap: {
         passageA: generateHeatmapFromParagraphs(
@@ -1005,37 +1005,37 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
           extractSection(completionText, "NOVELTY HEATMAP", 4000) || ""
         ),
         passageB: [], // Not applicable in corpus comparison mode
-        feedback: null,
+        feedback: undefined,
       },
       derivativeIndex: {
         analysis: extractSection(completionText, "DERIVATIVE INDEX", 2000) || "",
         score: extractNumericValue(completionText, "DERIVATIVE INDEX", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       conceptualParasite: {
         analysis: extractSection(completionText, "CONCEPTUAL PARASITE DETECTION", 2000) || "",
         level: extractParasiteLevel(completionText) || "Moderate",
-        feedback: null,
+        feedback: undefined,
       },
       coherence: {
         analysis: extractSection(completionText, "COHERENCE EVALUATION", 2000) || "",
         score: extractNumericValue(completionText, "COHERENCE EVALUATION", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       accuracy: {
         analysis: extractSection(completionText, "ACCURACY ASSESSMENT", 2000) || "",
         score: extractNumericValue(completionText, "ACCURACY ASSESSMENT", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       depth: {
         analysis: extractSection(completionText, "DEPTH ANALYSIS", 2000) || "",
         score: extractNumericValue(completionText, "DEPTH ANALYSIS", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       clarity: {
         analysis: extractSection(completionText, "CLARITY MEASUREMENT", 2000) || "",
         score: extractNumericValue(completionText, "CLARITY MEASUREMENT", 0, 100) || 50,
-        feedback: null,
+        feedback: undefined,
       },
       summary: extractSection(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 2000) || "",
       strengths: extractListItems(completionText, "KEY STRENGTHS OF THE PASSAGE", "", 5) || [],
