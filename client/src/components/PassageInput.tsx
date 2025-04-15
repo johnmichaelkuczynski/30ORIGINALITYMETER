@@ -168,6 +168,8 @@ export default function PassageInput({
           maxSizeInMB={5}
           className="bg-white"
           showFileInput={false}
+          showButton={true}
+          buttonText="Upload File"
         >
           <div className="flex flex-col items-center justify-center h-24 p-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 mb-2">

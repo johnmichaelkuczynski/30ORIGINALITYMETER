@@ -229,6 +229,8 @@ export default function CorpusComparisonInput({
                 uploadProgress={uploadProgress}
                 maxSizeInMB={10}
                 className="bg-white"
+                showButton={true}
+                buttonText="Upload Corpus File"
               />
             </div>
 

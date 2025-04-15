@@ -1,6 +1,7 @@
 import React, { useState, useRef, DragEvent } from "react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface FileDropzoneProps extends React.HTMLAttributes<HTMLDivElement> {
   onFileSelect: (file: File) => void;
@@ -11,6 +12,8 @@ interface FileDropzoneProps extends React.HTMLAttributes<HTMLDivElement> {
   maxSizeInMB?: number;
   className?: string;
   showFileInput?: boolean;
+  showButton?: boolean;
+  buttonText?: string;
   children?: React.ReactNode;
 }
 
@@ -23,6 +26,8 @@ export function FileDropzone({
   maxSizeInMB = 10,
   className,
   showFileInput = true,
+  showButton = true,
+  buttonText = "Upload File",
   children,
   ...props
 }: FileDropzoneProps) {
@@ -128,6 +133,39 @@ export function FileDropzone({
             <p className="mt-1 text-xs text-gray-500">
               Supported formats: {accept.replace(/\./g, "").split(",").join(", ")} (Max {maxSizeInMB}MB)
             </p>
+            
+            {showButton && (
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={disabled || isUploading}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent double triggering with the parent div click
+                    triggerFileInput();
+                  }}
+                  className="inline-flex items-center gap-1"
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  {buttonText}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>

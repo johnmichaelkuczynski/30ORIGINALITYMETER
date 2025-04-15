@@ -342,6 +342,8 @@ export default function FeedbackForm({
                   isUploading={fileUploading}
                   maxSizeInMB={5}
                   className="bg-white border-slate-200"
+                  showButton={true}
+                  buttonText="Upload Document"
                 >
                   <div className="flex flex-col items-center justify-center h-24 p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 mb-2">
