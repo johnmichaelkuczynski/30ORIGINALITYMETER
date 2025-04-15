@@ -922,48 +922,72 @@ export async function generateMoreOriginalVersion(
       case 'keep-voice':
         styleInstructions = `KEEP MY VOICE MODE:
 Maintain the user's original tone and style while adding intellectual depth and concrete examples.
+
+IMPORTANT GUIDELINES:
 - Keep the same writing style, sentence structures, and voice patterns
 - Preserve the author's unique vocabulary and expressions
 - Add more intellectual depth and sophisticated reasoning
 - Introduce concrete, relevant examples to strengthen arguments
 - Maintain the same general flow and structure
+- Avoid overly ornate or "bloggy" language
+- Focus on substance, not stylistic flourishes
+- Enhance clarity and precision without introducing unnecessary verbosity
+- Stay true to the core intellectual content
 - The revised text should feel like it was written by the same person, just with more depth`;
         break;
         
       case 'academic':
         styleInstructions = `MAKE IT MORE FORMAL/ACADEMIC MODE:
 Use a more formal, scholarly tone with precise language, suitable for an academic or professional audience.
+
+IMPORTANT GUIDELINES:
 - Employ formal academic terminology and phrasing
 - Structure the passage with clear, scholarly argumentation
 - Use precise, technical language appropriate for the discipline
 - Follow academic conventions for organizing ideas
 - Include proper framing of concepts within their scholarly context
 - Present ideas with intellectual rigor and logical formality
-- Aim for a style that would be appropriate in a scholarly journal`;
+- Avoid unnecessary verbosity or pretentious language
+- Focus on clarity and precision in communicating complex ideas
+- Maintain intellectual substance rather than mere formality
+- Aim for a style that would be appropriate in a scholarly journal while remaining accessible`;
         break;
         
       case 'punchy':
         styleInstructions = `MAKE IT MORE PUNCHY MODE:
 Provide a concise and impactful version that is sharp, direct, and still intellectually rigorous.
+
+IMPORTANT GUIDELINES:
 - Make the writing more concise and impactful
 - Use sharper, more direct language
 - Eliminate unnecessary words and phrases
 - Use active voice and strong verbs
 - Create shorter, more powerful sentences
 - Focus on clarity and brevity while maintaining intellectual depth
-- Make each sentence count with condensed, powerful statements`;
+- Make each sentence count with condensed, powerful statements
+- Avoid oversimplification of complex ideas
+- Maintain the intellectual substance while improving directness
+- Strive for precision rather than mere brevity
+- Use concise examples that illuminate rather than decorate`;
         break;
         
       default:
         styleInstructions = `PRIORITIZE ORIGINALITY MODE:
 Present the content with added complexity and depth, introducing novel examples and applications.
+
+IMPORTANT GUIDELINES:
 - Introduce novel perspectives and approaches
 - Add conceptual complexity and depth
 - Create unexpected but relevant connections to other domains
 - Challenge implicit assumptions in the original text
 - Add intellectual innovations that transform the ideas
 - Focus on maximum originality while ensuring the passage remains coherent
-- Provide unique insights and framings that push beyond conventional thinking`;
+- Provide unique insights and framings that push beyond conventional thinking
+- Avoid "decorative language" that adds no substance
+- Don't introduce vague, high-level rhetoric
+- Prioritize intellectual engagement over stylistic novelty
+- Emphasize originality through additional examples, applications, or extensions of the ideas
+- Stay grounded in the original intellectual argument while expanding it`;
     }
     
     const response = await openai.chat.completions.create({
@@ -985,6 +1009,16 @@ You must NOT simply reword or paraphrase the original text. Instead, make genuin
 4. Offering sharper or broader applications of the ideas
 5. Making connections to unexpected but relevant domains
 6. Adding intellectual depth where the original is derivative
+
+QUALITY GUIDELINES:
+- Enhance intellectual depth without introducing unnecessary verbosity
+- Avoid "bloggy" language or decorative flourishes that add no substance
+- Do not use vague, high-level rhetoric - be precise and specific
+- Focus on the conceptual substance, not stylistic novelty
+- Maintain scholarly precision and clarity
+- When adding examples, ensure they genuinely illuminate the concepts
+- Stay grounded in the original intellectual argument while enhancing it
+- Aim for a text that is both original AND intellectually rigorous
 
 ${styleInstructions}
 
