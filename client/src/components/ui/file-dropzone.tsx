@@ -100,7 +100,12 @@ export function FileDropzone({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={triggerFileInput}
+      onClick={(e) => {
+        // Only trigger if the click is directly on the container, not on child elements
+        if (e.currentTarget === e.target) {
+          triggerFileInput();
+        }
+      }}
       {...props}
     >
       {isUploading && (
@@ -170,16 +175,15 @@ export function FileDropzone({
         )}
       </div>
 
-      {showFileInput && (
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={accept}
-          onChange={handleFileInput}
-          disabled={disabled || isUploading}
-          className="hidden"
-        />
-      )}
+      {/* Always include the file input regardless of showFileInput setting */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        onChange={handleFileInput}
+        disabled={disabled || isUploading}
+        className="hidden"
+      />
     </div>
   );
 }
