@@ -885,6 +885,326 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
  * with possible re-evaluation
  */
 /**
+ * Analyzes a passage against a larger corpus of text
+ * @param passage The passage to analyze
+ * @param corpus The larger corpus or reference text
+ * @param corpusTitle Optional title of the corpus
+ * @returns Analysis result comparing the passage against the corpus
+ */
+export async function analyzePassageAgainstCorpus(
+  passage: PassageData,
+  corpus: string,
+  corpusTitle: string = "Reference Corpus"
+): Promise<AnalysisResult> {
+  try {
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Passage";
+
+    // Format a sample of the corpus to include in the prompt
+    // We need to limit the corpus size to avoid token limits
+    let corpusSample = corpus;
+    if (corpus.length > 12000) {
+      corpusSample = corpus.substring(0, 12000) + "...";
+    }
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality and quality of texts. Your task is to analyze a given passage against a reference corpus to determine how well the passage aligns with the intellectual rigor, tone, and style of the corpus. Analyze the passage across nine metrics:
+
+1. Conceptual Lineage - Where ideas come from, are they responding to ideas in the corpus
+2. Semantic Distance - How far the passage moves from the corpus; is it reshuffling or building on concepts
+3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph compared to the corpus
+4. Derivative Index - Score 0-10 where 0 is highly derivative of the corpus and 10 is wholly original
+5. Conceptual Parasite Detection - Whether the passage operates in the same conceptual space without adding anything new
+6. Coherence - Whether the passage maintains the logical and conceptual coherence seen in the corpus
+7. Accuracy - Factual and inferential correctness compared to the corpus
+8. Depth - Non-triviality and conceptual insight compared to the corpus
+9. Clarity - Readability, transparency, and semantic accessibility compared to the corpus style
+
+Your analysis should be thorough but concise, focusing on both the stylistic alignment and intellectual content.`
+        },
+        {
+          role: "user",
+          content: `Please analyze the following passage against the reference corpus:
+
+Passage: "${passage.text}"
+
+Reference Corpus Title: "${corpusTitle}"
+Reference Corpus: "${corpusSample}"
+
+Provide a structured analysis showing how the passage compares to the corpus in terms of style, tone, conceptual alignment, and intellectual rigor.`
+        }
+      ],
+      max_tokens: 4000,
+    });
+
+    // Extract the result from the OpenAI response
+    const analysisText = response.choices[0]?.message?.content || "";
+    
+    // Parse the response into our analysis result structure
+    // This is a simplified version that aligns with our existing schema
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: extractSection(analysisText, "Conceptual Lineage", 300) || 
+            "Analysis of conceptual influences compared to the corpus.",
+          intellectualTrajectory: extractSubsection(analysisText, "Conceptual Lineage", "trajectory", 300) || 
+            "Trajectory of ideas relative to the corpus.",
+        },
+        passageB: {
+          primaryInfluences: `This analysis examines how the passage aligns with "${corpusTitle}".`,
+          intellectualTrajectory: "The corpus serves as a reference point for comparison.",
+        }
+      },
+      semanticDistance: {
+        passageA: {
+          distance: extractNumericValue(analysisText, "Semantic Distance", 0, 100) || 50,
+          label: extractLabel(analysisText, "Semantic Distance") || "Moderate",
+        },
+        passageB: {
+          distance: 0,
+          label: "Reference Corpus",
+        },
+        keyFindings: extractListItems(analysisText, "Semantic Distance", "key findings", 5) || 
+          ["The passage shows some deviation from the corpus in terms of semantic content."],
+        semanticInnovation: extractSubsection(analysisText, "Semantic Distance", "innovation", 300) || 
+          "Analysis of semantic innovation relative to the corpus."
+      },
+      noveltyHeatmap: {
+        passageA: generateHeatmapFromParagraphs(paragraphs, analysisText),
+        passageB: [{ content: "Reference Corpus", heat: 0 }]
+      },
+      derivativeIndex: {
+        passageA: {
+          score: extractNumericValue(analysisText, "Derivative Index", 0, 10) || 5,
+          components: [
+            { 
+              name: "Originality", 
+              score: extractNumericValue(analysisText, "originality", 0, 10) || 5 
+            },
+            { 
+              name: "Conceptual Independence", 
+              score: extractNumericValue(analysisText, "conceptual independence", 0, 10) || 5 
+            },
+            { 
+              name: "Novel Synthesis", 
+              score: extractNumericValue(analysisText, "novel synthesis", 0, 10) || 5 
+            }
+          ]
+        },
+        passageB: {
+          score: 10, // Reference corpus is considered the standard
+          components: [
+            { name: "Reference Standard", score: 10 }
+          ]
+        }
+      },
+      conceptualParasite: {
+        passageA: {
+          level: extractParasiteLevel(analysisText) || "Moderate",
+          elements: extractListItems(analysisText, "Conceptual Parasite", "elements", 3) || 
+            ["Some recycling of concepts from the corpus"],
+          assessment: extractSection(analysisText, "Conceptual Parasite", 300) || 
+            "Analysis of conceptual dependency on the corpus."
+        },
+        passageB: {
+          level: "Low",
+          elements: ["Reference Corpus"],
+          assessment: "This is the reference corpus used for comparison."
+        }
+      },
+      coherence: {
+        passageA: {
+          score: extractNumericValue(analysisText, "Coherence", 0, 10) || 7,
+          assessment: extractSection(analysisText, "Coherence", 300) || 
+            "Analysis of logical and conceptual coherence compared to the corpus.",
+          strengths: extractListItems(analysisText, "Coherence", "strengths", 3) || 
+            ["Maintains some logical flow"],
+          weaknesses: extractListItems(analysisText, "Coherence", "weaknesses", 3) || 
+            ["Areas where coherence could be improved"]
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used as the comparison standard.",
+          strengths: ["Reference Standard"],
+          weaknesses: []
+        }
+      },
+      accuracy: {
+        passageA: {
+          score: extractNumericValue(analysisText, "Accuracy", 0, 10) || 7,
+          assessment: extractSection(analysisText, "Accuracy", 300) || 
+            "Analysis of factual and inferential correctness compared to the corpus.",
+          strengths: extractListItems(analysisText, "Accuracy", "strengths", 3) || 
+            ["Areas of factual alignment with the corpus"],
+          weaknesses: extractListItems(analysisText, "Accuracy", "weaknesses", 3) || 
+            ["Areas where accuracy could be improved"]
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used as the comparison standard.",
+          strengths: ["Reference Standard"],
+          weaknesses: []
+        }
+      },
+      depth: {
+        passageA: {
+          score: extractNumericValue(analysisText, "Depth", 0, 10) || 6,
+          assessment: extractSection(analysisText, "Depth", 300) || 
+            "Analysis of non-triviality and conceptual insight compared to the corpus.",
+          strengths: extractListItems(analysisText, "Depth", "strengths", 3) || 
+            ["Areas of conceptual depth"],
+          weaknesses: extractListItems(analysisText, "Depth", "weaknesses", 3) || 
+            ["Areas where depth could be improved"]
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used as the comparison standard.",
+          strengths: ["Reference Standard"],
+          weaknesses: []
+        }
+      },
+      clarity: {
+        passageA: {
+          score: extractNumericValue(analysisText, "Clarity", 0, 10) || 7,
+          assessment: extractSection(analysisText, "Clarity", 300) || 
+            "Analysis of readability and stylistic alignment with the corpus.",
+          strengths: extractListItems(analysisText, "Clarity", "strengths", 3) || 
+            ["Areas of stylistic alignment"],
+          weaknesses: extractListItems(analysisText, "Clarity", "weaknesses", 3) || 
+            ["Areas where clarity could be improved"]
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used as the comparison standard.",
+          strengths: ["Reference Standard"],
+          weaknesses: []
+        }
+      },
+      verdict: extractSection(analysisText, "Verdict", 500) || 
+        `Analysis of how well the passage aligns with "${corpusTitle}" in terms of style, tone, and intellectual content.`
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error calling OpenAI for corpus comparison:", error);
+    throw new Error(`Failed to analyze passage against corpus: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+// Helper functions for parsing the OpenAI response
+function extractSection(text: string, sectionName: string, maxLength: number = 200): string | null {
+  const regex = new RegExp(`${sectionName}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
+  const match = text.match(regex);
+  if (match && match[1]) {
+    return match[1].trim().substring(0, maxLength);
+  }
+  return null;
+}
+
+function extractSubsection(text: string, sectionName: string, subsectionKeyword: string, maxLength: number = 200): string | null {
+  const section = extractSection(text, sectionName, 1000);
+  if (!section) return null;
+  
+  const regex = new RegExp(`${subsectionKeyword}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
+  const match = section.match(regex);
+  if (match && match[1]) {
+    return match[1].trim().substring(0, maxLength);
+  }
+  return null;
+}
+
+function extractNumericValue(text: string, keyword: string, min: number, max: number): number | null {
+  const regex = new RegExp(`${keyword}[^0-9]*(\\d+(?:\\.\\d+)?)`, 'i');
+  const match = text.match(regex);
+  if (match && match[1]) {
+    const value = parseFloat(match[1]);
+    return Math.max(min, Math.min(max, value));
+  }
+  return null;
+}
+
+function extractLabel(text: string, keyword: string): string | null {
+  const regex = new RegExp(`${keyword}[^:]*:[^A-Za-z]*(\\w+)`, 'i');
+  const match = text.match(regex);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  return null;
+}
+
+function extractListItems(text: string, sectionName: string, subsectionKeyword: string, maxItems: number): string[] | null {
+  const section = extractSection(text, sectionName, 1000);
+  if (!section) return null;
+  
+  const subsectionRegex = new RegExp(`${subsectionKeyword}[:\\s]+(.*?)(?=\\n\\s*\\n|\\n\\s*[A-Z]|$)`, 'is');
+  const subsectionMatch = section.match(subsectionRegex);
+  if (!subsectionMatch || !subsectionMatch[1]) return null;
+  
+  const subsection = subsectionMatch[1].trim();
+  const itemsRegex = /(?:^|\n)-\s*([^\n]+)/g;
+  const items: string[] = [];
+  let match;
+  
+  while ((match = itemsRegex.exec(subsection)) !== null && items.length < maxItems) {
+    items.push(match[1].trim());
+  }
+  
+  return items.length > 0 ? items : null;
+}
+
+function extractParasiteLevel(text: string): "Low" | "Moderate" | "High" | null {
+  const section = extractSection(text, "Conceptual Parasite", 500);
+  if (!section) return null;
+  
+  if (section.toLowerCase().includes("low")) return "Low";
+  if (section.toLowerCase().includes("high")) return "High";
+  return "Moderate";
+}
+
+function generateHeatmapFromParagraphs(paragraphs: string[], analysisText: string): Array<{content: string, heat: number}> {
+  const noveltySection = extractSection(analysisText, "Novelty Heatmap", 1000);
+  const heatmap: Array<{content: string, heat: number}> = [];
+  
+  // Generate a heatmap based on the analysis or with default values
+  paragraphs.forEach((paragraph, index) => {
+    // Try to extract heat values from the analysis text
+    let heat = 5; // Default moderate heat
+    
+    if (noveltySection) {
+      // Look for mentions of paragraph numbers or sequential description
+      const paragraphRegex = new RegExp(`paragraph\\s*${index + 1}|${getOrdinal(index + 1)}\\s*paragraph`, 'i');
+      if (paragraphRegex.test(noveltySection)) {
+        if (noveltySection.toLowerCase().includes("high novelty") || 
+            noveltySection.toLowerCase().includes("innovative")) {
+          heat = 8;
+        } else if (noveltySection.toLowerCase().includes("low novelty") || 
+                 noveltySection.toLowerCase().includes("derivative")) {
+          heat = 3;
+        }
+      }
+    }
+    
+    heatmap.push({
+      content: paragraph,
+      heat,
+      explanation: `Analysis of paragraph ${index + 1} relative to corpus`,
+    });
+  });
+  
+  return heatmap;
+}
+
+function getOrdinal(n: number): string {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+/**
  * Generates a more original version of a passage based on the analysis results
  * @param passage The original passage
  * @param analysisResult The analysis results containing originality metrics
