@@ -916,6 +916,84 @@ export async function generateMoreOriginalVersion(
       .map(item => item.content)
       .join("\n- ");
     
+    // Get the overall quality score - use the average of all available metrics
+    const availableScores = [
+      analysisResult.derivativeIndex.passageA.score,
+      analysisResult.coherence.passageA.score
+    ];
+    
+    if (analysisResult.accuracy?.passageA?.score) {
+      availableScores.push(analysisResult.accuracy.passageA.score);
+    }
+    
+    if (analysisResult.depth?.passageA?.score) {
+      availableScores.push(analysisResult.depth.passageA.score);
+    }
+    
+    if (analysisResult.clarity?.passageA?.score) {
+      availableScores.push(analysisResult.clarity.passageA.score);
+    }
+    
+    const overallScore = availableScores.reduce((sum, score) => sum + score, 0) / availableScores.length;
+    
+    // Determine which improvement protocol to use based on overall score
+    let improvementProtocol = "";
+    
+    if (overallScore >= 7) {
+      // Protocol for high-quality passages (score over 7)
+      improvementProtocol = `ENHANCEMENT PROTOCOL FOR HIGH-QUALITY PASSAGE:
+
+Goal: Enrich this already strong passage by adding new, intellectually rigorous material while maintaining its clarity and coherence.
+
+Focus on:
+1. Incorporating examples from other disciplines (mathematics, computer science, psychology, economics, ethics, biology, philosophy, etc.)
+2. Exploring new angles or applications related to the original concept
+3. Adding new examples that broaden the scope and deepen the conceptual engagement
+4. Providing clear explanations of how each added example or new information relates to the original ideas
+
+Guidelines:
+- The new material should enhance understanding, not simply be decorative
+- Avoid vague metaphors or unnecessary abstraction
+- Focus on adding depth, not just making the text longer
+- Ensure all additions have intellectual rigor and substance
+- Maintain the original meaning while broadening its scope with intellectually rich and conceptually relevant examples`;
+    } else if (overallScore < 5) {
+      // Protocol for low-quality passages (score below 5)
+      improvementProtocol = `ENHANCEMENT PROTOCOL FOR LOWER-QUALITY PASSAGE:
+
+Goal: Improve the clarity, coherence, and structure of this passage while maintaining its intellectual content.
+
+Focus on:
+1. Rewriting for clarity: Make the passage clear, coherent, and precise
+2. Reorganizing and restructuring: Improve the internal structure of the text for logical flow
+3. Simplifying where necessary: Break down complex ideas into simpler, more digestible components
+4. Enhancing readability: Improve how the information is presented while maintaining intellectual rigor
+
+Guidelines:
+- Ensure the ideas are presented clearly and coherently
+- Create a strong internal structure with logical progression
+- Simplify complex ideas without sacrificing intellectual depth
+- Make the passage easier to understand and more precise
+- Maintain the original meaning but present it with greater clarity`;
+    } else {
+      // Default protocol for medium-quality passages (score 5-7)
+      improvementProtocol = `ENHANCEMENT PROTOCOL FOR MODERATE-QUALITY PASSAGE:
+
+Goal: Balance improving clarity and structure while adding some intellectual depth.
+
+Focus on:
+1. Enhancing organization and logical flow of ideas
+2. Adding moderate intellectual enrichment through well-chosen examples
+3. Clarifying complex concepts while maintaining their sophistication
+4. Improving precision and specificity of language
+
+Guidelines:
+- Strike a balance between clarity and intellectual depth
+- Add some new perspectives or examples where appropriate
+- Refine the structure for better logical progression
+- Improve precision and clarity without oversimplification`;
+    }
+    
     // Determine style instructions based on styleOption
     let styleInstructions = "";
     switch(styleOption) {
@@ -997,18 +1075,13 @@ IMPORTANT GUIDELINES:
           role: "system",
           content: `You are an expert editor specializing in improving the conceptual originality and intellectual contribution of academic and philosophical texts.
           
-Your task is to write a COMPLETE, MORE ORIGINAL VERSION of a passage. The new version must be a standalone, cohesive text that can replace the original. 
+Your task is to write a COMPLETE, IMPROVED VERSION of a passage. The new version must be a standalone, cohesive text that can replace the original. 
 
 IMPORTANT: DO NOT provide bullet points or suggestions. Write a COMPLETE, FULLY-FORMED PASSAGE that is ready to use.
 
-You must NOT simply reword or paraphrase the original text. Instead, make genuine intellectual improvements that increase conceptual depth and originality, such as:
+You must NOT simply reword or paraphrase the original text. Instead, make genuine intellectual improvements based on the specific enhancement protocol provided.
 
-1. Reframing the problem in a novel way
-2. Introducing new conceptual distinctions 
-3. Challenging implicit assumptions in the original
-4. Offering sharper or broader applications of the ideas
-5. Making connections to unexpected but relevant domains
-6. Adding intellectual depth where the original is derivative
+${improvementProtocol}
 
 QUALITY GUIDELINES:
 - Enhance intellectual depth without introducing unnecessary verbosity
@@ -1018,11 +1091,11 @@ QUALITY GUIDELINES:
 - Maintain scholarly precision and clarity
 - When adding examples, ensure they genuinely illuminate the concepts
 - Stay grounded in the original intellectual argument while enhancing it
-- Aim for a text that is both original AND intellectually rigorous
+- Aim for a text that is both improved AND intellectually rigorous
 
 ${styleInstructions}
 
-You will receive a passage along with its originality analysis. Use the analysis to identify specific areas where the passage lacks originality, and focus your improvements there.`
+You will receive a passage along with its analysis. Use the analysis to identify specific areas for improvement, and focus your enhancements there.`
         },
         {
           role: "user",
@@ -1031,21 +1104,22 @@ You will receive a passage along with its originality analysis. Use the analysis
 Title: ${passageTitle}
 Text: ${passage.text}
 
-Analysis of originality issues:
+Analysis of the passage:
+- Overall Score: ${overallScore.toFixed(1)}/10
 - Derivative Index Score: ${derivativeScore}/10 (higher is more original)
 - Semantic Distance: ${semanticDistance}/100 (higher is more distant from predecessors)
 - Conceptual Parasite Level: ${parasiteLevel}
 - Parasitic Elements: ${parasiteElements}
-- Areas with low originality:
+- Areas needing improvement:
   ${lowHeatAreas || "Various sections throughout the text"}
 
 Respond with exactly these three sections in this order:
 
-1. IMPROVED PASSAGE TEXT - Write a complete, standalone, more original version of the passage. This must be a fully-formed text that can directly replace the original, not bullet points or guidelines.
+1. IMPROVED PASSAGE TEXT - Write a complete, standalone, improved version of the passage. This must be a fully-formed text that can directly replace the original, not bullet points or guidelines.
 
-2. KEY IMPROVEMENTS - Briefly explain the key improvements you made to increase originality.
+2. KEY IMPROVEMENTS - Briefly explain the key improvements you made to the passage.
 
-3. ESTIMATED NEW SCORE - Provide an estimated new derivative index score (0-10) based on how much you improved the originality.`
+3. ESTIMATED NEW SCORE - Provide an estimated new score (0-10) based on how much you improved the passage.`
         }
       ],
       max_tokens: 4000,
