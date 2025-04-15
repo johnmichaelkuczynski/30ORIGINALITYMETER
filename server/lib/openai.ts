@@ -990,14 +990,28 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
     // Parse the response to extract the components we need
     const result: AnalysisResult = {
       conceptualLineage: {
-        analysis: extractSection(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 2000) || "",
-        score: extractNumericValue(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          primaryInfluences: "Analysis from corpus comparison: " + 
+            extractSection(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 500),
+          intellectualTrajectory: "Trajectory from corpus comparison: " + 
+            extractSection(completionText, "CONCEPTUAL LINEAGE ANALYSIS", 500)
+        },
+        passageB: {
+          primaryInfluences: `This analysis compares your passage to "${corpusTitle || 'Reference Corpus'}"`,
+          intellectualTrajectory: "The reference corpus serves as the intellectual standard."
+        }
       },
       semanticDistance: {
-        analysis: extractSection(completionText, "SEMANTIC DISTANCE MEASURE", 2000) || "",
-        score: extractNumericValue(completionText, "SEMANTIC DISTANCE MEASURE", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          distance: extractNumericValue(completionText, "SEMANTIC DISTANCE MEASURE", 0, 100) || 50,
+          label: extractLabel(completionText, "SEMANTIC DISTANCE MEASURE") || "Moderate Distance"
+        },
+        passageB: {
+          distance: 0,
+          label: "Reference Corpus" 
+        },
+        keyFindings: extractListItems(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", "KEY STRENGTHS", 5),
+        semanticInnovation: extractSection(completionText, "SEMANTIC DISTANCE MEASURE", 300),
       },
       noveltyHeatmap: {
         passageA: generateHeatmapFromParagraphs(
@@ -1008,39 +1022,89 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
         feedback: undefined,
       },
       derivativeIndex: {
-        analysis: extractSection(completionText, "DERIVATIVE INDEX", 2000) || "",
-        score: extractNumericValue(completionText, "DERIVATIVE INDEX", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          score: extractNumericValue(completionText, "DERIVATIVE INDEX", 0, 10) || 5,
+          components: [
+            {name: "Conceptual Innovation", score: extractNumericValue(completionText, "Conceptual Innovation", 0, 10) || 5},
+            {name: "Methodological Novelty", score: extractNumericValue(completionText, "Methodological Novelty", 0, 10) || 5},
+            {name: "Contextual Application", score: extractNumericValue(completionText, "Contextual Application", 0, 10) || 5}
+          ]
+        },
+        passageB: {
+          score: 10, // Perfect score as it's the reference corpus
+          components: [
+            {name: "Reference Standard", score: 10}
+          ]
+        }
       },
       conceptualParasite: {
-        analysis: extractSection(completionText, "CONCEPTUAL PARASITE DETECTION", 2000) || "",
-        level: extractParasiteLevel(completionText) || "Moderate",
-        feedback: undefined,
+        passageA: {
+          level: extractParasiteLevel(completionText) || "Moderate",
+          elements: extractListItems(completionText, "CONCEPTUAL PARASITE DETECTION", "", 3),
+          assessment: extractSection(completionText, "CONCEPTUAL PARASITE DETECTION", 300) || "Analysis unavailable"
+        },
+        passageB: {
+          level: "Low",
+          elements: ["Reference Corpus"],
+          assessment: "This is the reference corpus used for comparison."
+        }
       },
       coherence: {
-        analysis: extractSection(completionText, "COHERENCE EVALUATION", 2000) || "",
-        score: extractNumericValue(completionText, "COHERENCE EVALUATION", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          score: extractNumericValue(completionText, "COHERENCE EVALUATION", 0, 10) || 5,
+          assessment: extractSection(completionText, "COHERENCE EVALUATION", 300) || "Analysis unavailable",
+          strengths: extractListItems(completionText, "COHERENCE EVALUATION", "strengths", 3),
+          weaknesses: extractListItems(completionText, "COHERENCE EVALUATION", "weaknesses", 3)
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used for comparison.",
+          strengths: ["Reference standard"],
+          weaknesses: []
+        }
       },
       accuracy: {
-        analysis: extractSection(completionText, "ACCURACY ASSESSMENT", 2000) || "",
-        score: extractNumericValue(completionText, "ACCURACY ASSESSMENT", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          score: extractNumericValue(completionText, "ACCURACY ASSESSMENT", 0, 10) || 5,
+          assessment: extractSection(completionText, "ACCURACY ASSESSMENT", 300) || "Analysis unavailable",
+          strengths: extractListItems(completionText, "ACCURACY ASSESSMENT", "strengths", 3),
+          weaknesses: extractListItems(completionText, "ACCURACY ASSESSMENT", "weaknesses", 3)
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used for comparison.",
+          strengths: ["Reference standard"],
+          weaknesses: []
+        }
       },
       depth: {
-        analysis: extractSection(completionText, "DEPTH ANALYSIS", 2000) || "",
-        score: extractNumericValue(completionText, "DEPTH ANALYSIS", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          score: extractNumericValue(completionText, "DEPTH ANALYSIS", 0, 10) || 5,
+          assessment: extractSection(completionText, "DEPTH ANALYSIS", 300) || "Analysis unavailable",
+          strengths: extractListItems(completionText, "DEPTH ANALYSIS", "strengths", 3),
+          weaknesses: extractListItems(completionText, "DEPTH ANALYSIS", "weaknesses", 3)
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used for comparison.",
+          strengths: ["Reference standard"],
+          weaknesses: []
+        }
       },
       clarity: {
-        analysis: extractSection(completionText, "CLARITY MEASUREMENT", 2000) || "",
-        score: extractNumericValue(completionText, "CLARITY MEASUREMENT", 0, 100) || 50,
-        feedback: undefined,
+        passageA: {
+          score: extractNumericValue(completionText, "CLARITY MEASUREMENT", 0, 10) || 5,
+          assessment: extractSection(completionText, "CLARITY MEASUREMENT", 300) || "Analysis unavailable",
+          strengths: extractListItems(completionText, "CLARITY MEASUREMENT", "strengths", 3),
+          weaknesses: extractListItems(completionText, "CLARITY MEASUREMENT", "weaknesses", 3)
+        },
+        passageB: {
+          score: 10,
+          assessment: "Reference corpus used for comparison.",
+          strengths: ["Reference standard"],
+          weaknesses: []
+        }
       },
-      summary: extractSection(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 2000) || "",
-      strengths: extractListItems(completionText, "KEY STRENGTHS OF THE PASSAGE", "", 5) || [],
-      improvements: extractListItems(completionText, "ORIGINALITY IMPROVEMENT RECOMMENDATIONS", "", 5) || [],
-      overallScore: extractNumericValue(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 0, 100) || 50,
     };
 
     return result;
