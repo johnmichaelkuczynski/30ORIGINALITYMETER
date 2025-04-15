@@ -110,6 +110,47 @@ export default function SummarySection({
         {isSinglePassageMode ? (
           // Single Passage Mode - Show single passage with bell curve
           <div className="mb-6">
+            {/* Aggregate Quality Score - Large and Prominent Display */}
+            <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-5 mb-5 border border-primary-200 shadow-sm">
+              <div className="flex flex-col items-center justify-center">
+                <h3 className="text-lg font-semibold text-primary-800 mb-2">Overall Quality Score</h3>
+                <div className="flex items-center justify-center">
+                  <div className={`text-4xl font-bold ${
+                    aggregateScoreA >= 8 ? 'text-green-600' : 
+                    aggregateScoreA >= 6 ? 'text-green-500' : 
+                    aggregateScoreA >= 4 ? 'text-amber-500' : 
+                    'text-red-500'
+                  }`}>
+                    {aggregateScoreA.toFixed(1)}
+                  </div>
+                  <div className="text-xl text-secondary-500 ml-1">/10</div>
+                </div>
+                <div className="text-sm text-secondary-600 text-center mt-2">
+                  Combines originality, coherence, accuracy, depth and clarity metrics
+                </div>
+                
+                {/* Score bar visualization */}
+                <div className="w-full max-w-md mt-3">
+                  <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`absolute top-0 left-0 h-full ${
+                        aggregateScoreA >= 8 ? 'bg-green-600' : 
+                        aggregateScoreA >= 6 ? 'bg-green-500' : 
+                        aggregateScoreA >= 4 ? 'bg-amber-500' : 
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${aggregateScoreA * 10}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-secondary-500 mt-1">
+                    <span>Poor</span>
+                    <span>Average</span>
+                    <span>Excellent</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <div className="bg-gray-50 p-5 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-secondary-800">{passageATitle}</h3>
@@ -224,6 +265,77 @@ export default function SummarySection({
         ) : (
           // Comparison Mode - Show both passages in separate boxes with clear labels
           <div className="space-y-6">
+            {/* Aggregate Quality Score Comparison - Large Display */}
+            <div className="mb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-5 border border-primary-200 shadow-sm">
+                <div className="flex flex-col">
+                  <h3 className="text-lg font-semibold text-primary-800 mb-2 text-center">Overall Quality: Passage A</h3>
+                  <div className="flex items-center justify-center">
+                    <div className={`text-4xl font-bold ${
+                      aggregateScoreA >= 8 ? 'text-green-600' : 
+                      aggregateScoreA >= 6 ? 'text-green-500' : 
+                      aggregateScoreA >= 4 ? 'text-amber-500' : 
+                      'text-red-500'
+                    }`}>
+                      {aggregateScoreA.toFixed(1)}
+                    </div>
+                    <div className="text-xl text-secondary-500 ml-1">/10</div>
+                  </div>
+                  
+                  {/* Score bar visualization */}
+                  <div className="w-full mt-3">
+                    <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`absolute top-0 left-0 h-full ${
+                          aggregateScoreA >= 8 ? 'bg-green-600' : 
+                          aggregateScoreA >= 6 ? 'bg-green-500' : 
+                          aggregateScoreA >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${aggregateScoreA * 10}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-5 border border-primary-200 shadow-sm">
+                <div className="flex flex-col">
+                  <h3 className="text-lg font-semibold text-primary-800 mb-2 text-center">Overall Quality: Passage B</h3>
+                  <div className="flex items-center justify-center">
+                    <div className={`text-4xl font-bold ${
+                      aggregateScoreB >= 8 ? 'text-green-600' : 
+                      aggregateScoreB >= 6 ? 'text-green-500' : 
+                      aggregateScoreB >= 4 ? 'text-amber-500' : 
+                      'text-red-500'
+                    }`}>
+                      {aggregateScoreB.toFixed(1)}
+                    </div>
+                    <div className="text-xl text-secondary-500 ml-1">/10</div>
+                  </div>
+                  
+                  {/* Score bar visualization */}
+                  <div className="w-full mt-3">
+                    <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`absolute top-0 left-0 h-full ${
+                          aggregateScoreB >= 8 ? 'bg-green-600' : 
+                          aggregateScoreB >= 6 ? 'bg-green-500' : 
+                          aggregateScoreB >= 4 ? 'bg-amber-500' : 
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${aggregateScoreB * 10}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-1 sm:col-span-2 text-xs text-center text-secondary-600">
+                Combines originality (30%), coherence (20%), accuracy (20%), depth (15%) and clarity (15%)
+              </div>
+            </div>
+            
             {/* Box 1: Originality Comparison */}
             <div className="border rounded-lg shadow-sm overflow-hidden">
               <div className="px-4 py-2 bg-green-50 border-b">
