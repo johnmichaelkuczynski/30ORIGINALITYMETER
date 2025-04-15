@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle, Magic } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Wand2 } from 'lucide-react';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -36,7 +36,8 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
         {
           passage,
           analysisResult,
-          styleOption
+          styleOption,
+          customInstructions: showCustomInstructions ? customInstructions.trim() : undefined
         }
       );
       const data = await response.json();
@@ -152,6 +153,47 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
             </div>
           </div>
 
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Wand2 className="h-4 w-4" />
+                Custom Improvement Instructions
+              </label>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowCustomInstructions(!showCustomInstructions)}
+                className="h-8 text-xs"
+              >
+                {showCustomInstructions ? 'Hide' : 'Show'}
+              </Button>
+            </div>
+            
+            {showCustomInstructions && (
+              <>
+                <Textarea
+                  placeholder="Describe how you want the passage to be improved (e.g., 'Make it sound more like Edgar Allan Poe', 'Add examples from psychology', 'Make it more formal')"
+                  className="mt-2 resize-none"
+                  rows={4}
+                  value={customInstructions}
+                  onChange={(e) => setCustomInstructions(e.target.value)}
+                  disabled={generateMutation.isPending}
+                />
+                <div className="mt-2 text-xs text-muted-foreground">
+                  <p>Your custom instructions will override the standard improvement process. Be specific about the changes you want.</p>
+                  <div className="mt-1 p-2 border rounded-md bg-muted/20">
+                    <p className="font-medium">Examples:</p>
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>"Make it sound more like Nietzsche but add examples from modern physics"</li>
+                      <li>"Improve coherence and add more concrete examples from economics"</li>
+                      <li>"Make it more academic but keep the core arguments the same"</li>
+                    </ul>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <div className="mb-6">
             <label className="text-sm font-medium">Style Preference:</label>
             <Select
@@ -218,7 +260,12 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                   </div>
 
                   <div className="p-3 bg-muted/50 rounded-md">
-                    <h4 className="text-sm font-medium mb-1">Improvement Summary</h4>
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="text-sm font-medium">Improvement Summary</h4>
+                      {showCustomInstructions && customInstructions.trim() && (
+                        <Badge variant="outline" className="ml-2 bg-primary/10">Custom instructions applied</Badge>
+                      )}
+                    </div>
                     <p className="text-sm">{generatedResult.improvementSummary}</p>
                   </div>
                 </div>
