@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Magic } from 'lucide-react';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -22,6 +23,8 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const [styleOption, setStyleOption] = useState<StyleOption>('prioritize-originality');
   const [activeTab, setActiveTab] = useState<string>('original');
   const [generatedResult, setGeneratedResult] = useState<GeneratedPassageResult | null>(null);
+  const [customInstructions, setCustomInstructions] = useState<string>('');
+  const [showCustomInstructions, setShowCustomInstructions] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Mutation for generating a more original passage

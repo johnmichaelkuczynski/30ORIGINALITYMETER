@@ -894,7 +894,8 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
 export async function generateMoreOriginalVersion(
   passage: PassageData,
   analysisResult: AnalysisResult,
-  styleOption?: StyleOption
+  styleOption?: StyleOption,
+  customInstructions?: string
 ): Promise<{
   originalPassage: PassageData;
   improvedPassage: PassageData;
@@ -1089,6 +1090,19 @@ IMPORTANT GUIDELINES:
 - Stay grounded in the original intellectual argument while expanding it`;
     }
     
+    // Add custom instructions if provided
+    let customInstructionsBlock = "";
+    if (customInstructions && customInstructions.trim()) {
+      customInstructionsBlock = `
+CUSTOM USER INSTRUCTIONS:
+The user has provided the following specific instructions for how they want the passage improved:
+"${customInstructions.trim()}"
+
+These custom instructions OVERRIDE any conflicting parts of the standard protocol and style guidelines.
+Prioritize following these user-specific instructions while maintaining intellectual rigor.
+`;
+    }
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -1115,6 +1129,8 @@ QUALITY GUIDELINES:
 - Aim for a text that is both improved AND intellectually rigorous
 
 ${styleInstructions}
+
+${customInstructionsBlock}
 
 You will receive a passage along with its analysis. Use the analysis to identify specific areas for improvement, and focus your enhancements there.`
         },

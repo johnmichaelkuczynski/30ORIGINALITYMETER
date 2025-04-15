@@ -549,20 +549,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required")
         }),
         analysisResult: analysisResultSchema.passthrough(),
-        styleOption: z.enum(['keep-voice', 'academic', 'punchy', 'prioritize-originality']).optional()
+        styleOption: z.enum(['keep-voice', 'academic', 'punchy', 'prioritize-originality']).optional(),
+        customInstructions: z.string().optional()
       });
 
-      const { passage, analysisResult, styleOption } = requestSchema.parse(req.body);
+      const { passage, analysisResult, styleOption, customInstructions } = requestSchema.parse(req.body);
       
       console.log("Generating more original version:", {
         title: passage.title,
         textLength: passage.text.length,
-        styleOption
+        styleOption,
+        hasCustomInstructions: !!customInstructions
       });
 
       try {
         // Generate a more original version using OpenAI
-        const generatedResult = await generateMoreOriginalVersion(passage, analysisResult, styleOption);
+        const generatedResult = await generateMoreOriginalVersion(
+          passage, 
+          analysisResult, 
+          styleOption,
+          customInstructions
+        );
         
         console.log("Generated more original version:", {
           originalLength: generatedResult.originalPassage.text.length,

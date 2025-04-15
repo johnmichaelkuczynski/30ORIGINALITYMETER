@@ -170,6 +170,7 @@ export interface GenerateOriginalVersionRequest {
   passage: PassageData;
   analysisResult: AnalysisResult;
   styleOption?: StyleOption;
+  customInstructions?: string;
 }
 
 export interface GeneratedPassageResult {
