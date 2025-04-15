@@ -53,11 +53,11 @@ export default function CorpusComparisonInput({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Check file size (max 20MB)
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Please upload a file smaller than 10MB",
+        description: "Please upload a file smaller than 20MB",
         variant: "destructive",
       });
       return;
@@ -227,7 +227,7 @@ export default function CorpusComparisonInput({
                 disabled={disabled}
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
-                maxSizeInMB={10}
+                maxSizeInMB={20}
                 className="bg-white"
                 showButton={true}
                 buttonText="Upload Corpus File"

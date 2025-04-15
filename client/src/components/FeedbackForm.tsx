@@ -340,7 +340,7 @@ export default function FeedbackForm({
                   accept=".txt,.docx"
                   disabled={fileUploading || feedbackMutation.isPending}
                   isUploading={fileUploading}
-                  maxSizeInMB={5}
+                  maxSizeInMB={20}
                   className="bg-white border-slate-200"
                   showButton={true}
                   buttonText="Upload Document"

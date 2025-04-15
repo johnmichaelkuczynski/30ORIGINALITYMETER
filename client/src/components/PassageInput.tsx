@@ -45,11 +45,11 @@ export default function PassageInput({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (limit to 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size (limit to 20MB)
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Please upload a file smaller than 5MB",
+        description: "Please upload a file smaller than 20MB",
         variant: "destructive",
       });
       return;
@@ -165,7 +165,7 @@ export default function PassageInput({
           }}
           accept=".txt,.docx"
           disabled={disabled}
-          maxSizeInMB={5}
+          maxSizeInMB={20}
           className="bg-white"
           showFileInput={false}
           showButton={true}
