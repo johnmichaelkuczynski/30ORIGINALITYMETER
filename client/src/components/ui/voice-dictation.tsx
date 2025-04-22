@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Mic, MicOff, StopCircle } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 import RecordRTC from 'recordrtc';
-import { toast } from '@/hooks/use-toast';
+import { Mic, StopCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface VoiceDictationProps {
   onTranscriptionComplete: (text: string) => void;
@@ -15,145 +15,120 @@ export function VoiceDictation({
   disabled = false,
   className = '',
 }: VoiceDictationProps) {
+  const { toast } = useToast();
+  
+  // Recording state
   const [isRecording, setIsRecording] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [liveTranscript, setLiveTranscript] = useState('');
   const [isStreamingTranscription, setIsStreamingTranscription] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
   
-  // Refs for tracking recording state and objects
-  const recorderRef = useRef<RecordRTC | null>(null);
+  // Refs for managing resources
   const streamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<RecordRTC | null>(null);
   const recordingChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<number | null>(null);
-  const transcriptionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    // Clean up on component unmount
-    return () => {
-      clearLiveTranscription();
-      stopRecording(false);
-    };
-  }, []);
   
-  // Clear any pending transcription requests and intervals
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      // Stop recording if component unmounts during recording
+      if (isRecording) {
+        stopRecording(false);
+      }
+      
+      // Clear any intervals
+      clearLiveTranscription();
+    };
+  }, [isRecording]);
+  
+  // Cleanup function for live transcription
   const clearLiveTranscription = () => {
     if (recordingIntervalRef.current) {
-      clearInterval(recordingIntervalRef.current);
+      window.clearInterval(recordingIntervalRef.current);
       recordingIntervalRef.current = null;
     }
     
-    if (transcriptionTimeoutRef.current) {
-      clearTimeout(transcriptionTimeoutRef.current);
-      transcriptionTimeoutRef.current = null;
-    }
-    
-    recordingChunksRef.current = [];
-    setLiveTranscript('');
     setIsStreamingTranscription(false);
   };
-
-  // Process a chunk of audio for live transcription
+  
+  // Process a chunk of audio during recording for real-time feedback
   const processAudioChunk = async (blob: Blob) => {
     try {
       if (blob.size < 1000) {
-        console.log("Audio chunk too small, skipping transcription");
-        return;
+        console.log("Audio chunk too small to process, skipping");
+        return; // Skip tiny chunks
       }
       
       setIsStreamingTranscription(true);
+      console.log(`Processing audio chunk of size ${blob.size} bytes for streaming transcription`);
       
-      // Create a new file from the blob
-      const file = new File([blob], 'chunk.webm', { 
-        type: 'audio/webm',
-        lastModified: Date.now() 
-      });
-      
+      // Create a form data object with the audio chunk
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('isPartial', 'true'); // Flag to indicate partial transcription
+      formData.append('file', new File([blob], 'chunk.webm', { type: 'audio/webm' }));
+      formData.append('streaming', 'true'); // Indicate this is for streaming
       
-      // Send to our streaming endpoint
+      // Send to our backend streaming endpoint
       const response = await fetch('/api/dictate/stream', {
         method: 'POST',
         body: formData,
       });
       
       if (!response.ok) {
-        console.error("Error in streaming transcription:", response.status);
-        return;
+        throw new Error(`Streaming transcription failed: ${response.status}`);
       }
       
       const data = await response.json();
       
-      if (data.text && data.text.trim()) {
-        // Update the live transcript
-        setLiveTranscript(data.text);
-        
-        // Also update the parent component's text as we go
-        onTranscriptionComplete(data.text);
+      if (data.text) {
+        console.log("Streaming transcription result:", data.text);
+        setLiveTranscript(prevText => {
+          // If this is the first chunk or a restart, just use the new text
+          if (!prevText) return data.text;
+          
+          // Otherwise, append unique content avoiding duplications
+          // This is a simple approach - in production, you'd want a more sophisticated text merger
+          if (data.text.length > prevText.length && data.text.includes(prevText)) {
+            return data.text; // New text contains old text, use the new one
+          } else {
+            // Add a space if needed
+            const needsSpace = !prevText.endsWith(' ') && !data.text.startsWith(' ');
+            return prevText + (needsSpace ? ' ' : '') + data.text;
+          }
+        });
       }
     } catch (error) {
-      console.error("Error processing audio chunk:", error);
+      console.error("Error in streaming transcription:", error);
     } finally {
       setIsStreamingTranscription(false);
     }
   };
   
-  // Start recording with live transcription capability
   const startRecording = async () => {
+    if (isRecording) return;
+    
+    setIsPreparing(true);
+    clearLiveTranscription(); // Reset any previous streaming text
+    
     try {
-      setIsPreparing(true);
-      clearLiveTranscription();
-      
-      // Check browser compatibility first
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Your browser does not support audio recording. Please try a modern browser like Chrome, Firefox, or Edge.');
-      }
-      
       console.log("Requesting microphone access...");
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("Microphone access granted. Audio tracks:", mediaStream.getAudioTracks().length);
       
-      // Request microphone access with specific constraints for better quality
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 44100,
-          channelCount: 1
-        }
-      });
+      // Store the media stream for later cleanup
+      streamRef.current = mediaStream;
       
-      streamRef.current = stream;
-      
-      // Check if we actually got audio tracks
-      if (!stream.getAudioTracks() || stream.getAudioTracks().length === 0) {
-        throw new Error('No audio input device detected');
-      }
-      
-      console.log("Microphone access granted. Audio tracks:", stream.getAudioTracks().length);
-      
-      // Initialize RecordRTC with optimized settings for transcription
-      recorderRef.current = new RecordRTC(stream, {
+      // Create a new recorder instance with the media stream
+      recorderRef.current = new RecordRTC(mediaStream, {
         type: 'audio',
         mimeType: 'audio/webm',
         recorderType: RecordRTC.StereoAudioRecorder,
-        numberOfAudioChannels: 1, // mono for better transcription
-        sampleRate: 44100, // high quality recording
-        desiredSampRate: 16000, // preferred rate for speech recognition
+        numberOfAudioChannels: 1, // mono for voice
+        sampleRate: 44100, // High quality
+        desiredSampRate: 16000, // Better for speech recognition
         bufferSize: 16384, // larger buffer for more stable recording
         timeSlice: 3000, // Get a chunk every 3 seconds for real-time transcription
-      });
-      
-      // Handle the ondataavailable event
-      (recorderRef.current as any).addEventListener('dataavailable', (blob: Blob) => {
-        console.log("Audio chunk available, size:", blob.size);
-        recordingChunksRef.current.push(blob);
-        
-        // Keep only the last 5 chunks to avoid memory issues
-        if (recordingChunksRef.current.length > 5) {
-          recordingChunksRef.current = recordingChunksRef.current.slice(-5);
-        }
       });
       
       // Start recording
@@ -161,14 +136,57 @@ export function VoiceDictation({
       setIsRecording(true);
       setIsPreparing(false);
       
-      // Set up an interval to process audio chunks for streaming transcription
-      recordingIntervalRef.current = window.setInterval(() => {
-        if (recordingChunksRef.current.length > 0 && !isStreamingTranscription) {
-          // Combine all chunks into one blob for better transcription
-          const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
-          processAudioChunk(combinedBlob);
+      // Set up a manual interval to get chunks from the recorder
+      const chunkInterval = window.setInterval(() => {
+        if (recorderRef.current) {
+          try {
+            // Using the RecordRTC instance directly with type assertion
+            const recorder = recorderRef.current as any;
+            
+            if (recorder && typeof recorder.getState === 'function' && recorder.getState() === 'recording') {
+              if (typeof recorder.getInternalRecorder === 'function') {
+                const internalRecorder = recorder.getInternalRecorder();
+                
+                if (internalRecorder && typeof internalRecorder.requestData === 'function') {
+                  internalRecorder.requestData((blob: Blob) => {
+                    if (blob && blob.size > 0) {
+                      console.log("Audio chunk available, size:", blob.size);
+                      recordingChunksRef.current.push(blob);
+                      
+                      // Keep only the last 5 chunks to avoid memory issues
+                      if (recordingChunksRef.current.length > 5) {
+                        recordingChunksRef.current = recordingChunksRef.current.slice(-5);
+                      }
+                      
+                      // Process the latest chunk if we have enough data
+                      if (recordingChunksRef.current.length > 0 && !isStreamingTranscription) {
+                        try {
+                          // Combine chunks into one blob for transcription
+                          const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+                          if (combinedBlob.size > 1000) { // Only process if we have meaningful data
+                            processAudioChunk(combinedBlob);
+                          }
+                        } catch (err) {
+                          console.error("Error processing audio chunks:", err);
+                        }
+                      }
+                    }
+                  });
+                } else {
+                  console.error("internalRecorder.requestData is not a function");
+                }
+              } else {
+                console.error("recorder.getInternalRecorder is not a function");
+              }
+            }
+          } catch (err) {
+            console.error("Error in chunking interval:", err);
+          }
         }
-      }, 4000); // Process every 4 seconds (slightly longer than timeSlice to ensure we have data)
+      }, 3000);
+      
+      // Store interval reference for cleanup
+      recordingIntervalRef.current = chunkInterval;
       
       toast({
         title: "Recording started",
@@ -211,7 +229,7 @@ export function VoiceDictation({
       }
     }
   };
-
+  
   const stopRecording = (processAudio = true) => {
     if (!recorderRef.current || !streamRef.current) return;
     
@@ -286,7 +304,7 @@ export function VoiceDictation({
       });
     }
   };
-
+  
   const processAudioWithAssemblyAI = async (audioBlob: Blob) => {
     try {
       // Get detailed information about the audio blob
@@ -398,7 +416,7 @@ export function VoiceDictation({
       });
     }
   };
-
+  
   return (
     <div className={`flex flex-col w-full ${className}`}>
       <div className="flex items-center space-x-2 mb-1">

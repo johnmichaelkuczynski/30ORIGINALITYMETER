@@ -1,4 +1,9 @@
 declare module 'recordrtc' {
+  // Type for the internal recorder that has the requestData method
+  interface InternalRecorder {
+    requestData: (callback: (blob: Blob) => void) => void;
+  }
+
   interface RecordRTCOptions {
     type?: 'video' | 'audio' | 'gif' | 'canvas';
     mimeType?: string;
@@ -11,6 +16,7 @@ declare module 'recordrtc' {
     bufferSize?: number;
     frameRate?: number;
     workerPath?: string;
+    ondataavailable?: (blob: Blob) => void;
   }
 
   class RecordRTC {
@@ -22,6 +28,13 @@ declare module 'recordrtc' {
     blob: Blob;
     reset(): void;
     destroy(): void;
+    
+    // Additional methods needed for our implementation
+    getState(): 'recording' | 'paused' | 'stopped' | string;
+    getInternalRecorder(): InternalRecorder;
+    pause(): void;
+    resume(): void;
+    clearRecordedData(): void;
   }
 
   namespace RecordRTC {
