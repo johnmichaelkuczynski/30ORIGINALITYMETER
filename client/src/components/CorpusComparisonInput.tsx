@@ -64,14 +64,28 @@ export default function CorpusComparisonInput({
     }
 
     // Check file type
-    const validTypes = ["text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    const validTypes = [
+      "text/plain", 
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "audio/mpeg", // MP3 file MIME type
+    ];
+    
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a .txt or .docx file",
+        description: "Please upload a .txt, .docx, or .mp3 file",
         variant: "destructive",
       });
       return;
+    }
+    
+    // Special handling notice for MP3 files
+    if (file.type === "audio/mpeg") {
+      toast({
+        title: "Processing audio file",
+        description: "Your audio file will be transcribed. This may take a moment...",
+        variant: "default",
+      });
     }
 
     try {

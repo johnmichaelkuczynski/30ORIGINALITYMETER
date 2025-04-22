@@ -135,22 +135,35 @@ export default function PassageInput({
     <Card className="flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div className="w-full">
+          <div className="w-full relative">
             <input
               type="text"
               placeholder={label ? `Passage ${label} Title (Optional)` : "Passage Title (Optional)"}
-              className="w-full border-0 p-0 focus:ring-0 bg-transparent text-secondary-800 font-medium placeholder-gray-400"
+              className="w-full border-0 p-0 focus:ring-0 bg-transparent text-secondary-800 font-medium placeholder-gray-400 pr-8"
               value={passage.title}
               onChange={handleTitleChange}
               disabled={disabled}
             />
+            {passage.title && !disabled && (
+              <button
+                type="button"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => onChange({ ...passage, title: "" })}
+                aria-label="Clear title"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M15 9l-6 6M9 9l6 6" />
+                </svg>
+              </button>
+            )}
           </div>
           <div className="ml-2 text-secondary-500 text-sm">
             <span>{wordCount}</span> words
           </div>
         </div>
       </div>
-      <CardContent className="p-4 flex-grow">
+      <CardContent className="p-4 flex-grow relative">
         <textarea
           rows={12}
           placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}
@@ -159,6 +172,19 @@ export default function PassageInput({
           onChange={handleTextChange}
           disabled={disabled}
         />
+        {passage.text && !disabled && (
+          <button
+            type="button"
+            className="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            onClick={() => onChange({ ...passage, text: "" })}
+            aria-label="Clear text"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M15 9l-6 6M9 9l6 6" />
+            </svg>
+          </button>
+        )}
       </CardContent>
       
       {/* File Upload with Drag and Drop */}
@@ -172,7 +198,7 @@ export default function PassageInput({
             } as unknown as React.ChangeEvent<HTMLInputElement>;
             handleFileUpload(syntheticEvent);
           }}
-          accept=".txt,.docx"
+          accept=".txt,.docx,.mp3"
           disabled={disabled}
           maxSizeInMB={20}
           className="bg-white"
@@ -185,7 +211,7 @@ export default function PassageInput({
         <input
           type="file"
           ref={fileInputRef}
-          accept=".txt,.docx"
+          accept=".txt,.docx,.mp3"
           onChange={handleFileUpload}
           className="hidden"
           disabled={disabled}
