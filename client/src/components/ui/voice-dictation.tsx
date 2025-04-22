@@ -97,25 +97,44 @@ export function VoiceDictation({
 
   const processAudioWithAssemblyAI = async (audioBlob: Blob) => {
     try {
-      // First upload the audio to AssemblyAI
+      // Convert to proper audio format if needed
+      // Note: webm is good for AssemblyAI, but we'll ensure it's properly named
+      console.log("Audio format:", audioBlob.type);
+      
+      // Create FormData with the audio blob
       const formData = new FormData();
-      formData.append('file', audioBlob, 'recording.webm');
+      
+      // Use a descriptive filename with the correct extension based on MIME type
+      let filename = 'recording.webm';
+      if (audioBlob.type === 'audio/wav') {
+        filename = 'recording.wav';
+      } else if (audioBlob.type === 'audio/mp3' || audioBlob.type === 'audio/mpeg') {
+        filename = 'recording.mp3';
+      }
+      
+      // Append to FormData with the correct filename
+      formData.append('file', audioBlob, filename);
       
       toast({
         title: "Processing audio",
         description: "Converting your speech to text...",
       });
       
+      console.log("Sending audio file to server for transcription...");
+      
+      // Send to our backend API
       const response = await fetch('/api/dictate', {
         method: 'POST',
         body: formData,
       });
       
       if (!response.ok) {
-        throw new Error('Failed to process audio');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process audio');
       }
       
       const data = await response.json();
+      console.log("Received transcription response:", data);
       
       if (data.text) {
         // Call callback with transcribed text

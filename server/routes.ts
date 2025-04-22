@@ -11,8 +11,8 @@ import path from "path";
 import { processFile } from "./lib/fileProcessing";
 import { processAudioFile } from "./lib/assemblyai";
 
-// Configure multer for file uploads
-const upload = multer({
+// Configure multer for document file uploads
+const documentUpload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 20 * 1024 * 1024, // 20MB limit
@@ -23,6 +23,22 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Only .txt, .docx, and .mp3 files are allowed'));
+    }
+  },
+});
+
+// Configure multer for audio dictation (less restrictive)
+const audioUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // For dictation, we only check the mimetype, not the extension
+    if (file.mimetype.startsWith('audio/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed for dictation'));
     }
   },
 });
@@ -501,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process uploaded file and return its content
-  app.post("/api/upload", upload.single('file'), async (req, res) => {
+  app.post("/api/upload", documentUpload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -529,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Process voice dictation and return the transcribed text
-  app.post("/api/dictate", upload.single('file'), async (req, res) => {
+  app.post("/api/dictate", audioUpload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No audio file uploaded" });
@@ -537,16 +553,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate that we're dealing with audio
       const contentType = req.file.mimetype;
+      console.log("Received dictation request with content type:", contentType);
+      console.log("Audio file details:", {
+        fieldname: req.file.fieldname, 
+        originalname: req.file.originalname, 
+        size: req.file.size,
+        buffer: req.file.buffer ? `${req.file.buffer.length} bytes` : 'None'
+      });
+      
       if (!contentType.startsWith('audio/')) {
         return res.status(400).json({ 
           message: "Invalid file type. Only audio files are accepted for dictation." 
         });
       }
 
-      console.log("Received dictation request, file type:", contentType);
-      
+      if (req.file.size === 0 || !req.file.buffer || req.file.buffer.length === 0) {
+        return res.status(400).json({ 
+          message: "Empty audio file. Please record audio before submitting." 
+        });
+      }
+
       // Process the audio file with AssemblyAI
+      console.log("Processing audio file through AssemblyAI...");
       const transcribedText = await processAudioFile(req.file);
+      console.log("Transcription result:", transcribedText);
       
       // Return the transcribed text
       res.json({ 
@@ -718,7 +748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Process uploaded file for supporting documents
-  app.post("/api/upload/supporting", upload.single('file'), async (req, res) => {
+  app.post("/api/upload/supporting", documentUpload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });

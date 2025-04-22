@@ -25,18 +25,21 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
     }
 
     console.log('Beginning AssemblyAI transcription...');
+    console.log('Audio buffer size:', audioBuffer.length, 'bytes');
     
     // Step 1: Upload the audio file to AssemblyAI
     const uploadResponse = await fetch('https://api.assemblyai.com/v2/upload', {
       method: 'POST',
       headers: {
         'Authorization': apiKey,
+        'Content-Type': 'application/octet-stream', // Explicitly set the content type
       },
       body: audioBuffer,
     });
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
+      console.error('Upload error response:', errorText);
       throw new Error(`Failed to upload audio: ${errorText}`);
     }
 
@@ -45,7 +48,7 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
     
     console.log('Audio uploaded successfully, audio URL:', audioUrl);
 
-    // Step 2: Start the transcription
+    // Step 2: Start the transcription with enhanced options
     const transcriptResponse = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
@@ -55,11 +58,16 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
       body: JSON.stringify({
         audio_url: audioUrl,
         language_code: 'en',
+        punctuate: true,          // Add punctuation
+        format_text: true,        // Format text with proper capitalization
+        filter_profanity: false,  // Don't filter profanity to maintain accuracy
+        auto_highlights: true,    // Identify important phrases
       }),
     });
 
     if (!transcriptResponse.ok) {
       const errorText = await transcriptResponse.text();
+      console.error('Transcription start error:', errorText);
       throw new Error(`Failed to start transcription: ${errorText}`);
     }
 
@@ -82,15 +90,18 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
 
       if (!pollingResponse.ok) {
         const errorText = await pollingResponse.text();
+        console.error('Polling error:', errorText);
         throw new Error(`Failed to poll transcription: ${errorText}`);
       }
 
       const pollingData = await pollingResponse.json() as TranscriptionResponse;
+      console.log(`Poll attempt ${i+1}, status: ${pollingData.status}`);
       
       if (pollingData.status === 'completed') {
         transcriptResult = pollingData;
         break;
       } else if (pollingData.status === 'error') {
+        console.error('Transcription error from AssemblyAI:', pollingData.error);
         throw new Error(`Transcription error: ${pollingData.error}`);
       }
 
@@ -103,6 +114,13 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
     }
 
     console.log('AssemblyAI transcription completed successfully');
+    console.log('Transcription text:', transcriptResult.text);
+    
+    if (transcriptResult.text.trim() === '') {
+      console.warn('Warning: Received empty transcription from AssemblyAI');
+      return "No speech detected. Please try again and speak clearly.";
+    }
+    
     return transcriptResult.text;
   } catch (error) {
     console.error('Error in AssemblyAI transcription:', error);
