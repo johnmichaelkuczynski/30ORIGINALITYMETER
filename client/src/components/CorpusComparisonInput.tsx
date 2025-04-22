@@ -224,14 +224,29 @@ export default function CorpusComparisonInput({
               <Label htmlFor="passageText" className="font-medium">
                 Passage Text
               </Label>
-              <Textarea
-                id="passageText"
-                placeholder="Enter or paste your passage text here"
-                value={passage.text}
-                onChange={handlePassageTextChange}
-                disabled={disabled}
-                className="min-h-[200px] resize-y mt-1"
-              />
+              <div className="relative">
+                <Textarea
+                  id="passageText"
+                  placeholder="Enter or paste your passage text here"
+                  value={passage.text}
+                  onChange={handlePassageTextChange}
+                  disabled={disabled}
+                  className="min-h-[200px] resize-y mt-1 pr-8"
+                />
+                {passage.text && !disabled && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-6 text-gray-400 hover:text-gray-600"
+                    onClick={() => onPassageChange({ ...passage, text: "" })}
+                    aria-label="Clear text"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="text-right">
@@ -263,14 +278,29 @@ export default function CorpusComparisonInput({
               <Label htmlFor="corpusTitle" className="font-medium">
                 Corpus Title
               </Label>
-              <Input
-                id="corpusTitle"
-                placeholder="E.g., 'Nietzsche's Complete Works' or 'Course Textbook'"
-                value={corpus.title}
-                onChange={handleCorpusTitleChange}
-                disabled={disabled || isUploading}
-                className="mt-1"
-              />
+              <div className="relative">
+                <Input
+                  id="corpusTitle"
+                  placeholder="E.g., 'Nietzsche's Complete Works' or 'Course Textbook'"
+                  value={corpus.title}
+                  onChange={handleCorpusTitleChange}
+                  disabled={disabled || isUploading}
+                  className="mt-1 pr-8"
+                />
+                {corpus.title && !disabled && !isUploading && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onClick={() => onCorpusChange({ ...corpus, title: "" })}
+                    aria-label="Clear title"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="border-t border-b border-dashed border-gray-200 py-4">
@@ -299,14 +329,29 @@ export default function CorpusComparisonInput({
               <Label htmlFor="corpusText" className="font-medium">
                 Corpus Text
               </Label>
-              <Textarea
-                id="corpusText"
-                placeholder="Enter or paste the reference corpus text here"
-                value={corpus.text}
-                onChange={handleCorpusTextChange}
-                disabled={disabled || isUploading}
-                className="min-h-[200px] resize-y mt-1"
-              />
+              <div className="relative">
+                <Textarea
+                  id="corpusText"
+                  placeholder="Enter or paste the reference corpus text here"
+                  value={corpus.text}
+                  onChange={handleCorpusTextChange}
+                  disabled={disabled || isUploading}
+                  className="min-h-[200px] resize-y mt-1 pr-8"
+                />
+                {corpus.text && !disabled && !isUploading && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-6 text-gray-400 hover:text-gray-600"
+                    onClick={() => onCorpusChange({ ...corpus, text: "" })}
+                    aria-label="Clear text"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
             
             <div className="flex justify-between items-center">
