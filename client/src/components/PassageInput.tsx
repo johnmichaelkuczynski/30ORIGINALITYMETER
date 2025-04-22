@@ -57,13 +57,22 @@ export default function PassageInput({
 
     // Check file type
     const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (fileType !== 'txt' && fileType !== 'docx') {
+    if (fileType !== 'txt' && fileType !== 'docx' && fileType !== 'mp3') {
       toast({
         title: "Unsupported file format",
-        description: "Please upload a .txt or .docx file",
+        description: "Please upload a .txt, .docx, or .mp3 file",
         variant: "destructive",
       });
       return;
+    }
+    
+    // Special handling notice for MP3 files
+    if (fileType === 'mp3') {
+      toast({
+        title: "Processing audio file",
+        description: "Your audio file will be transcribed. This may take a moment...",
+        variant: "default",
+      });
     }
 
     // Create form data to send to the server

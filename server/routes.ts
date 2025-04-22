@@ -18,10 +18,10 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.txt' || ext === '.docx') {
+    if (ext === '.txt' || ext === '.docx' || ext === '.mp3') {
       cb(null, true);
     } else {
-      cb(new Error('Only .txt and .docx files are allowed'));
+      cb(new Error('Only .txt, .docx, and .mp3 files are allowed'));
     }
   },
 });
