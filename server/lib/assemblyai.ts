@@ -4,7 +4,37 @@ import os from 'os';
 
 // Check for AssemblyAI API key
 const apiKey = process.env.ASSEMBLYAI_API_KEY;
-console.log("AssemblyAI API Key status:", apiKey ? "Present" : "Missing");
+console.log("AssemblyAI API Key status:", apiKey ? `Present (${apiKey.substring(0, 5)}...)` : "Missing");
+
+// Add a verification function to test the API key
+export async function verifyAssemblyAIApiKey(): Promise<boolean> {
+  try {
+    if (!apiKey) {
+      console.error("AssemblyAI API key is not configured");
+      return false;
+    }
+
+    // Make a simple API call to verify the key works
+    const response = await fetch('https://api.assemblyai.com/v2/transcript', {
+      method: 'GET',
+      headers: {
+        'Authorization': apiKey
+      }
+    });
+
+    if (response.ok) {
+      console.log("AssemblyAI API key verified successfully");
+      return true;
+    } else {
+      const errorBody = await response.text();
+      console.error("AssemblyAI API key verification failed:", errorBody);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error verifying AssemblyAI API key:", error);
+    return false;
+  }
+}
 
 interface TranscriptionResponse {
   id: string;

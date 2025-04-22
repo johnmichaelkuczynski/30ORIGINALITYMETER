@@ -9,7 +9,7 @@ import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { processFile } from "./lib/fileProcessing";
-import { processAudioFile } from "./lib/assemblyai";
+import { processAudioFile, verifyAssemblyAIApiKey } from "./lib/assemblyai";
 
 // Configure multer for document file uploads
 const documentUpload = multer({
@@ -44,6 +44,31 @@ const audioUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Test the AssemblyAI connection
+  app.get("/api/test/assemblyai", async (_req, res) => {
+    try {
+      const isValid = await verifyAssemblyAIApiKey();
+      if (isValid) {
+        res.json({ 
+          success: true,
+          message: "AssemblyAI API key is valid and working" 
+        });
+      } else {
+        res.status(401).json({ 
+          success: false,
+          message: "AssemblyAI API key is invalid or API is unavailable" 
+        });
+      }
+    } catch (error) {
+      console.error("Error testing AssemblyAI API:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Error testing AssemblyAI connection",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
   // Analyze two passages
   app.post("/api/analyze", async (req, res) => {
     try {
