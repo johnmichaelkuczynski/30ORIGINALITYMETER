@@ -199,7 +199,18 @@ export default function CorpusComparisonInput({
             </div>
 
             <div className="border-t border-b border-dashed border-gray-200 py-4">
-              <Label className="font-medium mb-2 block">Upload Passage File</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="font-medium block">Upload Passage File</Label>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onPassageChange({ title: "", text: "" })}
+                  disabled={disabled || (!passage.title && !passage.text)}
+                >
+                  Clear All
+                </Button>
+              </div>
               <FileDropzone
                 onFileSelect={(file) => {
                   // Create a synthetic event with minimal properties needed
@@ -304,7 +315,18 @@ export default function CorpusComparisonInput({
             </div>
 
             <div className="border-t border-b border-dashed border-gray-200 py-4">
-              <Label className="font-medium mb-2 block">Upload Reference Corpus</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="font-medium block">Upload Reference Corpus</Label>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onCorpusChange({ title: "", text: "" })}
+                  disabled={disabled || isUploading || (!corpus.title && !corpus.text)}
+                >
+                  Clear All
+                </Button>
+              </div>
               <FileDropzone
                 onFileSelect={(file) => {
                   // Create a synthetic event with minimal properties needed

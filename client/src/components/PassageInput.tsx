@@ -189,23 +189,36 @@ export default function PassageInput({
       
       {/* File Upload with Drag and Drop */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-        <FileDropzone
-          onFileSelect={(file) => {
-            // Create a synthetic event that has the minimal properties needed
-            const syntheticEvent = {
-              target: { files: [file] },
-              preventDefault: () => {}
-            } as unknown as React.ChangeEvent<HTMLInputElement>;
-            handleFileUpload(syntheticEvent);
-          }}
-          accept=".txt,.docx,.mp3"
-          disabled={disabled}
-          maxSizeInMB={20}
-          className="bg-white"
-          showFileInput={false}
-          showButton={true}
-          buttonText="Upload File"
-        />
+        <div className="flex items-center justify-between mb-2">
+          <FileDropzone
+            onFileSelect={(file) => {
+              // Create a synthetic event that has the minimal properties needed
+              const syntheticEvent = {
+                target: { files: [file] },
+                preventDefault: () => {}
+              } as unknown as React.ChangeEvent<HTMLInputElement>;
+              handleFileUpload(syntheticEvent);
+            }}
+            accept=".txt,.docx,.mp3"
+            disabled={disabled}
+            maxSizeInMB={20}
+            className="bg-white"
+            showFileInput={false}
+            showButton={true}
+            buttonText="Upload File"
+          />
+          
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={() => onChange({ ...passage, title: "", text: "" })}
+            disabled={disabled || (!passage.title && !passage.text)}
+            className="ml-2"
+          >
+            Clear All
+          </Button>
+        </div>
         
         {/* Keep the hidden input for backward compatibility */}
         <input
