@@ -173,14 +173,29 @@ export default function CorpusComparisonInput({
               <Label htmlFor="passageTitle" className="font-medium">
                 Title (Optional)
               </Label>
-              <Input
-                id="passageTitle"
-                placeholder="Enter a title for your passage"
-                value={passage.title}
-                onChange={handlePassageTitleChange}
-                disabled={disabled}
-                className="mt-1"
-              />
+              <div className="relative">
+                <Input
+                  id="passageTitle"
+                  placeholder="Enter a title for your passage"
+                  value={passage.title}
+                  onChange={handlePassageTitleChange}
+                  disabled={disabled}
+                  className="mt-1 pr-8"
+                />
+                {passage.title && !disabled && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onClick={() => onPassageChange({ ...passage, title: "" })}
+                    aria-label="Clear title"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="border-t border-b border-dashed border-gray-200 py-4">
@@ -194,7 +209,7 @@ export default function CorpusComparisonInput({
                   } as unknown as ChangeEvent<HTMLInputElement>;
                   handleFileUpload(syntheticEvent, true);
                 }}
-                accept=".txt,.docx" 
+                accept=".txt,.docx,.mp3" 
                 disabled={disabled}
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
@@ -269,7 +284,7 @@ export default function CorpusComparisonInput({
                   } as unknown as ChangeEvent<HTMLInputElement>;
                   handleFileUpload(syntheticEvent);
                 }}
-                accept=".txt,.docx" 
+                accept=".txt,.docx,.mp3" 
                 disabled={disabled}
                 isUploading={isUploading}
                 uploadProgress={uploadProgress}
