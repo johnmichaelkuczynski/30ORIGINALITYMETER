@@ -9,6 +9,7 @@ import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { processFile } from "./lib/fileProcessing";
+import { processAudioFile } from "./lib/assemblyai";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -523,6 +524,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         message: "Failed to process file",
         error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+  
+  // Process voice dictation and return the transcribed text
+  app.post("/api/dictate", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No audio file uploaded" });
+      }
+
+      // Validate that we're dealing with audio
+      const contentType = req.file.mimetype;
+      if (!contentType.startsWith('audio/')) {
+        return res.status(400).json({ 
+          message: "Invalid file type. Only audio files are accepted for dictation." 
+        });
+      }
+
+      console.log("Received dictation request, file type:", contentType);
+      
+      // Process the audio file with AssemblyAI
+      const transcribedText = await processAudioFile(req.file);
+      
+      // Return the transcribed text
+      res.json({ 
+        text: transcribedText,
+        success: true 
+      });
+    } catch (error) {
+      console.error("Error processing dictation:", error);
+      res.status(500).json({
+        message: "Failed to process dictation",
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false
       });
     }
   });

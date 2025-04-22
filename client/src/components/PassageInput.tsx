@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { FileDropzone } from "@/components/ui/file-dropzone";
+import { VoiceDictation } from "@/components/ui/voice-dictation";
 
 interface PassageInputProps {
   passage: PassageData;
