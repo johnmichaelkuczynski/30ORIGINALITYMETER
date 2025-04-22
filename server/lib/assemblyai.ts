@@ -44,17 +44,18 @@ interface TranscriptionResponse {
 }
 
 /**
- * Transcribes audio using AssemblyAI's API
+ * Transcribes audio using AssemblyAI's API with optimizations for streaming
  * @param audioBuffer - Audio file as a buffer
+ * @param isStreaming - If true, use faster options for real-time streaming
  * @returns Promise containing the transcribed text
  */
-export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promise<string> {
+export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer, isStreaming: boolean = false): Promise<string> {
   try {
     if (!apiKey) {
       throw new Error("AssemblyAI API key is not configured");
     }
 
-    console.log('Beginning AssemblyAI transcription...');
+    console.log(`Beginning AssemblyAI transcription${isStreaming ? ' (streaming mode)' : ''}...`);
     console.log('Audio buffer size:', audioBuffer.length, 'bytes');
     
     // Step 1: Upload the audio file to AssemblyAI
@@ -79,20 +80,25 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
     console.log('Audio uploaded successfully, audio URL:', audioUrl);
 
     // Step 2: Start the transcription with enhanced options
+    // For streaming, we use more optimized settings for faster processing
+    const transcriptionOptions = {
+      audio_url: audioUrl,
+      language_code: 'en',
+      punctuate: !isStreaming, // Only add punctuation in full mode
+      format_text: !isStreaming, // Format text only in full mode
+      filter_profanity: false,  // Don't filter profanity to maintain accuracy
+      // Streaming mode gets faster but less accurate results
+      // Note: whisper-fast model might not exist, using standard model
+      auto_highlights: !isStreaming
+    };
+
     const transcriptResponse = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
         'Authorization': apiKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        audio_url: audioUrl,
-        language_code: 'en',
-        punctuate: true,          // Add punctuation
-        format_text: true,        // Format text with proper capitalization
-        filter_profanity: false,  // Don't filter profanity to maintain accuracy
-        auto_highlights: true,    // Identify important phrases
-      }),
+      body: JSON.stringify(transcriptionOptions),
     });
 
     if (!transcriptResponse.ok) {
@@ -109,8 +115,11 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
     // Step 3: Poll the transcription status until it's done
     let transcriptResult: TranscriptionResponse | null = null;
     
-    // Maximum 60 seconds of polling (120 attempts * 500ms)
-    for (let i = 0; i < 120; i++) {
+    // Streaming mode uses fewer polling attempts and shorter intervals for faster response
+    const maxAttempts = isStreaming ? 60 : 120; // 30 seconds for streaming, 60 seconds for full
+    const pollingInterval = isStreaming ? 250 : 500; // 250ms for streaming, 500ms for full
+    
+    for (let i = 0; i < maxAttempts; i++) {
       const pollingResponse = await fetch(`https://api.assemblyai.com/v2/transcript/${transcriptId}`, {
         method: 'GET',
         headers: {
@@ -135,25 +144,30 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
         throw new Error(`Transcription error: ${pollingData.error}`);
       }
 
-      // Wait 500ms before polling again
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // For streaming mode, if we're taking too long, we might want to timeout sooner
+      if (isStreaming && i > 30) { // After 7.5 seconds in streaming mode
+        throw new Error('Streaming transcription taking too long, aborting');
+      }
+
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, pollingInterval));
     }
 
     if (!transcriptResult) {
       throw new Error('Transcription timed out');
     }
 
-    console.log('AssemblyAI transcription completed successfully');
+    console.log(`AssemblyAI transcription completed successfully${isStreaming ? ' (streaming mode)' : ''}`);
     console.log('Transcription text:', transcriptResult.text);
     
     if (transcriptResult.text.trim() === '') {
       console.warn('Warning: Received empty transcription from AssemblyAI');
-      return "No speech detected. Please try again and speak clearly.";
+      return isStreaming ? "" : "No speech detected. Please try again and speak clearly.";
     }
     
     return transcriptResult.text;
   } catch (error) {
-    console.error('Error in AssemblyAI transcription:', error);
+    console.error(`Error in AssemblyAI transcription${isStreaming ? ' (streaming mode)' : ''}:`, error);
     throw error;
   }
 }
@@ -161,15 +175,16 @@ export async function transcribeAudioWithAssemblyAI(audioBuffer: Buffer): Promis
 /**
  * Process an audio file from a multipart/form-data request
  * @param file - The file from the request
+ * @param isStreaming - If true, use faster options for real-time streaming
  * @returns Promise containing the transcribed text
  */
-export async function processAudioFile(file: Express.Multer.File): Promise<string> {
+export async function processAudioFile(file: Express.Multer.File, isStreaming: boolean = false): Promise<string> {
   try {
     // Transcribe the audio content
-    const transcribedText = await transcribeAudioWithAssemblyAI(file.buffer);
+    const transcribedText = await transcribeAudioWithAssemblyAI(file.buffer, isStreaming);
     return transcribedText;
   } catch (error) {
-    console.error('Error processing audio file:', error);
+    console.error(`Error processing audio file${isStreaming ? ' (streaming mode)' : ''}:`, error);
     throw error;
   }
 }
