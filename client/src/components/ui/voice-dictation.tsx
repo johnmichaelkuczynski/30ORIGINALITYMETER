@@ -61,13 +61,29 @@ export function VoiceDictation({
         return; // Skip tiny chunks
       }
       
+      // Set flag to indicate we're processing transcription
       setIsStreamingTranscription(true);
       console.log(`Processing audio chunk of size ${blob.size} bytes for streaming transcription`);
       
       // Create a form data object with the audio chunk
       const formData = new FormData();
-      formData.append('file', new File([blob], 'chunk.webm', { type: 'audio/webm' }));
+      
+      // Important: Set the correct file type based on the blob's type
+      // RecordRTC often uses audio/wav format
+      const fileType = blob.type || 'audio/webm'; 
+      const fileName = fileType.includes('wav') ? 'chunk.wav' : 'chunk.webm';
+      
+      // Create a proper File object from the blob
+      const file = new File([blob], fileName, { 
+        type: fileType,
+        lastModified: Date.now()
+      });
+      
+      // Append file to form data
+      formData.append('file', file);
       formData.append('streaming', 'true'); // Indicate this is for streaming
+      
+      console.log(`Sending audio chunk (${fileName}, ${fileType}) for real-time streaming...`);
       
       // Send to our backend streaming endpoint
       const response = await fetch('/api/dictate/stream', {
@@ -76,31 +92,45 @@ export function VoiceDictation({
       });
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Streaming API error:", errorText);
         throw new Error(`Streaming transcription failed: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log("Stream transcription response:", data);
       
       if (data.text) {
-        console.log("Streaming transcription result:", data.text);
+        console.log("📝 Live transcription received:", data.text);
+        
         setLiveTranscript(prevText => {
-          // If this is the first chunk or a restart, just use the new text
-          if (!prevText) return data.text;
+          // Display a typing indicator briefly to show the user something is happening
+          const newText = data.text.trim();
           
-          // Otherwise, append unique content avoiding duplications
-          // This is a simple approach - in production, you'd want a more sophisticated text merger
-          if (data.text.length > prevText.length && data.text.includes(prevText)) {
-            return data.text; // New text contains old text, use the new one
-          } else {
-            // Add a space if needed
-            const needsSpace = !prevText.endsWith(' ') && !data.text.startsWith(' ');
-            return prevText + (needsSpace ? ' ' : '') + data.text;
+          // If this is the first chunk or restart, just use the new text
+          if (!prevText) return newText;
+          
+          // If the new text is a continuation of the previous text, use the longer one
+          if (newText.includes(prevText)) {
+            return newText;
+          } 
+          
+          // If the previous text is a substring of the new, use the new text
+          if (prevText.includes(newText)) {
+            return prevText;
           }
+          
+          // Otherwise append with a space if needed (basic text merging approach)
+          const needsSpace = !prevText.endsWith(' ') && !newText.startsWith(' ');
+          return prevText + (needsSpace ? ' ' : '') + newText;
         });
+      } else {
+        console.log("No transcription text in streaming response");
       }
     } catch (error) {
       console.error("Error in streaming transcription:", error);
     } finally {
+      // Reset streaming flag so next chunk can be processed
       setIsStreamingTranscription(false);
     }
   };
@@ -155,15 +185,19 @@ export function VoiceDictation({
       // Store the media stream for later cleanup
       streamRef.current = mediaStream;
       
-      // Create a new recorder instance with simplified options
+      // Create a new recorder instance with optimized options for real-time transcription
+      // Define options to use for the recorder with optimal settings for real-time transcription
       const recorderOptions = {
-        type: 'audio',
+        type: 'audio' as 'audio', // Must be exactly 'audio' for TypeScript
         mimeType: 'audio/webm', // Standard format supported in most browsers
         recorderType: RecordRTC.StereoAudioRecorder,
-        numberOfAudioChannels: 1, // mono for voice
-        sampleRate: 44100, // Standard high quality
-        timeSlice: 3000, // Get chunks every 3 seconds
-        disableLogs: false
+        numberOfAudioChannels: 1, // mono for voice (smaller file size, faster)
+        sampleRate: 16000, // Lower for speech recognition
+        timeSlice: 2000, // Get chunks more frequently for better real-time experience
+        disableLogs: false,
+        // Added for better performance in streaming scenarios
+        desiredSampRate: 16000, // This is a good rate for speech recognition
+        bufferSize: 8192 // Smaller buffer means more frequent processing
       };
       
       console.log("Creating RecordRTC instance with options:", recorderOptions);
@@ -177,6 +211,8 @@ export function VoiceDictation({
       setIsPreparing(false);
       
       // Simple polling approach that should work across browsers
+      // We'll use a shorter interval of 2s to match the timeSlice setting
+      // This gives us more real-time updates
       const chunkInterval = window.setInterval(() => {
         if (!recorderRef.current) return;
         
@@ -209,7 +245,7 @@ export function VoiceDictation({
               return;
             }
             
-            console.log("Audio chunk available, size:", blob.size);
+            console.log("Audio chunk available, size:", blob.size, "bytes, type:", blob.type || "unknown");
             recordingChunksRef.current.push(blob);
             
             // Keep only the last 5 chunks
@@ -218,15 +254,22 @@ export function VoiceDictation({
             }
             
             // Process this chunk if we're not already transcribing
-            if (!isStreamingTranscription && blob.size > 1000) {
-              const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+            // We reduced the minimum size to be more responsive
+            if (!isStreamingTranscription && blob.size > 500) {
+              const combinedBlob = new Blob(recordingChunksRef.current, { 
+                type: blob.type || 'audio/webm' 
+              });
               processAudioChunk(combinedBlob);
+            } else if (isStreamingTranscription) {
+              console.log("Skipping processing - transcription already in progress");
+            } else if (blob.size <= 500) {
+              console.log("Skipping processing - audio chunk too small");
             }
           });
         } catch (err) {
           console.error("Error in audio chunking:", err);
         }
-      }, 3000);
+      }, 2000); // Reduced to 2 seconds for more real-time feedback
       
       // Store interval reference for cleanup
       recordingIntervalRef.current = chunkInterval;
