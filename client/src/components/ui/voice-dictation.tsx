@@ -112,76 +112,119 @@ export function VoiceDictation({
     clearLiveTranscription(); // Reset any previous streaming text
     
     try {
-      console.log("Requesting microphone access...");
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("Microphone access granted. Audio tracks:", mediaStream.getAudioTracks().length);
+      console.log("Checking browser compatibility...");
+      
+      // First, check if the browser supports getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error(
+          "Your browser doesn't support audio recording. " +
+          "Please try using Chrome, Firefox, or Edge."
+        );
+      }
+      
+      console.log("Browser supports getUserMedia. Requesting microphone access...");
+      
+      // Request microphone access with more specific constraints for better compatibility
+      const constraints = {
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      };
+      
+      // Try to get microphone access with a timeout
+      const mediaStream = await Promise.race([
+        navigator.mediaDevices.getUserMedia(constraints),
+        new Promise<MediaStream>((_, reject) => {
+          setTimeout(() => reject(new Error("Microphone access timed out")), 10000);
+        })
+      ]) as MediaStream;
+      
+      // Check if we actually got audio tracks
+      const audioTracks = mediaStream.getAudioTracks();
+      console.log("Microphone access granted. Audio tracks:", audioTracks.length);
+      
+      if (audioTracks.length === 0) {
+        throw new Error("No audio track was detected from your microphone");
+      }
+      
+      // Log detailed info about the audio track to help with debugging
+      console.log("Audio track info:", audioTracks[0].getSettings());
       
       // Store the media stream for later cleanup
       streamRef.current = mediaStream;
       
-      // Create a new recorder instance with the media stream
-      recorderRef.current = new RecordRTC(mediaStream, {
+      // Create a new recorder instance with simplified options
+      const recorderOptions = {
         type: 'audio',
-        mimeType: 'audio/webm',
+        mimeType: 'audio/webm', // Standard format supported in most browsers
         recorderType: RecordRTC.StereoAudioRecorder,
         numberOfAudioChannels: 1, // mono for voice
-        sampleRate: 44100, // High quality
-        desiredSampRate: 16000, // Better for speech recognition
-        bufferSize: 16384, // larger buffer for more stable recording
-        timeSlice: 3000, // Get a chunk every 3 seconds for real-time transcription
-      });
+        sampleRate: 44100, // Standard high quality
+        timeSlice: 3000, // Get chunks every 3 seconds
+        disableLogs: false
+      };
+      
+      console.log("Creating RecordRTC instance with options:", recorderOptions);
+      recorderRef.current = new RecordRTC(mediaStream, recorderOptions);
       
       // Start recording
+      console.log("Starting recording...");
       recorderRef.current.startRecording();
+      
       setIsRecording(true);
       setIsPreparing(false);
       
-      // Set up a manual interval to get chunks from the recorder
+      // Simple polling approach that should work across browsers
       const chunkInterval = window.setInterval(() => {
-        if (recorderRef.current) {
-          try {
-            // Using the RecordRTC instance directly with type assertion
-            const recorder = recorderRef.current as any;
-            
-            if (recorder && typeof recorder.getState === 'function' && recorder.getState() === 'recording') {
-              if (typeof recorder.getInternalRecorder === 'function') {
-                const internalRecorder = recorder.getInternalRecorder();
-                
-                if (internalRecorder && typeof internalRecorder.requestData === 'function') {
-                  internalRecorder.requestData((blob: Blob) => {
-                    if (blob && blob.size > 0) {
-                      console.log("Audio chunk available, size:", blob.size);
-                      recordingChunksRef.current.push(blob);
-                      
-                      // Keep only the last 5 chunks to avoid memory issues
-                      if (recordingChunksRef.current.length > 5) {
-                        recordingChunksRef.current = recordingChunksRef.current.slice(-5);
-                      }
-                      
-                      // Process the latest chunk if we have enough data
-                      if (recordingChunksRef.current.length > 0 && !isStreamingTranscription) {
-                        try {
-                          // Combine chunks into one blob for transcription
-                          const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
-                          if (combinedBlob.size > 1000) { // Only process if we have meaningful data
-                            processAudioChunk(combinedBlob);
-                          }
-                        } catch (err) {
-                          console.error("Error processing audio chunks:", err);
-                        }
-                      }
-                    }
-                  });
-                } else {
-                  console.error("internalRecorder.requestData is not a function");
-                }
-              } else {
-                console.error("recorder.getInternalRecorder is not a function");
-              }
-            }
-          } catch (err) {
-            console.error("Error in chunking interval:", err);
+        if (!recorderRef.current) return;
+        
+        try {
+          // Cast to any to bypass TypeScript strictness
+          const recorder = recorderRef.current as any;
+          
+          // First check if we can get the state
+          if (!recorder.getState || recorder.getState() !== 'recording') {
+            console.log("Recorder not in recording state, skipping chunk collection");
+            return;
           }
+          
+          // Then try to get data through the internal recorder
+          if (!recorder.getInternalRecorder) {
+            console.error("Recorder has no getInternalRecorder method");
+            return;
+          }
+          
+          const internalRecorder = recorder.getInternalRecorder();
+          if (!internalRecorder || !internalRecorder.requestData) {
+            console.error("Internal recorder missing or has no requestData method");
+            return;
+          }
+          
+          // Request the audio data
+          internalRecorder.requestData((blob: Blob) => {
+            if (!blob || blob.size === 0) {
+              console.log("Empty audio chunk received");
+              return;
+            }
+            
+            console.log("Audio chunk available, size:", blob.size);
+            recordingChunksRef.current.push(blob);
+            
+            // Keep only the last 5 chunks
+            if (recordingChunksRef.current.length > 5) {
+              recordingChunksRef.current = recordingChunksRef.current.slice(-5);
+            }
+            
+            // Process this chunk if we're not already transcribing
+            if (!isStreamingTranscription && blob.size > 1000) {
+              const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+              processAudioChunk(combinedBlob);
+            }
+          });
+        } catch (err) {
+          console.error("Error in audio chunking:", err);
         }
       }, 3000);
       
