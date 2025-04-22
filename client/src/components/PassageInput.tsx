@@ -188,26 +188,49 @@ export default function PassageInput({
         )}
       </CardContent>
       
-      {/* File Upload with Drag and Drop */}
+      {/* File Upload and Dictation Controls */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-        <div className="flex items-center justify-between mb-2">
-          <FileDropzone
-            onFileSelect={(file) => {
-              // Create a synthetic event that has the minimal properties needed
-              const syntheticEvent = {
-                target: { files: [file] },
-                preventDefault: () => {}
-              } as unknown as React.ChangeEvent<HTMLInputElement>;
-              handleFileUpload(syntheticEvent);
-            }}
-            accept=".txt,.docx,.mp3"
-            disabled={disabled}
-            maxSizeInMB={20}
-            className="bg-white"
-            showFileInput={false}
-            showButton={true}
-            buttonText="Upload File"
-          />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-wrap gap-2">
+            <FileDropzone
+              onFileSelect={(file) => {
+                // Create a synthetic event that has the minimal properties needed
+                const syntheticEvent = {
+                  target: { files: [file] },
+                  preventDefault: () => {}
+                } as unknown as React.ChangeEvent<HTMLInputElement>;
+                handleFileUpload(syntheticEvent);
+              }}
+              accept=".txt,.docx,.mp3"
+              disabled={disabled}
+              maxSizeInMB={20}
+              className="bg-white"
+              showFileInput={false}
+              showButton={true}
+              buttonText="Upload File"
+            />
+            
+            {/* Voice Dictation Component */}
+            <VoiceDictation
+              onTranscriptionComplete={(text) => {
+                // Append the dictated text to the existing text with a space if needed
+                const updatedText = passage.text 
+                  ? passage.text.trim() + (passage.text.endsWith('.') ? ' ' : '. ') + text
+                  : text;
+                
+                onChange({
+                  ...passage,
+                  text: updatedText,
+                });
+                
+                toast({
+                  title: "Dictation added",
+                  description: "Your dictated text has been added to the passage.",
+                });
+              }}
+              disabled={disabled}
+            />
+          </div>
           
           <Button
             type="button"

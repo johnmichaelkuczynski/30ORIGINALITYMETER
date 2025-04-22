@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { FileDropzone } from "@/components/ui/file-dropzone";
+import { VoiceDictation } from "@/components/ui/voice-dictation";
 
 interface CorpusComparisonInputProps {
   passage: {
@@ -211,24 +212,49 @@ export default function CorpusComparisonInput({
                   Clear All
                 </Button>
               </div>
-              <FileDropzone
-                onFileSelect={(file) => {
-                  // Create a synthetic event with minimal properties needed
-                  const syntheticEvent = {
-                    target: { files: [file] },
-                    preventDefault: () => {}
-                  } as unknown as ChangeEvent<HTMLInputElement>;
-                  handleFileUpload(syntheticEvent, true);
-                }}
-                accept=".txt,.docx,.mp3" 
-                disabled={disabled}
-                isUploading={isUploading}
-                uploadProgress={uploadProgress}
-                maxSizeInMB={20}
-                className="bg-white"
-                showButton={true}
-                buttonText="Upload Passage File"
-              />
+              <div className="flex flex-col space-y-2">
+                <FileDropzone
+                  onFileSelect={(file) => {
+                    // Create a synthetic event with minimal properties needed
+                    const syntheticEvent = {
+                      target: { files: [file] },
+                      preventDefault: () => {}
+                    } as unknown as ChangeEvent<HTMLInputElement>;
+                    handleFileUpload(syntheticEvent, true);
+                  }}
+                  accept=".txt,.docx,.mp3" 
+                  disabled={disabled}
+                  isUploading={isUploading}
+                  uploadProgress={uploadProgress}
+                  maxSizeInMB={20}
+                  className="bg-white"
+                  showButton={true}
+                  buttonText="Upload Passage File"
+                />
+                
+                {/* Voice Dictation for Passage */}
+                <div className="mt-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      // Append the dictated text to the existing text with a space if needed
+                      const updatedText = passage.text 
+                        ? passage.text.trim() + (passage.text.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      
+                      onPassageChange({
+                        ...passage,
+                        text: updatedText,
+                      });
+                      
+                      toast({
+                        title: "Dictation added to passage",
+                        description: "Your dictated text has been added to the passage.",
+                      });
+                    }}
+                    disabled={disabled || isUploading}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
@@ -327,24 +353,49 @@ export default function CorpusComparisonInput({
                   Clear All
                 </Button>
               </div>
-              <FileDropzone
-                onFileSelect={(file) => {
-                  // Create a synthetic event with minimal properties needed
-                  const syntheticEvent = {
-                    target: { files: [file] },
-                    preventDefault: () => {}
-                  } as unknown as ChangeEvent<HTMLInputElement>;
-                  handleFileUpload(syntheticEvent);
-                }}
-                accept=".txt,.docx,.mp3" 
-                disabled={disabled}
-                isUploading={isUploading}
-                uploadProgress={uploadProgress}
-                maxSizeInMB={20}
-                className="bg-white"
-                showButton={true}
-                buttonText="Upload Corpus File"
-              />
+              <div className="flex flex-col space-y-2">
+                <FileDropzone
+                  onFileSelect={(file) => {
+                    // Create a synthetic event with minimal properties needed
+                    const syntheticEvent = {
+                      target: { files: [file] },
+                      preventDefault: () => {}
+                    } as unknown as ChangeEvent<HTMLInputElement>;
+                    handleFileUpload(syntheticEvent);
+                  }}
+                  accept=".txt,.docx,.mp3" 
+                  disabled={disabled}
+                  isUploading={isUploading}
+                  uploadProgress={uploadProgress}
+                  maxSizeInMB={20}
+                  className="bg-white"
+                  showButton={true}
+                  buttonText="Upload Corpus File"
+                />
+                
+                {/* Voice Dictation for Corpus */}
+                <div className="mt-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      // Append the dictated text to the existing text with a space if needed
+                      const updatedText = corpus.text 
+                        ? corpus.text.trim() + (corpus.text.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      
+                      onCorpusChange({
+                        ...corpus,
+                        text: updatedText,
+                      });
+                      
+                      toast({
+                        title: "Dictation added to corpus",
+                        description: "Your dictated text has been added to the reference corpus.",
+                      });
+                    }}
+                    disabled={disabled || isUploading}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
