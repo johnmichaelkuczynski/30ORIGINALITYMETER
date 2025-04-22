@@ -617,6 +617,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Process real-time streaming voice dictation
+  app.post("/api/dictate/stream", audioUpload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No audio chunk uploaded" });
+      }
+
+      // Validate that we're dealing with audio
+      const contentType = req.file.mimetype;
+      console.log("Received streaming dictation chunk with content type:", contentType);
+      console.log("Audio chunk details:", {
+        fieldname: req.file.fieldname, 
+        originalname: req.file.originalname, 
+        size: req.file.size,
+        isPartial: req.body.isPartial || false
+      });
+      
+      if (!contentType.startsWith('audio/')) {
+        return res.status(400).json({ 
+          message: "Invalid file type. Only audio files are accepted for dictation." 
+        });
+      }
+
+      if (req.file.size === 0 || !req.file.buffer || req.file.buffer.length === 0) {
+        return res.status(200).json({ 
+          text: "",
+          success: true,
+          message: "Empty audio chunk, no transcription performed" 
+        });
+      }
+      
+      // If the audio chunk is too small, we might want to skip transcription
+      if (req.file.size < 1000) {  // Less than 1KB
+        console.log("Audio chunk too small for transcription, skipping");
+        return res.status(200).json({ 
+          text: "",
+          success: true,
+          message: "Audio chunk too small, no transcription performed" 
+        });
+      }
+
+      // Process the audio file with AssemblyAI - use true for streaming mode
+      console.log("Processing audio chunk through AssemblyAI for real-time streaming...");
+      const transcribedText = await processAudioFile(req.file, true);
+      console.log("Streaming transcription result:", transcribedText);
+      
+      // Return the transcribed text
+      res.json({ 
+        text: transcribedText,
+        success: true 
+      });
+    } catch (error) {
+      console.error("Error processing streaming dictation:", error);
+      
+      // For streaming endpoints, we don't want to fail the entire UI
+      // Instead, return an empty result with success=true
+      res.status(200).json({
+        text: "",
+        success: true,
+        message: "Transcription error, will retry with next chunk"
+      });
+    }
+  });
 
   // Submit feedback on an analysis
   app.post("/api/feedback", async (req, res) => {

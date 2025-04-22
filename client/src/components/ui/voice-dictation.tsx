@@ -18,19 +18,93 @@ export function VoiceDictation({
   const [isRecording, setIsRecording] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [isStreamingTranscription, setIsStreamingTranscription] = useState(false);
+  
+  // Refs for tracking recording state and objects
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<number | null>(null);
+  const transcriptionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Clean up on component unmount
     return () => {
+      clearLiveTranscription();
       stopRecording(false);
     };
   }, []);
+  
+  // Clear any pending transcription requests and intervals
+  const clearLiveTranscription = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    
+    if (transcriptionTimeoutRef.current) {
+      clearTimeout(transcriptionTimeoutRef.current);
+      transcriptionTimeoutRef.current = null;
+    }
+    
+    recordingChunksRef.current = [];
+    setLiveTranscript('');
+    setIsStreamingTranscription(false);
+  };
 
+  // Process a chunk of audio for live transcription
+  const processAudioChunk = async (blob: Blob) => {
+    try {
+      if (blob.size < 1000) {
+        console.log("Audio chunk too small, skipping transcription");
+        return;
+      }
+      
+      setIsStreamingTranscription(true);
+      
+      // Create a new file from the blob
+      const file = new File([blob], 'chunk.webm', { 
+        type: 'audio/webm',
+        lastModified: Date.now() 
+      });
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('isPartial', 'true'); // Flag to indicate partial transcription
+      
+      // Send to our streaming endpoint
+      const response = await fetch('/api/dictate/stream', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        console.error("Error in streaming transcription:", response.status);
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.text && data.text.trim()) {
+        // Update the live transcript
+        setLiveTranscript(data.text);
+        
+        // Also update the parent component's text as we go
+        onTranscriptionComplete(data.text);
+      }
+    } catch (error) {
+      console.error("Error processing audio chunk:", error);
+    } finally {
+      setIsStreamingTranscription(false);
+    }
+  };
+  
+  // Start recording with live transcription capability
   const startRecording = async () => {
     try {
       setIsPreparing(true);
+      clearLiveTranscription();
       
       // Check browser compatibility first
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -68,7 +142,18 @@ export function VoiceDictation({
         sampleRate: 44100, // high quality recording
         desiredSampRate: 16000, // preferred rate for speech recognition
         bufferSize: 16384, // larger buffer for more stable recording
-        timeSlice: 1000, // update every second (allows for visualizing audio if needed)
+        timeSlice: 3000, // Get a chunk every 3 seconds for real-time transcription
+      });
+      
+      // Handle the ondataavailable event
+      (recorderRef.current as any).addEventListener('dataavailable', (blob: Blob) => {
+        console.log("Audio chunk available, size:", blob.size);
+        recordingChunksRef.current.push(blob);
+        
+        // Keep only the last 5 chunks to avoid memory issues
+        if (recordingChunksRef.current.length > 5) {
+          recordingChunksRef.current = recordingChunksRef.current.slice(-5);
+        }
       });
       
       // Start recording
@@ -76,15 +161,25 @@ export function VoiceDictation({
       setIsRecording(true);
       setIsPreparing(false);
       
+      // Set up an interval to process audio chunks for streaming transcription
+      recordingIntervalRef.current = window.setInterval(() => {
+        if (recordingChunksRef.current.length > 0 && !isStreamingTranscription) {
+          // Combine all chunks into one blob for better transcription
+          const combinedBlob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
+          processAudioChunk(combinedBlob);
+        }
+      }, 4000); // Process every 4 seconds (slightly longer than timeSlice to ensure we have data)
+      
       toast({
         title: "Recording started",
         description: "Speak clearly into your microphone",
       });
       
-      console.log("Voice recording started successfully");
+      console.log("Voice recording started successfully with real-time transcription");
     } catch (error) {
       console.error('Error starting recording:', error);
       setIsPreparing(false);
+      clearLiveTranscription();
       
       // Provide more specific error messages based on the error type
       if (error instanceof Error) {
@@ -123,6 +218,9 @@ export function VoiceDictation({
     if (isRecording) {
       console.log("Stopping recording...");
       
+      // Stop any ongoing real-time transcription
+      clearLiveTranscription();
+      
       // Stop recording
       recorderRef.current.stopRecording(async () => {
         if (processAudio) {
@@ -143,8 +241,19 @@ export function VoiceDictation({
               console.warn("Audio recording appears very small:", blob.size, "bytes");
             }
             
-            // Process the audio with AssemblyAI
-            await processAudioWithAssemblyAI(blob);
+            // If we already have a live transcript from the streaming, use it
+            if (liveTranscript) {
+              console.log("Using existing live transcript:", liveTranscript);
+              onTranscriptionComplete(liveTranscript);
+              
+              toast({
+                title: "Transcription complete",
+                description: "Your dictation has been added to the text",
+              });
+            } else {
+              // Otherwise, process the complete audio for transcription
+              await processAudioWithAssemblyAI(blob);
+            }
           } catch (error) {
             console.error("Error processing recorded audio:", error);
             toast({
@@ -171,6 +280,7 @@ export function VoiceDictation({
         streamRef.current = null;
         recorderRef.current = null;
         setIsRecording(false);
+        setLiveTranscript('');
         
         console.log("Recording cleanup complete");
       });
@@ -290,41 +400,58 @@ export function VoiceDictation({
   };
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      {isRecording ? (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => stopRecording()}
-          disabled={isProcessing || disabled}
-          className="flex items-center space-x-1"
-        >
-          <StopCircle className="h-4 w-4" />
-          <span>Stop Dictation</span>
-        </Button>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={startRecording}
-          disabled={isPreparing || isProcessing || disabled}
-          className="flex items-center space-x-1"
-        >
-          {isPreparing || isProcessing ? (
-            <span className="animate-pulse">Preparing...</span>
-          ) : (
-            <>
-              <Mic className="h-4 w-4" />
-              <span>Start Dictation</span>
-            </>
-          )}
-        </Button>
-      )}
+    <div className={`flex flex-col w-full ${className}`}>
+      <div className="flex items-center space-x-2 mb-1">
+        {isRecording ? (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => stopRecording()}
+            disabled={isProcessing || disabled}
+            className="flex items-center space-x-1"
+          >
+            <StopCircle className="h-4 w-4" />
+            <span>Stop Dictation</span>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={startRecording}
+            disabled={isPreparing || isProcessing || disabled}
+            className="flex items-center space-x-1"
+          >
+            {isPreparing || isProcessing ? (
+              <span className="animate-pulse">Preparing...</span>
+            ) : (
+              <>
+                <Mic className="h-4 w-4" />
+                <span>Start Dictation</span>
+              </>
+            )}
+          </Button>
+        )}
+        
+        {isProcessing && (
+          <span className="text-sm text-muted-foreground animate-pulse">
+            Processing audio...
+          </span>
+        )}
+        
+        {isStreamingTranscription && (
+          <span className="text-sm text-muted-foreground animate-pulse">
+            Transcribing...
+          </span>
+        )}
+      </div>
       
-      {isProcessing && (
-        <span className="text-sm text-muted-foreground animate-pulse">
-          Processing audio...
-        </span>
+      {/* Live transcript display */}
+      {isRecording && liveTranscript && (
+        <div className="relative mt-2 p-2 border rounded-md bg-muted/30 max-h-24 overflow-y-auto">
+          <p className="text-sm">
+            <span className="font-semibold">Live transcript:</span> {liveTranscript}
+          </p>
+        </div>
       )}
     </div>
   );
