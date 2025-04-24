@@ -76,10 +76,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passageA: z.object({
           title: z.string().optional().default(""),
           text: z.string().min(1, "Passage A text is required"),
+          userContext: z.string().optional().default(""),
         }),
         passageB: z.object({
           title: z.string().optional().default(""),
           text: z.string().min(1, "Passage B text is required"),
+          userContext: z.string().optional().default(""),
         }),
       });
 
@@ -228,6 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passageA: z.object({
           title: z.string().optional().default(""),
           text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
         }),
       });
 
@@ -375,6 +378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passage: z.object({
           title: z.string().optional().default(""),
           text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
         }),
         corpus: z.string().min(1, "Corpus text is required"),
         corpusTitle: z.string().optional().default("Reference Corpus"),
