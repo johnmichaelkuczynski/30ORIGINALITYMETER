@@ -48,9 +48,9 @@ export default function SummarySection({
     }
     
     // New comprehensive score calculation with all five metrics
-    // Originality (30%), Coherence (20%), Accuracy (20%), Depth (15%), Clarity (15%)
-    return (originalityScore * 0.3) + (coherenceScore * 0.2) + 
-           (accuracy * 0.2) + (depth * 0.15) + (clarity * 0.15);
+    // Originality (40%), Depth (25%), Coherence (15%), Accuracy (10%), Clarity (10%)
+    return (originalityScore * 0.4) + (depth * 0.25) + 
+           (coherenceScore * 0.15) + (accuracy * 0.1) + (clarity * 0.1);
   };
 
   const aggregateScoreA = calculateAggregateScore(
@@ -126,7 +126,7 @@ export default function SummarySection({
                   <div className="text-xl text-secondary-500 ml-1">/10</div>
                 </div>
                 <div className="text-sm text-secondary-600 text-center mt-2">
-                  Combines originality, coherence, accuracy, depth and clarity metrics
+                  Prioritizes originality (40%) and depth (25%) over coherence (15%), accuracy (10%) and clarity (10%)
                 </div>
                 
                 {/* Score bar visualization */}
@@ -332,7 +332,7 @@ export default function SummarySection({
               </div>
 
               <div className="col-span-1 sm:col-span-2 text-xs text-center text-secondary-600">
-                Combines originality (30%), coherence (20%), accuracy (20%), depth (15%) and clarity (15%)
+                Prioritizes originality (40%) and depth (25%) over coherence (15%), accuracy (10%) and clarity (10%)
               </div>
             </div>
             
@@ -684,7 +684,7 @@ export default function SummarySection({
                 </div>
                 
                 <div className="text-xs text-secondary-600 mt-2 bg-gray-100 p-2 rounded">
-                  <p>This score weights originality and coherence, with slightly more weight given to coherence.</p>
+                  <p>This score prioritizes conceptual innovation and philosophical rigor over polish and paragraph-level flow.</p>
                 </div>
               </div>
             </div>
