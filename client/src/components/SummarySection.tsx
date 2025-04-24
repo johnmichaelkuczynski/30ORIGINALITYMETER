@@ -107,6 +107,14 @@ export default function SummarySection({
         <h2 className="text-lg font-semibold text-primary-800">Summary</h2>
       </div>
       <CardContent className="p-6">
+        {/* Author's Context Section - Display if provided */}
+        {result.userContext && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-md font-semibold text-blue-800 mb-2">Author's Context for This Submission</h3>
+            <p className="text-secondary-700 whitespace-pre-wrap">{result.userContext}</p>
+          </div>
+        )}
+        
         {isSinglePassageMode ? (
           // Single Passage Mode - Show single passage with bell curve
           <div className="mb-6">

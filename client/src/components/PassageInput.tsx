@@ -11,6 +11,7 @@ interface PassageInputProps {
   onChange: (data: PassageData) => void;
   label: string;
   disabled?: boolean;
+  showUserContext?: boolean;
 }
 
 export default function PassageInput({
@@ -18,6 +19,7 @@ export default function PassageInput({
   onChange,
   label,
   disabled = false,
+  showUserContext = false,
 }: PassageInputProps) {
   const [wordCount, setWordCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +41,13 @@ export default function PassageInput({
     onChange({
       ...passage,
       title: e.target.value,
+    });
+  };
+  
+  const handleUserContextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange({
+      ...passage,
+      userContext: e.target.value,
     });
   };
 
@@ -187,6 +196,43 @@ export default function PassageInput({
           </button>
         )}
       </CardContent>
+      
+      {/* Optional User Context Input */}
+      {showUserContext && (
+        <div className="px-4 py-3 bg-blue-50 border-t border-blue-100">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium text-blue-800">
+              Optional: Tell us anything you want about the text you're uploading
+            </label>
+            <div className="relative">
+              <textarea
+                rows={3}
+                placeholder="Examples: 'This is a draft', 'I'm looking for feedback on the argument structure', 'This is an excerpt from a longer paper'"
+                className="w-full p-2 border border-blue-200 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white text-secondary-800 text-sm"
+                value={passage.userContext || ""}
+                onChange={handleUserContextChange}
+                disabled={disabled}
+              />
+              {passage.userContext && !disabled && (
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  onClick={() => onChange({ ...passage, userContext: "" })}
+                  aria-label="Clear context"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M15 9l-6 6M9 9l6 6" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-blue-700">
+              This helps our AI better evaluate your text. For example, we won't penalize drafts for style issues or excerpts for being incomplete.
+            </p>
+          </div>
+        </div>
+      )}
       
       {/* File Upload and Dictation Controls */}
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
