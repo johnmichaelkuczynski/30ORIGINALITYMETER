@@ -33,6 +33,7 @@ export const insertAnalysisSchema = createInsertSchema(analyses).pick({
 });
 
 export const analysisResultSchema = z.object({
+  userContext: z.string().optional(),
   conceptualLineage: z.object({
     passageA: z.object({
       primaryInfluences: z.string(),

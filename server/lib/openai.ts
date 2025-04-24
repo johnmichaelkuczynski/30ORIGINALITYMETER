@@ -912,6 +912,11 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       };
     }
     
+    // Store userContext in the result if it was provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
     return result;
   } catch (error) {
     console.error("Error calling OpenAI for single passage analysis:", error);
@@ -936,6 +941,7 @@ export async function analyzePassageAgainstCorpus(
   corpusTitle?: string
 ): Promise<AnalysisResult> {
   console.log(`Analyzing passage '${passage.title}' against corpus '${corpusTitle || "Unnamed Corpus"}'`);
+  const userContext = passage.userContext || "";
   
   try {
     const openai = new OpenAI({
@@ -962,6 +968,10 @@ You are an expert in analyzing the conceptual originality and semantic relations
 
 PASSAGE TO ANALYZE (titled "${passage.title || 'Untitled Passage'}"):
 ${truncatedPassageText}
+
+${userContext ? `AUTHOR'S CONTEXT: ${userContext}
+
+When evaluating this passage, consider the author's context provided above. Adapt your evaluation criteria accordingly. For example, don't penalize excerpts for brevity or rough drafts for minor coherence issues.` : ''}
 
 REFERENCE CORPUS (titled "${corpusTitle || 'Reference Corpus'}"):
 ${truncatedCorpus}
@@ -1146,6 +1156,11 @@ ORIGINALITY IMPROVEMENT RECOMMENDATIONS:
       },
       verdict: extractSection(completionText, "SUMMARY OF ORIGINALITY ASSESSMENT", 300) || "This passage has been analyzed against the provided corpus to evaluate its originality.",
     };
+    
+    // Store userContext in the result if it was provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
 
     return result;
   } catch (error) {
