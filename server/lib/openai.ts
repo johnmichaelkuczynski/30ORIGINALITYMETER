@@ -52,6 +52,12 @@ For accuracy, evaluate:
 - Valid inference structures
 - Absence of misrepresentation
 - Logical validity
+For derivative index (originality), evaluate:
+- Introduction of new formal structures, symbols, or definitions (e.g. defining \`Cn\`, \`n-isomorph\`, \`n-pair\`, etc.)
+- Use of nonstandard representations (e.g. \`<K, R>n\` instead of familiar math notation)
+- Whether the text modifies or reconfigures ideas rather than simply rephrasing known concepts
+- Ability to resolve paradoxes or synthesize divergent views
+
 - Conceptual precision
 For depth, evaluate:
 - Development of multi-step arguments or construction of new systems (e.g., resolving a paradox using a novel entity)
@@ -480,6 +486,12 @@ For coherence, evaluate:
 - Conceptual clarity
 - Consistent terminology use
 - Intelligibility as a unified argument or narrative
+For derivative index (originality), evaluate:
+- Introduction of new formal structures, symbols, or definitions (e.g. defining \`Cn\`, \`n-isomorph\`, \`n-pair\`, etc.)
+- Use of nonstandard representations (e.g. \`<K, R>n\` instead of familiar math notation)
+- Whether the text modifies or reconfigures ideas rather than simply rephrasing known concepts
+- Ability to resolve paradoxes or synthesize divergent views
+
 
 For accuracy, evaluate:
 - Factual correctness
@@ -489,13 +501,11 @@ For accuracy, evaluate:
 - Conceptual precision
 
 For depth, evaluate:
-- Conceptual richness
-- Identification of meaningful structures
-- Exposure of assumptions
-- Reframing of problems
-- Moving beyond surface-level observations
-
-For clarity, evaluate:
+- Development of multi-step arguments or construction of new systems (e.g., resolving a paradox using a novel entity)
+- Use of second-order logic, meta-theoretical distinctions, or novel mappings between abstract entities
+- Independent position development rather than just summarizing or reacting to objections
+- Offering identity conditions, reduction strategies, or logical reformulations
+- BONUS: Resolving paradoxes or synthesizing divergent views
 - Clean sentence structure
 - Stable terminology
 - Coherent expression of ideas
