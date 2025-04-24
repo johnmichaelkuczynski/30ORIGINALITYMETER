@@ -13,12 +13,13 @@ interface CorpusComparisonInputProps {
   passage: {
     title: string;
     text: string;
+    userContext?: string;
   };
   corpus: {
     title: string;
     text: string;
   };
-  onPassageChange: (data: { title: string; text: string }) => void;
+  onPassageChange: (data: { title: string; text: string; userContext?: string }) => void;
   onCorpusChange: (data: { title: string; text: string }) => void;
   disabled?: boolean;
 }
@@ -40,6 +41,10 @@ export default function CorpusComparisonInput({
 
   const handlePassageTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onPassageChange({ ...passage, text: e.target.value });
+  };
+  
+  const handleUserContextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    onPassageChange({ ...passage, userContext: e.target.value });
   };
 
   const handleCorpusTitleChange = (e: ChangeEvent<HTMLInputElement>) => {

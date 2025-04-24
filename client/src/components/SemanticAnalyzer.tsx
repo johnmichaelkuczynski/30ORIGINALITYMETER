@@ -252,6 +252,7 @@ export default function SemanticAnalyzer() {
             onChange={setPassageA}
             label={analysisMode === "single" ? "" : "A"}
             disabled={analysisMutation.isPending}
+            showUserContext={true}
           />
           
           {analysisMode === "comparison" && (
@@ -260,42 +261,11 @@ export default function SemanticAnalyzer() {
               onChange={setPassageB}
               label="B"
               disabled={analysisMutation.isPending}
+              showUserContext={false}
             />
           )}
         </div>
       )}
-
-      {/* User Context Input */}
-      <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="userContext" className="text-base font-medium text-secondary-700 block mb-1">
-                Optional: Tell us anything you want about the text you're uploading
-              </Label>
-              <div className="relative mt-1">
-                <textarea 
-                  id="userContext"
-                  placeholder="For example: 'This is an excerpt from my dissertation chapter', 'This is a rough draft', 'This is a complete paper', etc."
-                  className="w-full min-h-[100px] p-3 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 resize-y"
-                  value={passageA.userContext || ""}
-                  onChange={(e) => {
-                    // Update userContext for the active passage(s)
-                    setPassageA({...passageA, userContext: e.target.value});
-                    if (analysisMode === "comparison") {
-                      setPassageB({...passageB, userContext: e.target.value});
-                    }
-                  }}
-                  disabled={analysisMutation.isPending}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                This information helps our system better evaluate your text. For instance, we won't penalize excerpts for brevity or rough drafts for minor coherence issues.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Compare Button Card - More Prominent */}
       <Card className="bg-gradient-to-br from-slate-50 to-slate-100 shadow-lg border-2 border-green-100 overflow-hidden rounded-xl">
