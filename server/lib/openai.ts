@@ -475,6 +475,7 @@ export async function analyzeSinglePassage(
   try {
     const paragraphs = splitIntoParagraphs(passage.text);
     const passageTitle = passage.title || "Your Passage";
+    const userContext = passage.userContext || "";
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -552,6 +553,10 @@ Format your response as JSON with these specific sections that match the exact s
 
 Passage (${passageTitle}):
 ${passage.text}
+
+${userContext ? `Author's Context: ${userContext}
+
+When evaluating this passage, consider the author's context provided above. Adapt your evaluation criteria accordingly. For example, don't penalize excerpts for brevity or rough drafts for minor coherence issues.` : ''}
 
 Return a detailed analysis in the following JSON format, where "passageB" represents the typical norm of average originality writing for comparison:
 
