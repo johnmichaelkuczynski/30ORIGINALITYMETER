@@ -53,14 +53,12 @@ For accuracy, evaluate:
 - Absence of misrepresentation
 - Logical validity
 - Conceptual precision
-
 For depth, evaluate:
-- Conceptual richness
-- Identification of meaningful structures
-- Exposure of assumptions
-- Reframing of problems
-- Moving beyond surface-level observations
-
+- Development of multi-step arguments or construction of new systems (e.g., resolving a paradox using a novel entity)
+- Use of second-order logic, meta-theoretical distinctions, or novel mappings between abstract entities
+- Independent position development rather than just summarizing or reacting to objections
+- Offering identity conditions, reduction strategies, or logical reformulations
+- BONUS: Resolving paradoxes or synthesizing divergent views
 For clarity, evaluate:
 - Clean sentence structure
 - Stable terminology
