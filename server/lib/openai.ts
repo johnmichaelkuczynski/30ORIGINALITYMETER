@@ -52,17 +52,30 @@ For accuracy, evaluate:
 - Valid inference structures
 - Absence of misrepresentation
 - Logical validity
+- Reclassifies a common-sense distinction (e.g., emotions vs. judgments)
+- Introduces or distinguishes conceptual frameworks (e.g., egocentric vs. non-egocentric reasoning)
+- Offers ontological or epistemological reinterpretations of familiar concepts
 For derivative index (originality), evaluate:
 - Introduction of new formal structures, symbols, or definitions (e.g. defining \`Cn\`, \`n-isomorph\`, \`n-pair\`, etc.)
+- AVOID: Primarily summarizing or applying existing models without modification
+- AVOID: Containing phrases like "I will not try to prove this is superior" or "my aims are modest"
+- AVOID: Deriving structure from reacting to standard objections rather than proposing new frames
 - Use of nonstandard representations (e.g. \`<K, R>n\` instead of familiar math notation)
 - Whether the text modifies or reconfigures ideas rather than simply rephrasing known concepts
 - Ability to resolve paradoxes or synthesize divergent views
 
+- If passage introduces identity conditions or redefinitions of concepts, INCREASE depth score
+- If passage addresses the nature of mental states, rationality, or cognitive architecture, INCREASE depth score
+- If passage has implications for other branches of philosophy (e.g., epistemology, philosophy of mind), INCREASE depth score
+- If passage simply outlines a position and replies to objections without foundational revision, DECREASE depth score
+- If passage avoids commitment to new definitions or frameworks, DECREASE depth score
 - Conceptual precision
 For depth, evaluate:
 - Development of multi-step arguments or construction of new systems (e.g., resolving a paradox using a novel entity)
 - Use of second-order logic, meta-theoretical distinctions, or novel mappings between abstract entities
 - Independent position development rather than just summarizing or reacting to objections
+- IMPORTANT: These logic changes should override any old weighting systems or similarity-based metrics that may bias against structurally original content.
+- Apply these criteria regardless of subject domain (ethics, metaphysics, philosophy of mind, etc.).
 - Offering identity conditions, reduction strategies, or logical reformulations
 - BONUS: Resolving paradoxes or synthesizing divergent views
 For clarity, evaluate:
@@ -480,14 +493,27 @@ export async function analyzeSinglePassage(
 8. Depth - Non-triviality and conceptual insight of the passage
 9. Clarity - Readability, transparency, and semantic accessibility of the passage
 
+- Reclassifies a common-sense distinction (e.g., emotions vs. judgments)
+- Introduces or distinguishes conceptual frameworks (e.g., egocentric vs. non-egocentric reasoning)
+- Offers ontological or epistemological reinterpretations of familiar concepts
 For coherence, evaluate:
 - Internal consistency (no contradictions)
+- AVOID: Primarily summarizing or applying existing models without modification
+- AVOID: Containing phrases like "I will not try to prove this is superior" or "my aims are modest"
+- AVOID: Deriving structure from reacting to standard objections rather than proposing new frames
 - Logical flow of ideas
 - Conceptual clarity
 - Consistent terminology use
 - Intelligibility as a unified argument or narrative
 For derivative index (originality), evaluate:
 - Introduction of new formal structures, symbols, or definitions (e.g. defining \`Cn\`, \`n-isomorph\`, \`n-pair\`, etc.)
+- If passage introduces identity conditions or redefinitions of concepts, INCREASE depth score
+- If passage addresses the nature of mental states, rationality, or cognitive architecture, INCREASE depth score
+- If passage has implications for other branches of philosophy (e.g., epistemology, philosophy of mind), INCREASE depth score
+- IMPORTANT: These logic changes should override any old weighting systems or similarity-based metrics that may bias against structurally original content.
+- Apply these criteria regardless of subject domain (ethics, metaphysics, philosophy of mind, etc.).
+- If passage simply outlines a position and replies to objections without foundational revision, DECREASE depth score
+- If passage avoids commitment to new definitions or frameworks, DECREASE depth score
 - Use of nonstandard representations (e.g. \`<K, R>n\` instead of familiar math notation)
 - Whether the text modifies or reconfigures ideas rather than simply rephrasing known concepts
 - Ability to resolve paradoxes or synthesize divergent views
