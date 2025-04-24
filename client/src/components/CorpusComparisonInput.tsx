@@ -129,6 +129,7 @@ export default function CorpusComparisonInput({
         onPassageChange({
           title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension for title
           text: data.text,
+          userContext: passage.userContext // Preserve any existing user context
         });
         toast({
           title: "Upload successful",
@@ -211,7 +212,7 @@ export default function CorpusComparisonInput({
                   type="button"
                   variant="destructive"
                   size="sm"
-                  onClick={() => onPassageChange({ title: "", text: "" })}
+                  onClick={() => onPassageChange({ title: "", text: "", userContext: passage.userContext })}
                   disabled={disabled || (!passage.title && !passage.text)}
                 >
                   Clear All
@@ -289,6 +290,39 @@ export default function CorpusComparisonInput({
                   </button>
                 )}
               </div>
+            </div>
+
+            {/* User Context */}
+            <div className="mt-4 pt-4 border-t border-dashed border-blue-100">
+              <Label htmlFor="userContext" className="font-medium text-blue-700">
+                Optional: Tell us anything you want about the text you're uploading
+              </Label>
+              <div className="relative mt-2">
+                <Textarea
+                  id="userContext"
+                  placeholder="Examples: 'This is a draft', 'I'm looking for feedback on the argument structure', 'This is an excerpt from a longer paper'"
+                  value={passage.userContext || ""}
+                  onChange={handleUserContextChange}
+                  disabled={disabled}
+                  className="min-h-[100px] resize-y mt-1 border-blue-200 focus:border-blue-500 focus:ring-blue-500 bg-blue-50/30"
+                />
+                {passage.userContext && !disabled && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-6 text-gray-400 hover:text-gray-600"
+                    onClick={() => onPassageChange({ ...passage, userContext: "" })}
+                    aria-label="Clear context"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M15 9l-6 6M9 9l6 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-blue-700 mt-1">
+                This helps our AI better evaluate your text. For example, we won't penalize drafts for style issues or excerpts for being incomplete.
+              </p>
             </div>
 
             <div className="text-right">
