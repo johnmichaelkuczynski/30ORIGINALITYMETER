@@ -1,6 +1,7 @@
 export interface PassageData {
   title: string;
   text: string;
+  userContext?: string;
 }
 
 export interface FeedbackData {
@@ -15,6 +16,7 @@ export interface SupportingDocument {
 }
 
 export interface AnalysisResult {
+  userContext?: string;
   conceptualLineage: {
     passageA: {
       primaryInfluences: string;
