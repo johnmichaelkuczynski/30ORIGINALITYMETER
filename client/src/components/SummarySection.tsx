@@ -30,28 +30,26 @@ export default function SummarySection({
     clarityScore?: number
   ): number => {
     // Get scores with defaults if not provided
-    const accuracy = accuracyScore || 5;
     const depth = depthScore || 5;
-    const clarity = clarityScore || 5;
     
-    // Calculate base score from originality and coherence
-    let baseScore = 0;
-    if (coherenceScore < 3) {
-      // Very incoherent content gets heavily penalized regardless of originality
-      baseScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
-    } else if (coherenceScore >= 3 && coherenceScore < 6) {
-      // Moderate coherence - weighted blend
-      baseScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
-    } else {
-      // Good coherence - more balanced weighting
-      baseScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
-    }
+    // Treat originalityScore as conceptualInnovation
+    const conceptualInnovation = originalityScore;
     
-    // New comprehensive score calculation with all five metrics
-    // Merit-balanced approach: Originality (25%), Depth (25%), Coherence (20%), Accuracy (15%), Clarity (15%)
-    // This gives a more balanced emphasis to all qualities, reducing the dominance of sheer originality
-    return (originalityScore * 0.25) + (depth * 0.25) + 
-           (coherenceScore * 0.20) + (accuracy * 0.15) + (clarity * 0.15);
+    // Treat accuracy as insightDensity - with fallback to mid-value if not available
+    const insightDensity = accuracyScore || 5;
+    
+    // Methodological novelty is derived from originality and depth
+    // If no dedicated score exists, we approximate it
+    const methodologicalNovelty = clarityScore || Math.min(10, (originalityScore * 0.6) + (depth * 0.4));
+    
+    // OVERRIDE: Direct implementation of the specified scoring formula
+    // Final score weighting: Conceptual Innovation (25%), Depth (25%), 
+    // Coherence (20%), Insight Density (15%), Methodological Novelty (15%)
+    return (conceptualInnovation * 0.25) + 
+           (depth * 0.25) + 
+           (coherenceScore * 0.20) + 
+           (insightDensity * 0.15) + 
+           (methodologicalNovelty * 0.15);
   };
 
   const aggregateScoreA = calculateAggregateScore(
