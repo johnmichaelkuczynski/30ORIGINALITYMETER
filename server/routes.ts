@@ -119,6 +119,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // AI Detection Endpoint
+  app.post("/api/detect-ai", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        text: z.string().min(1, "Text is required for AI detection")
+      });
+      
+      const { text } = requestSchema.parse(req.body);
+      
+      console.log("AI detection request for text length:", text.length);
+      
+      const result = await detectAIContent(text);
+      
+      console.log("AI detection result:", {
+        isAIGenerated: result.isAIGenerated,
+        score: result.score,
+        confidence: result.confidence
+      });
+      
+      res.json(result);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationErrors = error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message,
+          code: err.code
+        }));
+        
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: validationErrors
+        });
+      } else {
+        console.error("Error performing AI detection:", error);
+        res.status(500).json({ 
+          message: "Failed to detect AI content", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+  
   // Analyze two passages
   app.post("/api/analyze", async (req, res) => {
     try {

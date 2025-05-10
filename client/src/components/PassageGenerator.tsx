@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +12,8 @@ import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
 import { Loader2, Download, RefreshCcw, Sparkle, Wand2 } from 'lucide-react';
+import useAIDetection from '@/hooks/use-ai-detection';
+import AIDetectionBadge from '@/components/AIDetectionBadge';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -26,6 +28,17 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const [customInstructions, setCustomInstructions] = useState<string>('');
   const [showCustomInstructions, setShowCustomInstructions] = useState<boolean>(false);
   const { toast } = useToast();
+  
+  // AI detection
+  const { 
+    detectAIContent,
+    getDetectionResult,
+    isDetecting
+  } = useAIDetection();
+  
+  // Keep track of text IDs for AI detection
+  const originalTextId = 'original-passage';
+  const improvedTextId = 'improved-passage';
 
   // Mutation for generating a more original passage
   const generateMutation = useMutation({
@@ -266,8 +279,58 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                   </div>
                 </TabsContent>
                 <TabsContent value="improved" className="mt-2">
-                  <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap">
-                    {generatedResult.improvedPassage.text}
+                  <div className="relative">
+                    <div className="absolute top-2 right-2 flex gap-2 z-10">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-2 bg-white/80 hover:bg-white text-gray-700"
+                        onClick={() => {
+                          // Copy to clipboard
+                          navigator.clipboard.writeText(generatedResult.improvedPassage.text);
+                          toast({
+                            title: "Copied to clipboard",
+                            description: "The improved passage has been copied to your clipboard.",
+                          });
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                        </svg>
+                        Copy
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-2 bg-white/80 hover:bg-white text-gray-700"
+                        onClick={() => {
+                          // Create a modified version with empty text
+                          const clearedResult = {
+                            ...generatedResult,
+                            improvedPassage: {
+                              ...generatedResult.improvedPassage,
+                              text: ""
+                            }
+                          };
+                          setGeneratedResult(clearedResult);
+                          toast({
+                            title: "Cleared passage",
+                            description: "The improved passage has been cleared.",
+                          });
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                          <path d="M3 6h18"></path>
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        </svg>
+                        Clear
+                      </Button>
+                    </div>
+                    <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap">
+                      {generatedResult.improvedPassage.text}
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>

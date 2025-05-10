@@ -52,7 +52,9 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
 
     // Extract the detection result
     try {
-      const result = JSON.parse(response.choices[0].message.content);
+      // Parse the response content, which should be JSON
+      const content = response.choices[0].message.content || '{"score":0,"explanation":"Error: No content"}';
+      const result = JSON.parse(content);
       
       // Map the score to confidence level
       let confidence = "Medium";
