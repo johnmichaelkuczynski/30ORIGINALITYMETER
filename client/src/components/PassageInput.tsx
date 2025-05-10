@@ -36,13 +36,19 @@ export default function PassageInput({
   // Generate unique ID for this passage
   const passageId = `passage-${label || 'main'}`;
 
+  // Use a ref to track the last text we analyzed
+  const lastAnalyzedText = useRef<string>('');
+  
   useEffect(() => {
     const text = passage.text.trim();
     const count = text.length > 0 ? text.split(/\s+/).length : 0;
     setWordCount(count);
     
-    // Only detect AI content if there's sufficient text (more than 100 characters)
-    if (text.length > 100) {
+    // Only detect AI content if:
+    // 1. There's sufficient text (more than 100 characters)
+    // 2. The text has changed significantly (first 100 chars different)
+    if (text.length > 100 && text.substring(0, 100) !== lastAnalyzedText.current.substring(0, 100)) {
+      lastAnalyzedText.current = text;
       detectAIContent(text, passageId);
     }
   }, [passage.text, passageId, detectAIContent]);

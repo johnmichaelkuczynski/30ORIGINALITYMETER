@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { AIDetectionResult } from '@/lib/types';
@@ -7,9 +7,24 @@ export function useAIDetection() {
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
   const [detectionResults, setDetectionResults] = useState<Record<string, AIDetectionResult>>({});
   const { toast } = useToast();
-
-  const detectAIContent = async (text: string, id: string): Promise<AIDetectionResult> => {
-    if (!text || text.trim().length < 50) {
+  
+  // Cache of text that's already been analyzed
+  const detectionCache = useRef<Record<string, AIDetectionResult>>({});
+  
+  // Prevent multiple calls for the same text content
+  const pendingDetections = useRef<Record<string, boolean>>({});
+  
+  // Debounce timer reference
+  const debounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+  
+  const detectAIContent = useCallback(async (text: string, id: string): Promise<AIDetectionResult> => {
+    // Clear any existing timers for this ID
+    if (debounceTimers.current[id]) {
+      clearTimeout(debounceTimers.current[id]);
+    }
+    
+    // Return early if text is too short
+    if (!text || text.trim().length < 100) {
       const result = {
         isAIGenerated: false,
         score: 0,
@@ -19,36 +34,68 @@ export function useAIDetection() {
       setDetectionResults(prev => ({ ...prev, [id]: result }));
       return result;
     }
-
-    try {
-      setIsDetecting(true);
-      const response = await apiRequest('POST', '/api/detect-ai', { text });
-      const data = await response.json() as AIDetectionResult;
-      
-      // Store result using the provided ID
-      setDetectionResults(prev => ({ ...prev, [id]: data }));
-      return data;
-    } catch (error) {
-      console.error("AI detection error:", error);
-      const fallbackResult = {
+    
+    // Generate a text hash (simple version - first 100 chars)
+    const textHash = text.trim().substring(0, 100);
+    
+    // If we already have a cached result for this exact text, return it
+    if (detectionCache.current[textHash]) {
+      const cachedResult = detectionCache.current[textHash];
+      setDetectionResults(prev => ({ ...prev, [id]: cachedResult }));
+      return cachedResult;
+    }
+    
+    // If this text is already being processed, don't start another request
+    if (pendingDetections.current[textHash]) {
+      return {
         isAIGenerated: false,
         score: 0,
         confidence: "Low" as const,
-        details: "Detection failed"
+        details: "Detection in progress"
       };
-      setDetectionResults(prev => ({ ...prev, [id]: fallbackResult }));
-      
-      toast({
-        title: "AI Detection Failed",
-        description: "Could not determine AI content probability.",
-        variant: "destructive",
-      });
-      
-      return fallbackResult;
-    } finally {
-      setIsDetecting(false);
     }
-  };
+
+    // Set up debounce (500ms delay)
+    return new Promise((resolve) => {
+      debounceTimers.current[id] = setTimeout(async () => {
+        try {
+          // Mark this detection as pending
+          pendingDetections.current[textHash] = true;
+          setIsDetecting(true);
+          
+          const response = await apiRequest('POST', '/api/detect-ai', { text });
+          const data = await response.json() as AIDetectionResult;
+          
+          // Store in cache and results
+          detectionCache.current[textHash] = data;
+          setDetectionResults(prev => ({ ...prev, [id]: data }));
+          resolve(data);
+        } catch (error) {
+          console.error("AI detection error:", error);
+          const fallbackResult = {
+            isAIGenerated: false,
+            score: 0,
+            confidence: "Low" as const,
+            details: "Detection failed"
+          };
+          setDetectionResults(prev => ({ ...prev, [id]: fallbackResult }));
+          
+          toast({
+            title: "AI Detection Failed",
+            description: "Could not determine AI content probability.",
+            variant: "destructive",
+          });
+          
+          resolve(fallbackResult);
+        } finally {
+          // Clean up
+          setIsDetecting(false);
+          delete pendingDetections.current[textHash];
+          delete debounceTimers.current[id];
+        }
+      }, 500); // 500ms debounce
+    });
+  }, [toast]);
 
   const getDetectionResult = (id: string): AIDetectionResult | null => {
     return detectionResults[id] || null;
@@ -76,4 +123,5 @@ export function useAIDetection() {
   };
 }
 
+// Make sure the hook is the default export
 export default useAIDetection;

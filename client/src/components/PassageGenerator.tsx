@@ -40,18 +40,22 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const originalTextId = 'original-passage';
   const improvedTextId = 'improved-passage';
   
-  // Detect AI content when the component loads or when generatedResult changes
+  // Detect AI content only when there are substantial changes
   useEffect(() => {
-    // Detect original passage when component loads
-    if (passage.text) {
+    // Only detect if passage text has reasonable length
+    if (passage.text && passage.text.trim().length > 100) {
       detectAIContent(passage.text, originalTextId);
     }
-    
-    // Detect improved passage when it's generated
-    if (generatedResult?.improvedPassage?.text) {
+  }, [passage.text, detectAIContent, originalTextId]);
+  
+  // Separate effect for the improved passage
+  useEffect(() => {
+    // Only detect if improved passage is available and has reasonable length
+    if (generatedResult?.improvedPassage?.text && 
+        generatedResult.improvedPassage.text.trim().length > 100) {
       detectAIContent(generatedResult.improvedPassage.text, improvedTextId);
     }
-  }, [passage.text, generatedResult?.improvedPassage?.text]);
+  }, [generatedResult?.improvedPassage?.text, detectAIContent, improvedTextId]);
 
   // Mutation for generating a more original passage
   const generateMutation = useMutation({
