@@ -1673,22 +1673,37 @@ Please provide:
       // Standard format found
       improvedText = improvedPassageMatch[1].trim();
     } else {
-      // Try alternate formats
-      const altFormat1 = responseText.match(/(?:Here is the improved passage:|Here's the improved version:)\s*([\s\S]*?)(?=\n\s*ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS|$)/i);
-      const altFormat2 = responseText.match(/(?:1\. )\s*([\s\S]*?)(?=\n\s*2\. |ESTIMATED|$)/i);
+      // Try alternate formats - expanded to handle more model response patterns
+      // Looking for title formats first
+      const titleMatch = responseText.match(/(?:Title|#):\s*(.*?)(?:\n\n|\n)([\s\S]*?)(?=\n\s*ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY|$)/i);
+      // Looking for text starting with clear section indicators
+      const altFormat1 = responseText.match(/(?:Here is the improved passage:|Here's the improved version:|Improved passage:|An improved version of the passage:|IMPROVED VERSION:)\s*([\s\S]*?)(?=\n\s*ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS|$)/i);
+      // Looking for numbered formats
+      const altFormat2 = responseText.match(/(?:1\.\s*(?:An improved|Improved))\s*([\s\S]*?)(?=\n\s*2\.|ESTIMATED|$)/i);
+      // Looking for text after instructions about what to do
+      const altFormat3 = responseText.match(/(?:I'll provide|I will provide|I have|Here's|Following your instructions).*?\n\n([\s\S]*?)(?=\n\n\s*(?:Estimated|The estimated|Summary|Improvements|$))/i);
       
-      if (altFormat1 && altFormat1[1].trim().length > 0) {
+      // If we have a title format, use the content after the title
+      if (titleMatch && titleMatch[2] && titleMatch[2].trim().length > 100) {
+        improvedText = titleMatch[2].trim();
+      }
+      // Otherwise try other formats
+      else if (altFormat1 && altFormat1[1].trim().length > 100) {
         improvedText = altFormat1[1].trim();
-      } else if (altFormat2 && altFormat2[1].trim().length > 0) {
+      } else if (altFormat2 && altFormat2[1].trim().length > 100) {
         improvedText = altFormat2[1].trim();
+      } else if (altFormat3 && altFormat3[1].trim().length > 100) {
+        improvedText = altFormat3[1].trim();
       } else {
-        // As a last resort, take the whole first part of the response
-        // This assumes the model might have skipped the "IMPROVED PASSAGE:" header
-        const firstSection = responseText.split(/\n\s*(?:ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS)/i)[0];
+        // As a last resort, just use the full response except for any obvious summary sections
+        console.log("Using full response text as fallback");
         
-        // Only use if it's substantially different from the original
-        if (firstSection && firstSection.length > passage.text.length * 1.2) {
-          improvedText = firstSection.trim();
+        // Remove any summary sections from the end
+        const fullText = responseText.split(/\n\s*(?:ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS|2\.\s*Estimated|3\.\s*Summary)/i)[0];
+        
+        // Only use if it's reasonably long (at least 100 chars)
+        if (fullText && fullText.trim().length > 100) {
+          improvedText = fullText.trim();
         } else {
           // Generate an explicit error message that will be shown to the user
           console.error("Failed to extract improved passage from the AI response");
