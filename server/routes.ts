@@ -786,7 +786,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Note: Using OpenAI for feedback processing (other providers not supported)");
       
       // Process the feedback and get a response
-      const { feedback: feedbackData, updatedResult } = await openaiService.processFeedback({
+      // Type assertion to handle missing processFeedback in other services
+      const processFeedback = openaiService.processFeedback;
+      const { feedback: feedbackData, updatedResult } = await processFeedback({
         category,
         feedback,
         originalResult,
@@ -933,7 +935,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Note: Using OpenAI for generating more original versions (other providers not supported)");
         
         // Generate a more original version using OpenAI
-        const generatedResult = await openaiService.generateMoreOriginalVersion(
+        const generateMoreOriginalVersion = openaiService.generateMoreOriginalVersion;
+        const generatedResult = await generateMoreOriginalVersion(
           passage, 
           analysisResult, 
           styleOption,

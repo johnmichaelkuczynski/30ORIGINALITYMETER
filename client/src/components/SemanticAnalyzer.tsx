@@ -21,6 +21,10 @@ export default function SemanticAnalyzer() {
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
   
+  // LLM Provider
+  type LLMProvider = "openai" | "anthropic" | "perplexity";
+  const [provider, setProvider] = useState<LLMProvider>("openai");
+  
   const [passageA, setPassageA] = useState<PassageData>({
     title: "",
     text: "",
@@ -50,16 +54,17 @@ export default function SemanticAnalyzer() {
       
       if (analysisMode === "single") {
         endpoint = "/api/analyze/single";
-        payload = { passageA };
+        payload = { passageA, provider };
       } else if (analysisMode === "comparison") {
         endpoint = "/api/analyze";
-        payload = { passageA, passageB };
+        payload = { passageA, passageB, provider };
       } else if (analysisMode === "corpus") {
         endpoint = "/api/analyze/corpus";
         payload = { 
           passage: passageA,
           corpus: corpus.text,
-          corpusTitle: corpus.title
+          corpusTitle: corpus.title,
+          provider
         };
       }
       
@@ -187,6 +192,41 @@ export default function SemanticAnalyzer() {
         <div className="mb-2">
           <h3 className="text-base font-medium text-secondary-700">Select Analysis Mode</h3>
           <p className="text-sm text-secondary-500">Choose how you want to analyze your text</p>
+        </div>
+        
+        {/* LLM Provider Selector */}
+        <div className="mb-4 pb-4 border-b border-gray-100">
+          <div className="mb-2">
+            <h4 className="text-sm font-medium text-secondary-700">AI Provider</h4>
+            <p className="text-xs text-secondary-500">Select which AI model to use for analysis</p>
+          </div>
+          
+          <RadioGroup
+            value={provider}
+            onValueChange={(value) => setProvider(value as LLMProvider)}
+            className="grid grid-cols-1 md:grid-cols-3 gap-2"
+          >
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "openai" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="openai" id="openai" />
+              <Label htmlFor="openai" className="font-medium text-sm">
+                OpenAI (GPT-4o)
+              </Label>
+            </div>
+            
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "anthropic" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="anthropic" id="anthropic" />
+              <Label htmlFor="anthropic" className="font-medium text-sm">
+                Anthropic (Claude)
+              </Label>
+            </div>
+            
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "perplexity" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="perplexity" id="perplexity" />
+              <Label htmlFor="perplexity" className="font-medium text-sm">
+                Perplexity
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
         
         <RadioGroup
