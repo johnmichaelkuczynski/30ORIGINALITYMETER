@@ -90,10 +90,10 @@ export default function PassageInput({
 
     // Check file type
     const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (fileType !== 'txt' && fileType !== 'docx' && fileType !== 'mp3') {
+    if (fileType !== 'txt' && fileType !== 'docx' && fileType !== 'pdf' && fileType !== 'mp3') {
       toast({
         title: "Unsupported file format",
-        description: "Please upload a .txt, .docx, or .mp3 file",
+        description: "Please upload a .txt, .docx, .pdf, or .mp3 file",
         variant: "destructive",
       });
       return;
@@ -287,7 +287,7 @@ export default function PassageInput({
                 } as unknown as React.ChangeEvent<HTMLInputElement>;
                 handleFileUpload(syntheticEvent);
               }}
-              accept=".txt,.docx,.mp3"
+              accept=".txt,.docx,.mp3,.pdf"
               disabled={disabled}
               maxSizeInMB={20}
               className="bg-white"
@@ -334,7 +334,7 @@ export default function PassageInput({
         <input
           type="file"
           ref={fileInputRef}
-          accept=".txt,.docx,.mp3"
+          accept=".txt,.docx,.mp3,.pdf"
           onChange={handleFileUpload}
           className="hidden"
           disabled={disabled}

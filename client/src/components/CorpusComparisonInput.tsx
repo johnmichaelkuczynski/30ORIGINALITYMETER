@@ -74,12 +74,13 @@ export default function CorpusComparisonInput({
       "text/plain", 
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "audio/mpeg", // MP3 file MIME type
+      "application/pdf", // PDF file MIME type
     ];
     
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a .txt, .docx, or .mp3 file",
+        description: "Please upload a .txt, .docx, .pdf, or .mp3 file",
         variant: "destructive",
       });
       return;
