@@ -62,6 +62,37 @@ const audioUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Check status of provider API keys
+  app.post("/api/provider-status", async (req, res) => {
+    try {
+      // Check OpenAI API key
+      const openaiKey = process.env.OPENAI_API_KEY;
+      const anthropicKey = process.env.ANTHROPIC_API_KEY;
+      const perplexityKey = process.env.PERPLEXITY_API_KEY;
+      const assemblyAIKey = process.env.ASSEMBLYAI_API_KEY;
+      
+      const response = {
+        openai: !!openaiKey,
+        anthropic: !!anthropicKey,
+        perplexity: !!perplexityKey,
+        assemblyAI: false
+      };
+      
+      // Verify AssemblyAI key if it exists
+      if (assemblyAIKey) {
+        const isValid = await verifyAssemblyAIApiKey();
+        response.assemblyAI = isValid;
+      }
+      
+      res.json(response);
+    } catch (error) {
+      console.error("Error checking provider status:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+  
   // Test the AssemblyAI connection
   app.get("/api/test/assemblyai", async (_req, res) => {
     try {
