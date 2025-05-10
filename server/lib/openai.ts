@@ -94,16 +94,20 @@ For depth, evaluate:
 - Development of multi-step arguments or construction of new systems (e.g., resolving a paradox using a novel entity)
 - Use of second-order logic, meta-theoretical distinctions, or novel mappings between abstract entities
 - Independent position development rather than just summarizing or reacting to objections
-- IMPORTANT: These logic changes should override any old weighting systems or similarity-based metrics that may bias against structurally original content.
-- Apply these criteria regardless of subject domain (ethics, metaphysics, philosophy of mind, etc.).
 - Offering identity conditions, reduction strategies, or logical reformulations
-- BONUS: Resolving paradoxes or synthesizing divergent views
+- Resolving paradoxes or synthesizing divergent views
+- Introduction of new theoretical frameworks or conceptual structures
+- Addressing foundational questions rather than surface-level issues
+- NOTE: Highly value passages that engage with difficult conceptual terrain, even when lacking empirical backing
+- NOTE: Do not penalize philosophical speculation when it is logically coherent
+- IMPORTANT: These criteria override any simplistic metrics that bias against structurally original content. Apply them across all domains (ethics, metaphysics, philosophy of mind, etc.).
 For clarity, evaluate:
-- Clean sentence structure
-- Stable terminology
-- Coherent expression of ideas
-- Accessibility to intended audience
-- Precision of language
+- Effective communication of complex ideas (not simplicity for its own sake)
+- Appropriate use of technical or specialized terminology
+- Coherent expression of ideas relative to the subject's complexity
+- Precision of language in defining concepts and relations
+- NOTE: Do NOT reward simplistic writing over sophisticated expression of complex ideas
+- NOTE: Philosophical writing often requires technical language and complex sentence structures - judge clarity based on how effectively it communicates given its theoretical complexity, not on how "easy" it is to read
 
 IMPORTANT FORMATTING INSTRUCTIONS FOR SCORE-BASED METRICS:
 - Provide a score from 0-10 for each metric (where 10 is perfect)
@@ -985,19 +989,31 @@ export async function analyzePassageAgainstCorpus(
     const prompt = `
 You are an expert in analyzing the conceptual originality AND merit of texts. You are tasked with comparing an individual passage against a larger corpus (body of work). 
 
-IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities. Favor passages that combine originality with logical coherence, factual accuracy, and conceptual depth.
+IMPORTANT GUIDELINES FOR EVALUATION:
+
+1. DO NOT penalize passages for lacking empirical data unless they make explicit claims that depend on such data. Philosophical, theoretical, or speculative reasoning is valid and must be judged on its own merits.
+
+2. DO NOT penalize analogy use unless the analogy is incoherent, strained, or logically misleading. Analogical reasoning is legitimate in high-level theoretical discourse.
+
+3. DO NOT reward passages for being simple, popular, or easily digestible. Reward clarity when it communicates complex ideas well, but do not conflate accessibility with merit.
+
+4. DO NOT treat clarity, coherence, or consensus-alignment as more important than insight. Originality must be conditioned on value — not on novelty for its own sake, but on novelty that yields real insight.
+
+5. Recognize that philosophical writing often uses different methodologies than empirical sciences - these are valid approaches deserving recognition.
+
+6. Value conceptual innovation even when it challenges mainstream views.
 
 Your analysis should focus on the following aspects:
 
 1. Conceptual Lineage: Identify how the concepts, ideas, and arguments in the passage trace back to or build upon concepts in the corpus.
 2. Semantic Distance: Assess how similar or different the passage is from the corpus in terms of meaning, style, and theoretical approach.
 3. Novelty Analysis: Determine what aspects of the passage represent novel contributions beyond what's in the corpus.
-4. Derivative Index: Calculate to what extent the passage is derivative of the corpus vs. original.
-5. Conceptual Parasitism: Evaluate if the passage relies too heavily on the corpus without adding sufficient original value.
-6. Coherence: Analyze if the passage effectively structures its ideas in a cohesive manner.
-7. Accuracy: Assess if claims made in the passage are factually accurate.
-8. Depth: Evaluate how deeply the passage explores its concepts compared to the corpus.
-9. Clarity: Determine how effectively the passage communicates ideas compared to the corpus.
+4. Derivative Index: Calculate to what extent the passage is derivative of the corpus vs. original. Value should be based on merit-balanced originality, not mere novelty.
+5. Conceptual Parasitism: Evaluate if the passage relies too heavily on the corpus without adding sufficient original value. NOTE: Do not classify a passage as parasitic merely because it challenges established views or lacks empirical data.
+6. Coherence: Analyze if the passage effectively structures its ideas in a cohesive manner within its own theoretical framework. Complex philosophical arguments may appear less coherent to untrained readers but can be highly coherent within their theoretical framework.
+7. Accuracy: Assess the passage's logical and conceptual rigor. For philosophical texts, accuracy refers to logical validity and conceptual precision, NOT empirical verificability.
+8. Depth: Evaluate the non-triviality, conceptual insight, and theoretical significance of the passage. Highly value passages that engage with difficult conceptual terrain, even when lacking empirical backing.
+9. Clarity: Determine how effectively the passage communicates complex ideas. Do NOT reward simplistic writing over sophisticated expression of complex ideas.
 
 PASSAGE TO ANALYZE (titled "${passage.title || 'Untitled Passage'}"):
 ${truncatedPassageText}
