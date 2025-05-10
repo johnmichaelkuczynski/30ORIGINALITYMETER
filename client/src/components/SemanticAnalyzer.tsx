@@ -185,14 +185,35 @@ export default function SemanticAnalyzer() {
     const handleImprovedPassage = (event: Event) => {
       const customEvent = event as CustomEvent<{passage: PassageData}>;
       if (customEvent.detail && customEvent.detail.passage) {
+        // Make sure we have valid text content
+        if (!customEvent.detail.passage.text || customEvent.detail.passage.text.trim() === '') {
+          console.error("Received empty passage text for re-analysis");
+          toast({
+            title: "Error",
+            description: "Cannot analyze empty text. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         // Set the passage data and enable single passage mode
         setAnalysisMode("single");
-        setPassageA(customEvent.detail.passage);
+        setPassageA({
+          ...customEvent.detail.passage,
+          // Ensure we have a title even if empty
+          title: customEvent.detail.passage.title || "Improved Passage"
+        });
         
-        // Trigger analysis
+        // Log the passage being sent for analysis
+        console.log("Re-analyzing passage:", {
+          title: customEvent.detail.passage.title || "Improved Passage",
+          textLength: customEvent.detail.passage.text?.length || 0
+        });
+        
+        // Trigger analysis (with a slight delay to ensure state is updated)
         setTimeout(() => {
           handleCompare();
-        }, 100);
+        }, 200);
       }
     };
 

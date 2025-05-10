@@ -69,16 +69,38 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const handleReanalyze = () => {
     if (!generatedResult) return;
     
+    // Make sure we have text to analyze
+    if (!generatedResult.improvedPassage.text || generatedResult.improvedPassage.text.trim() === '') {
+      toast({
+        title: "Error",
+        description: "Cannot analyze empty text. Please try generating a passage first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Ensure the passage has a title, even if empty
+    const improvedPassageWithTitle = {
+      ...generatedResult.improvedPassage,
+      title: generatedResult.improvedPassage.title || "Improved Passage"
+    };
+    
+    // Log what we're re-analyzing
+    console.log("Re-analyzing improved passage:", {
+      title: improvedPassageWithTitle.title,
+      textLength: improvedPassageWithTitle.text.length
+    });
+    
     // Dispatch custom event for main component to handle
     const event = new CustomEvent('analyze-improved-passage', {
       detail: {
-        passage: generatedResult.improvedPassage
+        passage: improvedPassageWithTitle
       }
     });
     document.dispatchEvent(event);
     
     // Also call the prop callback
-    onReanalyze(generatedResult.improvedPassage);
+    onReanalyze(improvedPassageWithTitle);
   };
 
   const derivativeIndex = analysisResult.derivativeIndex.passageA.score;
@@ -172,7 +194,7 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
             {showCustomInstructions && (
               <>
                 <Textarea
-                  placeholder="Describe how you want the passage to be improved (e.g., 'Make it sound more like Edgar Allan Poe', 'Add examples from psychology', 'Make it more formal')"
+                  placeholder="Describe exactly how you want the passage to be improved. These instructions will override the standard style options."
                   className="mt-2 resize-none"
                   rows={4}
                   value={customInstructions}
@@ -180,13 +202,16 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                   disabled={generateMutation.isPending}
                 />
                 <div className="mt-2 text-xs text-muted-foreground">
-                  <p>Your custom instructions will override the standard improvement process. Be specific about the changes you want.</p>
-                  <div className="mt-1 p-2 border rounded-md bg-muted/20">
-                    <p className="font-medium">Examples:</p>
+                  <p className="font-medium text-primary">These custom instructions will completely override all other style settings.</p>
+                  <p className="mt-1">Be specific about the exact changes you want. You can request specific styles, content additions, or formatting changes.</p>
+                  <div className="mt-2 p-2 border rounded-md bg-muted/20">
+                    <p className="font-medium">Example Instructions:</p>
                     <ul className="list-disc pl-5 mt-1 space-y-1">
                       <li>"Make it sound more like Nietzsche but add examples from modern physics"</li>
                       <li>"Improve coherence and add more concrete examples from economics"</li>
-                      <li>"Make it more academic but keep the core arguments the same"</li>
+                      <li>"Rewrite this as a Socratic dialogue between two philosophers"</li>
+                      <li>"Add technical terminology from quantum mechanics while maintaining readability"</li>
+                      <li>"Write it in the style of David Foster Wallace, including footnotes"</li>
                     </ul>
                   </div>
                 </div>
@@ -263,10 +288,29 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                     <div className="flex justify-between items-start mb-1">
                       <h4 className="text-sm font-medium">Improvement Summary</h4>
                       {showCustomInstructions && customInstructions.trim() && (
-                        <Badge variant="outline" className="ml-2 bg-primary/10">Custom instructions applied</Badge>
+                        <Badge variant="outline" className="ml-2 bg-primary/10 font-semibold">
+                          Custom instructions applied
+                        </Badge>
                       )}
                     </div>
                     <p className="text-sm">{generatedResult.improvementSummary}</p>
+                    
+                    {/* Show custom instructions that were applied */}
+                    {showCustomInstructions && customInstructions.trim() && (
+                      <div className="mt-3 pt-3 border-t border-muted">
+                        <div className="flex items-center gap-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <line x1="10" y1="9" x2="8" y2="9"></line>
+                          </svg>
+                          <p className="text-xs font-medium text-primary">Custom Instructions Used:</p>
+                        </div>
+                        <p className="text-xs mt-1 italic bg-primary/5 p-2 rounded">{customInstructions}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

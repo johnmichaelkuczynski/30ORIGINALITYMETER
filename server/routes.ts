@@ -977,11 +977,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { passage, analysisResult, styleOption, customInstructions, provider } = requestSchema.parse(req.body);
       
+      const customInstructionsLength = customInstructions?.trim()?.length || 0;
       console.log("Generating more original version:", {
-        title: passage.title,
+        title: passage.title || "[Untitled]",
         textLength: passage.text.length,
         styleOption,
-        hasCustomInstructions: !!customInstructions
+        hasCustomInstructions: !!customInstructions && customInstructionsLength > 0,
+        customInstructionsLength,
+        userContext: passage.userContext ? "Provided" : "None"
       });
 
       try {
