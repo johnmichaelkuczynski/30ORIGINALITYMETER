@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { AIDetectionResult } from '@/hooks/use-ai-detection';
+import { AIDetectionResult } from '@/lib/types';
 import { Loader2, AlertCircle, Check, ExternalLink } from 'lucide-react';
 
 interface AIDetectionBadgeProps {
