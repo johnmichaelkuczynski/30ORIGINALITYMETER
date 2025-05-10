@@ -3,13 +3,31 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { ZodError } from "zod";
 import { z } from "zod";
-import { analyzePassages, analyzeSinglePassage, analyzePassageAgainstCorpus, processFeedback, generateMoreOriginalVersion } from "./lib/openai";
+import * as openaiService from "./lib/openai";
+import * as anthropicService from "./lib/anthropic";
+import * as perplexityService from "./lib/perplexity";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";
 import path from "path";
 import { processFile } from "./lib/fileProcessing";
 import { processAudioFile, verifyAssemblyAIApiKey } from "./lib/assemblyai";
+
+// Service provider types
+type LLMProvider = "openai" | "anthropic" | "perplexity";
+
+// Get the appropriate service based on the provider
+const getServiceForProvider = (provider: LLMProvider) => {
+  switch (provider) {
+    case "anthropic":
+      return anthropicService;
+    case "perplexity":
+      return perplexityService;
+    case "openai":
+    default:
+      return openaiService;
+  }
+};
 
 // Configure multer for document file uploads
 const documentUpload = multer({
@@ -83,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage B text is required"),
           userContext: z.string().optional().default(""),
         }),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
       const { passageA, passageB } = requestSchema.parse(req.body);
@@ -232,6 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
       const { passageA } = requestSchema.parse(req.body);
@@ -382,6 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }),
         corpus: z.string().min(1, "Corpus text is required"),
         corpusTitle: z.string().optional().default("Reference Corpus"),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
       const { passage, corpus, corpusTitle } = requestSchema.parse(req.body);
