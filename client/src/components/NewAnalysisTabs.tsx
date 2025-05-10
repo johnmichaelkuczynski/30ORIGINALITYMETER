@@ -97,19 +97,30 @@ export default function AnalysisTabs({
                       const originalityScore = result.derivativeIndex.passageA.score;
                       const coherenceScore = result.coherence.passageA.score;
                       
-                      // Heavier penalty for low coherence than low originality
-                      let aggregateScore: number;
+                      // OVERRIDE: Direct implementation of the specified scoring formula
+                      // Treat originalityScore as conceptualInnovation
+                      const conceptualInnovation = originalityScore;
                       
-                      if (coherenceScore < 3) {
-                        // Very incoherent content gets heavily penalized regardless of originality
-                        aggregateScore = Math.min(4, (coherenceScore * 0.7) + (originalityScore * 0.3)); 
-                      } else if (coherenceScore >= 3 && coherenceScore < 6) {
-                        // Moderate coherence - weighted blend
-                        aggregateScore = (coherenceScore * 0.6) + (originalityScore * 0.4);
-                      } else {
-                        // Good coherence - more balanced weighting
-                        aggregateScore = (coherenceScore * 0.5) + (originalityScore * 0.5);
-                      }
+                      // Get other scores with defaults if not provided
+                      const depth = result.depth?.passageA?.score || 5;
+                      
+                      // Coherence is already available from the parameter
+                      
+                      // Treat accuracy as insightDensity
+                      const insightDensity = result.accuracy?.passageA?.score || 5;
+                      
+                      // Methodological novelty (using clarity as a proxy if available)
+                      const methodologicalNovelty = result.clarity?.passageA?.score || 
+                        Math.min(10, (originalityScore * 0.6) + (depth * 0.4));
+                      
+                      // Final score using the mandated formula: 
+                      // Conceptual Innovation (25%), Depth (25%), Coherence (20%), 
+                      // Insight Density (15%), Methodological Novelty (15%)
+                      const aggregateScore = (conceptualInnovation * 0.25) + 
+                        (depth * 0.25) + 
+                        (coherenceScore * 0.20) + 
+                        (insightDensity * 0.15) + 
+                        (methodologicalNovelty * 0.15);
                       
                       // Color based on score
                       const scoreColor = 
@@ -145,7 +156,7 @@ export default function AnalysisTabs({
                     })()}
                     
                     <p className="text-xs text-secondary-600 mt-2">
-                      This score balances originality with coherence, with incoherent text receiving a heavier penalty.
+                      This philosophical text score balances conceptual innovation (25%), depth (25%), coherence (20%), insight density (15%), and methodological novelty (15%).
                     </p>
                   </div>
                 </div>
@@ -179,7 +190,7 @@ export default function AnalysisTabs({
                 </div>
                 
                 <div className="text-xs text-secondary-600 border-t pt-3">
-                  <p>The independent scores above are used to calculate the Aggregate Quality Score. The aggregate scoring system prioritizes coherence while still recognizing the value of originality.</p>
+                  <p>The scores above are components in the Aggregate Quality Score calculation. The scoring system is designed for philosophical and theoretical texts, emphasizing conceptual innovation and depth while properly valuing coherence, insight density, and methodological novelty.</p>
                 </div>
               </div>
             </div>
