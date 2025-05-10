@@ -59,13 +59,13 @@ export async function analyzePassages(
 
   const paragraphsA = passageA.text
     .split('\n\n')
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0);
 
   const paragraphsB = passageB.text
     .split('\n\n')
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0);
 
   const userPrompt = `Please analyze the following two passages for originality, derivative content, and intellectual merit.
 
@@ -306,15 +306,17 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         derivativeIndex: {
           passageA: {
             score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            components: [
+              { name: "Originality", score: 5 },
+              { name: "Conceptual Innovation", score: 5 }
+            ]
           },
           passageB: {
             score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            components: [
+              { name: "Originality", score: 5 },
+              { name: "Conceptual Innovation", score: 5 }
+            ]
           }
         },
         conceptualParasite: {

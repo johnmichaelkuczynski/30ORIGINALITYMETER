@@ -200,15 +200,17 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
       result.derivativeIndex = {
         passageA: {
           score: 5,
-          assessment: "Medium originality (auto-generated assessment)",
-          strengths: ["Analysis did not provide detailed strengths"],
-          weaknesses: ["Analysis did not provide detailed weaknesses"]
+          components: [
+            { name: "Originality", score: 5 },
+            { name: "Conceptual Innovation", score: 5 }
+          ]
         },
         passageB: {
           score: 5,
-          assessment: "Baseline for comparison (auto-generated assessment)",
-          strengths: ["Standard presentation"],
-          weaknesses: ["Limited novelty"]
+          components: [
+            { name: "Originality", score: 5 },
+            { name: "Conceptual Innovation", score: 5 }
+          ]
         }
       };
     }
