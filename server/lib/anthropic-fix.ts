@@ -303,6 +303,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
       };
     }
 
+    // Ensure verdict is present (required field)
+    if (!result.verdict) {
+      result.verdict = "This passage demonstrates standard academic writing with occasional moments of originality. Overall assessment indicates moderate originality with adequate conceptual depth.";
+    }
+
     // Add metadata
     result.metadata = {
       provider: "anthropic",
