@@ -104,18 +104,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
-      const { passageA, passageB } = requestSchema.parse(req.body);
+      const { passageA, passageB, provider } = requestSchema.parse(req.body);
       
       console.log("Comparing passages:", {
         passageATitle: passageA.title,
         passageALength: passageA.text.length,
         passageBTitle: passageB.title,
-        passageBLength: passageB.text.length
+        passageBLength: passageB.text.length,
+        provider
       });
 
       try {
-        // Get OpenAI's analysis of the passages
-        const analysisResult = await analyzePassages(passageA, passageB);
+        // Get analysis of the passages from the selected provider
+        const service = getServiceForProvider(provider);
+        const analysisResult = await service.analyzePassages(passageA, passageB);
 
         // Validate the response against our schema
         const validatedResult = analysisResultSchema.parse(analysisResult);
@@ -254,16 +256,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
-      const { passageA } = requestSchema.parse(req.body);
+      const { passageA, provider } = requestSchema.parse(req.body);
       
       console.log("Single passage analysis request:", {
         title: passageA.title,
         textLength: passageA.text.length,
+        provider
       });
 
       try {
-        // Get OpenAI's analysis of the single passage
-        const analysisResult = await analyzeSinglePassage(passageA);
+        // Get analysis of the single passage from the selected provider
+        const service = getServiceForProvider(provider);
+        const analysisResult = await service.analyzeSinglePassage(passageA);
 
         // Validate the response against our schema
         const validatedResult = analysisResultSchema.parse(analysisResult);
@@ -405,18 +409,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
       });
 
-      const { passage, corpus, corpusTitle } = requestSchema.parse(req.body);
+      const { passage, corpus, corpusTitle, provider } = requestSchema.parse(req.body);
       
       console.log("Corpus comparison request:", {
         passageTitle: passage.title,
         passageLength: passage.text.length,
         corpusTitle,
         corpusLength: corpus.length,
+        provider
       });
 
       try {
-        // Get OpenAI's analysis of the passage against the corpus
-        const analysisResult = await analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
+        // For corpus analysis, only OpenAI is supported currently
+        console.log(`Using OpenAI for corpus analysis (provider ${provider} requested)`);
+        const analysisResult = await openaiService.analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
 
         // Make sure verdict exists
         if (!analysisResult.verdict) {
@@ -427,7 +433,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let validatedResult;
         try {
           validatedResult = analysisResultSchema.parse(analysisResult);
-        } catch (validationError) {
+        } catch (error) {
+          const validationError = error instanceof Error ? error : new Error("Unknown validation error");
           console.error("Schema validation error for corpus analysis:", validationError);
           // If validation fails, use the fallback response instead
           throw new Error(`Schema validation failed: ${validationError.message}`);
