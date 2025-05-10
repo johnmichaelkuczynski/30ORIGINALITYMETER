@@ -19,7 +19,7 @@ interface FileDropzoneProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function FileDropzone({
   onFileSelect,
-  accept = ".txt,.docx,.mp3",
+  accept = ".txt,.docx,.mp3,.pdf",
   disabled = false,
   isUploading = false,
   uploadProgress = 0,

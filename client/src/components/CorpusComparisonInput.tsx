@@ -228,7 +228,7 @@ export default function CorpusComparisonInput({
                     } as unknown as ChangeEvent<HTMLInputElement>;
                     handleFileUpload(syntheticEvent, true);
                   }}
-                  accept=".txt,.docx,.mp3" 
+                  accept=".txt,.docx,.mp3,.pdf" 
                   disabled={disabled}
                   isUploading={isUploading}
                   uploadProgress={uploadProgress}
@@ -402,7 +402,7 @@ export default function CorpusComparisonInput({
                     } as unknown as ChangeEvent<HTMLInputElement>;
                     handleFileUpload(syntheticEvent);
                   }}
-                  accept=".txt,.docx,.mp3" 
+                  accept=".txt,.docx,.mp3,.pdf" 
                   disabled={disabled}
                   isUploading={isUploading}
                   uploadProgress={uploadProgress}

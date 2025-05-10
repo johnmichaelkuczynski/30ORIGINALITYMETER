@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+// Will use dynamic import for pdf-parse when needed
 
 // Initialize the OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -48,6 +49,29 @@ export async function extractTextFromDocx(buffer: Buffer): Promise<string> {
   } catch (error: unknown) {
     console.error('Error extracting text from DOCX:', error);
     throw new Error(`Failed to extract text from DOCX: ${getErrorMessage(error)}`);
+  }
+}
+
+/**
+ * Extracts text from a PDF file buffer
+ * @param buffer - The PDF file as a buffer
+ * @returns Promise containing the extracted text
+ */
+export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
+  try {
+    console.log('Beginning PDF text extraction...');
+    
+    // Dynamically import pdf-parse
+    const pdfParse = await import('pdf-parse');
+    
+    // Use pdf-parse to extract text from the PDF buffer
+    const data = await pdfParse.default(buffer);
+    
+    console.log('PDF text extraction completed successfully');
+    return data.text;
+  } catch (error: unknown) {
+    console.error('Error extracting text from PDF:', error);
+    throw new Error(`Failed to extract text from PDF: ${getErrorMessage(error)}`);
   }
 }
 
@@ -104,6 +128,8 @@ export async function processFile(buffer: Buffer, fileType: string): Promise<str
         return buffer.toString('utf-8');
       case 'docx':
         return await extractTextFromDocx(buffer);
+      case 'pdf':
+        return await extractTextFromPdf(buffer);
       case 'mp3':
         return await transcribeAudioFromMp3(buffer);
       default:
