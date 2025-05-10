@@ -1697,10 +1697,20 @@ Please provide:
       }
     }
     
-    // Add a final safety check to ensure we never return the original text unchanged
-    if (improvedText === passage.text || improvedText.length < passage.text.length / 2) {
+    // Add a safety check to ensure we never return the original text unchanged
+    // But allow for similarities in longer passages (>1000 chars)
+    if (passage.text.length <= 1000 && 
+        (improvedText === passage.text || improvedText.length < passage.text.length / 2)) {
       console.error("Improved passage matches original or is too short");
       throw new Error("The generated improved passage was too similar to the original. Please try again with different style options.");
+    } else if (passage.text.length > 1000) {
+      // For longer texts, only check if it's exactly the same
+      if (improvedText === passage.text) {
+        console.error("Improved passage exactly matches original");
+        throw new Error("The generated improved passage was identical to the original. Please try again with different style options.");
+      }
+      // Otherwise accept it even if somewhat similar
+      console.log("Long passage - accepting improvements even if somewhat similar to original");
     }
     
     // Get the estimated score, defaulting to original score + 2 (bounded by 10)
