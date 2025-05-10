@@ -747,7 +747,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // More permissive validation schema
       const requestSchema = z.object({
         analysisId: z.number().optional(),
-        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite', 'coherence']),
+        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite', 'coherence', 'accuracy', 'depth', 'clarity']),
         feedback: z.string().min(1, "Feedback is required"),
         supportingDocument: z.object({
           title: z.string(),
@@ -763,7 +763,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: z.string().optional().default(""),
           text: z.string().optional().default("")
         }),
-        isSinglePassageMode: z.boolean().optional().default(false)
+        isSinglePassageMode: z.boolean().optional().default(false),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai")
       });
 
       const { 
@@ -774,13 +775,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         originalResult, 
         passageA, 
         passageB, 
-        isSinglePassageMode 
+        isSinglePassageMode,
+        provider 
       } = requestSchema.parse(req.body);
       
-      console.log(`Processing feedback for category '${category}'`);
-
+      console.log(`Processing feedback for category '${category}' using provider ${provider}`);
+      
+      // For now, only OpenAI supports feedback processing
+      // Always use OpenAI for feedback processing regardless of provider selection
+      console.log("Note: Using OpenAI for feedback processing (other providers not supported)");
+      
       // Process the feedback and get a response
-      const { feedback: feedbackData, updatedResult } = await processFeedback({
+      const { feedback: feedbackData, updatedResult } = await openaiService.processFeedback({
         category,
         feedback,
         originalResult,
@@ -906,10 +912,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }),
         analysisResult: analysisResultSchema.passthrough(),
         styleOption: z.enum(['keep-voice', 'academic', 'punchy', 'prioritize-originality']).optional(),
-        customInstructions: z.string().optional()
+        customInstructions: z.string().optional(),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai")
       });
 
-      const { passage, analysisResult, styleOption, customInstructions } = requestSchema.parse(req.body);
+      const { passage, analysisResult, styleOption, customInstructions, provider } = requestSchema.parse(req.body);
       
       console.log("Generating more original version:", {
         title: passage.title,
@@ -919,8 +926,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       try {
+        // Provider already extracted from the schema parse
+        console.log(`Using provider ${provider} for generating more original version`);
+        
+        // For now, only OpenAI supports generating more original versions
+        console.log("Note: Using OpenAI for generating more original versions (other providers not supported)");
+        
         // Generate a more original version using OpenAI
-        const generatedResult = await generateMoreOriginalVersion(
+        const generatedResult = await openaiService.generateMoreOriginalVersion(
           passage, 
           analysisResult, 
           styleOption,
