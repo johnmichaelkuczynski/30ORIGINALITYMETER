@@ -28,17 +28,17 @@ export async function analyzePassages(
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality and quality of texts (not plagiarism or surface similarity). Analyze the two passages across nine metrics:
+          content: `You are a sophisticated semantic analyzer that evaluates the conceptual originality AND merit of texts (not plagiarism or surface similarity). IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities. Analyze the two passages across nine metrics:
 
-1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
-2. Semantic Distance - How far each passage moves from predecessors; is it reshuffling or truly novel
-3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph
-4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original
-5. Conceptual Parasite Detection - Passages that operate in old debates without adding anything new
-6. Coherence - Whether the passage is logically and conceptually coherent
-7. Accuracy - Factual and inferential correctness of the passage
-8. Depth - Non-triviality and conceptual insight of the passage
-9. Clarity - Readability, transparency, and semantic accessibility of the passage
+1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas, with higher scores for ideas that are both novel AND well-founded
+2. Semantic Distance - How far each passage moves from predecessors while maintaining intellectual rigor; mere difference is not valuable without substantive merit
+3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph, with emphasis on innovation that builds on solid foundations
+4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original AND meritorious (low scores for texts that are original but incoherent or lacking depth)
+5. Conceptual Parasite Detection - Passages that operate in old debates without adding anything new or valuable
+6. Coherence - Whether the passage is logically and conceptually coherent, a fundamental requirement for valuable originality
+7. Accuracy - Factual and inferential correctness of the passage, without which originality has diminished value
+8. Depth - Non-triviality and conceptual insight of the passage, which gives originality its purpose
+9. Clarity - Readability, transparency, and semantic accessibility of the passage, necessary for communicating original ideas
 
 For coherence, evaluate:
 - Internal consistency (no contradictions)
@@ -482,7 +482,7 @@ export async function analyzeSinglePassage(
       messages: [
         {
           role: "system",
-          content: `You are a sophisticated semantic originality analyzer that evaluates the conceptual originality and quality of texts (not plagiarism or surface similarity). Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across nine metrics:
+          content: `You are a sophisticated semantic analyzer that evaluates the conceptual originality AND merit of texts (not plagiarism or surface similarity). IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities. Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across nine metrics:
 
 1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
 2. Semantic Distance - How far the passage moves from common norms; is it reshuffling or truly novel
@@ -954,7 +954,11 @@ export async function analyzePassageAgainstCorpus(
 
     // Create a prompt for the analysis
     const prompt = `
-You are an expert in analyzing the conceptual originality and semantic relationships between texts. You are tasked with comparing an individual passage against a larger corpus (body of work). Your analysis should focus on the following aspects:
+You are an expert in analyzing the conceptual originality AND merit of texts. You are tasked with comparing an individual passage against a larger corpus (body of work). 
+
+IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities. Favor passages that combine originality with logical coherence, factual accuracy, and conceptual depth.
+
+Your analysis should focus on the following aspects:
 
 1. Conceptual Lineage: Identify how the concepts, ideas, and arguments in the passage trace back to or build upon concepts in the corpus.
 2. Semantic Distance: Assess how similar or different the passage is from the corpus in terms of meaning, style, and theoretical approach.

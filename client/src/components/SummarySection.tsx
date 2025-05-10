@@ -48,9 +48,10 @@ export default function SummarySection({
     }
     
     // New comprehensive score calculation with all five metrics
-    // Originality (40%), Depth (25%), Coherence (15%), Accuracy (10%), Clarity (10%)
-    return (originalityScore * 0.4) + (depth * 0.25) + 
-           (coherenceScore * 0.15) + (accuracy * 0.1) + (clarity * 0.1);
+    // Merit-balanced approach: Originality (25%), Depth (25%), Coherence (20%), Accuracy (15%), Clarity (15%)
+    // This gives a more balanced emphasis to all qualities, reducing the dominance of sheer originality
+    return (originalityScore * 0.25) + (depth * 0.25) + 
+           (coherenceScore * 0.20) + (accuracy * 0.15) + (clarity * 0.15);
   };
 
   const aggregateScoreA = calculateAggregateScore(
@@ -134,7 +135,7 @@ export default function SummarySection({
                   <div className="text-xl text-secondary-500 ml-1">/10</div>
                 </div>
                 <div className="text-sm text-secondary-600 text-center mt-2">
-                  Prioritizes originality (40%) and depth (25%) over coherence (15%), accuracy (10%) and clarity (10%)
+                  Balances originality (25%) and depth (25%) with coherence (20%), accuracy (15%) and clarity (15%)
                 </div>
                 
                 {/* Score bar visualization */}
