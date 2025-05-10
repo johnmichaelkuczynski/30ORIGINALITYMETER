@@ -39,6 +39,19 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   // Keep track of text IDs for AI detection
   const originalTextId = 'original-passage';
   const improvedTextId = 'improved-passage';
+  
+  // Detect AI content when the component loads or when generatedResult changes
+  useEffect(() => {
+    // Detect original passage when component loads
+    if (passage.text) {
+      detectAIContent(passage.text, originalTextId);
+    }
+    
+    // Detect improved passage when it's generated
+    if (generatedResult?.improvedPassage?.text) {
+      detectAIContent(generatedResult.improvedPassage.text, improvedTextId);
+    }
+  }, [passage.text, generatedResult?.improvedPassage?.text]);
 
   // Mutation for generating a more original passage
   const generateMutation = useMutation({
@@ -270,17 +283,55 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
             <>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="original">Original</TabsTrigger>
-                  <TabsTrigger value="improved">Improved</TabsTrigger>
+                  <TabsTrigger value="original" className="relative flex items-center justify-center">
+                    <span>Original</span>
+                    <div className="absolute right-1 top-1">
+                      <AIDetectionBadge 
+                        result={getDetectionResult(originalTextId)} 
+                        isDetecting={isDetecting} 
+                        textId={originalTextId} 
+                        onDetect={() => detectAIContent(passage.text, originalTextId)}
+                        className="scale-75 origin-right"
+                      />
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="improved" className="relative flex items-center justify-center">
+                    <span>Improved</span>
+                    <div className="absolute right-1 top-1">
+                      <AIDetectionBadge 
+                        result={getDetectionResult(improvedTextId)} 
+                        isDetecting={isDetecting} 
+                        textId={improvedTextId}
+                        onDetect={() => generatedResult?.improvedPassage?.text && 
+                          detectAIContent(generatedResult.improvedPassage.text, improvedTextId)}
+                        className="scale-75 origin-right"
+                      />
+                    </div>
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="original" className="mt-2">
-                  <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap">
+                  <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap relative">
+                    <div className="absolute top-2 right-2">
+                      <AIDetectionBadge 
+                        result={getDetectionResult(originalTextId)} 
+                        isDetecting={isDetecting} 
+                        textId={originalTextId}
+                        onDetect={() => detectAIContent(passage.text, originalTextId)}
+                      />
+                    </div>
                     {passage.text}
                   </div>
                 </TabsContent>
                 <TabsContent value="improved" className="mt-2">
                   <div className="relative">
                     <div className="absolute top-2 right-2 flex gap-2 z-10">
+                      <AIDetectionBadge 
+                        result={getDetectionResult(improvedTextId)} 
+                        isDetecting={isDetecting} 
+                        textId={improvedTextId}
+                        onDetect={() => generatedResult?.improvedPassage?.text && 
+                          detectAIContent(generatedResult.improvedPassage.text, improvedTextId)}
+                      />
                       <Button 
                         variant="ghost" 
                         size="sm" 

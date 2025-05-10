@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { FileDropzone } from "@/components/ui/file-dropzone";
 import { VoiceDictation } from "@/components/ui/voice-dictation";
+import useAIDetection from "@/hooks/use-ai-detection";
+import AIDetectionBadge from "@/components/AIDetectionBadge";
 
 interface PassageInputProps {
   passage: PassageData;
@@ -23,12 +25,27 @@ export default function PassageInput({
 }: PassageInputProps) {
   const [wordCount, setWordCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // AI detection
+  const { 
+    detectAIContent, 
+    getDetectionResult, 
+    isDetecting 
+  } = useAIDetection();
+  
+  // Generate unique ID for this passage
+  const passageId = `passage-${label || 'main'}`;
 
   useEffect(() => {
     const text = passage.text.trim();
     const count = text.length > 0 ? text.split(/\s+/).length : 0;
     setWordCount(count);
-  }, [passage.text]);
+    
+    // Only detect AI content if there's sufficient text (more than 100 characters)
+    if (text.length > 100) {
+      detectAIContent(text, passageId);
+    }
+  }, [passage.text, passageId, detectAIContent]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange({
@@ -174,27 +191,44 @@ export default function PassageInput({
         </div>
       </div>
       <CardContent className="p-4 flex-grow relative">
-        <textarea
-          rows={12}
-          placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}
-          className="w-full p-0 border-0 focus:ring-0 resize-none bg-transparent text-secondary-800"
-          value={passage.text}
-          onChange={handleTextChange}
-          disabled={disabled}
-        />
-        {passage.text && !disabled && (
-          <button
-            type="button"
-            className="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-            onClick={() => onChange({ ...passage, text: "" })}
-            aria-label="Clear text"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M15 9l-6 6M9 9l6 6" />
-            </svg>
-          </button>
-        )}
+        <div className="relative">
+          {/* AI Detection Badge */}
+          <div className="absolute top-0 right-0 z-10 p-1">
+            <AIDetectionBadge
+              result={getDetectionResult(passageId)}
+              isDetecting={isDetecting}
+              textId={passageId}
+              onDetect={() => {
+                const text = passage.text.trim();
+                if (text.length > 50) {
+                  detectAIContent(text, passageId);
+                }
+              }}
+            />
+          </div>
+          
+          <textarea
+            rows={12}
+            placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}
+            className="w-full p-0 border-0 focus:ring-0 resize-none bg-transparent text-secondary-800"
+            value={passage.text}
+            onChange={handleTextChange}
+            disabled={disabled}
+          />
+          {passage.text && !disabled && (
+            <button
+              type="button"
+              className="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              onClick={() => onChange({ ...passage, text: "" })}
+              aria-label="Clear text"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M15 9l-6 6M9 9l6 6" />
+              </svg>
+            </button>
+          )}
+        </div>
       </CardContent>
       
       {/* Optional User Context Input */}
