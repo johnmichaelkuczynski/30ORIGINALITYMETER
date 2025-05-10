@@ -12,6 +12,7 @@ import multer from "multer";
 import path from "path";
 import { processFile } from "./lib/fileProcessing";
 import { processAudioFile, verifyAssemblyAIApiKey } from "./lib/assemblyai";
+import { detectAIContent, AIDetectionResult } from "./lib/aiDetection";
 
 // Service provider types
 type LLMProvider = "openai" | "anthropic" | "perplexity";
