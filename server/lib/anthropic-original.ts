@@ -198,21 +198,7 @@ Return a detailed analysis in the following JSON format:
     const contentText = response.content[0].type === 'text' ? response.content[0].text : '';
     
     // Parse the content into our AnalysisResult type
-    let jsonContent = contentText;
-    const jsonBlockMatch = contentText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonBlockMatch && jsonBlockMatch[1]) {
-      jsonContent = jsonBlockMatch[1].trim();
-      console.log("Extracted JSON from code block in Anthropic response");
-    }
-    
-    let result: AnalysisResult;
-    try {
-      result = JSON.parse(jsonContent) as AnalysisResult;
-    } catch (error) {
-      console.error("Error parsing Anthropic JSON response:", error);
-      throw new Error(`Failed to parse Anthropic response: ${error instanceof Error ? error.message : String(error)}`);
-    }
-      result = JSON.parse(jsonContent) as AnalysisResult;
+    const result = JSON.parse(contentText) as AnalysisResult;
 
     // Process and validate all required fields for the response
     // This ensures the AnalysisResult always matches the expected schema
@@ -443,21 +429,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
     const contentText = response.content[0].type === 'text' ? response.content[0].text : '';
     
     // Parse the content into our AnalysisResult type
-    let jsonContent = contentText;
-    const jsonBlockMatch = contentText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonBlockMatch && jsonBlockMatch[1]) {
-      jsonContent = jsonBlockMatch[1].trim();
-      console.log("Extracted JSON from code block in Anthropic response");
-    }
-    
-    let result: AnalysisResult;
-    try {
-      result = JSON.parse(jsonContent) as AnalysisResult;
-    } catch (error) {
-      console.error("Error parsing Anthropic JSON response:", error);
-      throw new Error(`Failed to parse Anthropic response: ${error instanceof Error ? error.message : String(error)}`);
-    }
-      result = JSON.parse(jsonContent) as AnalysisResult;
+    const result = JSON.parse(contentText) as AnalysisResult;
 
     // Process and validate all required fields for the response
 
