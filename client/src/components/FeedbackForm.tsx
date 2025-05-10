@@ -38,6 +38,9 @@ export default function FeedbackForm({
   const [supportingDocument, setSupportingDocument] = useState<SupportingDocument | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
   
+  // Get the provider from the result metadata if available, default to OpenAI
+  const provider = result.metadata?.provider || "openai";
+  
   // Check if this category already has feedback
   const existingFeedback = result[category]?.feedback;
 
@@ -92,7 +95,8 @@ export default function FeedbackForm({
             title: passageB.title || "",
             text: passageB.text || ""
           },
-          isSinglePassageMode: !!isSinglePassageMode
+          isSinglePassageMode: !!isSinglePassageMode,
+          provider: provider // Include the provider from the original analysis
         };
 
         // Log the structure without accessing properties by string index
