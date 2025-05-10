@@ -132,10 +132,10 @@ export default function FeedbackForm({
   const handleFileUpload = async (file: File) => {
     // Validate file type
     const fileType = file.name.split('.').pop()?.toLowerCase();
-    if (fileType !== 'txt' && fileType !== 'docx') {
+    if (fileType !== 'txt' && fileType !== 'docx' && fileType !== 'pdf') {
       toast({
         title: "Unsupported file format",
-        description: "Please upload a .txt or .docx file",
+        description: "Please upload a .txt, .docx, or .pdf file",
         variant: "destructive",
       });
       return;
@@ -341,7 +341,7 @@ export default function FeedbackForm({
                 
                 <FileDropzone
                   onFileSelect={handleFileUpload}
-                  accept=".txt,.docx"
+                  accept=".txt,.docx,.pdf"
                   disabled={fileUploading || feedbackMutation.isPending}
                   isUploading={fileUploading}
                   maxSizeInMB={20}
