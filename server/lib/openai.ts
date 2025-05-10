@@ -1589,8 +1589,20 @@ Guidelines:
       }
     }
     
-    // Add any custom instructions if provided
-    const customDirections = customInstructions ? `CUSTOM INSTRUCTIONS:\n${customInstructions}\n\n` : "";
+    // Determine whether to use custom instructions or the preset protocols
+    let finalInstructions;
+    let usedCustomInstructions = false;
+    
+    if (customInstructions && customInstructions.trim()) {
+      // If custom instructions are provided, use them instead of the improvement protocol
+      finalInstructions = `CUSTOM INSTRUCTIONS (OVERRIDE ALL DEFAULT PROTOCOLS):\n${customInstructions.trim()}\n\n`;
+      usedCustomInstructions = true;
+      console.log("Using custom rewriting instructions, overriding default protocols");
+    } else {
+      // Otherwise use the default improvement protocol
+      finalInstructions = `${improvementProtocol}\n\n${styleInstruction}\n\n`;
+      console.log("Using default improvement protocol");
+    }
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -1611,7 +1623,9 @@ Your improved version should:
 - Make concrete interdisciplinary connections
 - Provide novel perspectives on the subject matter
 - Maintain readability and logical structure
-- Increase the passage's derivative index score substantially`,
+- Increase the passage's derivative index score substantially
+
+IMPORTANT: If the user provides custom instructions, you MUST follow them EXACTLY, ignoring all default protocols.`,
         },
         {
           role: "user",
@@ -1631,11 +1645,7 @@ ANALYSIS RESULTS:
 LESS ORIGINAL SECTIONS:
 ${lowHeatAreas || "All sections could use improvement for originality"}
 
-${improvementProtocol}
-
-${styleInstruction}
-
-${customDirections}
+${finalInstructions}
 
 Please provide:
 1. An improved version of the passage
