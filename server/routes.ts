@@ -268,9 +268,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get analysis of the single passage from the selected provider
         const service = getServiceForProvider(provider);
         const analysisResult = await service.analyzeSinglePassage(passageA);
+        
+        // Add metadata for tracking provider and timestamp
+        const resultWithMetadata = {
+          ...analysisResult,
+          metadata: {
+            provider,
+            timestamp: new Date().toISOString()
+          }
+        };
 
         // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(analysisResult);
+        const validatedResult = analysisResultSchema.parse(resultWithMetadata);
 
         // Store the analysis in our database with a special flag for single mode
         await storage.createAnalysis({
@@ -288,6 +297,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Return a valid response for testing purposes
         const fallbackResponse = {
+          metadata: {
+            provider,
+            timestamp: new Date().toISOString()
+          },
           conceptualLineage: {
             passageA: {
               primaryInfluences: "Analysis currently unavailable - please try again later.",
@@ -424,15 +437,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Using OpenAI for corpus analysis (provider ${provider} requested)`);
         const analysisResult = await openaiService.analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
 
+        // Add metadata for tracking provider and timestamp
+        const resultWithMetadata = {
+          ...analysisResult,
+          metadata: {
+            provider: "openai", // Always OpenAI for corpus analysis for now
+            timestamp: new Date().toISOString()
+          }
+        };
+
         // Make sure verdict exists
-        if (!analysisResult.verdict) {
-          analysisResult.verdict = `Analysis comparing your passage "${passage.title}" against corpus "${corpusTitle}"`;
+        if (!resultWithMetadata.verdict) {
+          resultWithMetadata.verdict = `Analysis comparing your passage "${passage.title}" against corpus "${corpusTitle}"`;
         }
 
         // Validate the response against our schema
         let validatedResult;
         try {
-          validatedResult = analysisResultSchema.parse(analysisResult);
+          validatedResult = analysisResultSchema.parse(resultWithMetadata);
         } catch (error) {
           const validationError = error instanceof Error ? error : new Error("Unknown validation error");
           console.error("Schema validation error for corpus analysis:", validationError);
@@ -456,6 +478,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Return a valid response for when API calls fail
         const fallbackResponse = {
+          metadata: {
+            provider: "openai",
+            timestamp: new Date().toISOString()
+          },
           conceptualLineage: {
             passageA: {
               primaryInfluences: "Analysis currently unavailable - please try again later.",
