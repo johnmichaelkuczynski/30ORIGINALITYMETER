@@ -24,6 +24,45 @@ export default function SemanticAnalyzer() {
   // LLM Provider
   type LLMProvider = "openai" | "anthropic" | "perplexity";
   const [provider, setProvider] = useState<LLMProvider>("openai");
+  const [providerStatus, setProviderStatus] = useState<{
+    openai: boolean;
+    anthropic: boolean;
+    perplexity: boolean;
+  }>({
+    openai: true,
+    anthropic: false,
+    perplexity: false
+  });
+  
+  // Check which providers are available
+  useEffect(() => {
+    async function checkProviders() {
+      try {
+        const response = await fetch('/api/provider-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setProviderStatus(data);
+          
+          // If the current provider is not available, default to one that is
+          if (!data[provider]) {
+            if (data.openai) setProvider('openai');
+            else if (data.anthropic) setProvider('anthropic');
+            else if (data.perplexity) setProvider('perplexity');
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check provider status:", error);
+      }
+    }
+    
+    checkProviders();
+  }, []);
   
   const [passageA, setPassageA] = useState<PassageData>({
     title: "",
@@ -272,6 +311,109 @@ export default function SemanticAnalyzer() {
           )}
           {analysisMode === "corpus" && (
             <p>Compare your passage against a larger body of work to see how it aligns with a specific style or theorist.</p>
+          )}
+        </div>
+        
+        {/* Provider Selection */}
+        <div className="mt-6">
+          <h4 className="font-semibold text-slate-700 mb-3">Select AI Model Provider</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div 
+              className={`relative cursor-pointer rounded-lg border p-3 flex items-center space-x-3 transition-all ${
+                provider === 'openai' 
+                  ? 'border-blue-300 bg-blue-50 shadow-sm' 
+                  : 'border-gray-200 bg-white hover:bg-slate-50'
+              } ${!providerStatus.openai ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => providerStatus.openai && setProvider('openai')}
+            >
+              <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="#0284c7">
+                  <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/>
+                </svg>
+              </div>
+              <div className="min-w-0 flex-1">
+                <label className="text-sm font-medium text-gray-900 cursor-pointer">
+                  OpenAI
+                </label>
+                <p className="text-xs text-gray-500">
+                  GPT-4o
+                </p>
+              </div>
+              {provider === 'openai' && (
+                <div className="absolute top-2 right-2">
+                  <svg className="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            <div 
+              className={`relative cursor-pointer rounded-lg border p-3 flex items-center space-x-3 transition-all ${
+                provider === 'anthropic' 
+                  ? 'border-violet-300 bg-violet-50 shadow-sm' 
+                  : 'border-gray-200 bg-white hover:bg-slate-50'
+              } ${!providerStatus.anthropic ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => providerStatus.anthropic && setProvider('anthropic')}
+            >
+              <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-violet-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 32 32" fill="none">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32ZM10.9262 23.5262H8V8H10.9262V14.4983H21.0738V8H24V23.5262H21.0738V17.0279H10.9262V23.5262Z" fill="#8a5cf6" />
+                </svg>
+              </div>
+              <div className="min-w-0 flex-1">
+                <label className="text-sm font-medium text-gray-900 cursor-pointer">
+                  Anthropic
+                </label>
+                <p className="text-xs text-gray-500">
+                  Claude 3.7 Sonnet
+                </p>
+              </div>
+              {provider === 'anthropic' && (
+                <div className="absolute top-2 right-2">
+                  <svg className="h-5 w-5 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            <div 
+              className={`relative cursor-pointer rounded-lg border p-3 flex items-center space-x-3 transition-all ${
+                provider === 'perplexity' 
+                  ? 'border-emerald-300 bg-emerald-50 shadow-sm' 
+                  : 'border-gray-200 bg-white hover:bg-slate-50'
+              } ${!providerStatus.perplexity ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => providerStatus.perplexity && setProvider('perplexity')}
+            >
+              <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" fill="#10b981" />
+                  <path d="M7 8.5H17M7 12H17M7 15.5H12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="min-w-0 flex-1">
+                <label className="text-sm font-medium text-gray-900 cursor-pointer">
+                  Perplexity
+                </label>
+                <p className="text-xs text-gray-500">
+                  Llama 3.1 Sonar
+                </p>
+              </div>
+              {provider === 'perplexity' && (
+                <div className="absolute top-2 right-2">
+                  <svg className="h-5 w-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {analysisMode === "corpus" && (
+            <div className="mt-2 text-xs text-slate-500 p-2 bg-amber-50 border border-amber-200 rounded">
+              <p>Note: Corpus comparison mode currently only supports OpenAI as the provider.</p>
+            </div>
           )}
         </div>
       </div>
