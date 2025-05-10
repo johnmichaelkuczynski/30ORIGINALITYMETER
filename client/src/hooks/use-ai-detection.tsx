@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-
-export interface AIDetectionResult {
-  isAIGenerated: boolean;
-  score: number;       // 0-1 score, higher means more likely AI generated
-  confidence: string;  // "Low", "Medium", "High"
-  details?: string;    // Optional explanation
-}
+import { AIDetectionResult } from '@/lib/types';
 
 export function useAIDetection() {
   const [isDetecting, setIsDetecting] = useState<boolean>(false);

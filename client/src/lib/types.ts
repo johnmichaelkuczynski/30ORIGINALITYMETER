@@ -181,3 +181,10 @@ export interface GeneratedPassageResult {
   estimatedDerivativeIndex: number;
   improvementSummary: string;
 }
+
+export interface AIDetectionResult {
+  isAIGenerated: boolean;
+  score: number;       // 0-1 score, higher means more likely AI generated
+  confidence: string;  // "Low", "Medium", "High"
+  details?: string;    // Optional explanation
+}
