@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle, Wand2 } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2 } from 'lucide-react';
 import useAIDetection from '@/hooks/use-ai-detection';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
 
@@ -283,39 +283,77 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
             </div>
           </div>
 
-          {generatedResult && (
-            <>
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="original" className="relative flex items-center justify-center">
-                    <span>Original</span>
-                    <div className="absolute right-1 top-1">
-                      <AIDetectionBadge 
-                        result={getDetectionResult(originalTextId)} 
-                        isDetecting={isDetecting} 
-                        textId={originalTextId} 
-                        onDetect={() => detectAIContent(passage.text, originalTextId)}
-                        className="scale-75 origin-right"
-                      />
+          <div className="space-y-4">
+            {/* Generation button */}
+            <Button 
+              onClick={handleGenerate} 
+              className="w-full"
+              disabled={generateMutation.isPending}
+            >
+              {generateMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkle className="mr-2 h-4 w-4" />
+                  Generate More Original Version
+                </>
+              )}
+            </Button>
+
+            {generatedResult && (
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Generated Results</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleReanalyze}
+                    >
+                      <RefreshCcw className="mr-2 h-4 w-4" />
+                      Re-evaluate This Version
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={downloadGeneratedPassage}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+                
+                {improvement > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-md p-3 text-sm text-green-800">
+                    <div className="font-medium mb-1">Improved Originality Score</div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-800 font-medium">
+                        +{improvement.toFixed(1)} points
+                      </Badge>
+                      <span className="text-xs">
+                        From {derivativeIndex.toFixed(1)} to {estimatedScore.toFixed(1)} out of 10
+                      </span>
                     </div>
-                  </TabsTrigger>
-                  <TabsTrigger value="improved" className="relative flex items-center justify-center">
-                    <span>Improved</span>
-                    <div className="absolute right-1 top-1">
-                      <AIDetectionBadge 
-                        result={getDetectionResult(improvedTextId)} 
-                        isDetecting={isDetecting} 
-                        textId={improvedTextId}
-                        onDetect={() => generatedResult?.improvedPassage?.text && 
-                          detectAIContent(generatedResult.improvedPassage.text, improvedTextId)}
-                        className="scale-75 origin-right"
-                      />
-                    </div>
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="original" className="mt-2">
-                  <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap relative">
-                    <div className="absolute top-2 right-2">
+                    <Progress 
+                      value={estimatedScore * 10} 
+                      className="h-2 mt-2" 
+                    />
+                  </div>
+                )}
+
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="original">Original</TabsTrigger>
+                    <TabsTrigger value="improved">Improved</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="original" className="mt-2">
+                    {/* Badge positioned above the content */}
+                    <div className="flex justify-end mb-1">
                       <AIDetectionBadge 
                         result={getDetectionResult(originalTextId)} 
                         isDetecting={isDetecting} 
@@ -323,12 +361,14 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                         onDetect={() => detectAIContent(passage.text, originalTextId)}
                       />
                     </div>
-                    {passage.text}
-                  </div>
-                </TabsContent>
-                <TabsContent value="improved" className="mt-2">
-                  <div className="relative">
-                    <div className="absolute top-2 right-2 flex gap-2 z-10">
+                    <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap">
+                      {passage.text}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="improved" className="mt-2">
+                    {/* Badge and buttons positioned above the content */}
+                    <div className="flex justify-end mb-1 gap-2">
                       <AIDetectionBadge 
                         result={getDetectionResult(improvedTextId)} 
                         isDetecting={isDetecting} 
@@ -341,18 +381,16 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                         size="sm" 
                         className="h-7 px-2 bg-white/80 hover:bg-white text-gray-700"
                         onClick={() => {
-                          // Copy to clipboard
-                          navigator.clipboard.writeText(generatedResult.improvedPassage.text);
-                          toast({
-                            title: "Copied to clipboard",
-                            description: "The improved passage has been copied to your clipboard.",
-                          });
+                          if (generatedResult?.improvedPassage?.text) {
+                            navigator.clipboard.writeText(generatedResult.improvedPassage.text);
+                            toast({
+                              title: "Copied to clipboard",
+                              description: "The improved passage has been copied to your clipboard.",
+                            });
+                          }
                         }}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                        </svg>
+                        <Copy className="h-4 w-4 mr-1" />
                         Copy
                       </Button>
                       <Button 
@@ -360,117 +398,24 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                         size="sm" 
                         className="h-7 px-2 bg-white/80 hover:bg-white text-gray-700"
                         onClick={() => {
-                          // Create a modified version with empty text
-                          const clearedResult = {
-                            ...generatedResult,
-                            improvedPassage: {
-                              ...generatedResult.improvedPassage,
-                              text: ""
-                            }
-                          };
-                          setGeneratedResult(clearedResult);
-                          toast({
-                            title: "Cleared passage",
-                            description: "The improved passage has been cleared.",
-                          });
+                          if (confirm("Are you sure you want to clear the improved passage?")) {
+                            setGeneratedResult(null);
+                          }
                         }}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                          <path d="M3 6h18"></path>
-                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                        </svg>
+                        <Trash2 className="h-4 w-4 mr-1" />
                         Clear
                       </Button>
                     </div>
-                    <div className="border rounded-md p-4 bg-muted/30 text-sm whitespace-pre-wrap">
-                      {generatedResult.improvedPassage.text}
+                    <div className="border rounded-md p-4 bg-white text-sm whitespace-pre-wrap">
+                      {generatedResult?.improvedPassage?.text}
                     </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              {activeTab === 'improved' && (
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium">Estimated Derivative Index</span>
-                      <span className={`text-sm font-medium ${getScoreColor(estimatedScore)}`}>
-                        {estimatedScore.toFixed(1)}/10 {improvement > 0 ? `(+${improvement.toFixed(1)})` : ''}
-                      </span>
-                    </div>
-                    <Progress value={estimatedScore * 10} className="h-2" />
-                  </div>
-
-                  <div className="p-3 bg-muted/50 rounded-md">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="text-sm font-medium">Improvement Summary</h4>
-                      {showCustomInstructions && customInstructions.trim() && (
-                        <Badge variant="outline" className="ml-2 bg-primary/10 font-semibold">
-                          Custom instructions applied
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm">{generatedResult.improvementSummary}</p>
-                    
-                    {/* Show custom instructions that were applied */}
-                    {showCustomInstructions && customInstructions.trim() && (
-                      <div className="mt-3 pt-3 border-t border-muted">
-                        <div className="flex items-center gap-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <line x1="10" y1="9" x2="8" y2="9"></line>
-                          </svg>
-                          <p className="text-xs font-medium text-primary">Custom Instructions Used:</p>
-                        </div>
-                        <p className="text-xs mt-1 italic bg-primary/5 p-2 rounded">{customInstructions}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-2 justify-end">
-          <Button
-            variant="outline"
-            onClick={handleGenerate}
-            disabled={generateMutation.isPending}
-          >
-            {generateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : generatedResult ? (
-              <>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                Generate Another Version
-              </>
-            ) : (
-              <>
-                <Sparkle className="mr-2 h-4 w-4" />
-                Generate More Original Version
-              </>
+                  </TabsContent>
+                </Tabs>
+              </div>
             )}
-          </Button>
-          
-          {generatedResult && (
-            <>
-              <Button variant="outline" onClick={downloadGeneratedPassage}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-              <Button onClick={handleReanalyze}>
-                Re-evaluate This Version
-              </Button>
-            </>
-          )}
-        </CardFooter>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

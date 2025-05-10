@@ -196,23 +196,23 @@ export default function PassageInput({
           </div>
         </div>
       </div>
-      <CardContent className="p-4 flex-grow relative">
-        <div className="relative">
-          {/* AI Detection Badge */}
-          <div className="absolute top-0 right-0 z-10 p-1">
-            <AIDetectionBadge
-              result={getDetectionResult(passageId)}
-              isDetecting={isDetecting}
-              textId={passageId}
-              onDetect={() => {
-                const text = passage.text.trim();
-                if (text.length > 50) {
-                  detectAIContent(text, passageId);
-                }
-              }}
-            />
-          </div>
+      <CardContent className="p-4 pt-8 flex-grow relative">
+        {/* AI Detection Badge - Positioned above the text area */}
+        <div className="absolute top-1 right-2 z-10">
+          <AIDetectionBadge
+            result={getDetectionResult(passageId)}
+            isDetecting={isDetecting}
+            textId={passageId}
+            onDetect={() => {
+              const text = passage.text.trim();
+              if (text.length > 50) {
+                detectAIContent(text, passageId);
+              }
+            }}
+          />
+        </div>
           
+        <div className="relative">
           <textarea
             rows={12}
             placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}

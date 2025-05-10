@@ -1659,13 +1659,49 @@ Please provide:
     // Extract the response
     const responseText = response.choices[0]?.message?.content || "";
     
+    console.log("Raw GPT response for passage improvement:", responseText.substring(0, 200) + "...");
+    
     // Parse the different parts from the response
     const improvedPassageMatch = responseText.match(/IMPROVED PASSAGE:?\s*([\s\S]*?)(?=\n\s*ESTIMATED|$)/i);
     const estimatedScoreMatch = responseText.match(/ESTIMATED.*?SCORE:?\s*(\d+(?:\.\d+)?)/i);
     const summaryMatch = responseText.match(/(?:IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS):?\s*([\s\S]*?)(?=\n\s*$|$)/i);
     
-    // Default improved passage to the original if not found
-    const improvedText = improvedPassageMatch ? improvedPassageMatch[1].trim() : passage.text;
+    // Look for alternative formats if the main regex didn't find anything
+    let improvedText = "";
+    
+    if (improvedPassageMatch && improvedPassageMatch[1].trim().length > 0) {
+      // Standard format found
+      improvedText = improvedPassageMatch[1].trim();
+    } else {
+      // Try alternate formats
+      const altFormat1 = responseText.match(/(?:Here is the improved passage:|Here's the improved version:)\s*([\s\S]*?)(?=\n\s*ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS|$)/i);
+      const altFormat2 = responseText.match(/(?:1\. )\s*([\s\S]*?)(?=\n\s*2\. |ESTIMATED|$)/i);
+      
+      if (altFormat1 && altFormat1[1].trim().length > 0) {
+        improvedText = altFormat1[1].trim();
+      } else if (altFormat2 && altFormat2[1].trim().length > 0) {
+        improvedText = altFormat2[1].trim();
+      } else {
+        // As a last resort, take the whole first part of the response
+        // This assumes the model might have skipped the "IMPROVED PASSAGE:" header
+        const firstSection = responseText.split(/\n\s*(?:ESTIMATED|IMPROVEMENT SUMMARY|SUMMARY OF IMPROVEMENTS)/i)[0];
+        
+        // Only use if it's substantially different from the original
+        if (firstSection && firstSection.length > passage.text.length * 1.2) {
+          improvedText = firstSection.trim();
+        } else {
+          // Generate an explicit error message that will be shown to the user
+          console.error("Failed to extract improved passage from the AI response");
+          throw new Error("The AI failed to generate a properly formatted improved passage. Please try again with different instructions.");
+        }
+      }
+    }
+    
+    // Add a final safety check to ensure we never return the original text unchanged
+    if (improvedText === passage.text || improvedText.length < passage.text.length / 2) {
+      console.error("Improved passage matches original or is too short");
+      throw new Error("The generated improved passage was too similar to the original. Please try again with different style options.");
+    }
     
     // Get the estimated score, defaulting to original score + 2 (bounded by 10)
     const estimatedScore = estimatedScoreMatch 
