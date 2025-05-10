@@ -212,7 +212,6 @@ Return a detailed analysis in the following JSON format:
       console.error("Error parsing Anthropic JSON response:", error);
       throw new Error(`Failed to parse Anthropic response: ${error instanceof Error ? error.message : String(error)}`);
     }
-      result = JSON.parse(jsonContent) as AnalysisResult;
 
     // Process and validate all required fields for the response
     // This ensures the AnalysisResult always matches the expected schema
@@ -457,7 +456,6 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       console.error("Error parsing Anthropic JSON response:", error);
       throw new Error(`Failed to parse Anthropic response: ${error instanceof Error ? error.message : String(error)}`);
     }
-      result = JSON.parse(jsonContent) as AnalysisResult;
 
     // Process and validate all required fields for the response
 
