@@ -199,7 +199,6 @@ Return a detailed analysis in the following JSON format:
         ],
         temperature: 0.2,
         max_tokens: 4000,
-        response_format: { type: "json_object" }
       })
     });
 
@@ -438,7 +437,6 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
         ],
         temperature: 0.2,
         max_tokens: 4000,
-        response_format: { type: "json_object" }
       })
     });
 
