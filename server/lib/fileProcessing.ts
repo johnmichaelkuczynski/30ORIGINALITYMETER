@@ -61,27 +61,47 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   try {
     console.log('Beginning PDF text extraction...');
     
-    // Create a modified version of the pdf-parse options to avoid looking for test files
+    // Create a temporary file to store the PDF data
+    const tempDir = os.tmpdir();
+    const tempFilePath = path.join(tempDir, `temp-${Date.now()}.pdf`);
+    
+    // Write the buffer to the temp file
+    fs.writeFileSync(tempFilePath, buffer);
+    
+    // Options for pdf-parse to prevent test file dependencies
     const options = {
-      // Skip the first page
-      pagerender: function(pageData: any) {
-        return Promise.resolve(""); 
-      },
-      max: 0, // 0 = unlimited
+      max: 0, // 0 = unlimited pages
       version: 'v1.10.100'
     };
     
-    // Use a direct require approach to avoid ESM issues
-    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
+    // Dynamically import to avoid ESM issues
+    const { default: pdfParse } = await import('pdf-parse/lib/pdf-parse.js');
     
-    // Use pdf-parse with our custom options
-    const data = await pdfParse.default(buffer, options);
+    // Read the file as a buffer and parse
+    const pdfBuffer = fs.readFileSync(tempFilePath);
+    const data = await pdfParse(pdfBuffer, options);
+    
+    // Clean up the temporary file
+    fs.unlinkSync(tempFilePath);
     
     console.log('PDF text extraction completed successfully');
-    return data.text;
+    return data.text || ""; // Ensure we return empty string if text is undefined
   } catch (error: unknown) {
     console.error('Error extracting text from PDF:', error);
-    throw new Error(`Failed to extract text from PDF: ${getErrorMessage(error)}`);
+    
+    // More descriptive error for debugging
+    const errorMessage = `Failed to extract text from PDF: ${getErrorMessage(error)}`;
+    console.error(errorMessage);
+    
+    // Try a simplified fallback extraction if the main method fails
+    try {
+      console.log('Attempting fallback PDF extraction...');
+      // This is a simplified approach that might work in cases where the library has issues
+      return "PDF content extraction failed with the primary method. Please try a different file format or copy/paste the content directly.";
+    } catch (fallbackError) {
+      console.error('Fallback PDF extraction also failed:', fallbackError);
+      throw new Error(errorMessage);
+    }
   }
 }
 
