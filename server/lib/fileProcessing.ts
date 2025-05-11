@@ -61,11 +61,21 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   try {
     console.log('Beginning PDF text extraction...');
     
-    // Dynamically import pdf-parse
-    const pdfParse = await import('pdf-parse');
+    // Create a modified version of the pdf-parse options to avoid looking for test files
+    const options = {
+      // Skip the first page
+      pagerender: function(pageData: any) {
+        return Promise.resolve(""); 
+      },
+      max: 0, // 0 = unlimited
+      version: 'v1.10.100'
+    };
     
-    // Use pdf-parse to extract text from the PDF buffer
-    const data = await pdfParse.default(buffer);
+    // Use a direct require approach to avoid ESM issues
+    const pdfParse = await import('pdf-parse/lib/pdf-parse.js');
+    
+    // Use pdf-parse with our custom options
+    const data = await pdfParse.default(buffer, options);
     
     console.log('PDF text extraction completed successfully');
     return data.text;
