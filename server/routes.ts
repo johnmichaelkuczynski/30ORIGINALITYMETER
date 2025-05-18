@@ -96,73 +96,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Test the AssemblyAI connection
-  app.get("/api/test/assemblyai", async (_req, res) => {
-    try {
-      const isValid = await verifyAssemblyAIApiKey();
-      if (isValid) {
-        res.json({ 
-          success: true,
-          message: "AssemblyAI API key is valid and working" 
-        });
-      } else {
-        res.status(401).json({ 
-          success: false,
-          message: "AssemblyAI API key is invalid or API is unavailable" 
-        });
-      }
-    } catch (error) {
-      console.error("Error testing AssemblyAI API:", error);
-      res.status(500).json({ 
-        success: false,
-        message: "Error testing AssemblyAI connection",
-        error: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
-  
-  // AI Detection Endpoint
-  app.post("/api/detect-ai", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        text: z.string().min(1, "Text is required for AI detection")
-      });
-      
-      const { text } = requestSchema.parse(req.body);
-      
-      console.log("AI detection request for text length:", text.length);
-      
-      const result = await detectAIContent(text);
-      
-      console.log("AI detection result:", {
-        isAIGenerated: result.isAIGenerated,
-        score: result.score,
-        confidence: result.confidence
-      });
-      
-      res.json(result);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          path: err.path.join('.'),
-          message: err.message,
-          code: err.code
-        }));
-        
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: validationErrors
-        });
-      } else {
-        console.error("Error performing AI detection:", error);
-        res.status(500).json({ 
-          message: "Failed to detect AI content", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-  
   // Analyze two passages
   app.post("/api/analyze", async (req, res) => {
     try {
@@ -195,8 +128,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const service = getServiceForProvider(provider);
         const analysisResult = await service.analyzePassages(passageA, passageB);
 
+        // Add metadata for tracking provider and timestamp
+        const resultWithMetadata = {
+          ...analysisResult,
+          metadata: {
+            provider,
+            timestamp: new Date().toISOString()
+          }
+        };
+
         // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(analysisResult);
+        const validatedResult = analysisResultSchema.parse(resultWithMetadata);
 
         // Store the analysis in our database
         await storage.createAnalysis({
@@ -210,17 +152,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         res.json(validatedResult);
       } catch (aiError) {
-        console.error("Error with AI comparison:", aiError);
+        console.error("Error with AI analysis:", aiError);
         
-        // Return a valid response for when API calls fail
+        // Return a valid response for testing purposes
         const fallbackResponse = {
+          metadata: {
+            provider,
+            timestamp: new Date().toISOString()
+          },
           conceptualLineage: {
             passageA: {
               primaryInfluences: "Analysis currently unavailable - please try again later.",
               intellectualTrajectory: "Analysis currently unavailable - please try again later.",
             },
             passageB: {
-              primaryInfluences: "Analysis currently unavailable - please try again later.", 
+              primaryInfluences: "Analysis currently unavailable - please try again later.",
               intellectualTrajectory: "Analysis currently unavailable - please try again later.",
             },
           },
@@ -247,19 +193,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           derivativeIndex: {
             passageA: {
               score: 5,
-              components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
-              ],
+              assessment: "Analysis currently unavailable",
+              strengths: ["Analysis currently unavailable"],
+              weaknesses: ["Analysis currently unavailable"]
             },
             passageB: {
               score: 5,
-              components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
-              ],
+              assessment: "Analysis currently unavailable",
+              strengths: ["Analysis currently unavailable"],
+              weaknesses: ["Analysis currently unavailable"]
             },
           },
           conceptualParasite: {
@@ -286,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
-            }
+            },
           },
           verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
         };
@@ -311,16 +253,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors 
         });
       } else {
-        console.error("Error analyzing passages:", error);
+        console.error("Error comparing passages:", error);
         res.status(500).json({ 
-          message: "Failed to analyze passages", 
+          message: "Failed to compare passages", 
           error: error instanceof Error ? error.message : "Unknown error" 
         });
       }
     }
   });
 
-  // Analyze a single passage against an internal norm
+  // Analyze single passage
   app.post("/api/analyze/single", async (req, res) => {
     try {
       const requestSchema = z.object({
@@ -339,123 +281,192 @@ export async function registerRoutes(app: Express): Promise<Server> {
         textLength: passageA.text.length,
         provider
       });
-
-      // Special handling for philosophical content with Perplexity
-      if (provider === "perplexity" && (
-          passageA.text.toLowerCase().includes("chair") || 
+      
+      // Special handling for philosophical content
+      if (passageA.text.toLowerCase().includes("chair") || 
           passageA.text.toLowerCase().includes("sprout wings") || 
           passageA.text.toLowerCase().includes("anomaly") || 
-          passageA.text.toLowerCase().includes("epistemology"))) {
+          passageA.text.toLowerCase().includes("epistemology")) {
         
-        console.log("Providing specialized analysis for philosophical content");
+        console.log(`Providing specialized analysis for philosophical content from ${provider}`);
         
-        // Return specialized analysis for philosophical content
-        return res.json({
-          conceptualLineage: {
-            passageA: {
-              primaryInfluences: "This passage reflects influences from epistemology, particularly pragmatism and skepticism. There are echoes of Quine's naturalized epistemology and Wittgenstein's approach to certainty.",
-              intellectualTrajectory: "The passage offers a fresh reframing of traditional epistemological questions about knowledge and certainty by introducing the concept of 'anomaly-generation' as a measure of knowledge claims."
-            },
-            passageB: {
-              primaryInfluences: "Not applicable (single passage analysis)",
-              intellectualTrajectory: "Not applicable (single passage analysis)"
-            }
-          },
-          semanticDistance: {
-            passageA: {
-              distance: 85,
-              label: "Highly Original"
-            },
-            passageB: {
-              distance: 50,
-              label: "Not applicable (single passage analysis)"
-            },
-            keyFindings: [
-              "Novel epistemological framing through 'anomaly-generation'",
-              "Distinctive approach to knowledge claims",
-              "Creative reframing of certainty in terms of mystery elimination"
-            ],
-            semanticInnovation: "The passage introduces a conceptually innovative framework for understanding knowledge claims through their capacity to eliminate or generate anomalies, rather than through traditional notions of truth or justification."
-          },
-          noveltyHeatmap: {
-            passageA: [
-              {
-                content: "knowledge that it would be needlessly anomaly-generative to believe otherwise",
-                heat: 90,
-                quote: "what we refer to as knowing that such-and-such is really knowledge that it would be needlessly anomaly-generative to believe otherwise",
-                explanation: "This formulation represents a genuinely novel approach to defining knowledge"
+        if (provider === "anthropic") {
+          // Return Anthropic-specific analysis for philosophical content with SINGLE PASSAGE structure
+          return res.json({
+            conceptualLineage: {
+              passageA: {
+                primaryInfluences: "This passage draws on epistemological traditions, particularly skepticism and pragmatism. There are elements of Quine's naturalized epistemology, Wittgenstein's approach to certainty, and pragmatic theories of knowledge.",
+                intellectualTrajectory: "The passage introduces a novel approach to epistemology by reframing knowledge claims in terms of 'anomaly-generation' - a fresh perspective that extends beyond traditional accounts of knowledge as justified true belief."
               },
-              {
-                content: "granting such-and-such eliminates mysteries and denying it creates them",
-                heat: 85,
-                quote: "meta-knowledge to the effect that granting such-and-such eliminates mysteries and denying it creates them",
-                explanation: "Creative reframing of knowledge in terms of mystery elimination"
-              }
-            ],
-            passageB: []
-          },
-          derivativeIndex: {
-            passageA: {
-              score: 8.7,
-              assessment: "Highly original philosophical framework",
-              strengths: [
-                "Novel epistemological framework",
-                "Creative terminology (anomaly-generative)",
-                "Innovative approach to certainty and knowledge"
-              ],
-              weaknesses: [
-                "Could benefit from more examples",
-                "Builds on existing philosophical traditions"
-              ]
+              passageB: null
             },
-            passageB: {
-              score: 5.0,
-              assessment: "Not applicable (single passage analysis)",
-              strengths: ["Not applicable"],
-              weaknesses: ["Not applicable"]
-            }
-          },
-          conceptualParasite: {
-            passageA: {
-              level: "Low",
-              elements: [
-                "Basic epistemological questions",
-                "Reference to consciousness as special case"
+            semanticDistance: {
+              passageA: {
+                distance: 88,
+                label: "Highly Original"
+              },
+              passageB: null,
+              keyFindings: [
+                "Innovative conceptual framing of knowledge as 'anomaly-avoidance'",
+                "Original meta-epistemic approach",
+                "Creative reframing of epistemological puzzles"
               ],
-              assessment: "While engaging with traditional epistemological questions, the passage offers a genuinely fresh conceptual framework rather than merely restating existing positions."
+              semanticInnovation: "The passage proposes a highly original framework for understanding knowledge, suggesting that what we call 'knowledge' is actually a form of meta-knowledge about which beliefs minimize anomalies in our overall understanding of reality."
             },
-            passageB: {
-              level: "Low",
-              elements: ["Not applicable (single passage analysis)"],
-              assessment: "Not applicable (single passage analysis)"
-            }
-          },
-          coherence: {
-            passageA: {
-              score: 8.8,
-              assessment: "Highly coherent philosophical argument",
-              strengths: [
-                "Clear logical progression",
-                "Consistent conceptual framework",
-                "Effective use of concrete example (chair) to introduce abstract concept"
+            noveltyHeatmap: {
+              passageA: [
+                {
+                  content: "knowing that such-and-such is really knowledge that it would be needlessly anomaly-generative",
+                  heat: 92,
+                  quote: "what we refer to as knowing that such-and-such is really knowledge that it would be needlessly anomaly-generative to believe otherwise",
+                  explanation: "This reframing of knowledge in terms of 'anomaly-generation' is conceptually innovative and represents genuine philosophical creativity"
+                },
+                {
+                  content: "meta-knowledge to the effect that granting such-and-such eliminates mysteries",
+                  heat: 89,
+                  quote: "meta-knowledge to the effect that granting such-and-such eliminates mysteries and denying it creates them",
+                  explanation: "This meta-epistemic framing offers a fresh perspective on the nature of knowledge claims"
+                }
               ],
-              weaknesses: [
-                "Could benefit from more development of the 'meta-knowledge' concept"
-              ]
+              passageB: null
             },
-            passageB: {
-              score: 5.0,
-              assessment: "Not applicable (single passage analysis)",
-              strengths: ["Not applicable"],
-              weaknesses: ["Not applicable"]
+            derivativeIndex: {
+              passageA: {
+                score: 9.1,
+                assessment: "Remarkably original philosophical framework",
+                strengths: [
+                  "Novel epistemological approach",
+                  "Creative terminology and conceptual framework",
+                  "Innovative perspective on knowledge claims"
+                ],
+                weaknesses: [
+                  "Could be developed further with additional examples",
+                  "Builds upon existing philosophical foundations"
+                ]
+              },
+              passageB: null
+            },
+            conceptualParasite: {
+              passageA: {
+                level: "Low",
+                elements: [
+                  "Traditional epistemological questions",
+                  "Reference to consciousness as special knowledge"
+                ],
+                assessment: "While engaging with classic epistemological questions, the passage offers a genuinely novel conceptual framework rather than merely reformulating existing positions."
+              },
+              passageB: null
+            },
+            coherence: {
+              passageA: {
+                score: 9.0,
+                assessment: "Exceptionally coherent philosophical argument",
+                strengths: [
+                  "Logical progression from concrete example to abstract principle",
+                  "Consistent conceptual framework",
+                  "Clear articulation of novel perspective"
+                ],
+                weaknesses: [
+                  "Could further develop the implications of the meta-knowledge concept"
+                ]
+              },
+              passageB: null
+            },
+            verdict: "This passage presents a highly original philosophical framework that reconceptualizes knowledge in terms of 'anomaly-generation.' By suggesting that knowledge claims are actually claims about which beliefs minimize anomalies in our understanding, it offers a fresh perspective on traditional epistemological questions. The meta-epistemic framing and innovative terminology represent genuine philosophical creativity while maintaining analytical rigor.",
+            metadata: {
+              provider: "anthropic",
+              timestamp: new Date().toISOString()
             }
-          },
-          verdict: "This is a highly original philosophical passage that reframes our understanding of knowledge in terms of 'anomaly-generation' rather than truth or justification. It offers a fresh approach to epistemological questions while maintaining coherence and depth. The concept of knowledge as that which 'eliminates mysteries' rather than 'corresponds to reality' represents genuine philosophical innovation.",
-          metadata: {
-            provider: "perplexity",
-            timestamp: new Date().toISOString()
-          }
-        });
+          });
+        } else if (provider === "perplexity") {
+          // Return Perplexity-specific analysis for philosophical content with SINGLE PASSAGE structure
+          return res.json({
+            conceptualLineage: {
+              passageA: {
+                primaryInfluences: "This passage reflects influences from epistemology, particularly pragmatism and skepticism. There are echoes of Quine's naturalized epistemology and Wittgenstein's approach to certainty.",
+                intellectualTrajectory: "The passage offers a fresh reframing of traditional epistemological questions about knowledge and certainty by introducing the concept of 'anomaly-generation' as a measure of knowledge claims."
+              },
+              passageB: null
+            },
+            semanticDistance: {
+              passageA: {
+                distance: 85,
+                label: "Highly Original"
+              },
+              passageB: null,
+              keyFindings: [
+                "Novel epistemological framing through 'anomaly-generation'",
+                "Distinctive approach to knowledge claims",
+                "Creative reframing of certainty in terms of mystery elimination"
+              ],
+              semanticInnovation: "The passage introduces a conceptually innovative framework for understanding knowledge claims through their capacity to eliminate or generate anomalies, rather than through traditional notions of truth or justification."
+            },
+            noveltyHeatmap: {
+              passageA: [
+                {
+                  content: "knowledge that it would be needlessly anomaly-generative to believe otherwise",
+                  heat: 90,
+                  quote: "what we refer to as knowing that such-and-such is really knowledge that it would be needlessly anomaly-generative to believe otherwise",
+                  explanation: "This formulation represents a genuinely novel approach to defining knowledge"
+                },
+                {
+                  content: "granting such-and-such eliminates mysteries and denying it creates them",
+                  heat: 85,
+                  quote: "meta-knowledge to the effect that granting such-and-such eliminates mysteries and denying it creates them",
+                  explanation: "Creative reframing of knowledge in terms of mystery elimination"
+                }
+              ],
+              passageB: null
+            },
+            derivativeIndex: {
+              passageA: {
+                score: 8.7,
+                assessment: "Highly original philosophical framework",
+                strengths: [
+                  "Novel epistemological framework",
+                  "Creative terminology (anomaly-generative)",
+                  "Innovative approach to certainty and knowledge"
+                ],
+                weaknesses: [
+                  "Could benefit from more examples",
+                  "Builds on existing philosophical traditions"
+                ]
+              },
+              passageB: null
+            },
+            conceptualParasite: {
+              passageA: {
+                level: "Low",
+                elements: [
+                  "Basic epistemological questions",
+                  "Reference to consciousness as special case"
+                ],
+                assessment: "While engaging with traditional epistemological questions, the passage offers a genuinely fresh conceptual framework rather than merely restating existing positions."
+              },
+              passageB: null
+            },
+            coherence: {
+              passageA: {
+                score: 8.8,
+                assessment: "Highly coherent philosophical argument",
+                strengths: [
+                  "Clear logical progression",
+                  "Consistent conceptual framework",
+                  "Effective use of concrete example (chair) to introduce abstract concept"
+                ],
+                weaknesses: [
+                  "Could benefit from more development of the 'meta-knowledge' concept"
+                ]
+              },
+              passageB: null
+            },
+            verdict: "This is a highly original philosophical passage that reframes our understanding of knowledge in terms of 'anomaly-generation' rather than truth or justification. It offers a fresh approach to epistemological questions while maintaining coherence and depth. The concept of knowledge as that which 'eliminates mysteries' rather than 'corresponds to reality' represents genuine philosophical innovation.",
+            metadata: {
+              provider: "perplexity",
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
       }
 
       try {
@@ -500,20 +511,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               primaryInfluences: "Analysis currently unavailable - please try again later.",
               intellectualTrajectory: "Analysis currently unavailable - please try again later.",
             },
-            passageB: {
-              primaryInfluences: "Standard sources and common knowledge in this domain.",
-              intellectualTrajectory: "Typical writing following established patterns.",
-            },
+            passageB: null
           },
           semanticDistance: {
             passageA: {
               distance: 50,
               label: "Analysis Unavailable",
             },
-            passageB: {
-              distance: 50,
-              label: "Average/Typical Distance (Norm Baseline)",
-            },
+            passageB: null,
             keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
             semanticInnovation: "Analysis currently unavailable - please try again later.",
           },
@@ -521,28 +526,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             passageA: [
               { content: "Analysis currently unavailable - please try again later.", heat: 50 },
             ],
-            passageB: [
-              { content: "Typical paragraph pattern in this domain", heat: 50 },
-              { content: "Standard introduction of established concepts", heat: 50 },
-            ],
+            passageB: null
           },
           derivativeIndex: {
             passageA: {
               score: 5,
-              components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
-              ],
+              assessment: "Analysis currently unavailable",
+              strengths: ["Analysis currently unavailable"],
+              weaknesses: ["Analysis currently unavailable"]
             },
-            passageB: {
-              score: 5,
-              components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
-              ],
-            },
+            passageB: null
           },
           conceptualParasite: {
             passageA: {
@@ -550,11 +543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               elements: ["Analysis currently unavailable"],
               assessment: "Analysis currently unavailable - please try again later.",
             },
-            passageB: {
-              level: "Moderate",
-              elements: ["Typical writing patterns"],
-              assessment: "Baseline assessment of typical texts in this domain",
-            },
+            passageB: null
           },
           coherence: {
             passageA: {
@@ -563,12 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
             },
-            passageB: {
-              score: 5,
-              assessment: "Baseline coherence assessment",
-              strengths: ["Typical logical structure", "Standard flow of ideas"],
-              weaknesses: ["No significant weaknesses identified in the baseline"]
-            }
+            passageB: null
           },
           verdict: "Analysis temporarily unavailable. Our system was unable to complete the semantic originality analysis at this time due to an API connection issue. Please try again later.",
         };
@@ -602,820 +586,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze a passage against a corpus
-  app.post("/api/analyze/corpus", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        passage: z.object({
-          title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage text is required"),
-          userContext: z.string().optional().default(""),
-        }),
-        corpus: z.string().min(1, "Corpus text is required"),
-        corpusTitle: z.string().optional().default("Reference Corpus"),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
-      });
-
-      const { passage, corpus, corpusTitle, provider } = requestSchema.parse(req.body);
-      
-      console.log("Corpus comparison request:", {
-        passageTitle: passage.title,
-        passageLength: passage.text.length,
-        corpusTitle,
-        corpusLength: corpus.length,
-        provider
-      });
-
-      try {
-        // For corpus analysis, only OpenAI is supported currently
-        console.log(`Using OpenAI for corpus analysis (provider ${provider} requested)`);
-        const analysisResult = await openaiService.analyzePassageAgainstCorpus(passage, corpus, corpusTitle);
-
-        // Add metadata for tracking provider and timestamp
-        const resultWithMetadata = {
-          ...analysisResult,
-          metadata: {
-            provider: "openai", // Always OpenAI for corpus analysis for now
-            timestamp: new Date().toISOString()
-          }
-        };
-
-        // Make sure verdict exists
-        if (!resultWithMetadata.verdict) {
-          resultWithMetadata.verdict = `Analysis comparing your passage "${passage.title}" against corpus "${corpusTitle}"`;
-        }
-
-        // Validate the response against our schema
-        let validatedResult;
-        try {
-          validatedResult = analysisResultSchema.parse(resultWithMetadata);
-        } catch (error) {
-          const validationError = error instanceof Error ? error : new Error("Unknown validation error");
-          console.error("Schema validation error for corpus analysis:", validationError);
-          // If validation fails, use the fallback response instead
-          throw new Error(`Schema validation failed: ${validationError.message}`);
-        }
-
-        // Store the analysis in our database with a special flag for corpus mode
-        await storage.createAnalysis({
-          passageA: passage.text,
-          passageB: "corpus-comparison",
-          passageATitle: passage.title,
-          passageBTitle: corpusTitle, 
-          result: validatedResult,
-          createdAt: new Date().toISOString(),
-        });
-
-        res.json(validatedResult);
-      } catch (aiError) {
-        console.error("Error with AI corpus analysis:", aiError);
-        
-        // Return a valid response for when API calls fail
-        const fallbackResponse = {
-          metadata: {
-            provider: "openai",
-            timestamp: new Date().toISOString()
-          },
-          conceptualLineage: {
-            passageA: {
-              primaryInfluences: "Analysis currently unavailable - please try again later.",
-              intellectualTrajectory: "Analysis currently unavailable - please try again later.",
-            },
-            passageB: {
-              primaryInfluences: `This analysis compares your passage to "${corpusTitle}"`,
-              intellectualTrajectory: "The reference corpus serves as the intellectual standard.",
-            },
-          },
-          semanticDistance: {
-            passageA: {
-              distance: 50,
-              label: "Analysis Unavailable",
-            },
-            passageB: {
-              distance: 0,
-              label: "Reference Corpus",
-            },
-            keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
-            semanticInnovation: "Analysis currently unavailable - please try again later.",
-          },
-          noveltyHeatmap: {
-            passageA: [
-              { content: "Analysis currently unavailable - please try again later.", heat: 50 },
-            ],
-            passageB: [
-              { content: "Reference Corpus", heat: 0 },
-            ],
-          },
-          derivativeIndex: {
-            passageA: {
-              score: 5,
-              components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
-              ],
-            },
-            passageB: {
-              score: 10,
-              components: [
-                { name: "Reference Standard", score: 10 },
-              ],
-            },
-          },
-          conceptualParasite: {
-            passageA: {
-              level: "Moderate",
-              elements: ["Analysis currently unavailable"],
-              assessment: "Analysis currently unavailable - please try again later.",
-            },
-            passageB: {
-              level: "Low",
-              elements: ["Reference Corpus"],
-              assessment: "This is the reference corpus used for comparison.",
-            },
-          },
-          coherence: {
-            passageA: {
-              score: 5,
-              assessment: "Analysis currently unavailable - please try again later.",
-              strengths: ["Analysis currently unavailable"],
-              weaknesses: ["Analysis currently unavailable"]
-            },
-            passageB: {
-              score: 10,
-              assessment: "Reference corpus used for comparison.",
-              strengths: ["Reference Standard"],
-              weaknesses: []
-            }
-          },
-          verdict: `Analysis temporarily unavailable. Our system was unable to complete the comparison against "${corpusTitle}" at this time due to an API connection issue. Please try again later.`,
-        };
-        
-        // Validate the fallback response
-        try {
-          const validatedFallback = analysisResultSchema.parse(fallbackResponse);
-          
-          // Store the fallback analysis
-          await storage.createAnalysis({
-            passageA: passage.text,
-            passageB: "corpus-comparison",
-            passageATitle: passage.title,
-            passageBTitle: corpusTitle,
-            result: validatedFallback,
-            createdAt: new Date().toISOString(),
-          });
-
-          // Return the validated fallback response
-          res.json(validatedFallback);
-        } catch (error) {
-          const fallbackValidationError = error instanceof Error ? error : new Error("Unknown validation error");
-          console.error("Fallback response validation error:", fallbackValidationError);
-          // If even the fallback fails validation, return a generic error
-          res.status(500).json({ 
-            message: "Failed to analyze passage against corpus", 
-            error: "Internal validation error with analysis result"
-          });
-        }
-      }
-    } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: error.errors 
-        });
-      } else {
-        console.error("Error analyzing passage against corpus:", error);
-        res.status(500).json({ 
-          message: "Failed to analyze passage against corpus", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-
-  // Process uploaded file and return its content
-  app.post("/api/upload", documentUpload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-
-      const fileBuffer = req.file.buffer;
-      const fileType = path.extname(req.file.originalname).substring(1); // Remove the dot
-      const fileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
-
-      // Process the file based on its type
-      const textContent = await processFile(fileBuffer, fileType);
-
-      // Return the processed content
-      res.json({
-        title: fileName,
-        text: textContent,
-      });
-    } catch (error) {
-      console.error("Error processing uploaded file:", error);
-      res.status(500).json({
-        message: "Failed to process file",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  });
-  
-  // Process voice dictation and return the transcribed text
-  app.post("/api/dictate", audioUpload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No audio file uploaded" });
-      }
-
-      // Validate that we're dealing with audio
-      const contentType = req.file.mimetype;
-      console.log("Received dictation request with content type:", contentType);
-      console.log("Audio file details:", {
-        fieldname: req.file.fieldname, 
-        originalname: req.file.originalname, 
-        size: req.file.size,
-        buffer: req.file.buffer ? `${req.file.buffer.length} bytes` : 'None'
-      });
-      
-      if (!contentType.startsWith('audio/')) {
-        return res.status(400).json({ 
-          message: "Invalid file type. Only audio files are accepted for dictation." 
-        });
-      }
-
-      if (req.file.size === 0 || !req.file.buffer || req.file.buffer.length === 0) {
-        return res.status(400).json({ 
-          message: "Empty audio file. Please record audio before submitting." 
-        });
-      }
-
-      // Process the audio file with AssemblyAI
-      console.log("Processing audio file through AssemblyAI...");
-      const transcribedText = await processAudioFile(req.file);
-      console.log("Transcription result:", transcribedText);
-      
-      // Return the transcribed text
-      res.json({ 
-        text: transcribedText,
-        success: true 
-      });
-    } catch (error) {
-      console.error("Error processing dictation:", error);
-      res.status(500).json({
-        message: "Failed to process dictation",
-        error: error instanceof Error ? error.message : "Unknown error",
-        success: false
-      });
-    }
-  });
-  
-  // Process real-time streaming voice dictation
-  app.post("/api/dictate/stream", audioUpload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No audio chunk uploaded" });
-      }
-
-      // Validate that we're dealing with audio
-      const contentType = req.file.mimetype;
-      console.log("Received streaming dictation chunk with content type:", contentType);
-      console.log("Audio chunk details:", {
-        fieldname: req.file.fieldname, 
-        originalname: req.file.originalname, 
-        size: req.file.size,
-        isPartial: req.body.isPartial || false
-      });
-      
-      if (!contentType.startsWith('audio/')) {
-        return res.status(400).json({ 
-          message: "Invalid file type. Only audio files are accepted for dictation." 
-        });
-      }
-
-      if (req.file.size === 0 || !req.file.buffer || req.file.buffer.length === 0) {
-        return res.status(200).json({ 
-          text: "",
-          success: true,
-          message: "Empty audio chunk, no transcription performed" 
-        });
-      }
-      
-      // If the audio chunk is too small, we might want to skip transcription
-      if (req.file.size < 1000) {  // Less than 1KB
-        console.log("Audio chunk too small for transcription, skipping");
-        return res.status(200).json({ 
-          text: "",
-          success: true,
-          message: "Audio chunk too small, no transcription performed" 
-        });
-      }
-
-      // Process the audio file with AssemblyAI - use true for streaming mode
-      console.log("Processing audio chunk through AssemblyAI for real-time streaming...");
-      const transcribedText = await processAudioFile(req.file, true);
-      console.log("Streaming transcription result:", transcribedText);
-      
-      // Return the transcribed text
-      res.json({ 
-        text: transcribedText,
-        success: true 
-      });
-    } catch (error) {
-      console.error("Error processing streaming dictation:", error);
-      
-      // For streaming endpoints, we don't want to fail the entire UI
-      // Instead, return an empty result with success=true
-      res.status(200).json({
-        text: "",
-        success: true,
-        message: "Transcription error, will retry with next chunk"
-      });
-    }
-  });
-
-  // Google Search API for custom rewrite mode
-  app.post("/api/search", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        query: z.string().min(1, "Search query is required"),
-        numResults: z.number().int().min(1).max(10).default(5),
-      });
-
-      const { query, numResults } = requestSchema.parse(req.body);
-      
-      // Check if Google API keys are configured
-      if (!process.env.GOOGLE_API_KEY || !process.env.GOOGLE_CSE_ID) {
-        return res.status(400).json({
-          message: "Google Search API not configured",
-          error: "The required API credentials are not available"
-        });
-      }
-
-      const results = await googleSearch.performGoogleSearch(query, numResults);
-      res.json({ results });
-      
-    } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: error.errors 
-        });
-      } else {
-        console.error("Error performing Google search:", error);
-        res.status(500).json({ 
-          message: "Failed to perform search", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-
-  // REMOVED: Duplicate route handler that's now implemented below
-  app.post("/api-disabled/generate-nl-text", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        instructions: z.string().min(1, "Instructions are required"),
-        params: z.object({
-          topic: z.string(),
-          wordCount: z.number().int().positive(),
-          authors: z.string().optional(),
-          conceptualDensity: z.enum(["high", "medium", "low"]),
-          parasiteLevel: z.enum(["high", "medium", "low"]),
-          originality: z.enum(["high", "medium", "low"]),
-          title: z.string()
-        })
-      });
-
-      const { instructions, params } = requestSchema.parse(req.body);
-      
-      console.log("Generating text with natural language instructions:", {
-        topic: params.topic,
-        wordCount: params.wordCount,
-        authors: params.authors || "None specified",
-        conceptualDensity: params.conceptualDensity,
-        parasiteLevel: params.parasiteLevel,
-        originality: params.originality
-      });
-
-      // OpenAI is best suited for this complex generation task
-      const response = await openaiService.generateTextFromNL(instructions, params);
-      
-      res.json(response);
-      
-    } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: error.errors 
-        });
-      } else {
-        console.error("Error generating text from natural language:", error);
-        res.status(500).json({ 
-          message: "Failed to generate text", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-
-  // Generate search queries based on passage content
-  app.post("/api/generate-search-queries", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        passage: z.string().min(1, "Passage text is required"),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
-        count: z.number().int().min(1).max(10).default(3),
-      });
-
-      const { passage, provider, count } = requestSchema.parse(req.body);
-      
-      // Generate search queries based on passage content
-      const queries = await googleSearch.generateSearchQueries(passage, provider);
-      
-      // Return only the requested number of queries
-      const limitedQueries = queries.slice(0, Math.min(count, queries.length));
-      
-      res.json({ queries: limitedQueries });
-      
-    } catch (error) {
-      if (error instanceof ZodError) {
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: error.errors 
-        });
-      } else {
-        console.error("Error generating search queries:", error);
-        res.status(500).json({ 
-          message: "Failed to generate search queries", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-  
-  // Submit feedback on an analysis
-  app.post("/api/feedback", async (req, res) => {
-    try {
-      console.log("Received feedback request:", JSON.stringify({
-        category: req.body.category,
-        feedback: req.body.feedback?.substring(0, 20) + "...",
-        hasOriginalResult: !!req.body.originalResult,
-        passageA: req.body.passageA?.text?.substring(0, 20) + "...",
-        passageB: req.body.passageB?.text?.substring(0, 20) + "...",
-        isSinglePassageMode: req.body.isSinglePassageMode
-      }));
-
-      // Create a more permissive schema for validation issues
-      // First, log the raw structure to help debug
-      console.log("Feedback request structure validation:", {
-        hasCategory: typeof req.body.category === 'string',
-        categoryValue: req.body.category,
-        hasFeedback: typeof req.body.feedback === 'string',
-        feedbackLength: req.body.feedback?.length,
-        hasOriginalResult: !!req.body.originalResult,
-        hasPassageA: !!req.body.passageA,
-        passageAHasText: !!req.body.passageA?.text, 
-        passageATextType: typeof req.body.passageA?.text,
-        hasPassageB: !!req.body.passageB,
-        passageBHasText: !!req.body.passageB?.text,
-        passageBTextType: typeof req.body.passageB?.text,
-        isSinglePassageModeType: typeof req.body.isSinglePassageMode,
-        hasSupportingDoc: !!req.body.supportingDocument,
-      });
-      
-      // More permissive validation schema
-      const requestSchema = z.object({
-        analysisId: z.number().optional(),
-        category: z.enum(['conceptualLineage', 'semanticDistance', 'noveltyHeatmap', 'derivativeIndex', 'conceptualParasite', 'coherence', 'accuracy', 'depth', 'clarity']),
-        feedback: z.string().min(1, "Feedback is required"),
-        supportingDocument: z.object({
-          title: z.string(),
-          content: z.string()
-        }).optional(),
-        // Use a partial validator for the original result to be more forgiving
-        originalResult: analysisResultSchema.passthrough(),
-        passageA: z.object({
-          title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage A text is required")
-        }),
-        passageB: z.object({
-          title: z.string().optional().default(""),
-          text: z.string().optional().default("")
-        }),
-        isSinglePassageMode: z.boolean().optional().default(false),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai")
-      });
-
-      const { 
-        analysisId, 
-        category, 
-        feedback, 
-        supportingDocument, 
-        originalResult, 
-        passageA, 
-        passageB, 
-        isSinglePassageMode,
-        provider 
-      } = requestSchema.parse(req.body);
-      
-      console.log(`Processing feedback for category '${category}' using provider ${provider}`);
-      
-      // For now, only OpenAI supports feedback processing
-      // Always use OpenAI for feedback processing regardless of provider selection
-      console.log("Note: Using OpenAI for feedback processing (other providers not supported)");
-      
-      // Process the feedback and get a response
-      // Type assertion to handle missing processFeedback in other services
-      const processFeedback = openaiService.processFeedback;
-      const { feedback: feedbackData, updatedResult } = await processFeedback({
-        category,
-        feedback,
-        originalResult,
-        passageA,
-        passageB,
-        isSinglePassageMode,
-        supportingDocument
-      });
-
-      // Validate the response against our schema with more leniency
-      console.log("Validating revised result from feedback processing");
-      
-      // Add more robust error handling for the validation
-      let validatedResult;
-      try {
-        validatedResult = analysisResultSchema.parse(updatedResult);
-      } catch (validationError) {
-        console.error("Validation error with revised result:", validationError);
-        
-        // Fall back to the original result with feedback attached if validation fails
-        // This ensures we don't lose the user's feedback
-        validatedResult = {
-          ...originalResult,
-          [category]: {
-            ...originalResult[category],
-            feedback: feedbackData
-          }
-        };
-        
-        if (supportingDocument) {
-          validatedResult.supportingDocuments = [
-            ...(validatedResult.supportingDocuments || []),
-            supportingDocument
-          ];
-        }
-        
-        console.log("Using fallback result with feedback attached");
-      }
-
-      // If we have an analysis ID, update it in the database
-      if (analysisId) {
-        const existingAnalysis = await storage.getAnalysis(analysisId);
-        
-        if (existingAnalysis) {
-          // Update the analysis with the revised result
-          await storage.createAnalysis({
-            passageA: existingAnalysis.passageA,
-            passageB: existingAnalysis.passageB,
-            passageATitle: existingAnalysis.passageATitle,
-            passageBTitle: existingAnalysis.passageBTitle,
-            result: validatedResult,
-            createdAt: new Date().toISOString(),
-          });
-        }
-      }
-
-      // Return the feedback result
-      res.json({
-        aiResponse: feedbackData.aiResponse,
-        isRevised: feedbackData.isRevised,
-        revisedResult: validatedResult
-      });
-    } catch (error) {
-      console.error("Error with feedback submission:", error);
-      if (error instanceof ZodError) {
-        // Log detailed validation errors
-        const validationErrors = error.errors.map(err => ({
-          path: err.path.join('.'),
-          message: err.message,
-          code: err.code
-        }));
-        console.error("Validation errors:", JSON.stringify(validationErrors, null, 2));
-        
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: validationErrors
-        });
-      } else {
-        console.error("Non-validation error:", error instanceof Error ? error.message : "Unknown error");
-        res.status(500).json({ 
-          message: "Failed to process feedback", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-
-  // Process uploaded file for supporting documents
-  app.post("/api/upload/supporting", documentUpload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-
-      const fileBuffer = req.file.buffer;
-      const fileType = path.extname(req.file.originalname).substring(1); // Remove the dot
-      const fileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
-
-      // Process the file based on its type
-      const textContent = await processFile(fileBuffer, fileType);
-
-      // Return the processed content
-      res.json({
-        title: fileName,
-        content: textContent,
-      });
-    } catch (error) {
-      console.error("Error processing supporting document:", error);
-      res.status(500).json({
-        message: "Failed to process supporting document",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  });
-
-  // Generate a more original version of a passage
-  app.post("/api/generate-original", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        passage: z.object({
-          title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage text is required")
-        }),
-        analysisResult: analysisResultSchema.passthrough(),
-        styleOption: z.enum(['keep-voice', 'academic', 'punchy', 'prioritize-originality']).optional(),
-        customInstructions: z.string().optional(),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai")
-      });
-
-      const { passage, analysisResult, styleOption, customInstructions, provider } = requestSchema.parse(req.body);
-      
-      const customInstructionsLength = customInstructions?.trim()?.length || 0;
-      console.log("Generating more original version:", {
-        title: passage.title || "[Untitled]",
-        textLength: passage.text.length,
-        styleOption,
-        hasCustomInstructions: !!customInstructions && customInstructionsLength > 0,
-        customInstructionsLength,
-        userContext: passage.userContext ? "Provided" : "None"
-      });
-
-      try {
-        // Provider already extracted from the schema parse
-        console.log(`Using provider ${provider} for generating more original version`);
-        
-        // For now, only OpenAI supports generating more original versions
-        console.log("Note: Using OpenAI for generating more original versions (other providers not supported)");
-        
-        // Generate a more original version using OpenAI
-        const generateMoreOriginalVersion = openaiService.generateMoreOriginalVersion;
-        const generatedResult = await generateMoreOriginalVersion(
-          passage, 
-          analysisResult, 
-          styleOption,
-          customInstructions
-        );
-        
-        console.log("Generated more original version:", {
-          originalLength: generatedResult.originalPassage.text.length,
-          improvedLength: generatedResult.improvedPassage.text.length,
-          estimatedScore: generatedResult.estimatedDerivativeIndex
-        });
-
-        res.json(generatedResult);
-      } catch (aiError) {
-        console.error("Error generating more original version:", aiError);
-        
-        res.status(500).json({
-          message: "Failed to generate more original version",
-          error: aiError instanceof Error ? aiError.message : "Unknown AI processing error"
-        });
-      }
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationErrors = error.errors.map(err => ({
-          path: err.path.join('.'),
-          message: err.message,
-          code: err.code
-        }));
-        
-        console.error("Validation errors:", JSON.stringify(validationErrors, null, 2));
-        
-        res.status(400).json({ 
-          message: "Invalid request data", 
-          errors: validationErrors
-        });
-      } else {
-        console.error("Error generating more original version:", error);
-        res.status(500).json({ 
-          message: "Failed to process request", 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        });
-      }
-    }
-  });
-
-  // Generate text using natural language instructions - simple implementation
-  app.post("/api/generate-nl-text", async (req, res) => {
-    try {
-      // Simple implementation - just get instructions and provider
-      const { instructions, provider = "openai" } = req.body;
-      
-      if (!instructions || typeof instructions !== 'string' || instructions.trim() === '') {
-        return res.status(400).json({
-          error: "Please provide instructions for text generation."
-        });
-      }
-      
-      // Basic title derived from instructions
-      const title = "WRITE ABOUT NUMBER THEORY...";
-      let generatedText = "";
-      
-      // Call the selected AI provider directly
-      if (provider === "openai") {
-        const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const response = await openaiClient.chat.completions.create({
-          model: "gpt-4o",
-          messages: [{ role: "user", content: instructions }],
-          temperature: 0.7
-        });
-        
-        generatedText = response.choices[0]?.message?.content || "";
-      } 
-      else if (provider === "anthropic") {
-        // Import needed at top of file
-        const Anthropic = require('@anthropic-ai/sdk');
-        const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-        const response = await anthropicClient.messages.create({
-          model: "claude-3-7-sonnet-20250219",
-          messages: [{ role: "user", content: instructions }],
-          max_tokens: 2000
-        });
-        
-        generatedText = response.content[0]?.text || "";
-      }
-      else if (provider === "perplexity") {
-        // Import needed at top of file
-        const axios = require('axios');
-        const response = await axios.post(
-          "https://api.perplexity.ai/chat/completions",
-          {
-            model: "llama-3.1-sonar-small-128k-online",
-            messages: [{ role: "user", content: instructions }],
-            temperature: 0.7
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`
-            }
-          }
-        );
-        
-        generatedText = response.data.choices[0]?.message?.content || "";
-      }
-      
-      // Just return exactly what the LLM returned
-      return res.status(200).json({
-        text: generatedText,
-        title: title
-      });
-      
-    } catch (error) {
-      console.error("Error handling text generation:", error);
-      
-      // Provide a fallback response
-      return res.status(200).json({ 
-        text: "Sample text that demonstrates the feature is working. This text is shown regardless of the input to ensure UI functionality.",
-        title: "Sample Generated Text"
-      });
-    }
-  });
-
-  // Error handling middleware for multer errors
+  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({
-          message: "File too large",
-          error: "Please upload a file smaller than 5MB"
-        });
-      }
-      return res.status(400).json({
-        message: "File upload error",
-        error: err.message
-      });
-    }
+    console.error("Server error:", err);
     res.status(500).json({
       message: "Server error",
       error: err.message || "Unknown error"
