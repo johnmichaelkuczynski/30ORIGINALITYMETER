@@ -265,7 +265,7 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
     } catch (error) {
       console.error("Error parsing Perplexity JSON response:", error, "Response:", responseText.substring(0, 200) + "...");
       
-      // Fallback to safe default result
+      // Create a proper fallback result with error messages
       const fallbackResult: AnalysisResult = {
         conceptualLineage: {
           passageA: {
@@ -280,113 +280,114 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         semanticDistance: {
           passageA: {
             distance: 50,
-            label: "Analysis Error"
+            label: "Analysis Unavailable"
           },
           passageB: {
-            distance: 50,
+            distance: 50, 
             label: "Average/Typical Distance (Norm Baseline)"
           },
-          keyFindings: ["Analysis error - couldn't parse JSON response"],
-          semanticInnovation: "Analysis error - couldn't parse JSON response"
+          keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
+          semanticInnovation: "Analysis currently unavailable - please try again later."
         },
         noveltyHeatmap: {
-          passageA: paragraphsA.map(p => ({
-            content: p.substring(0, 100) + "...",
-            heat: 50,
-            quote: p.substring(0, 40) + "...",
-            explanation: "Fallback analysis due to error"
-          })),
-          passageB: paragraphsB.map(p => ({
-            content: p.substring(0, 100) + "...",
-            heat: 50,
-            quote: p.substring(0, 40) + "...",
-            explanation: "Fallback analysis due to error"
-          }))
+          passageA: [
+            {
+              content: "Analysis temporarily unavailable - please try again later.",
+              heat: 50
+            }
+          ],
+          passageB: [
+            {
+              content: "Standard paragraph in this domain.",
+              heat: 50
+            }
+          ]
         },
         derivativeIndex: {
           passageA: {
-            score: 5,
-            components: [
-              { name: "Originality", score: 5 },
-              { name: "Conceptual Innovation", score: 5 }
-            ]
+            score: 5.0,
+            assessment: "Analysis temporarily unavailable",
+            strengths: ["Please try again later"],
+            weaknesses: ["API connection issue"],
+            components: []
           },
           passageB: {
-            score: 5,
-            components: [
-              { name: "Originality", score: 5 },
-              { name: "Conceptual Innovation", score: 5 }
-            ]
+            score: 5.0,
+            assessment: "Analysis not available for comparison passage",
+            strengths: ["N/A"],
+            weaknesses: ["N/A"],
+            components: []
           }
         },
         conceptualParasite: {
           passageA: {
             level: "Moderate",
-            elements: ["Analysis error - couldn't parse response"],
-            assessment: "Analysis error - couldn't parse response"
+            assessment: "Analysis temporarily unavailable",
+            elements: ["Error"]
           },
           passageB: {
             level: "Moderate",
-            elements: ["Analysis error - couldn't parse response"],
-            assessment: "Analysis error - couldn't parse response"
+            assessment: "Analysis not available for comparison passage",
+            elements: ["Error"]
           }
         },
         coherence: {
           passageA: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis temporarily unavailable",
+            strengths: ["Please try again later"],
+            weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis not available for comparison passage",
+            strengths: ["N/A"],
+            weaknesses: ["N/A"]
           }
         },
         accuracy: {
           passageA: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis temporarily unavailable",
+            strengths: ["Please try again later"],
+            weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis not available for comparison passage",
+            strengths: ["N/A"],
+            weaknesses: ["N/A"]
           }
         },
         depth: {
           passageA: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis temporarily unavailable",
+            strengths: ["Please try again later"],
+            weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis not available for comparison passage",
+            strengths: ["N/A"],
+            weaknesses: ["N/A"]
           }
         },
         clarity: {
           passageA: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis temporarily unavailable",
+            strengths: ["Please try again later"],
+            weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5,
-            assessment: "Analysis error - couldn't parse response",
-            strengths: ["Analysis error"],
-            weaknesses: ["Analysis error"]
+            score: 5.0,
+            assessment: "Analysis not available for comparison passage",
+            strengths: ["N/A"],
+            weaknesses: ["N/A"]
           }
         },
+        verdict: "Analysis temporarily unavailable. Please try again later or try a different AI provider.",
         metadata: {
           provider: "perplexity",
           timestamp: new Date().toISOString()
