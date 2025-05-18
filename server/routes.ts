@@ -852,8 +852,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate text based on natural language instructions
-  app.post("/api/generate-nl-text", async (req, res) => {
+  // REMOVED: Duplicate route handler that's now implemented below
+  app.post("/api-unused/generate-nl-text", async (req, res) => {
     try {
       const requestSchema = z.object({
         instructions: z.string().min(1, "Instructions are required"),

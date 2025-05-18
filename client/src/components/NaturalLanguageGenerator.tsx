@@ -152,10 +152,7 @@ export default function NaturalLanguageGenerator({
     generateMutation.mutate(prompt);
   };
 
-  // Handle applying example prompt
-  const applyExamplePrompt = (example: string) => {
-    setPrompt(example);
-  };
+  // Removed example prompt functionality
 
   // Handle analyzing the generated text
   const handleAnalyze = () => {
