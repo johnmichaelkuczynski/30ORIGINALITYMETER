@@ -108,6 +108,17 @@ export default function NaturalLanguageGenerator({
       return data;
     },
     onSuccess: (data) => {
+      // Check if we actually got text data back
+      if (!data || !data.text) {
+        toast({
+          title: "Generation failed",
+          description: "The AI provider couldn't generate text based on your instructions. Please try simplifying your request or using different terms.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       setGeneratedText(data.text);
       setGeneratedTitle(data.title || "Generated Text");
       

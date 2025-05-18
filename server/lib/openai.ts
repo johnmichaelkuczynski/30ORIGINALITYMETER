@@ -961,93 +961,7 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
  * Process user feedback on a previously generated analysis and provide a response
  * with possible re-evaluation
  */
-export async function generateTextFromNL(
-  instructions: string,
-  params?: {
-    topic?: string;
-    wordCount?: number;
-    authors?: string;
-    conceptualDensity?: "high" | "medium" | "low";
-    parasiteLevel?: "high" | "medium" | "low";
-    originality?: "high" | "medium" | "low";
-    title?: string;
-  }
-): Promise<{ text: string; title: string }> {
-  // Ensure OpenAI API key is set
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OpenAI API key is not configured");
-  }
-
-  // Default parameters if not provided
-  const topic = params?.topic || "unspecified topic";
-  const wordCount = params?.wordCount || 800;
-  const authors = params?.authors || "";
-  const conceptualDensity = params?.conceptualDensity || "medium";
-  const parasiteLevel = params?.parasiteLevel || "low";
-  const originality = params?.originality || "high";
-  const title = params?.title || `Generated Text on ${topic}`;
-
-  try {
-    // Create system prompt
-    const systemPrompt = `You are an expert writer specializing in generating highly original intellectual content.
-Your task is to generate text based on natural language instructions while adhering to specific parameters:
-
-PARAMETERS:
-- Topic: ${topic}
-- Word Count: approximately ${wordCount} words
-- Authors to Reference: ${authors ? authors : "None specified"}
-- Conceptual Density: ${conceptualDensity} (high = many complex ideas densely packed, medium = balanced complexity, low = straightforward ideas clearly expressed)
-- Parasite Index: ${parasiteLevel} (low = highly original with minimal derivative concepts, medium = balanced originality, high = more derivative concepts)
-- Originality Level: ${originality} (high = groundbreaking perspectives, medium = fresh take on established ideas, low = conventional framing)
-
-INSTRUCTIONS:
-1. Generate text that meets the specified parameters and follows the user's instructions.
-2. Create a scholarly, meaningful text that would score highly on originality metrics.
-3. Avoid repetition, cliches, and conventional thinking patterns.
-4. Develop novel perspectives and insightful connections between concepts.
-5. If authors are referenced, integrate their ideas in a sophisticated way that builds upon rather than merely summarizes their work.
-6. Maintain coherence and logical flow throughout the text.
-7. Use precise, nuanced vocabulary appropriate to the topic and conceptual density.
-8. Format the output in well-structured paragraphs with transitions.
-9. Create a title that captures the essence of the generated text.`;
-
-    // Call OpenAI API
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: instructions }
-      ],
-      temperature: 0.9,
-      max_tokens: Math.min(4000, wordCount * 2),
-      top_p: 1
-    });
-
-    // Extract text and process it
-    const generatedContent = response.choices[0].message.content || "";
-    
-    // Try to extract title if there's one in the response
-    let extractedTitle = title;
-    let finalText = generatedContent;
-    
-    // If the response starts with a title (e.g., "# Title" or "Title\n"), extract it
-    const titleMatch = generatedContent.match(/^(?:#\s*)?([^\n]+)(?:\n+|$)/);
-    if (titleMatch && titleMatch[1]) {
-      extractedTitle = titleMatch[1].replace(/^#+\s*/, '').trim();
-      // Remove title from text if it was extracted
-      finalText = generatedContent.replace(titleMatch[0], '').trim();
-    }
-
-    return {
-      text: finalText,
-      title: extractedTitle
-    };
-  } catch (error) {
-    console.error("Error generating text with OpenAI:", error);
-    throw new Error(`Failed to generate text: ${error instanceof Error ? error.message : "Unknown error"}`);
-  }
-}
+// This function has been removed to fix conflict
 
 /**
  * Analyzes a passage against a larger corpus of text
@@ -1554,7 +1468,7 @@ Provide a thoughtful response that explains your reasoning and any revised asses
  * @param params Parsed parameters from the instructions
  * @returns Generated text and its title
  */
-export async function generateTextFromNL(
+export async function generateCustomText(
   instructions: string,
   params: {
     topic: string;
