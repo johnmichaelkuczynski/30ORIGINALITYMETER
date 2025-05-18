@@ -98,6 +98,38 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
     if (generateMutation.isPending) return;
     generateMutation.mutate();
   };
+  
+  // Handle search results from the CustomRewriteSearch component
+  const handleApplySearchResults = (selectedResults: any[], searchInstructions: string) => {
+    // Format the search results and instructions into custom instructions
+    const formattedInstructions = `
+USE THE FOLLOWING ONLINE SEARCH RESULTS IN YOUR REWRITE:
+
+${selectedResults.map((result, index) => `
+[RESULT ${index + 1}]
+Title: ${result.title}
+URL: ${result.link}
+Description: ${result.snippet}
+`).join('\n')}
+
+CUSTOM INSTRUCTIONS FOR USING THESE SOURCES:
+${searchInstructions || "Please incorporate relevant information from these sources to improve the originality and depth of the passage."}
+`;
+
+    // Set the custom instructions with the search results
+    setCustomInstructions(formattedInstructions);
+    
+    // Make sure custom instructions are shown
+    setShowCustomInstructions(true);
+    
+    // Close the search mode
+    setShowSearchMode(false);
+    
+    toast({
+      title: "Search results applied",
+      description: `${selectedResults.length} sources have been added to your custom instructions.`,
+    });
+  };
 
   const handleReanalyze = () => {
     if (!generatedResult) return;
@@ -165,6 +197,17 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
 
   return (
     <div className="w-full space-y-4 mt-4">
+      {showSearchMode && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <CustomRewriteSearch
+              passageText={passage.text}
+              onApplySearch={handleApplySearchResults}
+              onClose={() => setShowSearchMode(false)}
+            />
+          </div>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -214,14 +257,26 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
                 <Wand2 className="h-4 w-4" />
                 Custom Improvement Instructions
               </label>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowCustomInstructions(!showCustomInstructions)}
-                className="h-8 text-xs"
-              >
-                {showCustomInstructions ? 'Hide' : 'Show'}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowSearchMode(true)}
+                  className="h-8 text-xs flex items-center gap-1"
+                  disabled={generateMutation.isPending}
+                >
+                  <Globe className="h-3 w-3" />
+                  Search Online
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowCustomInstructions(!showCustomInstructions)}
+                  className="h-8 text-xs"
+                >
+                  {showCustomInstructions ? 'Hide' : 'Show'}
+                </Button>
+              </div>
             </div>
             
             {showCustomInstructions && (
