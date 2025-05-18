@@ -1210,33 +1210,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate text using natural language instructions - simple implementation
   app.post("/api/generate-nl-text", async (req, res) => {
     try {
-      const { instructions } = req.body;
+      // Just get the basic information we need
+      const { instructions, provider = "openai" } = req.body;
       
       if (!instructions || typeof instructions !== 'string' || instructions.trim() === '') {
-        return res.status(200).json({
-          text: "Please provide instructions for text generation.",
-          title: "Missing Instructions"
+        return res.status(400).json({
+          error: "Please provide instructions for text generation."
         });
       }
       
-      // Creating a sample generated text based on the instructions
-      // This avoids any API issues while demonstrating the UI flow
-      const sampleText = `This is generated text based on your request: "${instructions.substring(0, 30)}..."\n\n` +
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies aliquam, " +
-        "nunc nisl aliquet nunc, quis aliquam nisl nunc quis nisl. Nullam auctor, nisl eget ultricies aliquam, " +
-        "nunc nisl aliquet nunc, quis aliquam nisl nunc quis nisl.\n\n" +
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, " +
-        "totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. " +
-        "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos " +
-        "qui ratione voluptatem sequi nesciunt.\n\n" + 
-        "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, " +
-        "sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.";
-      
-      // Generate a title based on the instructions
+      // Simple solution - directly use the right provider
       const title = "Generated Text: " + instructions.split(" ").slice(0, 5).join(" ") + "...";
+      let generatedText = "";
       
+      // Direct call to selected LLM without any extra processing
+      if (provider === "openai") {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o", // newest model
+          messages: [{ role: "user", content: instructions }],
+          temperature: 0.7
+        });
+        
+        generatedText = response.choices[0]?.message?.content || "";
+      } 
+      else if (provider === "anthropic") {
+        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+        const response = await anthropic.messages.create({
+          model: "claude-3-7-sonnet-20250219", // newest model
+          messages: [{ role: "user", content: instructions }],
+          max_tokens: 2000
+        });
+        
+        generatedText = response.content[0]?.text || "";
+      }
+      else if (provider === "perplexity") {
+        const axios = require('axios');
+        const response = await axios.post(
+          "https://api.perplexity.ai/chat/completions",
+          {
+            model: "llama-3.1-sonar-small-128k-online",
+            messages: [{ role: "user", content: instructions }],
+            temperature: 0.7
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`
+            }
+          }
+        );
+        
+        generatedText = response.data.choices[0]?.message?.content || "";
+      }
+      
+      // Just return exactly what the LLM returned
       return res.status(200).json({
-        text: sampleText,
+        text: generatedText,
         title: title
       });
       
