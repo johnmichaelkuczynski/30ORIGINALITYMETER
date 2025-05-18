@@ -317,7 +317,8 @@ Generate scholarly text that meets these parameters and follows the user's instr
     });
 
     // Extract text and process it
-    const generatedContent = response.content[0].text || "";
+    const generatedContent = response.content[0].type === 'text' ? 
+      response.content[0].text : "";
     
     // Try to extract title if there's one in the response
     let extractedTitle = title;

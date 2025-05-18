@@ -5,7 +5,7 @@ import { ZodError } from "zod";
 import { z } from "zod";
 import * as openaiService from "./lib/openai";
 import * as anthropicService from "./lib/anthropic";
-import * as perplexityService from "./lib/perplexity";
+import * as perplexityService from "./lib/perplexity-fix";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
 import multer from "multer";

@@ -414,6 +414,108 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
  * @param passage Passage to analyze
  * @returns Analysis result with detailed metrics
  */
+/**
+ * Generates text based on natural language instructions
+ * @param instructions Natural language instructions for text generation
+ * @param params Parsed parameters from the instructions
+ * @returns Generated text and its title
+ */
+export async function generateTextFromNL(
+  instructions: string,
+  params?: {
+    topic?: string;
+    wordCount?: number;
+    authors?: string;
+    conceptualDensity?: "high" | "medium" | "low";
+    parasiteLevel?: "high" | "medium" | "low";
+    originality?: "high" | "medium" | "low";
+    title?: string;
+  }
+): Promise<{ text: string; title: string }> {
+  // Ensure Perplexity API key is set
+  if (!process.env.PERPLEXITY_API_KEY) {
+    throw new Error("Perplexity API key is not configured");
+  }
+
+  // Default parameters if not provided
+  const topic = params?.topic || "unspecified topic";
+  const wordCount = params?.wordCount || 800;
+  const authors = params?.authors || "";
+  const conceptualDensity = params?.conceptualDensity || "medium";
+  const parasiteLevel = params?.parasiteLevel || "low";
+  const originality = params?.originality || "high";
+  const title = params?.title || `Generated Text on ${topic}`;
+
+  try {
+    // Create system prompt
+    const systemPrompt = `You are an expert writer specializing in generating highly original intellectual content.
+Your task is to generate text based on natural language instructions while adhering to specific parameters:
+
+PARAMETERS:
+- Topic: ${topic}
+- Word Count: approximately ${wordCount} words
+- Authors to Reference: ${authors ? authors : "None specified"}
+- Conceptual Density: ${conceptualDensity} (high = many complex ideas densely packed, medium = balanced complexity, low = straightforward ideas clearly expressed)
+- Parasite Index: ${parasiteLevel} (low = highly original with minimal derivative concepts, medium = balanced originality, high = more derivative concepts)
+- Originality Level: ${originality} (high = groundbreaking perspectives, medium = fresh take on established ideas, low = conventional framing)
+
+Generate scholarly text that meets these parameters and follows the user's instructions. Create text with novel perspectives, insightful connections, and precise vocabulary. Avoid repetition, clichés, and conventional thinking. Format the output in well-structured paragraphs with a clear title.`;
+
+    // Prepare API request
+    const apiUrl = 'https://api.perplexity.ai/chat/completions';
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-sonar-small-128k-online",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: instructions }
+        ],
+        temperature: 0.85,
+        max_tokens: Math.min(4000, wordCount * 2),
+        top_p: 0.9,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.1
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    
+    // Extract text and process it
+    const generatedContent = responseData.choices[0]?.message?.content || "";
+    
+    // Try to extract title if there's one in the response
+    let extractedTitle = title;
+    let finalText = generatedContent;
+    
+    // If the response starts with a title (e.g., "# Title" or "Title\n"), extract it
+    const titleMatch = generatedContent.match(/^(?:#\s*)?([^\n]+)(?:\n+|$)/);
+    if (titleMatch && titleMatch[1]) {
+      extractedTitle = titleMatch[1].replace(/^#+\s*/, '').trim();
+      // Remove title from text if it was extracted
+      finalText = generatedContent.replace(titleMatch[0], '').trim();
+    }
+
+    return {
+      text: finalText,
+      title: extractedTitle
+    };
+  } catch (error) {
+    console.error("Error generating text with Perplexity:", error);
+    throw new Error(`Failed to generate text: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
+}
+
 export async function analyzeSinglePassage(
   passage: PassageData
 ): Promise<AnalysisResult> {
