@@ -852,6 +852,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate text based on natural language instructions
+  app.post("/api/generate-nl-text", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        instructions: z.string().min(1, "Instructions are required"),
+        params: z.object({
+          topic: z.string(),
+          wordCount: z.number().int().positive(),
+          authors: z.string().optional(),
+          conceptualDensity: z.enum(["high", "medium", "low"]),
+          parasiteLevel: z.enum(["high", "medium", "low"]),
+          originality: z.enum(["high", "medium", "low"]),
+          title: z.string()
+        })
+      });
+
+      const { instructions, params } = requestSchema.parse(req.body);
+      
+      console.log("Generating text with natural language instructions:", {
+        topic: params.topic,
+        wordCount: params.wordCount,
+        authors: params.authors || "None specified",
+        conceptualDensity: params.conceptualDensity,
+        parasiteLevel: params.parasiteLevel,
+        originality: params.originality
+      });
+
+      // OpenAI is best suited for this complex generation task
+      const response = await openaiService.generateTextFromNL(instructions, params);
+      
+      res.json(response);
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error generating text from natural language:", error);
+        res.status(500).json({ 
+          message: "Failed to generate text", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
   // Generate search queries based on passage content
   app.post("/api/generate-search-queries", async (req, res) => {
     try {

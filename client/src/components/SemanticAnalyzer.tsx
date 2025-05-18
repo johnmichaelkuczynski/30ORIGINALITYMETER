@@ -6,6 +6,7 @@ import { AnalysisResult, PassageData } from "@/lib/types";
 import PassageInput from "./PassageInput";
 import CorpusComparisonInput from "./CorpusComparisonInput";
 import AnalysisResults from "./AnalysisResults";
+import NaturalLanguageGenerator from "./NaturalLanguageGenerator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -16,10 +17,11 @@ export default function SemanticAnalyzer() {
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus";
+  type AnalysisMode = "comparison" | "single" | "corpus" | "generate";
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
+  const isGenerateMode = analysisMode === "generate";
   
   // LLM Provider
   type LLMProvider = "openai" | "anthropic" | "perplexity";

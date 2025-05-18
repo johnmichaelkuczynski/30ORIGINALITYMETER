@@ -1460,6 +1460,124 @@ Provide a thoughtful response that explains your reasoning and any revised asses
  * @param styleOption Optional style preference (keep-voice, academic, punchy, prioritize-originality)
  * @returns The improved passage with associated metadata
  */
+/**
+ * Generates text based on natural language instructions
+ * @param instructions Natural language instructions for text generation
+ * @param params Parsed parameters from the instructions
+ * @returns Generated text and its title
+ */
+export async function generateTextFromNL(
+  instructions: string,
+  params: {
+    topic: string;
+    wordCount: number;
+    authors?: string;
+    conceptualDensity: "high" | "medium" | "low";
+    parasiteLevel: "high" | "medium" | "low";
+    originality: "high" | "medium" | "low";
+    title: string;
+  }
+): Promise<{ text: string; title: string }> {
+  try {
+    // Configure the conceptual density based on the parameter
+    const conceptualDensityGuide = {
+      "high": "Use advanced terminology, complex concepts, and explore deep theoretical implications. Connect multiple disciplines and intellectual frameworks. Introduce innovative perspectives.",
+      "medium": "Balance technical terms with clear explanations. Connect several key concepts without overwhelming detail. Provide some novel perspectives while maintaining accessibility.",
+      "low": "Focus on clarity and accessibility. Use simpler terminology and straightforward explanations. Emphasize practical implications over theoretical complexity."
+    };
+    
+    // Configure the parasite level guidance
+    const parasiteLevelGuide = {
+      "high": "You may use conventional frameworks and established terminology in the field.",
+      "medium": "Avoid overreliance on standard interpretations and conventional terminology. Aim to reformulate established concepts.",
+      "low": "Avoid conventional phrasings, standard interpretations, and established frameworks. Create new conceptual approaches and terminology where appropriate."
+    };
+    
+    // Configure originality level guidance
+    const originalityGuide = {
+      "high": "Prioritize unexpected connections, counterintuitive insights, and novel frameworks. Challenge fundamental assumptions in the field. Explore overlooked implications and unconventional perspectives.",
+      "medium": "Balance conventional understanding with some novel insights. Offer fresh perspectives on established topics while maintaining connection to the mainstream discourse.",
+      "low": "Stay closer to established views while adding some personal analysis. Focus on clear exposition of existing frameworks with modest extensions."
+    };
+
+    // Calculate approximate token limit based on word count
+    // Assume 1 word ≈ 1.3 tokens (conservative estimate)
+    const maxTokens = Math.min(Math.ceil(params.wordCount * 1.3), 4000);
+    
+    // Create the system message with detailed instructions
+    const systemMessage = `You are an expert in generating highly original, intellectual content with precise control over conceptual density, parasite level, and originality.
+
+TASK:
+Generate a highly intellectual and original text based on the user's instructions with the following parameters:
+
+TOPIC: ${params.topic}
+TARGET LENGTH: ${params.wordCount} words
+${params.authors ? `REFERENCES: Include perspectives from ${params.authors}` : ''}
+CONCEPTUAL DENSITY: ${params.conceptualDensity.toUpperCase()}
+${conceptualDensityGuide[params.conceptualDensity]}
+
+PARASITE LEVEL: ${params.parasiteLevel.toUpperCase()}
+${parasiteLevelGuide[params.parasiteLevel]}
+
+ORIGINALITY: ${params.originality.toUpperCase()}
+${originalityGuide[params.originality]}
+
+Your response should include:
+1. A title (clearly marked as "TITLE:")
+2. The generated text that matches all specified parameters
+
+IMPORTANT GUIDELINES:
+- Aim for exactly ${params.wordCount} words (within 5% margin)
+- Include no citations, references, or footnotes unless specifically requested
+- Do not explain your process or include meta-commentary
+- Write in a cohesive, flowing narrative style
+- Focus on substantive intellectual content rather than rhetorical flourishes
+- Structure the text with logical paragraphs and clear progression of ideas
+- Avoid overused academic phrases and empty jargon`;
+
+    // Create the OpenAI request
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      messages: [
+        {
+          role: "system",
+          content: systemMessage
+        },
+        {
+          role: "user",
+          content: instructions
+        }
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.8, // Higher temperature for more creativity
+    });
+
+    // Extract the generated content
+    const generatedContent = response.choices[0]?.message?.content || "";
+    
+    // Parse the title from the response
+    let title = params.title; // Default to the topic-based title
+    const titleMatch = generatedContent.match(/TITLE:\s*(.+?)(?:\n|$)/i);
+    if (titleMatch && titleMatch[1]) {
+      title = titleMatch[1].trim();
+    }
+    
+    // Remove title prefix from content if present
+    let text = generatedContent;
+    if (titleMatch) {
+      text = generatedContent.replace(/TITLE:\s*(.+?)(?:\n|$)/i, '').trim();
+    }
+    
+    return {
+      text,
+      title
+    };
+  } catch (error) {
+    console.error("Error generating text from natural language:", error);
+    throw new Error(`Failed to generate text: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 export async function generateMoreOriginalVersion(
   passage: PassageData,
   analysisResult: AnalysisResult,
