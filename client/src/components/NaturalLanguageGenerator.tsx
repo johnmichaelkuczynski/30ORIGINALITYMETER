@@ -39,14 +39,7 @@ export default function NaturalLanguageGenerator({
   // Generate text ID for AI detection
   const generatedTextId = 'nlg-generated-text';
 
-  // Example prompts that showcase the capabilities
-  const examplePrompts = [
-    "Generate a highly original 2-page essay about the philosophy of mathematics that references Gödel and has high conceptual density.",
-    "Create an 800-word article exploring consciousness from a neuroscience perspective with low conceptual parasite index.",
-    "Write a 3-page philosophical text about ethics in artificial intelligence with references to Kant and Bentham, medium conceptual density, and high originality.",
-    "Generate a 1000-word critique of postmodernism with high semantic distance from conventional views, referencing Derrida and Foucault.",
-    "Create a highly original 1500-word text about the intersection of quantum physics and free will with high conceptual density."
-  ];
+  // No preset examples
 
   // Parse natural language instructions into generation parameters
   const parseInstructions = (instructions: string) => {
@@ -241,23 +234,7 @@ export default function NaturalLanguageGenerator({
             </p>
           </div>
           
-          <div>
-            <label className="text-sm font-medium block mb-2">
-              Example Instructions
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {examplePrompts.map((example, index) => (
-                <Badge 
-                  key={index} 
-                  variant="outline" 
-                  className="cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => applyExamplePrompt(example)}
-                >
-                  Example {index + 1}
-                </Badge>
-              ))}
-            </div>
-          </div>
+
           
           <div className="pt-2">
             <Button 
