@@ -1206,6 +1206,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate text using natural language instructions
+  app.post("/api/generate-nl-text", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        instructions: z.string().min(1, "Instructions are required"),
+        params: z.object({
+          topic: z.string().optional(),
+          wordCount: z.number().optional(),
+          authors: z.string().optional(),
+          conceptualDensity: z.enum(["high", "medium", "low"]).optional(),
+          parasiteLevel: z.enum(["high", "medium", "low"]).optional(),
+          originality: z.enum(["high", "medium", "low"]).optional(),
+          title: z.string().optional()
+        }).optional()
+      });
+      
+      const { instructions, params } = requestSchema.parse(req.body);
+      
+      // Determine which AI provider to use - default to OpenAI
+      const providerParam = req.query.provider as string || "openai";
+      const provider = providerParam as LLMProvider;
+      
+      // Get the appropriate service
+      const service = getServiceForProvider(provider);
+      
+      // Generate the text
+      if (!service || typeof service.generateTextFromNL !== 'function') {
+        return res.status(400).json({ 
+          error: "Selected provider does not support text generation" 
+        });
+      }
+      
+      const result = await service.generateTextFromNL(instructions, params);
+      
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationErrors = error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message,
+          code: err.code
+        }));
+        
+        console.error("Validation errors:", JSON.stringify(validationErrors, null, 2));
+        
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: validationErrors
+        });
+      } else {
+        console.error("Error generating text:", error);
+        res.status(500).json({ 
+          message: "Failed to generate text", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
   // Error handling middleware for multer errors
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof multer.MulterError) {
