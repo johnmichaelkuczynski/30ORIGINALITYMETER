@@ -97,33 +97,36 @@ export default function SemanticAnalyzer() {
   // Handle analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
+      console.log("Analyzing in mode:", analysisMode);
+      let endpoint = '';
+      let payload = {};
+      
       if (analysisMode === "corpus") {
-        return apiRequest<AnalysisResult>('/api/analyze/corpus', {
-          method: 'POST',
-          data: {
-            passage: passageA,
-            corpus: corpus,
-            provider
-          }
-        });
+        endpoint = '/api/analyze/corpus';
+        payload = {
+          passage: passageA,
+          corpus: corpus,
+          provider
+        };
       } else if (analysisMode === "single") {
-        return apiRequest<AnalysisResult>('/api/analyze/single', {
-          method: 'POST',
-          data: {
-            passageA,
-            provider
-          }
-        });
+        endpoint = '/api/analyze/single';
+        payload = {
+          passageA,
+          provider
+        };
       } else {
-        return apiRequest<AnalysisResult>('/api/analyze/comparison', {
-          method: 'POST',
-          data: {
-            passageA,
-            passageB,
-            provider
-          }
-        });
+        endpoint = '/api/analyze/comparison';
+        payload = {
+          passageA,
+          passageB,
+          provider
+        };
       }
+      
+      console.log("Request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      const result = await response.json();
+      return result as AnalysisResult;
     },
     onSuccess: (data) => {
       setAnalysisResult(data);
