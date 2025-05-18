@@ -197,38 +197,40 @@ export default function FeedbackForm({
     });
   };
 
-  // If this category already has feedback and a response
-  if (existingFeedback) {
-    // Add state for continuing the conversation
-    const [continuingConversation, setContinuingConversation] = useState(false);
-    const [followUpFeedback, setFollowUpFeedback] = useState("");
+  // Define these state variables outside the conditional to avoid React hooks rules violations
+  const [continuingConversation, setContinuingConversation] = useState(false);
+  const [followUpFeedback, setFollowUpFeedback] = useState("");
+  
+  // Define the follow-up functions outside the conditional rendering
+  const handleFollowUpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!followUpFeedback.trim()) return;
     
-    const handleFollowUpSubmit = (e: React.FormEvent) => {
+    // Reset the form fields before submitting
+    const currentFeedback = followUpFeedback;
+    setFollowUpFeedback("");
+    setContinuingConversation(false);
+    
+    // Submit the follow-up feedback
+    feedbackMutation.mutate({
+      category,
+      feedback: currentFeedback,
+      supportingDocument: supportingDocument || undefined
+    });
+  };
+  
+  // Handle keydown for pressing Enter
+  const handleFollowUpKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (!followUpFeedback.trim()) return;
-      
-      // Reset the form fields before submitting
-      const currentFeedback = followUpFeedback;
-      setFollowUpFeedback("");
-      setContinuingConversation(false);
-      
-      // Submit the follow-up feedback
-      feedbackMutation.mutate({
-        category,
-        feedback: currentFeedback,
-        supportingDocument: supportingDocument || undefined
-      });
-    };
-    
-    // Handle keydown for pressing Enter
-    const handleFollowUpKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        if (followUpFeedback.trim()) {
-          handleFollowUpSubmit(e);
-        }
+      if (followUpFeedback.trim()) {
+        handleFollowUpSubmit(e);
       }
-    };
+    }
+  };
+  
+  // Conditional rendering logic - No hooks inside conditionals
+  if (existingFeedback) {
     
     return (
       <Card className="mt-4 border border-slate-200 bg-slate-50">
