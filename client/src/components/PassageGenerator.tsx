@@ -147,7 +147,9 @@ ${searchInstructions || "Please incorporate relevant information from these sour
     // Ensure the passage has a title, even if empty
     const improvedPassageWithTitle = {
       ...generatedResult.improvedPassage,
-      title: generatedResult.improvedPassage.title || "Improved Passage"
+      title: generatedResult.improvedPassage.title || "Improved Passage",
+      // Ensure the text is properly set
+      text: generatedResult.improvedPassage.text.trim()
     };
     
     // Log what we're re-analyzing
@@ -156,16 +158,16 @@ ${searchInstructions || "Please incorporate relevant information from these sour
       textLength: improvedPassageWithTitle.text.length
     });
     
-    // Dispatch custom event for main component to handle
+    // First, directly call the prop callback
+    onReanalyze(improvedPassageWithTitle);
+    
+    // Then, also dispatch a custom event as backup
     const event = new CustomEvent('analyze-improved-passage', {
       detail: {
         passage: improvedPassageWithTitle
       }
     });
     document.dispatchEvent(event);
-    
-    // Also call the prop callback
-    onReanalyze(improvedPassageWithTitle);
   };
 
   const derivativeIndex = analysisResult.derivativeIndex.passageA.score;
