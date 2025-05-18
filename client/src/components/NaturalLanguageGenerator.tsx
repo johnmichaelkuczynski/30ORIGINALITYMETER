@@ -92,15 +92,15 @@ export default function NaturalLanguageGenerator({
     mutationFn: async (instructions: string) => {
       setIsLoading(true);
       
-      // Parse the instructions to extract parameters
-      const params = parseInstructions(instructions);
+      // Get the currently selected provider from localStorage or default to OpenAI
+      const provider = localStorage.getItem('preferred-provider') || 'openai';
       
       const response = await apiRequest(
         'POST',
         '/api/generate-nl-text',
         {
           instructions,
-          params
+          provider
         }
       );
       
