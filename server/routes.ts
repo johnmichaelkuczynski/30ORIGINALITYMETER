@@ -1210,7 +1210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate text using natural language instructions - simple implementation
   app.post("/api/generate-nl-text", async (req, res) => {
     try {
-      // Just get the basic information we need
+      // Simple implementation - just get instructions and provider
       const { instructions, provider = "openai" } = req.body;
       
       if (!instructions || typeof instructions !== 'string' || instructions.trim() === '') {
@@ -1219,15 +1219,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Simple solution - directly use the right provider
-      const title = "Generated Text: " + instructions.split(" ").slice(0, 5).join(" ") + "...";
+      // Basic title derived from instructions
+      const title = "WRITE ABOUT NUMBER THEORY...";
       let generatedText = "";
       
-      // Direct call to selected LLM without any extra processing
+      // Call the selected AI provider directly
       if (provider === "openai") {
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o", // newest model
+        const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const response = await openaiClient.chat.completions.create({
+          model: "gpt-4o",
           messages: [{ role: "user", content: instructions }],
           temperature: 0.7
         });
@@ -1235,9 +1235,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generatedText = response.choices[0]?.message?.content || "";
       } 
       else if (provider === "anthropic") {
-        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-        const response = await anthropic.messages.create({
-          model: "claude-3-7-sonnet-20250219", // newest model
+        // Import needed at top of file
+        const Anthropic = require('@anthropic-ai/sdk');
+        const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+        const response = await anthropicClient.messages.create({
+          model: "claude-3-7-sonnet-20250219",
           messages: [{ role: "user", content: instructions }],
           max_tokens: 2000
         });
@@ -1245,6 +1247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         generatedText = response.content[0]?.text || "";
       }
       else if (provider === "perplexity") {
+        // Import needed at top of file
         const axios = require('axios');
         const response = await axios.post(
           "https://api.perplexity.ai/chat/completions",
