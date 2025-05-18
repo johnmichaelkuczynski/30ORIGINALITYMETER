@@ -301,7 +301,7 @@ export default function SemanticAnalyzer() {
               setShowResults(false);
             }
           }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-2"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
         >
           <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "comparison" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
             <RadioGroupItem value="comparison" id="comparison" />
@@ -323,6 +323,13 @@ export default function SemanticAnalyzer() {
               Compare to Corpus
             </Label>
           </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "generate" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="generate" id="generate" />
+            <Label htmlFor="generate" className="font-medium">
+              Generate Original Text
+            </Label>
+          </div>
         </RadioGroup>
         
         <div className="mt-3 text-xs text-slate-500">
@@ -334,6 +341,9 @@ export default function SemanticAnalyzer() {
           )}
           {analysisMode === "corpus" && (
             <p>Compare your passage against a larger body of work to see how it aligns with a specific style or theorist.</p>
+          )}
+          {analysisMode === "generate" && (
+            <p>Generate highly original text using natural language instructions that specify topic, length, authors, conceptual density, and other parameters.</p>
           )}
         </div>
         
@@ -442,7 +452,36 @@ export default function SemanticAnalyzer() {
       </div>
       
       {/* Input Section */}
-      {analysisMode === "corpus" ? (
+      {analysisMode === "generate" ? (
+        <NaturalLanguageGenerator 
+          onTextGenerated={(text, title) => {
+            // Create a passage data object from the generated text
+            const generatedPassage: PassageData = {
+              title: title || "Generated Passage",
+              text,
+              userContext: ""
+            };
+            
+            // Set the passage and switch to single analysis mode
+            setPassageA(generatedPassage);
+            
+            // Allow user to see the text before analyzing
+            toast({
+              title: "Text Generated Successfully",
+              description: "Your text has been generated. You can analyze it by clicking the 'Analyze Text' button.",
+              variant: "default",
+            });
+          }}
+          onAnalyzeGenerated={(passage) => {
+            // Set the passage
+            setPassageA(passage);
+            
+            // Switch to single analysis mode and trigger analysis
+            setAnalysisMode("single");
+            setTimeout(() => handleCompare(), 200);
+          }}
+        />
+      ) : analysisMode === "corpus" ? (
         <CorpusComparisonInput
           passage={passageA}
           corpus={corpus}
