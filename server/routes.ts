@@ -815,6 +815,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google Search API for custom rewrite mode
+  app.post("/api/search", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        query: z.string().min(1, "Search query is required"),
+        numResults: z.number().int().min(1).max(10).default(5),
+      });
+
+      const { query, numResults } = requestSchema.parse(req.body);
+      
+      // Check if Google API keys are configured
+      if (!process.env.GOOGLE_API_KEY || !process.env.GOOGLE_CSE_ID) {
+        return res.status(400).json({
+          message: "Google Search API not configured",
+          error: "The required API credentials are not available"
+        });
+      }
+
+      const results = await googleSearch.performGoogleSearch(query, numResults);
+      res.json({ results });
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error performing Google search:", error);
+        res.status(500).json({ 
+          message: "Failed to perform search", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
+  // Generate search queries based on passage content
+  app.post("/api/generate-search-queries", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        passage: z.string().min(1, "Passage text is required"),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
+        count: z.number().int().min(1).max(10).default(3),
+      });
+
+      const { passage, provider, count } = requestSchema.parse(req.body);
+      
+      // Generate search queries based on passage content
+      const queries = await googleSearch.generateSearchQueries(passage, provider);
+      
+      // Return only the requested number of queries
+      const limitedQueries = queries.slice(0, Math.min(count, queries.length));
+      
+      res.json({ queries: limitedQueries });
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error generating search queries:", error);
+        res.status(500).json({ 
+          message: "Failed to generate search queries", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+  
   // Submit feedback on an analysis
   app.post("/api/feedback", async (req, res) => {
     try {

@@ -11,9 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2 } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Globe } from 'lucide-react';
 import useAIDetection from '@/hooks/use-ai-detection';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
+import CustomRewriteSearch from '@/components/CustomRewriteSearch';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -27,6 +28,8 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const [generatedResult, setGeneratedResult] = useState<GeneratedPassageResult | null>(null);
   const [customInstructions, setCustomInstructions] = useState<string>('');
   const [showCustomInstructions, setShowCustomInstructions] = useState<boolean>(false);
+  const [showSearchMode, setShowSearchMode] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const { toast } = useToast();
   
   // AI detection
