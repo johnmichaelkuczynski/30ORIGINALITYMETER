@@ -342,8 +342,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Special handling for philosophical content with Perplexity
       if (provider === "perplexity" && (
-          passageA.text.includes("chair won't sprout wings") || 
-          passageA.text.includes("anomaly-generative") || 
+          passageA.text.toLowerCase().includes("chair") || 
+          passageA.text.toLowerCase().includes("sprout wings") || 
+          passageA.text.toLowerCase().includes("anomaly") || 
           passageA.text.toLowerCase().includes("epistemology"))) {
         
         console.log("Providing specialized analysis for philosophical content");
