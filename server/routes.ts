@@ -281,6 +281,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze single passage
+  // GPTZero AI detection endpoint
+  app.post("/api/detect-ai", async (req, res) => {
+    try {
+      // Validate request body
+      const schema = z.object({
+        text: z.string().min(1, "Text is required for AI detection")
+      });
+      
+      const { text } = schema.parse(req.body);
+      
+      // Log truncated text for debugging (first 50 chars)
+      console.log(`AI Detection request for text (${text.length} chars): "${text.substring(0, 50)}..."`);
+      
+      // Check if GPTZero API key is configured
+      if (!process.env.GPTZERO_API_KEY) {
+        return res.status(400).json({
+          isAIGenerated: false,
+          score: 0,
+          confidence: "Low",
+          details: "GPTZero API key not configured"
+        });
+      }
+      
+      // Call the detection service
+      const result = await detectAIContent(text);
+      
+      // Return the result
+      res.json(result);
+    } catch (error) {
+      console.error("Error in AI detection endpoint:", error);
+      res.status(500).json({
+        isAIGenerated: false,
+        score: 0,
+        confidence: "Low",
+        details: "AI detection service error: " + (error instanceof Error ? error.message : "Unknown error")
+      });
+    }
+  });
+  
   app.post("/api/analyze/single", async (req, res) => {
     try {
       const requestSchema = z.object({

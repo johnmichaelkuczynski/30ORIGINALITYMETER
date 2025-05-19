@@ -88,7 +88,11 @@ export default function AnalysisResults({
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         passageA={passageA}
-        passageB={isSinglePassageMode ? null : passageB}
+        passageB={isSinglePassageMode ? {
+    title: "",
+    text: "",
+    userContext: ""
+  } : passageB}
         passageATitle={passageATitle}
         passageBTitle={isSinglePassageMode ? "" : passageBTitle}
         isSinglePassageMode={isSinglePassageMode}

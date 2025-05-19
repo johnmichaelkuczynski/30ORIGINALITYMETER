@@ -20,7 +20,22 @@ const GPTZERO_API_KEY = process.env.GPTZERO_API_KEY;
  */
 export async function detectAIContent(text: string): Promise<AIDetectionResult> {
   try {
-    if (!text || text.trim().length < 50) {
+    // Ensure we have valid text content
+    if (!text || typeof text !== 'string') {
+      console.error("Invalid text provided to detectAIContent:", typeof text);
+      return {
+        isAIGenerated: false,
+        score: 0,
+        confidence: "Low",
+        details: "Invalid text format for detection"
+      };
+    }
+    
+    // Trim the text to remove whitespace
+    const trimmedText = text.trim();
+    
+    if (trimmedText.length < 50) {
+      console.log("Text too short for reliable detection:", trimmedText.length, "characters");
       return {
         isAIGenerated: false,
         score: 0,
@@ -43,7 +58,10 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
 
     // Truncate very long text to a reasonable size
     // GPTZero has a limit of 10,000 characters
-    const truncatedText = text.length > 9500 ? text.substring(0, 9500) : text;
+    const truncatedText = trimmedText.length > 9500 ? trimmedText.substring(0, 9500) : trimmedText;
+    
+    console.log(`Sending ${truncatedText.length} characters to GPTZero API`);
+    console.log(`First 100 chars: "${truncatedText.substring(0, 100)}..."`);
 
     // Call GPTZero API
     const response = await axios.post(
