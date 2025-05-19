@@ -63,7 +63,16 @@ export function useAIDetection() {
           pendingDetections.current[textHash] = true;
           setIsDetecting(true);
           
-          const response = await apiRequest('POST', '/api/detect-ai', { text });
+          // Make sure text is properly sent as a string
+          console.log(`Sending text for AI detection, length: ${text.length} chars`);
+          const response = await apiRequest('POST', '/api/detect-ai', { 
+            text: text.trim() 
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+          }
+          
           const data = await response.json() as AIDetectionResult;
           
           // Store in cache and results

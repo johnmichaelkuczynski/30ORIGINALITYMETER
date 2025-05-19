@@ -520,10 +520,17 @@ export default function SemanticAnalyzer() {
         {showResults && analysisResult && (
           <AnalysisResults 
             result={analysisResult}
+            setResult={(newResult) => setAnalysisResult(newResult)}
             passageA={passageA}
-            passageB={analysisMode === "comparison" ? passageB : undefined}
-            corpus={analysisMode === "corpus" ? corpus : undefined}
-            provider={provider}
+            passageB={analysisMode === "comparison" ? passageB : {
+              title: "",
+              text: "",
+              userContext: ""
+            }}
+            passageATitle={passageA.title || "Passage A"}
+            passageBTitle={passageB.title || "Passage B"}
+            onNewComparison={() => setShowResults(false)}
+            isSinglePassageMode={analysisMode === "single"}
           />
         )}
       </div>
