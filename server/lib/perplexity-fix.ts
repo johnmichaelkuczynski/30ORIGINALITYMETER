@@ -520,12 +520,200 @@ Generate scholarly text that meets these parameters and follows the user's instr
 export async function analyzeSinglePassage(
   passage: PassageData
 ): Promise<AnalysisResult> {
-  // Create a minimal comparison passage to serve as a baseline
-  const comparisonPassage: PassageData = {
-    title: "Baseline for Comparison",
-    text: "This is a standard baseline text for comparison. It represents the average writing in this domain with conventional ideas and typical expression. It follows established patterns and frameworks in the field without introducing particularly novel concepts or approaches. The writing is coherent, moderately clear, and presents factual information at a standard level of depth."
-  };
-  
-  // Use the dual passage analysis function for consistency
-  return analyzePassages(passage, comparisonPassage);
+  try {
+    console.log("Single passage analysis request for Perplexity:", {
+      textLength: passage.text.length
+    });
+    
+    const API_KEY = process.env.PERPLEXITY_API_KEY;
+    if (!API_KEY) {
+      throw new Error("Perplexity API key is not configured");
+    }
+
+    // Create a system prompt for a proper single passage analysis
+    const systemPrompt = `You are an expert in evaluating the originality, quality, and intellectual merit of academic and philosophical writing.
+    
+    Analyze the following single passage to determine its originality, coherence, and intellectual contributions.
+    
+    Your evaluation must include:
+    1. Conceptual lineage (intellectual influences and trajectory)
+    2. Semantic originality (uniqueness of ideas)
+    3. Key terms/concepts with originality ratings
+    4. Overall derivative index (scoring conceptual innovation)
+    5. Assessment of conceptual parasitism
+    6. Evaluation of coherence
+    
+    Provide analysis of ONLY this single passage. DO NOT compare to any imaginary "average" or "typical" passage.`;
+    
+    const promptText = `Please analyze this passage for its conceptual originality and quality:
+
+${passage.text}
+
+${passage.userContext ? `Author's context: ${passage.userContext}` : ''}
+
+Return your response as a JSON object with the following structure:
+{
+  "conceptualLineage": {
+    "passageA": {
+      "primaryInfluences": "string describing main intellectual influences",
+      "intellectualTrajectory": "string describing how the passage builds on or departs from those influences"
+    }
+  },
+  "semanticDistance": {
+    "passageA": {
+      "distance": number from 0-100 representing originality (higher means more original),
+      "label": "one of: Highly Derivative, Somewhat Derivative, Moderately Original, Highly Original, or Exceptionally Original"
+    },
+    "keyFindings": ["bullet point 1", "bullet point 2", "bullet point 3"],
+    "semanticInnovation": "string summarizing the originality of the passage"
+  },
+  "noveltyHeatmap": {
+    "passageA": [
+      {
+        "content": "short excerpt",
+        "heat": number from 0-100 (higher means more original),
+        "quote": "full relevant quote",
+        "explanation": "why this is original or derivative"
+      }
+    ]
+  },
+  "derivativeIndex": {
+    "passageA": {
+      "score": number from 0-10 (higher means more original),
+      "assessment": "string summarizing score",
+      "strengths": ["strength 1", "strength 2"],
+      "weaknesses": ["weakness 1", "weakness 2"]
+    }
+  },
+  "conceptualParasite": {
+    "passageA": {
+      "level": "one of: Low, Moderate, or High",
+      "elements": ["element 1", "element 2"],
+      "assessment": "string explanation"
+    }
+  },
+  "coherence": {
+    "passageA": {
+      "score": number from 0-10 (higher means more coherent),
+      "assessment": "string assessment",
+      "strengths": ["strength 1", "strength 2"],
+      "weaknesses": ["weakness 1", "weakness 2"]
+    }
+  },
+  "verdict": "string providing overall assessment"
+}
+
+IMPORTANT: This analysis is for a SINGLE passage. Do not include any "passageB" fields in your JSON.`;
+
+    const headers = {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json'
+    };
+    
+    const body = {
+      model: PERPLEXITY_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user", 
+          content: promptText
+        }
+      ],
+      temperature: 0.2, // Lower temperature for more consistent results
+      max_tokens: 2500, // Allow plenty of tokens for a detailed analysis
+    };
+    
+    const response = await axios.post('https://api.perplexity.ai/chat/completions', body, { headers });
+    
+    if (!response.data || !response.data.choices || !response.data.choices[0].message.content) {
+      throw new Error("Invalid response from Perplexity API");
+    }
+    
+    // Extract the JSON from the response
+    const responseText = response.data.choices[0].message.content.trim();
+    
+    // Try to extract JSON from the response text
+    let jsonResponse;
+    try {
+      // First try to parse the entire response as JSON
+      jsonResponse = JSON.parse(responseText);
+      console.log("Extracted JSON from Perplexity response");
+    } catch (error) {
+      // If that fails, try to extract JSON from a code block
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        try {
+          jsonResponse = JSON.parse(jsonMatch[1].trim());
+          console.log("Extracted JSON from code block in Perplexity response");
+        } catch (innerError) {
+          throw new Error("Failed to parse JSON from code block response");
+        }
+      } else {
+        throw new Error("Failed to extract JSON from Perplexity response");
+      }
+    }
+    
+    // Format the response for single passage analysis
+    // Setting passageB fields to null to ensure proper rendering in UI
+    return {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: jsonResponse.conceptualLineage.passageA.primaryInfluences,
+          intellectualTrajectory: jsonResponse.conceptualLineage.passageA.intellectualTrajectory
+        },
+        passageB: null
+      },
+      semanticDistance: {
+        passageA: {
+          distance: jsonResponse.semanticDistance.passageA.distance,
+          label: jsonResponse.semanticDistance.passageA.label
+        },
+        passageB: null,
+        keyFindings: jsonResponse.semanticDistance.keyFindings,
+        semanticInnovation: jsonResponse.semanticDistance.semanticInnovation
+      },
+      noveltyHeatmap: {
+        passageA: jsonResponse.noveltyHeatmap.passageA,
+        passageB: []
+      },
+      derivativeIndex: {
+        passageA: {
+          score: jsonResponse.derivativeIndex.passageA.score,
+          assessment: jsonResponse.derivativeIndex.passageA.assessment,
+          strengths: jsonResponse.derivativeIndex.passageA.strengths,
+          weaknesses: jsonResponse.derivativeIndex.passageA.weaknesses
+        },
+        passageB: null
+      },
+      conceptualParasite: {
+        passageA: {
+          level: jsonResponse.conceptualParasite.passageA.level,
+          elements: jsonResponse.conceptualParasite.passageA.elements,
+          assessment: jsonResponse.conceptualParasite.passageA.assessment
+        },
+        passageB: null
+      },
+      coherence: {
+        passageA: {
+          score: jsonResponse.coherence.passageA.score,
+          assessment: jsonResponse.coherence.passageA.assessment,
+          strengths: jsonResponse.coherence.passageA.strengths,
+          weaknesses: jsonResponse.coherence.passageA.weaknesses
+        },
+        passageB: null
+      },
+      verdict: jsonResponse.verdict,
+      userContext: passage.userContext || undefined,
+      metadata: {
+        provider: "perplexity",
+        timestamp: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    console.error("Error in Perplexity single passage analysis:", error);
+    throw error;
+  }
 }
