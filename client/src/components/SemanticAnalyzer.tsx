@@ -115,7 +115,7 @@ export default function SemanticAnalyzer() {
           provider
         };
       } else {
-        endpoint = '/api/analyze/comparison';
+        endpoint = '/api/analyze';
         payload = {
           passageA,
           passageB,
