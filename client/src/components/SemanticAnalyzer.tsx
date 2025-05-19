@@ -109,7 +109,7 @@ export default function SemanticAnalyzer() {
           provider
         };
       } else if (analysisMode === "single") {
-        endpoint = '/api/analyze-single';
+        endpoint = '/api/analyze/single';
         payload = {
           passageA,
           provider
