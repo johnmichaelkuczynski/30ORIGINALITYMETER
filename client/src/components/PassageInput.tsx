@@ -99,61 +99,57 @@ export default function PassageInput({
       return;
     }
     
-    // For text files, read directly in the browser instead of using the server
-    if (fileType === 'txt') {
-      try {
-        toast({
-          title: "Reading text file",
-          description: "Please wait while we load your file...",
-        });
-        
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-          const content = event.target?.result as string;
-          
-          onChange({
-            ...passage,
-            title: file.name.split('.')[0], // Use filename as title
-            text: content || "",
-          });
-          
-          toast({
-            title: "File uploaded successfully",
-            description: `${file.name} has been loaded.`,
-            variant: "default",
-          });
-        };
-        
-        reader.onerror = () => {
-          console.error("FileReader error:", reader.error);
-          throw new Error("Failed to read the text file");
-        };
-        
-        reader.readAsText(file);
-        return;
-      } catch (error) {
-        console.error('Error reading text file:', error);
-        toast({
-          title: "Error reading file",
-          description: error instanceof Error ? error.message : "Failed to read the file. Please try again.",
-          variant: "destructive",
-        });
-        
-        // Reset the file input on error
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        return;
+    // Create form data to send to the server
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Show loading toast
+      toast({
+        title: "Processing file",
+        description: `Please wait while we process your ${fileType.toUpperCase()} file...`,
+      });
+
+      // Send file to server for processing
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      // Check if response is valid JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned an invalid response format");
       }
+
+      // Parse the JSON response
+      const data = await response.json();
+      
+      // Check for errors
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process file');
+      }
+        
+      // Update with processed file content
+      onChange({
+        ...passage,
+        title: data.title || file.name.split('.')[0], // Use filename as title
+        text: data.text,
+      });
+
+      toast({
+        title: "File uploaded successfully",
+        description: `${file.name} has been processed and loaded.`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast({
+        title: "Error processing file",
+        description: error instanceof Error ? error.message : "Failed to process the file. Please try again.",
+        variant: "destructive",
+      });
     }
-    
-    // For other file types, show a message that we currently only support TXT
-    toast({
-      title: "Limited file support",
-      description: "Currently only TXT files are supported for direct upload. Please copy and paste your content instead.",
-      variant: "default",
-    });
     
     // Reset the file input
     if (fileInputRef.current) {

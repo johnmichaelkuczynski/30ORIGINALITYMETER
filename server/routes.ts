@@ -15,6 +15,8 @@ import { processFile } from "./lib/fileProcessing";
 import { processAudioFile, verifyAssemblyAIApiKey } from "./lib/assemblyai";
 import { detectAIContent, AIDetectionResult } from "./lib/aiDetection";
 import * as googleSearch from "./lib/googleSearch";
+import * as mammoth from 'mammoth';
+import pdfParse from 'pdf-parse';
 
 // Service provider types
 type LLMProvider = "openai" | "anthropic" | "perplexity";
@@ -68,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // File upload endpoint
   app.post("/api/upload", documentUpload.single('file'), async (req, res) => {
     try {
-      // Make sure we're setting content type for proper JSON response
+      // Make sure we're always setting proper JSON content type
       res.setHeader('Content-Type', 'application/json');
       
       if (!req.file) {
@@ -90,17 +92,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fileType === 'txt' || req.file.mimetype.includes('text/plain')) {
         extractedText = req.file.buffer.toString('utf-8');
         console.log("Extracted text from TXT file:", extractedText.substring(0, 100) + "...");
-      } else {
+      } else if (fileType === 'docx') {
+        // Handle DOCX files
         try {
-          // For other file types, use the processor
-          extractedText = await processFile(req.file.buffer, fileType);
-          console.log("Extracted text length:", extractedText.length);
-        } catch (error) {
-          console.error("Error processing file:", error);
+          const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+          extractedText = result.value;
+          console.log("Extracted text from DOCX file, length:", extractedText.length);
+        } catch (docxError) {
+          console.error("DOCX processing error:", docxError);
           return res.status(400).json({ 
-            error: `Error processing file: ${error instanceof Error ? error.message : "Unknown error"}` 
+            error: `Error processing DOCX file: ${docxError instanceof Error ? docxError.message : "Unknown error"}` 
           });
         }
+      } else if (fileType === 'pdf') {
+        // Handle PDF files
+        try {
+          const pdfData = await pdfParse(req.file.buffer);
+          extractedText = pdfData.text;
+          console.log("Extracted text from PDF file, length:", extractedText.length);
+        } catch (pdfError) {
+          console.error("PDF processing error:", pdfError);
+          return res.status(400).json({ 
+            error: `Error processing PDF file: ${pdfError instanceof Error ? pdfError.message : "Unknown error"}` 
+          });
+        }
+      } else if (fileType === 'mp3') {
+        // Handle MP3 files using AssemblyAI
+        try {
+          extractedText = await processAudioFile(req.file, false);
+          console.log("Transcribed audio from MP3 file, length:", extractedText.length);
+        } catch (audioError) {
+          console.error("Audio processing error:", audioError);
+          return res.status(400).json({ 
+            error: `Error processing audio file: ${audioError instanceof Error ? audioError.message : "Unknown error"}` 
+          });
+        }
+      } else {
+        // Unsupported file type
+        return res.status(400).json({ 
+          error: `Unsupported file type: ${fileType}. Please upload a TXT, DOCX, PDF, or MP3 file.` 
+        });
+      }
+      
+      // Check if we have extracted text
+      if (!extractedText || extractedText.trim().length === 0) {
+        return res.status(400).json({ 
+          error: "Could not extract any text from the file. The file might be empty or corrupted." 
+        });
       }
       
       // Return the successfully extracted text
