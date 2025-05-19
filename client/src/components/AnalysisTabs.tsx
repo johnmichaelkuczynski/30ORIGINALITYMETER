@@ -372,7 +372,7 @@ export default function AnalysisTabs({
                   </div>
                   <h5 className="font-medium text-secondary-700 text-sm mb-2">Component Scores:</h5>
                   <div className="space-y-2">
-                    {result.derivativeIndex.passageA.components.map((component, index) => (
+                    {result.derivativeIndex.passageA.components?.map((component, index) => (
                       <div key={index} className="flex justify-between items-center">
                         <div 
                           className="flex items-center text-sm text-secondary-600 cursor-help"
