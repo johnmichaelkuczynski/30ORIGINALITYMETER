@@ -682,11 +682,18 @@ IMPORTANT: This analysis is for a SINGLE passage. Do not include any "passageB" 
       derivativeIndex: {
         passageA: {
           score: jsonResponse.derivativeIndex.passageA.score,
-          assessment: jsonResponse.derivativeIndex.passageA.assessment,
-          strengths: jsonResponse.derivativeIndex.passageA.strengths,
-          weaknesses: jsonResponse.derivativeIndex.passageA.weaknesses
+          components: [
+            { name: "Originality", score: jsonResponse.derivativeIndex.passageA.score },
+            { name: "Conceptual Innovation", score: jsonResponse.derivativeIndex.passageA.score * 0.9 }
+          ]
         },
-        passageB: null
+        passageB: {
+          score: 5,
+          components: [
+            { name: "Originality", score: 5 },
+            { name: "Conceptual Innovation", score: 5 }
+          ]
+        }
       },
       conceptualParasite: {
         passageA: {
