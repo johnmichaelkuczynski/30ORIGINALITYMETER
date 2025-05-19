@@ -27,6 +27,39 @@ export default function AnalysisResults({
   onNewComparison,
   isSinglePassageMode = false,
 }: AnalysisResultsProps) {
+  // Clean up result in single passage mode to ensure only one passage is analyzed
+  if (isSinglePassageMode && result) {
+    // Hide passageB values where they exist
+    if (result.conceptualLineage?.passageB) {
+      result.conceptualLineage.passageB = null;
+    }
+    if (result.semanticDistance?.passageB) {
+      result.semanticDistance.passageB = null;
+    }
+    if (result.derivativeIndex?.passageB) {
+      result.derivativeIndex.passageB = null;
+    }
+    if (result.conceptualParasite?.passageB) {
+      result.conceptualParasite.passageB = null;
+    }
+    if (result.coherence?.passageB) {
+      result.coherence.passageB = null;
+    }
+    if (result.accuracy?.passageB) {
+      result.accuracy.passageB = null;
+    }
+    if (result.depth?.passageB) {
+      result.depth.passageB = null;
+    }
+    if (result.clarity?.passageB) {
+      result.clarity.passageB = null;
+    }
+    
+    // Ensure novelty heatmap only shows passageA
+    if (result.noveltyHeatmap?.passageB && result.noveltyHeatmap.passageB.length > 0) {
+      result.noveltyHeatmap.passageB = [];
+    }
+  }
   const [activeTab, setActiveTab] = useState("conceptual-lineage");
   const resultsContainerId = useId().replace(/:/g, '') + "-results";
 
