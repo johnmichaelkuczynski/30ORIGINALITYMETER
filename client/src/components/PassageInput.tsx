@@ -125,13 +125,23 @@ export default function PassageInput({
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to process file');
+      let data;
+      const contentType = response.headers.get("content-type");
+      
+      // Check if the response is JSON before parsing
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+        
+        // Check for error in the JSON response
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to process file');
+        }
+      } else {
+        // Handle non-JSON response (like HTML error pages)
+        const textResponse = await response.text();
+        console.error("Non-JSON response:", textResponse.substring(0, 100));
+        throw new Error("Server returned an invalid response format");
       }
-
-      // Get processed text from server
-      const data = await response.json();
       
       // Update with processed file content
       onChange({

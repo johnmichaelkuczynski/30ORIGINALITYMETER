@@ -68,35 +68,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // File upload endpoint
   app.post("/api/upload", documentUpload.single('file'), async (req, res) => {
     try {
+      // Make sure we're setting content type for proper JSON response
+      res.setHeader('Content-Type', 'application/json');
+      
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
       
       console.log("File upload received:", req.file.originalname, req.file.mimetype, req.file.size);
       
-      // Get file extension
-      const fileExtension = path.extname(req.file.originalname).toLowerCase();
+      // Get file extension - handle case where there might not be an extension
+      const fileExtension = path.extname(req.file.originalname).toLowerCase() || '.txt';
+      const fileType = fileExtension.replace('.', '');
       
-      // Process file based on type
+      console.log(`Processing file with type: ${fileType}`);
+      
+      // Process the file based on its type
       let extractedText = "";
       
-      try {
-        extractedText = await processFile(req.file.buffer, fileExtension.replace('.', ''));
-      } catch (error) {
-        console.error("Error processing file:", error);
-        return res.status(400).json({ 
-          error: `Error processing file: ${error instanceof Error ? error.message : "Unknown error"}` 
-        });
+      // For text files, convert buffer to string directly
+      if (fileType === 'txt' || req.file.mimetype.includes('text/plain')) {
+        extractedText = req.file.buffer.toString('utf-8');
+        console.log("Extracted text from TXT file:", extractedText.substring(0, 100) + "...");
+      } else {
+        try {
+          // For other file types, use the processor
+          extractedText = await processFile(req.file.buffer, fileType);
+          console.log("Extracted text length:", extractedText.length);
+        } catch (error) {
+          console.error("Error processing file:", error);
+          return res.status(400).json({ 
+            error: `Error processing file: ${error instanceof Error ? error.message : "Unknown error"}` 
+          });
+        }
       }
       
-      // Return the extracted text
-      res.json({
+      // Return the successfully extracted text
+      return res.status(200).json({
         text: extractedText,
         title: path.basename(req.file.originalname, fileExtension)
       });
     } catch (error) {
       console.error("File upload error:", error);
-      res.status(500).json({ 
+      return res.status(500).json({ 
         error: `File upload failed: ${error instanceof Error ? error.message : "Unknown error"}` 
       });
     }
