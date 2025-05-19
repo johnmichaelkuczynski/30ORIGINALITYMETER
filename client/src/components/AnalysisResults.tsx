@@ -31,13 +31,33 @@ export default function AnalysisResults({
   const [activeTab, setActiveTab] = useState("conceptual-lineage");
   const resultsContainerId = useId().replace(/:/g, '') + "-results";
 
+  // Make a deep copy of the result to prevent modifying the original
+  // and ensure passageB data is properly removed in single passage mode
+  const processedResult = JSON.parse(JSON.stringify(result));
+  
+  // Force clean up passageB data in single passage mode
+  if (isSinglePassageMode) {
+    // For each property in the result object that has passageB
+    Object.keys(processedResult).forEach(key => {
+      if (processedResult[key] && typeof processedResult[key] === 'object' && 'passageB' in processedResult[key]) {
+        // Remove passageB from the structure
+        processedResult[key].passageB = null;
+      }
+    });
+    
+    // Special handling for noveltyHeatmap array
+    if (processedResult.noveltyHeatmap && processedResult.noveltyHeatmap.passageB) {
+      processedResult.noveltyHeatmap.passageB = [];
+    }
+  }
+
   return (
     <div className="space-y-6" id={resultsContainerId}>
       <div className="flex justify-between items-center">
         <DownloadReportButton 
-          result={result}
+          result={processedResult}
           passageATitle={passageATitle}
-          passageBTitle={passageBTitle}
+          passageBTitle={isSinglePassageMode ? "" : passageBTitle}
           resultsContainerId={resultsContainerId}
           isSinglePassageMode={isSinglePassageMode}
         />
@@ -56,21 +76,21 @@ export default function AnalysisResults({
       </div>
 
       <SummarySection 
-        result={result}
+        result={processedResult}
         passageATitle={passageATitle}
-        passageBTitle={passageBTitle}
+        passageBTitle={isSinglePassageMode ? "" : passageBTitle}
         isSinglePassageMode={isSinglePassageMode}
       />
 
       <AnalysisTabs
-        result={result}
+        result={processedResult}
         setResult={setResult}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         passageA={passageA}
-        passageB={passageB}
+        passageB={isSinglePassageMode ? null : passageB}
         passageATitle={passageATitle}
-        passageBTitle={passageBTitle}
+        passageBTitle={isSinglePassageMode ? "" : passageBTitle}
         isSinglePassageMode={isSinglePassageMode}
       />
 

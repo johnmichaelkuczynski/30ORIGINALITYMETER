@@ -99,6 +99,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analyze two passages
   app.post("/api/analyze", async (req, res) => {
     try {
+      // Print what we received first for debugging
+      console.log("ANALYZE REQUEST BODY:", {
+        passageA: req.body.passageA?.text?.length,
+        passageB: req.body.passageB?.text?.length,
+        provider: req.body.provider
+      });
+      
+      // Check if passageB is empty or just whitespace
+      const passageBText = req.body.passageB?.text?.trim() || "";
+      
+      // If passageB is empty, redirect to single passage analysis
+      if (!passageBText) {
+        console.log("PassageB is empty, redirecting to single passage analysis");
+        return res.redirect(307, "/api/analyze/single");
+      }
+      
       const requestSchema = z.object({
         passageA: z.object({
           title: z.string().optional().default(""),

@@ -83,6 +83,17 @@ export default function SemanticAnalyzer() {
     userContext: ""
   });
   
+  // Reset passageB when switching to single mode
+  useEffect(() => {
+    if (analysisMode === "single") {
+      setPassageB({
+        title: "",
+        text: "",
+        userContext: ""
+      });
+    }
+  }, [analysisMode]);
+  
   // State for corpus comparison
   const [corpus, setCorpus] = useState<PassageData>({
     title: "Reference Corpus",
