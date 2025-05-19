@@ -65,6 +65,43 @@ const audioUpload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // File upload endpoint
+  app.post("/api/upload", documentUpload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      
+      console.log("File upload received:", req.file.originalname, req.file.mimetype, req.file.size);
+      
+      // Get file extension
+      const fileExtension = path.extname(req.file.originalname).toLowerCase();
+      
+      // Process file based on type
+      let extractedText = "";
+      
+      try {
+        extractedText = await processFile(req.file.buffer, fileExtension.replace('.', ''));
+      } catch (error) {
+        console.error("Error processing file:", error);
+        return res.status(400).json({ 
+          error: `Error processing file: ${error instanceof Error ? error.message : "Unknown error"}` 
+        });
+      }
+      
+      // Return the extracted text
+      res.json({
+        text: extractedText,
+        title: path.basename(req.file.originalname, fileExtension)
+      });
+    } catch (error) {
+      console.error("File upload error:", error);
+      res.status(500).json({ 
+        error: `File upload failed: ${error instanceof Error ? error.message : "Unknown error"}` 
+      });
+    }
+  });
+  
   // Check status of provider API keys
   app.post("/api/provider-status", async (req, res) => {
     try {
