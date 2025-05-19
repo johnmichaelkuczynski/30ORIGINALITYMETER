@@ -193,15 +193,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           derivativeIndex: {
             passageA: {
               score: 5,
-              assessment: "Analysis currently unavailable",
-              strengths: ["Analysis currently unavailable"],
-              weaknesses: ["Analysis currently unavailable"]
+              components: [
+                { name: "Originality", score: 5 },
+                { name: "Conceptual Innovation", score: 5 }
+              ]
             },
             passageB: {
               score: 5,
-              assessment: "Analysis currently unavailable",
-              strengths: ["Analysis currently unavailable"],
-              weaknesses: ["Analysis currently unavailable"]
+              components: [
+                { name: "Originality", score: 5 },
+                { name: "Conceptual Innovation", score: 5 }
+              ]
             },
           },
           conceptualParasite: {
