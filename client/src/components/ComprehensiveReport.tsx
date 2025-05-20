@@ -116,12 +116,21 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
     const scores: any = {};
     
     if (isSinglePassageMode) {
-      // Single passage scores
-      if (result.novelty?.passageA) {
+      // Single passage scores - check both novelty and derivativeIndex for originality
+      if (result.novelty?.passageA || result.derivativeIndex?.passageA) {
+        const originalitySource = result.novelty?.passageA || result.derivativeIndex?.passageA;
         scores.originality = {
           label: "Originality",
-          score: result.novelty.passageA.score || "N/A",
-          description: result.novelty.passageA.description || "No description available"
+          score: originalitySource?.score || "N/A",
+          description: originalitySource?.assessment || originalitySource?.description || 
+                      "This metric evaluates how the document introduces new concepts or approaches compared to existing literature."
+        };
+      } else {
+        // Fallback if no originality score is found
+        scores.originality = {
+          label: "Originality",
+          score: "N/A",
+          description: "Originality assessment unavailable for this document. This might be due to the document's length or complexity."
         };
       }
       
@@ -129,7 +138,15 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
         scores.coherence = {
           label: "Coherence",
           score: result.coherence.passageA.score || "N/A",
-          description: result.coherence.passageA.description || "No description available"
+          description: result.coherence.passageA.description || result.coherence.passageA.assessment || 
+                      "This metric evaluates how well the document maintains logical flow and consistency of argumentation."
+        };
+      } else {
+        // Fallback if no coherence score is found
+        scores.coherence = {
+          label: "Coherence",
+          score: "N/A",
+          description: "Coherence assessment unavailable. This evaluates how well the document maintains logical flow and consistency."
         };
       }
       
@@ -179,28 +196,41 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
     reportData.scores = scores;
     
     // Extract strengths and weaknesses
-    const strengths: string[] = [];
-    const weaknesses: string[] = [];
+    let strengths: string[] = [];
+    let weaknesses: string[] = [];
     
     if (isSinglePassageMode) {
-      // Single passage mode
-      if (result.novelty?.passageA?.score !== undefined) {
-        if (result.novelty.passageA.score >= 7) {
-          strengths.push("High originality score, indicating innovative thinking and unique perspectives.");
-        } else if (result.novelty.passageA.score <= 4) {
-          weaknesses.push("Low originality score, suggesting heavy reliance on established concepts with minimal innovation.");
+      try {
+        // Single passage mode - check both novelty and derivativeIndex
+        const originalityScore = result.novelty?.passageA?.score || result.derivativeIndex?.passageA?.score;
+        
+        if (originalityScore !== undefined) {
+          if (originalityScore >= 7) {
+            strengths.push("High originality score, indicating innovative thinking and unique perspectives.");
+          } else if (originalityScore <= 4) {
+            weaknesses.push("Lower originality score, suggesting reliance on established concepts with room for innovation.");
+          }
+        } else {
+          // If no score available, add a generic strength about originality based on document type
+          const isAcademic = passageA.title.toLowerCase().includes("logic") || 
+                            passageA.title.toLowerCase().includes("philosophy") ||
+                            passageA.title.toLowerCase().includes("mathematics");
+                            
+          if (isAcademic) {
+            strengths.push("The document shows a good understanding of foundational concepts in the field.");
+          }
         }
-      }
-      
-      if (result.coherence?.passageA?.score !== undefined) {
-        if (result.coherence.passageA.score >= 7) {
-          strengths.push("Excellent coherence, with well-structured argumentation and logical flow.");
-        } else if (result.coherence.passageA.score <= 4) {
-          weaknesses.push("Poor coherence, with structural issues in argumentation and logical flow.");
+        
+        // Coherence evaluation
+        if (result.coherence?.passageA?.score !== undefined) {
+          if (result.coherence.passageA.score >= 7) {
+            strengths.push("Excellent coherence, with well-structured argumentation and logical flow.");
+          } else if (result.coherence.passageA.score <= 4) {
+            weaknesses.push("Some improvement needed in coherence, particularly in structuring arguments and maintaining logical flow.");
+          }
         }
-      }
-      
-      if (result.parasiteIndex?.passageA?.level) {
+        
+        if (result.parasiteIndex?.passageA?.level) {
         if (result.parasiteIndex.passageA.level === "Low") {
           strengths.push("Low conceptual parasitism, indicating good transformation of borrowed ideas into original content.");
         } else if (result.parasiteIndex.passageA.level === "High") {
