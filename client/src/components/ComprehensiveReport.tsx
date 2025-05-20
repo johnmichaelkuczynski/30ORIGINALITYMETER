@@ -360,6 +360,8 @@ export default function ComprehensiveReport({
       });
 
       const reportData = generateReport();
+      console.log("PDF Report data generated with scores:", Object.keys(reportData.scores).length);
+      
       const doc = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -619,18 +621,52 @@ export default function ComprehensiveReport({
       });
       docContent += `\n`;
 
+      // Detailed format
+      docContent += `\n\nSCORE BREAKDOWN\n`;
+      docContent += `${'='.repeat(50)}\n`;
+      
+      // Add detailed scores
+      Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+        docContent += `\n${data.label}\n`;
+        docContent += `${'-'.repeat(data.label.length)}\n`;
+        
+        if (data.score !== undefined) {
+          docContent += `Score: ${data.score}\n`;
+        } else if (data.level !== undefined) {
+          docContent += `Level: ${data.level}\n`;
+        } else if (data.isAIGenerated !== undefined) {
+          docContent += `Assessment: ${data.isAIGenerated ? "AI-Generated" : "Human-Written"}\n`;
+          docContent += `Confidence: ${data.confidence}\n`;
+        }
+        
+        if (data.description) {
+          docContent += `Description: ${data.description}\n`;
+        }
+      });
+      
       // Disclaimer
+      docContent += `\n\n${'='.repeat(50)}\n`;
       docContent += `This report was generated using advanced AI analysis tools and should be used as a guide.\n`;
       docContent += `Results may vary based on document complexity and length.\n`;
 
-      // Create a blob and download
-      const blob = new Blob([docContent], { type: 'text/plain' });
+      // Create a blob and download with consistent encoding
+      const encoder = new TextEncoder();
+      const data = encoder.encode(docContent);
+      const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       
+      // Ensure filename is cleaned of any problematic characters
+      const sanitizeForFilename = (str: string) => {
+        if (!str) return 'untitled';
+        return str.replace(/[^a-z0-9_\-]/gi, '_').slice(0, 50);
+      };
+      
       const fileName = isSinglePassageMode
-        ? `analysis_${passageA.title?.replace(/\s+/g, '_') || 'document'}.txt`
-        : `comparison_${passageA.title?.replace(/\s+/g, '_') || 'document1'}_${passageB?.title?.replace(/\s+/g, '_') || 'document2'}.txt`;
+        ? `intelligence-analysis-single-${new Date().toISOString().split('T')[0].replace(/-/g, '-')}.txt`
+        : `intelligence-analysis-comparison-${new Date().toISOString().split('T')[0].replace(/-/g, '-')}.txt`;
+      
+      console.log("Downloading report with content length:", docContent.length);
       
       a.href = url;
       a.download = fileName;
