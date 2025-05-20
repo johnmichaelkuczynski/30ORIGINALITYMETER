@@ -47,65 +47,117 @@ export default function ComprehensiveReport({
   const generateReport = () => {
     let reportData: any = {};
     
-    // Summary section
-    let summary = "";
+    // Get the document titles
     const passageATitle = passageA.title || "Untitled Document";
     const passageBTitle = passageB?.title || "Document B";
     
     try {
+      // --- AUTHOR ORIGINALITY ANALYSIS ---
+      
+      // Extract originality scores
+      let originalityScoreA = "N/A";
+      let originalityScoreB = "N/A";
+      let originalityAssessmentA = "";
+      let originalityAssessmentB = "";
+      
+      // Try to get scores from different potential properties based on API provider used
+      if (extendedResult.novelty?.passageA?.score !== undefined) {
+        originalityScoreA = `${extendedResult.novelty.passageA.score}/10`;
+        originalityAssessmentA = extendedResult.novelty.passageA.assessment || "";
+      } else if (extendedResult.derivativeIndex?.passageA?.score !== undefined) {
+        originalityScoreA = `${extendedResult.derivativeIndex.passageA.score}/10`;
+        originalityAssessmentA = extendedResult.derivativeIndex.passageA.assessment || "";
+      }
+      
+      if (!isSinglePassageMode) {
+        if (extendedResult.novelty?.passageB?.score !== undefined) {
+          originalityScoreB = `${extendedResult.novelty.passageB.score}/10`;
+          originalityAssessmentB = extendedResult.novelty.passageB.assessment || "";
+        } else if (extendedResult.derivativeIndex?.passageB?.score !== undefined) {
+          originalityScoreB = `${extendedResult.derivativeIndex.passageB.score}/10`;
+          originalityAssessmentB = extendedResult.derivativeIndex.passageB.assessment || "";
+        }
+      }
+      
+      // Extract conceptual lineage
+      let primaryInfluencesA = "";
+      
+      if (extendedResult.conceptualLineage?.passageA?.primaryInfluences) {
+        if (Array.isArray(extendedResult.conceptualLineage.passageA.primaryInfluences)) {
+          primaryInfluencesA = extendedResult.conceptualLineage.passageA.primaryInfluences.join(", ");
+        } else if (typeof extendedResult.conceptualLineage.passageA.primaryInfluences === 'string') {
+          primaryInfluencesA = extendedResult.conceptualLineage.passageA.primaryInfluences;
+        }
+      }
+      
+      let intellectualTrajectoryA = extendedResult.conceptualLineage?.passageA?.intellectualTrajectory || "";
+      
+      // Extract AI detection results
+      let aiDetectionResultA = "Unknown";
+      let aiConfidenceA = "";
+      
+      if (extendedResult.aiDetection?.passageA) {
+        aiDetectionResultA = extendedResult.aiDetection.passageA.isAIGenerated ? "AI-generated" : "Human-written";
+        aiConfidenceA = extendedResult.aiDetection.passageA.confidence || "medium";
+      }
+      
+      // Categorize originality level based on score
+      let originalityLevelA = "Unknown";
+      if (extendedResult.novelty?.passageA?.score !== undefined) {
+        const score = extendedResult.novelty.passageA.score;
+        if (score >= 0 && score <= 3) {
+          originalityLevelA = "Derivative or mimetic";
+        } else if (score >= 4 && score <= 6) {
+          originalityLevelA = "Marginal novelty";
+        } else if (score >= 7 && score <= 8) {
+          originalityLevelA = "Moderate originality";
+        } else if (score >= 9 && score <= 10) {
+          originalityLevelA = "High originality";
+        }
+      } else if (extendedResult.derivativeIndex?.passageA?.score !== undefined) {
+        const score = extendedResult.derivativeIndex.passageA.score;
+        if (score >= 0 && score <= 3) {
+          originalityLevelA = "Derivative or mimetic";
+        } else if (score >= 4 && score <= 6) {
+          originalityLevelA = "Marginal novelty";
+        } else if (score >= 7 && score <= 8) {
+          originalityLevelA = "Moderate originality";
+        } else if (score >= 9 && score <= 10) {
+          originalityLevelA = "High originality";
+        }
+      }
+      
+      // Build summary according to AUTHOR ORIGINALITY DETECTOR format
+      let summary = "";
+      
       if (isSinglePassageMode) {
-        // Get originality/derivative score if available
-        let originalityScore = "N/A";
+        summary = `AUTHOR ORIGINALITY ESTIMATE: ${originalityScoreA}\n\n`;
+        summary += `Analysis of "${passageATitle}" reveals ${originalityLevelA.toLowerCase()} content. `;
         
-        // Try to get the score from different potential properties based on API provider used
-        if (extendedResult.novelty?.passageA?.score !== undefined) {
-          originalityScore = `${extendedResult.novelty.passageA.score}/10`;
-        } else if (extendedResult.derivativeIndex?.passageA?.score !== undefined) {
-          originalityScore = `${extendedResult.derivativeIndex.passageA.score}/10`;
+        if (primaryInfluencesA) {
+          summary += `The work shows influences from ${primaryInfluencesA}. `;
         }
         
-        summary = `Analysis of "${passageATitle}" shows an originality score of ${originalityScore}. `;
-        
-        // Add AI detection if available
-        if (extendedResult.aiDetection?.passageA) {
-          try {
-            const confidence = extendedResult.aiDetection.passageA.confidence || "medium";
-            summary += `The document appears to be ${extendedResult.aiDetection.passageA.isAIGenerated ? 
-              "AI-generated" : "human-written"} with ${confidence} confidence. `;
-          } catch (err) {
-            console.error("Error processing AI detection data:", err);
-          }
+        if (intellectualTrajectoryA) {
+          summary += `${intellectualTrajectoryA} `;
         }
         
-        // Add conceptual framework info if available
-        if (extendedResult.conceptualLineage?.passageA?.primaryInfluences) {
-          try {
-            let influences = "";
-            if (Array.isArray(extendedResult.conceptualLineage.passageA.primaryInfluences)) {
-              influences = extendedResult.conceptualLineage.passageA.primaryInfluences.slice(0, 3).join(", ");
-            } else if (typeof extendedResult.conceptualLineage.passageA.primaryInfluences === 'string') {
-              influences = extendedResult.conceptualLineage.passageA.primaryInfluences;
-            } else {
-              influences = "various sources";
-            }
-            
-            summary += `The document shows influences from ${influences}. `;
-          } catch (error) {
-            console.error("Error processing influences:", error);
-            summary += "The document shows influences from various sources. ";
-          }
+        if (aiDetectionResultA !== "Unknown") {
+          summary += `The document appears to be ${aiDetectionResultA.toLowerCase()} with ${aiConfidenceA} confidence. `;
         }
       } else {
-        // Comparison mode summary
-        // Get overlap score if available
+        // Comparison mode
         let overlapScore = "N/A";
         if (extendedResult.conceptualOverlap?.score !== undefined) {
           overlapScore = `${extendedResult.conceptualOverlap.score}/10`;
         }
         
-        summary = `Comparison between "${passageATitle}" and "${passageBTitle}" shows a conceptual distinctiveness score of ${overlapScore}. `;
+        summary = `AUTHOR ORIGINALITY COMPARISON:\n`;
+        summary += `"${passageATitle}": ${originalityScoreA}\n`;
+        summary += `"${passageBTitle}": ${originalityScoreB}\n\n`;
         
-        // Add originality comparison if available
+        summary += `Conceptual distinctiveness between documents: ${overlapScore}/10\n\n`;
+        
         if (extendedResult.novelty?.passageA?.score !== undefined && extendedResult.novelty?.passageB?.score !== undefined) {
           const scoreA = extendedResult.novelty.passageA.score;
           const scoreB = extendedResult.novelty.passageB.score;
@@ -119,12 +171,12 @@ export default function ComprehensiveReport({
           }
         }
       }
+      
+      reportData.summary = summary;
     } catch (error) {
       console.error("Error generating summary:", error);
-      summary = `Analysis generated for "${passageATitle}"${isSinglePassageMode ? '' : ` and "${passageBTitle}"`}. Some metrics may be incomplete due to document complexity or size.`;
+      reportData.summary = `Analysis generated for "${passageATitle}"${isSinglePassageMode ? '' : ` and "${passageBTitle}"`}. Some metrics may be incomplete due to document complexity or size.`;
     }
-    
-    reportData.summary = summary;
     
     // Extract scores
     const scores: any = {};
