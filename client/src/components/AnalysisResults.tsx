@@ -4,6 +4,7 @@ import SummarySection from "./SummarySection";
 import AnalysisTabs from "./AnalysisTabs";
 import DownloadReportButton from "./DownloadReportButton";
 import PassageGenerator from "./PassageGenerator";
+import ComprehensiveReport from "./ComprehensiveReport";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -53,14 +54,23 @@ export default function AnalysisResults({
 
   return (
     <div className="space-y-6" id={resultsContainerId}>
-      <div className="flex justify-between items-center">
-        <DownloadReportButton 
-          result={processedResult}
-          passageATitle={passageATitle}
-          passageBTitle={isSinglePassageMode ? "" : passageBTitle}
-          resultsContainerId={resultsContainerId}
-          isSinglePassageMode={isSinglePassageMode}
-        />
+      <div className="flex justify-between items-center flex-wrap gap-3">
+        <div className="flex gap-3">
+          <DownloadReportButton 
+            result={processedResult}
+            passageATitle={passageATitle}
+            passageBTitle={isSinglePassageMode ? "" : passageBTitle}
+            resultsContainerId={resultsContainerId}
+            isSinglePassageMode={isSinglePassageMode}
+          />
+          
+          <ComprehensiveReport
+            result={processedResult}
+            passageA={passageA}
+            passageB={isSinglePassageMode ? undefined : passageB}
+            isSinglePassageMode={isSinglePassageMode}
+          />
+        </div>
         
         <Button 
           variant="outline" 
