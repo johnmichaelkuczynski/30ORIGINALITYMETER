@@ -838,8 +838,8 @@ export default function ComprehensiveReport({
       };
       
       const fileName = isSinglePassageMode
-        ? `intelligence-analysis-single-${new Date().toISOString().split('T')[0].replace(/-/g, '-')}.txt`
-        : `intelligence-analysis-comparison-${new Date().toISOString().split('T')[0].replace(/-/g, '-')}.txt`;
+        ? `author-originality-detector-${new Date().toISOString().split('T')[0]}.txt`
+        : `author-originality-comparison-${new Date().toISOString().split('T')[0]}.txt`;
       
       console.log("Downloading report with content length:", docContent.length);
       
