@@ -39,27 +39,51 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
     const passageBTitle = passageB?.title || "Document B";
     
     if (isSinglePassageMode) {
-      // Get originality score if available
-      let originalityScore = "N/A";
-      if (result.novelty?.passageA?.score !== undefined) {
-        originalityScore = `${result.novelty.passageA.score}/10`;
-      }
-      
-      summary = `Analysis of "${passageATitle}" shows an originality score of ${originalityScore}. `;
-      
-      // Add AI detection if available
-      if (result.aiDetection?.passageA) {
-        summary += `The document appears to be ${result.aiDetection.passageA.isAIGenerated ? 
-          "AI-generated" : "human-written"} with ${result.aiDetection.passageA.confidence} confidence. `;
-      }
-      
-      // Add conceptual framework info if available
-      if (result.conceptualLineage?.passageA?.primaryInfluences) {
-        const influences = Array.isArray(result.conceptualLineage.passageA.primaryInfluences) ?
-          result.conceptualLineage.passageA.primaryInfluences.slice(0, 3).join(", ") :
-          result.conceptualLineage.passageA.primaryInfluences;
+      try {
+        // Get originality/derivative score if available
+        let originalityScore = "N/A";
         
-        summary += `The document shows influences from ${influences}. `;
+        // Try to get the score from different potential properties based on API provider used
+        if (result.novelty?.passageA?.score !== undefined) {
+          originalityScore = `${result.novelty.passageA.score}/10`;
+        } else if (result.derivativeIndex?.passageA?.score !== undefined) {
+          originalityScore = `${result.derivativeIndex.passageA.score}/10`;
+        }
+        
+        summary = `Analysis of "${passageATitle}" shows an originality score of ${originalityScore}. `;
+        
+        // Add AI detection if available
+        if (result.aiDetection?.passageA) {
+          try {
+            const confidence = result.aiDetection.passageA.confidence || "medium";
+            summary += `The document appears to be ${result.aiDetection.passageA.isAIGenerated ? 
+              "AI-generated" : "human-written"} with ${confidence} confidence. `;
+          } catch (err) {
+            console.error("Error processing AI detection data:", err);
+          }
+        }
+        
+        // Add conceptual framework info if available
+        if (result.conceptualLineage?.passageA?.primaryInfluences) {
+          try {
+            let influences = "";
+            if (Array.isArray(result.conceptualLineage.passageA.primaryInfluences)) {
+              influences = result.conceptualLineage.passageA.primaryInfluences.slice(0, 3).join(", ");
+            } else if (typeof result.conceptualLineage.passageA.primaryInfluences === 'string') {
+              influences = result.conceptualLineage.passageA.primaryInfluences;
+            } else {
+              influences = "various sources";
+            }
+            
+            summary += `The document shows influences from ${influences}. `;
+          } catch (error) {
+            console.error("Error processing influences:", error);
+            summary += "The document shows influences from various sources. ";
+          }
+        }
+      } catch (err) {
+        console.error("Error generating summary for single passage:", err);
+        summary = `Analysis of "${passageATitle}" generated incomplete results, possibly due to the large document size. `;
       }
     } else {
       // Comparison mode summary

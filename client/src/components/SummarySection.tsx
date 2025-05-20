@@ -234,37 +234,44 @@ export default function SummarySection({
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-secondary-700 mb-3">Originality Component Scores</h4>
                 <div className="space-y-3">
-                  {result.derivativeIndex.passageA.components.map((component, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex justify-between items-center">
-                        <div 
-                          className="text-sm text-secondary-600 cursor-help"
-                          title={`${component.name}: Evaluates how this passage introduces or reinvents concepts in its field`}
-                        >
-                          {component.name}
+                  {result.derivativeIndex.passageA.components && Array.isArray(result.derivativeIndex.passageA.components) 
+                    ? result.derivativeIndex.passageA.components.map((component, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <div 
+                            className="text-sm text-secondary-600 cursor-help"
+                            title={`${component.name}: Evaluates how this passage introduces or reinvents concepts in its field`}
+                          >
+                            {component.name}
+                          </div>
+                          <span className={`text-sm font-medium ${
+                            component.score > 8.4 ? 'text-green-600' : 
+                            component.score > 6.9 ? 'text-green-500' : 
+                            component.score > 3.9 ? 'text-amber-500' : 
+                            'text-red-500'
+                          }`}>
+                            {component.score.toFixed(1)}/10
+                          </span>
                         </div>
-                        <span className={`text-sm font-medium ${
-                          component.score > 8.4 ? 'text-green-600' : 
-                          component.score > 6.9 ? 'text-green-500' : 
-                          component.score > 3.9 ? 'text-amber-500' : 
-                          'text-red-500'
-                        }`}>
-                          {component.score.toFixed(1)}/10
-                        </span>
+                        <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`absolute top-0 left-0 h-full ${
+                              component.score > 8.4 ? 'bg-green-600' : 
+                              component.score > 6.9 ? 'bg-green-500' : 
+                              component.score > 3.9 ? 'bg-amber-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${component.score * 10}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`absolute top-0 left-0 h-full ${
-                            component.score > 8.4 ? 'bg-green-600' : 
-                            component.score > 6.9 ? 'bg-green-500' : 
-                            component.score > 3.9 ? 'bg-amber-500' : 
-                            'bg-red-500'
-                          }`}
-                          style={{ width: `${component.score * 10}%` }}
-                        ></div>
+                    ))
+                    : (
+                      <div className="text-sm text-secondary-500 italic">
+                        Component scores not available for this analysis
                       </div>
-                    </div>
-                  ))}
+                    )
+                  }
                 </div>
               </div>
             </div>
