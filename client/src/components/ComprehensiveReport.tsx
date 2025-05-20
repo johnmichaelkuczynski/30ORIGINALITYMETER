@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
 import { 
   Dialog, 
   DialogContent, 
@@ -8,13 +9,9 @@ import {
   DialogFooter,
   DialogClose 
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisResult, PassageData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
-import { generateComprehensiveReport } from "@/lib/reportGenerator";
-import { Spinner } from "./ui/spinner";
 
 interface ComprehensiveReportProps {
   result: AnalysisResult;
@@ -30,41 +27,246 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
   isSinglePassageMode = false
 }) => {
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("summary");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [reportData, setReportData] = useState<any>(null);
   const { toast } = useToast();
 
-  const handleOpenReport = async () => {
-    setOpen(true);
+  const generateReport = () => {
+    let reportData: any = {};
     
-    if (!reportData) {
-      setIsGenerating(true);
-      try {
-        // Generate comprehensive report data
-        const report = await generateComprehensiveReport(
-          result,
-          passageA,
-          passageB,
-          isSinglePassageMode
-        );
-        setReportData(report);
-      } catch (error) {
-        console.error("Error generating comprehensive report:", error);
-        toast({
-          title: "Error",
-          description: "Failed to generate comprehensive report. Please try again.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsGenerating(false);
+    // Summary section
+    let summary = "";
+    const passageATitle = passageA.title || "Untitled Document";
+    const passageBTitle = passageB?.title || "Document B";
+    
+    if (isSinglePassageMode) {
+      // Get originality score if available
+      let originalityScore = "N/A";
+      if (result.novelty?.passageA?.score !== undefined) {
+        originalityScore = `${result.novelty.passageA.score}/10`;
+      }
+      
+      summary = `Analysis of "${passageATitle}" shows an originality score of ${originalityScore}. `;
+      
+      // Add AI detection if available
+      if (result.aiDetection?.passageA) {
+        summary += `The document appears to be ${result.aiDetection.passageA.isAIGenerated ? 
+          "AI-generated" : "human-written"} with ${result.aiDetection.passageA.confidence} confidence. `;
+      }
+      
+      // Add conceptual framework info if available
+      if (result.conceptualLineage?.passageA?.primaryInfluences) {
+        const influences = Array.isArray(result.conceptualLineage.passageA.primaryInfluences) ?
+          result.conceptualLineage.passageA.primaryInfluences.slice(0, 3).join(", ") :
+          result.conceptualLineage.passageA.primaryInfluences;
+        
+        summary += `The document shows influences from ${influences}. `;
+      }
+    } else {
+      // Comparison mode summary
+      // Get overlap score if available
+      let overlapScore = "N/A";
+      if (result.conceptualOverlap?.score !== undefined) {
+        overlapScore = `${result.conceptualOverlap.score}/10`;
+      }
+      
+      summary = `Comparison between "${passageATitle}" and "${passageBTitle}" shows a conceptual distinctiveness score of ${overlapScore}. `;
+      
+      // Add originality comparison if available
+      if (result.novelty?.passageA?.score !== undefined && result.novelty?.passageB?.score !== undefined) {
+        const scoreA = result.novelty.passageA.score;
+        const scoreB = result.novelty.passageB.score;
+        
+        if (scoreA > scoreB) {
+          summary += `"${passageATitle}" demonstrates higher originality (${scoreA}/10) than "${passageBTitle}" (${scoreB}/10). `;
+        } else if (scoreB > scoreA) {
+          summary += `"${passageBTitle}" demonstrates higher originality (${scoreB}/10) than "${passageATitle}" (${scoreA}/10). `;
+        } else {
+          summary += `Both documents show the same level of originality (${scoreA}/10). `;
+        }
       }
     }
+    
+    reportData.summary = summary;
+    
+    // Extract scores
+    const scores: any = {};
+    
+    if (isSinglePassageMode) {
+      // Single passage scores
+      if (result.novelty?.passageA) {
+        scores.originality = {
+          label: "Originality",
+          score: result.novelty.passageA.score || "N/A",
+          description: result.novelty.passageA.description || "No description available"
+        };
+      }
+      
+      if (result.coherence?.passageA) {
+        scores.coherence = {
+          label: "Coherence",
+          score: result.coherence.passageA.score || "N/A",
+          description: result.coherence.passageA.description || "No description available"
+        };
+      }
+      
+      if (result.parasiteIndex?.passageA) {
+        scores.parasitism = {
+          label: "Conceptual Parasitism",
+          level: result.parasiteIndex.passageA.level || "Unknown",
+          description: result.parasiteIndex.passageA.description || "No description available"
+        };
+      }
+      
+      if (result.aiDetection?.passageA) {
+        scores.aiDetection = {
+          label: "AI Detection",
+          isAIGenerated: result.aiDetection.passageA.isAIGenerated,
+          confidence: result.aiDetection.passageA.confidence || "Unknown",
+          details: result.aiDetection.passageA.details || "No details available"
+        };
+      }
+    } else {
+      // Comparison mode scores
+      if (result.conceptualOverlap) {
+        scores.overlap = {
+          label: "Conceptual Distinctiveness",
+          score: result.conceptualOverlap.score || "N/A",
+          description: result.conceptualOverlap.description || "No description available"
+        };
+      }
+      
+      if (result.novelty?.passageA) {
+        scores.originalityA = {
+          label: `Originality: ${passageATitle}`,
+          score: result.novelty.passageA.score || "N/A",
+          description: result.novelty.passageA.description || "No description available"
+        };
+      }
+      
+      if (result.novelty?.passageB) {
+        scores.originalityB = {
+          label: `Originality: ${passageBTitle}`,
+          score: result.novelty.passageB.score || "N/A",
+          description: result.novelty.passageB.description || "No description available"
+        };
+      }
+    }
+    
+    reportData.scores = scores;
+    
+    // Extract strengths and weaknesses
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+    
+    if (isSinglePassageMode) {
+      // Single passage mode
+      if (result.novelty?.passageA?.score !== undefined) {
+        if (result.novelty.passageA.score >= 7) {
+          strengths.push("High originality score, indicating innovative thinking and unique perspectives.");
+        } else if (result.novelty.passageA.score <= 4) {
+          weaknesses.push("Low originality score, suggesting heavy reliance on established concepts with minimal innovation.");
+        }
+      }
+      
+      if (result.coherence?.passageA?.score !== undefined) {
+        if (result.coherence.passageA.score >= 7) {
+          strengths.push("Excellent coherence, with well-structured argumentation and logical flow.");
+        } else if (result.coherence.passageA.score <= 4) {
+          weaknesses.push("Poor coherence, with structural issues in argumentation and logical flow.");
+        }
+      }
+      
+      if (result.parasiteIndex?.passageA?.level) {
+        if (result.parasiteIndex.passageA.level === "Low") {
+          strengths.push("Low conceptual parasitism, indicating good transformation of borrowed ideas into original content.");
+        } else if (result.parasiteIndex.passageA.level === "High") {
+          weaknesses.push("High conceptual parasitism, showing excessive reliance on existing ideas without sufficient transformation.");
+        }
+      }
+      
+      if (result.aiDetection?.passageA) {
+        if (!result.aiDetection.passageA.isAIGenerated) {
+          strengths.push("Appears to be authentic human-written content with distinctive style and perspective.");
+        } else {
+          weaknesses.push("Shows characteristics of AI-generated content, which may lack authentic human perspective.");
+        }
+      }
+    } else {
+      // Comparison mode
+      if (result.conceptualOverlap?.score !== undefined) {
+        if (result.conceptualOverlap.score >= 7) {
+          strengths.push("High conceptual distinctiveness between the documents, indicating complementary perspectives.");
+        } else if (result.conceptualOverlap.score <= 4) {
+          weaknesses.push("Low conceptual distinctiveness, suggesting redundant content across documents.");
+        }
+      }
+      
+      if (result.novelty?.passageA?.score !== undefined) {
+        if (result.novelty.passageA.score >= 7) {
+          strengths.push(`"${passageATitle}" shows high originality and innovative thinking.`);
+        } else if (result.novelty.passageA.score <= 4) {
+          weaknesses.push(`"${passageATitle}" demonstrates low originality, relying heavily on established concepts.`);
+        }
+      }
+      
+      if (result.novelty?.passageB?.score !== undefined) {
+        if (result.novelty.passageB.score >= 7) {
+          strengths.push(`"${passageBTitle}" shows high originality and innovative thinking.`);
+        } else if (result.novelty.passageB.score <= 4) {
+          weaknesses.push(`"${passageBTitle}" demonstrates low originality, relying heavily on established concepts.`);
+        }
+      }
+    }
+    
+    // Add generic strengths/weaknesses if we don't have enough
+    if (strengths.length < 2) {
+      strengths.push("The document contributes valuable perspectives to the field.");
+      strengths.push("Shows clear understanding of the subject matter.");
+    }
+    
+    if (weaknesses.length < 2) {
+      weaknesses.push("Could benefit from more innovative approaches to the subject matter.");
+      weaknesses.push("Consider expanding the depth of analysis in certain sections.");
+    }
+    
+    reportData.strengths = strengths;
+    reportData.weaknesses = weaknesses;
+    
+    // Generate improvement suggestions
+    const improvements: string[] = [];
+    
+    if (isSinglePassageMode) {
+      if (result.novelty?.passageA?.score !== undefined && result.novelty.passageA.score < 7) {
+        improvements.push("Enhance originality by challenging conventional perspectives and developing more innovative viewpoints.");
+      }
+      
+      if (result.coherence?.passageA?.score !== undefined && result.coherence.passageA.score < 7) {
+        improvements.push("Improve logical structure and flow between sections to strengthen overall coherence.");
+      }
+      
+      if (result.parasiteIndex?.passageA?.level && result.parasiteIndex.passageA.level !== "Low") {
+        improvements.push("Reduce conceptual parasitism by transforming borrowed ideas more thoroughly through critical analysis and novel application.");
+      }
+      
+      if (result.aiDetection?.passageA?.isAIGenerated) {
+        improvements.push("Add more personal insights, specific examples, and nuanced perspectives to reduce AI-generated characteristics.");
+      }
+    } else {
+      if (result.conceptualOverlap?.score !== undefined && result.conceptualOverlap.score < 7) {
+        improvements.push("Increase conceptual distinctiveness between documents by focusing on different aspects of the subject matter.");
+      }
+    }
+    
+    // Generic improvements
+    improvements.push("Consider incorporating interdisciplinary perspectives to enrich the conceptual framework.");
+    improvements.push("Explicitly acknowledge influences while clarifying how your work extends beyond them.");
+    
+    reportData.improvements = improvements;
+    
+    return reportData;
   };
 
   const handleDownloadPdf = () => {
-    if (!reportData) return;
-
     try {
       setIsGenerating(true);
       toast({
@@ -72,6 +274,7 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
         description: "Please wait while we prepare your comprehensive report...",
       });
 
+      const reportData = generateReport();
       const doc = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -100,7 +303,7 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
 
       let yPosition = 45;
       
-      // Add report sections
+      // Add summary
       doc.setFontSize(16);
       doc.text("Executive Summary", 15, yPosition += 10);
       doc.setFontSize(11);
@@ -137,31 +340,23 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
         doc.setFontSize(11);
         
         // Score value
-        doc.text(`Score: ${data.score}/10`, 15, yPosition += 7);
+        if (data.score !== undefined) {
+          doc.text(`Score: ${data.score}/10`, 15, yPosition += 7);
+        } else if (data.level !== undefined) {
+          doc.text(`Level: ${data.level}`, 15, yPosition += 7);
+        } else if (data.isAIGenerated !== undefined) {
+          doc.text(`Result: ${data.isAIGenerated ? "Likely AI-generated" : "Likely human-written"} (Confidence: ${data.confidence})`, 15, yPosition += 7);
+        }
         
         // Justification
-        const justificationLines = doc.splitTextToSize(data.justification, 180);
-        doc.text(justificationLines, 15, yPosition += 7);
-        
-        // Supporting quotes
-        if (data.quotes && data.quotes.length > 0) {
-          doc.setFontSize(10);
-          doc.setTextColor(80, 80, 80);
-          
-          data.quotes.forEach((quote: string, i: number) => {
-            // Check if we need a new page
-            if (yPosition > 270) {
-              doc.addPage();
-              yPosition = 20;
-            }
-            
-            const quoteLines = doc.splitTextToSize(`Quote ${i+1}: "${quote}"`, 175);
-            doc.text(quoteLines, 20, yPosition += 7);
-            yPosition += (quoteLines.length - 1) * 5;
-          });
-          
-          doc.setTextColor(0, 0, 0);
-          doc.setFontSize(11);
+        if (data.description) {
+          const justificationLines = doc.splitTextToSize(data.description, 180);
+          doc.text(justificationLines, 15, yPosition += 7);
+          yPosition += (justificationLines.length - 1) * 5;
+        } else if (data.details) {
+          const justificationLines = doc.splitTextToSize(data.details, 180);
+          doc.text(justificationLines, 15, yPosition += 7);
+          yPosition += (justificationLines.length - 1) * 5;
         }
         
         yPosition += 5;
@@ -231,21 +426,6 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
         yPosition += (improvementLines.length - 1) * 5;
       });
 
-      // Literature Context (if available)
-      if (reportData.literatureContext && reportData.literatureContext.length > 0) {
-        if (yPosition > 250) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        
-        doc.setFontSize(16);
-        doc.text("Literature Context", 15, yPosition += 15);
-        doc.setFontSize(11);
-        
-        const contextLines = doc.splitTextToSize(reportData.literatureContext, 180);
-        doc.text(contextLines, 15, yPosition += 8);
-      }
-
       // Save the PDF
       const fileName = isSinglePassageMode 
         ? `${passageA.title || "document"}_comprehensive_report.pdf` 
@@ -270,14 +450,14 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
   };
 
   const handleDownloadWord = () => {
-    if (!reportData) return;
-
     try {
       setIsGenerating(true);
       toast({
         title: "Generating Word Document",
         description: "Please wait while we prepare your comprehensive report...",
       });
+
+      const reportData = generateReport();
 
       // Create HTML content for Word document
       let htmlContent = `
@@ -313,15 +493,20 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
 
       // Add scores and justifications
       Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
-        htmlContent += `
-          <h3>${data.label}</h3>
-          <p class="score">Score: ${data.score}/10</p>
-          <p>${data.justification}</p>`;
-          
-        if (data.quotes && data.quotes.length > 0) {
-          data.quotes.forEach((quote: string, i: number) => {
-            htmlContent += `<p class="quote">Quote ${i+1}: "${quote}"</p>`;
-          });
+        htmlContent += `<h3>${data.label}</h3>`;
+        
+        if (data.score !== undefined) {
+          htmlContent += `<p class="score">Score: ${data.score}/10</p>`;
+        } else if (data.level !== undefined) {
+          htmlContent += `<p class="score">Level: ${data.level}</p>`;
+        } else if (data.isAIGenerated !== undefined) {
+          htmlContent += `<p class="score">Result: ${data.isAIGenerated ? "Likely AI-generated" : "Likely human-written"} (Confidence: ${data.confidence})</p>`;
+        }
+        
+        if (data.description) {
+          htmlContent += `<p>${data.description}</p>`;
+        } else if (data.details) {
+          htmlContent += `<p>${data.details}</p>`;
         }
       });
 
@@ -345,13 +530,6 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
         htmlContent += `<li class="list-item">${improvement}</li>`;
       });
       htmlContent += `</ol>`;
-
-      // Add literature context if available
-      if (reportData.literatureContext && reportData.literatureContext.length > 0) {
-        htmlContent += `
-          <h2>Literature Context</h2>
-          <p>${reportData.literatureContext}</p>`;
-      }
 
       htmlContent += `
         </body>
@@ -394,7 +572,7 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
   return (
     <>
       <Button 
-        onClick={handleOpenReport}
+        onClick={() => setOpen(true)}
         variant="outline"
         className="bg-green-600 hover:bg-green-700 text-white border-green-500 border rounded-md px-4 py-2 flex items-center shadow-lg hover:shadow-xl transition-all"
       >
@@ -434,94 +612,82 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
 
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center py-10">
-              <Spinner size="lg" />
-              <p className="mt-4 text-muted-foreground">Generating comprehensive report...</p>
+              <div className="h-10 w-10 border-4 border-t-transparent animate-spin rounded-full"></div>
+              <p className="mt-4 text-muted-foreground">Generating report...</p>
             </div>
-          ) : reportData ? (
+          ) : (
             <>
-              <Tabs defaultValue="summary" className="w-full" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4">
-                  <TabsTrigger value="summary">Summary</TabsTrigger>
-                  <TabsTrigger value="scores">Scores & Justifications</TabsTrigger>
-                  <TabsTrigger value="strengths">Strengths & Weaknesses</TabsTrigger>
-                  <TabsTrigger value="improvements">Improvements</TabsTrigger>
-                </TabsList>
+              {/* Report content */}
+              <div className="space-y-6 p-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">Executive Summary</h3>
+                  <p className="text-base leading-relaxed">{generateReport().summary}</p>
+                </div>
                 
-                <TabsContent value="summary" className="p-4">
-                  <h3 className="text-xl font-semibold mb-4">Executive Summary</h3>
-                  <p className="text-base leading-relaxed whitespace-pre-line">{reportData.summary}</p>
-                  
-                  {reportData.literatureContext && (
-                    <>
-                      <h3 className="text-xl font-semibold mt-8 mb-4">Literature Context</h3>
-                      <p className="text-base leading-relaxed whitespace-pre-line">{reportData.literatureContext}</p>
-                    </>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="scores" className="p-4">
-                  <h3 className="text-xl font-semibold mb-4">Analysis Scores & Justifications</h3>
-                  
-                  <div className="space-y-6">
-                    {Object.entries(reportData.scores).map(([key, data]: [string, any]) => (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">Analysis Scores & Justifications</h3>
+                  <div className="space-y-4">
+                    {Object.entries(generateReport().scores).map(([key, data]: [string, any]) => (
                       <div key={key} className="border rounded-lg p-4 bg-slate-50">
                         <h4 className="text-lg font-semibold text-blue-700">{data.label}</h4>
-                        <p className="font-medium my-2">Score: {data.score}/10</p>
-                        <p className="text-base mb-3">{data.justification}</p>
                         
-                        {data.quotes && data.quotes.length > 0 && (
-                          <div className="mt-3">
-                            <h5 className="text-sm font-medium text-slate-700 mb-2">Supporting Quotes:</h5>
-                            <div className="space-y-2 ml-4">
-                              {data.quotes.map((quote: string, i: number) => (
-                                <p key={i} className="text-sm italic border-l-2 border-slate-300 pl-3 py-1 bg-slate-100 rounded-r-sm">
-                                  "{quote}"
-                                </p>
-                              ))}
-                            </div>
-                          </div>
+                        {data.score !== undefined && (
+                          <p className="font-medium my-2">Score: {data.score}/10</p>
+                        )}
+                        
+                        {data.level !== undefined && (
+                          <p className="font-medium my-2">Level: {data.level}</p>
+                        )}
+                        
+                        {data.isAIGenerated !== undefined && (
+                          <p className="font-medium my-2">
+                            Result: {data.isAIGenerated ? "Likely AI-generated" : "Likely human-written"} 
+                            (Confidence: {data.confidence})
+                          </p>
+                        )}
+                        
+                        {data.description && (
+                          <p className="text-base">{data.description}</p>
+                        )}
+                        
+                        {data.details && (
+                          <p className="text-base">{data.details}</p>
                         )}
                       </div>
                     ))}
                   </div>
-                </TabsContent>
+                </div>
                 
-                <TabsContent value="strengths" className="p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 text-green-700">Strengths</h3>
-                      <ul className="space-y-2 list-disc list-inside">
-                        {reportData.strengths.map((strength: string, i: number) => (
-                          <li key={i} className="text-base leading-relaxed">{strength}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 text-red-700">Weaknesses</h3>
-                      <ul className="space-y-2 list-disc list-inside">
-                        {reportData.weaknesses.map((weakness: string, i: number) => (
-                          <li key={i} className="text-base leading-relaxed">{weakness}</li>
-                        ))}
-                      </ul>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3 text-green-700">Strengths</h3>
+                    <ul className="space-y-2 list-disc pl-5">
+                      {generateReport().strengths.map((strength: string, i: number) => (
+                        <li key={i} className="text-base leading-relaxed">{strength}</li>
+                      ))}
+                    </ul>
                   </div>
-                </TabsContent>
+                  
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3 text-red-700">Weaknesses</h3>
+                    <ul className="space-y-2 list-disc pl-5">
+                      {generateReport().weaknesses.map((weakness: string, i: number) => (
+                        <li key={i} className="text-base leading-relaxed">{weakness}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
                 
-                <TabsContent value="improvements" className="p-4">
-                  <h3 className="text-xl font-semibold mb-4">Improvement Suggestions</h3>
-                  <ol className="space-y-3 list-decimal list-inside">
-                    {reportData.improvements.map((improvement: string, i: number) => (
+                <div>
+                  <h3 className="text-xl font-semibold mb-3">Improvement Suggestions</h3>
+                  <ol className="space-y-2 list-decimal pl-5">
+                    {generateReport().improvements.map((improvement: string, i: number) => (
                       <li key={i} className="text-base leading-relaxed">{improvement}</li>
                     ))}
                   </ol>
-                </TabsContent>
-              </Tabs>
+                </div>
+              </div>
             </>
-          ) : (
-            <div className="flex items-center justify-center py-10">
-              <p className="text-muted-foreground">No report data available</p>
-            </div>
           )}
 
           <DialogFooter className="flex justify-between items-center mt-4">
@@ -529,7 +695,7 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
               <Button 
                 variant="outline" 
                 onClick={handleDownloadPdf}
-                disabled={isGenerating || !reportData}
+                disabled={isGenerating}
                 className="flex items-center"
               >
                 <svg 
@@ -554,7 +720,7 @@ const ComprehensiveReport: React.FC<ComprehensiveReportProps> = ({
               <Button 
                 variant="outline" 
                 onClick={handleDownloadWord}
-                disabled={isGenerating || !reportData}
+                disabled={isGenerating}
                 className="flex items-center"
               >
                 <svg 
