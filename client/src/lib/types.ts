@@ -17,38 +17,40 @@ export interface SupportingDocument {
 
 export interface AnalysisResult {
   userContext?: string;
-  conceptualLineage: {
-    passageA: {
-      primaryInfluences: string;
+  conceptualLineage?: {
+    passageA?: {
+      primaryInfluences: string | string[];
       intellectualTrajectory: string;
+      secondaryInfluences?: string | string[];
     };
-    passageB: {
-      primaryInfluences: string;
+    passageB?: {
+      primaryInfluences: string | string[];
       intellectualTrajectory: string;
+      secondaryInfluences?: string | string[];
     };
     feedback?: FeedbackData;
   };
-  semanticDistance: {
-    passageA: {
+  semanticDistance?: {
+    passageA?: {
       distance: number;
       label: string;
     };
-    passageB: {
+    passageB?: {
       distance: number;
       label: string;
     };
-    keyFindings: string[];
-    semanticInnovation: string;
+    keyFindings?: string[];
+    semanticInnovation?: string;
     feedback?: FeedbackData;
   };
-  noveltyHeatmap: {
-    passageA: Array<{
+  noveltyHeatmap?: {
+    passageA?: Array<{
       content: string;
       heat: number;
       quote?: string;
       explanation?: string;
     }>;
-    passageB: Array<{
+    passageB?: Array<{
       content: string;
       heat: number;
       quote?: string;
@@ -56,59 +58,75 @@ export interface AnalysisResult {
     }>;
     feedback?: FeedbackData;
   };
-  derivativeIndex: {
-    passageA: {
+  derivativeIndex?: {
+    passageA?: {
       score: number;
-      components: Array<{
+      components?: Array<{
         name: string;
         score: number;
       }>;
+      description?: string;
+      assessment?: string;
     };
-    passageB: {
+    passageB?: {
       score: number;
-      components: Array<{
+      components?: Array<{
         name: string;
         score: number;
       }>;
+      description?: string;
+      assessment?: string;
     };
     feedback?: FeedbackData;
   };
-  conceptualParasite: {
-    passageA: {
+  conceptualParasite?: {
+    passageA?: {
       level: "Low" | "Moderate" | "High";
       elements: string[];
       assessment: string;
     };
-    passageB: {
+    passageB?: {
       level: "Low" | "Moderate" | "High";
       elements: string[];
       assessment: string;
     };
     feedback?: FeedbackData;
   };
-  coherence: {
-    passageA: {
-      score: number;
-      assessment: string;
-      strengths: string[];
-      weaknesses: string[];
+  parasiteIndex?: {
+    passageA?: {
+      level: "Low" | "Moderate" | "High";
+      description?: string;
     };
-    passageB: {
+    passageB?: {
+      level: "Low" | "Moderate" | "High";
+      description?: string;
+    };
+  };
+  coherence?: {
+    passageA?: {
       score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
+      description?: string;
+    };
+    passageB?: {
+      score: number;
+      assessment: string;
+      strengths: string[];
+      weaknesses: string[];
+      description?: string;
     };
     feedback?: FeedbackData;
   };
   accuracy?: {
-    passageA: {
+    passageA?: {
       score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
-    passageB: {
+    passageB?: {
       score: number;
       assessment: string;
       strengths: string[];
@@ -117,13 +135,13 @@ export interface AnalysisResult {
     feedback?: FeedbackData;
   };
   depth?: {
-    passageA: {
+    passageA?: {
       score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
-    passageB: {
+    passageB?: {
       score: number;
       assessment: string;
       strengths: string[];
@@ -132,19 +150,49 @@ export interface AnalysisResult {
     feedback?: FeedbackData;
   };
   clarity?: {
-    passageA: {
+    passageA?: {
       score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
-    passageB: {
+    passageB?: {
       score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
     feedback?: FeedbackData;
+  };
+  novelty?: {
+    passageA?: {
+      score: number;
+      description?: string;
+      assessment?: string;
+    };
+    passageB?: {
+      score: number;
+      description?: string;
+      assessment?: string;
+    };
+  };
+  conceptualOverlap?: {
+    score: number;
+    description?: string;
+  };
+  aiDetection?: {
+    passageA?: {
+      isAIGenerated: boolean;
+      confidence: string;
+      details?: string;
+      score?: number;
+    };
+    passageB?: {
+      isAIGenerated: boolean;
+      confidence: string;
+      details?: string;
+      score?: number;
+    };
   };
   verdict: string;
   supportingDocuments?: SupportingDocument[];
