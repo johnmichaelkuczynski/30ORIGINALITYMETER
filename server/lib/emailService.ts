@@ -7,7 +7,7 @@ if (!process.env.SENDGRID_API_KEY) {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // You'll need to replace this with your verified sender email from SendGrid
-const VERIFIED_SENDER = 'noreply@yourdomain.com'; // Replace with your verified sender
+const VERIFIED_SENDER = 'noreply@originality-meter.com'; // Replace with your verified sender
 
 export interface EmailReportParams {
   recipientEmail: string;
