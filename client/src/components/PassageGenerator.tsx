@@ -7,11 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Globe, Settings, Mail, FileText } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Globe, Settings, Mail, FileText, RotateCcw, Plus } from 'lucide-react';
 import useAIDetection from '@/hooks/use-ai-detection';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
 import CustomRewriteSearch from '@/components/CustomRewriteSearch';
@@ -34,6 +36,8 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const [showSearchMode, setShowSearchMode] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showChunkSelector, setShowChunkSelector] = useState<boolean>(false);
+  const [showRewriteDialog, setShowRewriteDialog] = useState<boolean>(false);
+  const [rewriteInstructions, setRewriteInstructions] = useState<string>('');
   const { toast } = useToast();
 
   // Check if document should be chunked (more than 1000 words)
@@ -96,6 +100,44 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
       toast({
         title: 'Generation failed',
         description: 'There was a problem generating a more original passage. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  });
+
+  // Rewrite mutation for iterative rewriting
+  const rewriteMutation = useMutation({
+    mutationFn: async (instructions: string) => {
+      if (!generatedResult?.improvedPassage) throw new Error('No passage to rewrite');
+      
+      const response = await apiRequest(
+        'POST',
+        '/api/generate-original',
+        {
+          passage: generatedResult.improvedPassage,
+          analysisResult,
+          styleOption,
+          customInstructions: instructions.trim()
+        }
+      );
+      const data = await response.json();
+      return data as GeneratedPassageResult;
+    },
+    onSuccess: (data) => {
+      setGeneratedResult(data);
+      setActiveTab('improved');
+      setShowRewriteDialog(false);
+      setRewriteInstructions('');
+      toast({
+        title: 'Rewrite completed',
+        description: 'Your text has been rewritten with the new instructions',
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to rewrite passage:', error);
+      toast({
+        title: 'Rewrite failed',
+        description: 'There was a problem rewriting the passage. Please try again.',
         variant: 'destructive',
       });
     }
@@ -226,6 +268,36 @@ ${searchInstructions || "Please incorporate relevant information from these sour
         variant: "destructive",
       });
     }
+  };
+
+  // Handle rewrite with custom instructions
+  const handleRewrite = () => {
+    if (!rewriteInstructions.trim()) {
+      toast({
+        title: "Instructions required",
+        description: "Please enter instructions for rewriting the text",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    rewriteMutation.mutate(rewriteInstructions);
+  };
+
+  // Add improved passage back to input for new analysis
+  const handleAddToInput = () => {
+    if (!generatedResult?.improvedPassage?.text) return;
+    
+    const newPassage: PassageData = {
+      title: generatedResult.improvedPassage.title || "Rewritten Passage",
+      text: generatedResult.improvedPassage.text
+    };
+    
+    onReanalyze(newPassage);
+    toast({
+      title: "Added to input",
+      description: "The rewritten passage has been sent for new analysis",
+    });
   };
 
   const handleReanalyze = () => {
@@ -628,8 +700,86 @@ ${searchInstructions || "Please incorporate relevant information from these sour
                         </Button>
                       </div>
                     </div>
-                    <div className="border rounded-md p-4 bg-white text-sm whitespace-pre-wrap">
+                    
+                    <div className="border rounded-md p-4 bg-white text-sm whitespace-pre-wrap mb-4">
                       {generatedResult?.improvedPassage?.text}
+                    </div>
+
+                    {/* Iterative rewriting controls */}
+                    <div className="flex flex-wrap gap-2">
+                      <Dialog open={showRewriteDialog} onOpenChange={setShowRewriteDialog}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <RotateCcw className="h-4 w-4 mr-1" />
+                            Rewrite the Rewrite
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Rewrite with Custom Instructions</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="rewrite-instructions">
+                                Enter your custom instructions for rewriting this text:
+                              </Label>
+                              <Textarea
+                                id="rewrite-instructions"
+                                value={rewriteInstructions}
+                                onChange={(e) => setRewriteInstructions(e.target.value)}
+                                placeholder="Example: Make this more formal and academic, add more specific examples, simplify the language for a general audience..."
+                                className="mt-2 min-h-[120px]"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setShowRewriteDialog(false);
+                                setRewriteInstructions('');
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleRewrite}
+                              disabled={rewriteMutation.isPending || !rewriteInstructions.trim()}
+                            >
+                              {rewriteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                              Rewrite Text
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleReanalyze}
+                        disabled={reanalyzeMutation.isPending}
+                      >
+                        {reanalyzeMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <RefreshCcw className="h-4 w-4 mr-1" />
+                        )}
+                        Evaluate Originality
+                      </Button>
+
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleAddToInput}
+                        className="border-green-300 text-green-700 hover:bg-green-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add to Input
+                      </Button>
                     </div>
                   </TabsContent>
                 </Tabs>
