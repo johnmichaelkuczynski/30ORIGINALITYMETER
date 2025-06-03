@@ -837,6 +837,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chunk text endpoint
+  app.post("/api/chunk-text", async (req: Request, res: Response) => {
+    try {
+      const { text, title, chunkSize } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ 
+          message: "Missing required field: text" 
+        });
+      }
+
+      const chunkingService = await import('./lib/textChunking.js');
+      const chunkedDocument = chunkingService.createChunkedDocument(
+        text,
+        title || "Document",
+        chunkSize || 500
+      );
+
+      res.json(chunkedDocument);
+    } catch (error) {
+      console.error("Error chunking text:", error);
+      res.status(500).json({ 
+        message: "Failed to chunk text", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Generate from selected chunks endpoint
+  app.post("/api/generate-from-chunks", async (req: Request, res: Response) => {
+    try {
+      const { selectedChunks, analysisResult, styleOption, customInstructions } = req.body;
+      
+      if (!selectedChunks || !Array.isArray(selectedChunks) || selectedChunks.length === 0) {
+        return res.status(400).json({ 
+          message: "Missing or invalid selectedChunks array" 
+        });
+      }
+
+      // Reconstruct text from selected chunks
+      const chunkingService = await import('./lib/textChunking.js');
+      const reconstructedText = chunkingService.reconstructTextFromChunks(selectedChunks);
+      
+      // Create passage data from reconstructed text
+      const passage = {
+        title: `Selected Chunks (${selectedChunks.length} chunks)`,
+        text: reconstructedText
+      };
+
+      // Use OpenAI service for generating improved passages
+      const openaiService = await import('./lib/openai.js');
+      const result = await openaiService.generateMoreOriginalVersion(
+        passage,
+        analysisResult,
+        styleOption,
+        customInstructions
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error generating from chunks:", error);
+      res.status(500).json({ 
+        message: "Failed to generate from selected chunks", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);

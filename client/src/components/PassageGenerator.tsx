@@ -15,6 +15,7 @@ import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Gl
 import useAIDetection from '@/hooks/use-ai-detection';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
 import CustomRewriteSearch from '@/components/CustomRewriteSearch';
+import { ChunkSelector } from '@/components/ChunkSelector';
 
 interface PassageGeneratorProps {
   analysisResult: AnalysisResult;
@@ -30,7 +31,11 @@ export default function PassageGenerator({ analysisResult, passage, onReanalyze 
   const [showCustomInstructions, setShowCustomInstructions] = useState<boolean>(false);
   const [showSearchMode, setShowSearchMode] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showChunkSelector, setShowChunkSelector] = useState<boolean>(false);
   const { toast } = useToast();
+
+  // Check if document should be chunked (more than 1000 words)
+  const shouldUseChunking = passage.text.split(/\s+/).filter(word => word.length > 0).length > 1000;
   
   // AI detection
   const { 
@@ -128,6 +133,17 @@ ${searchInstructions || "Please incorporate relevant information from these sour
     toast({
       title: "Search results applied",
       description: `${selectedResults.length} sources have been added to your custom instructions.`,
+    });
+  };
+
+  // Handler for when chunks are processed and result is generated
+  const handleChunksGenerated = (result: GeneratedPassageResult) => {
+    setGeneratedResult(result);
+    setActiveTab('improved');
+    setShowChunkSelector(false);
+    toast({
+      title: 'Improved version generated',
+      description: 'A more original version has been created from your selected chunks',
     });
   };
 
@@ -344,24 +360,71 @@ ${searchInstructions || "Please incorporate relevant information from these sour
           </div>
 
           <div className="space-y-4">
-            {/* Generation button */}
-            <Button 
-              onClick={handleGenerate} 
-              className="w-full"
-              disabled={generateMutation.isPending}
-            >
-              {generateMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkle className="mr-2 h-4 w-4" />
-                  Generate More Original Version
-                </>
-              )}
-            </Button>
+            {/* Show chunking interface for large documents */}
+            {shouldUseChunking && (
+              <div className="border rounded-lg p-4 bg-amber-50 dark:bg-amber-950/20">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="font-medium text-amber-800 dark:text-amber-200">Large Document Detected</h3>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      This document has {passage.text.split(/\s+/).length.toLocaleString()} words. 
+                      Use chunking for better results with large documents.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowChunkSelector(!showChunkSelector)}
+                    disabled={generateMutation.isPending}
+                  >
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    {showChunkSelector ? 'Hide Chunk Selector' : 'Use Chunk Processing'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerate}
+                    disabled={generateMutation.isPending}
+                  >
+                    <Sparkle className="mr-2 h-4 w-4" />
+                    Process Entire Document
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Chunk selector */}
+            {showChunkSelector && shouldUseChunking && (
+              <ChunkSelector
+                text={passage.text}
+                title={passage.title || "Document"}
+                analysisResult={analysisResult}
+                onChunksGenerated={handleChunksGenerated}
+              />
+            )}
+
+            {/* Regular generation button for smaller documents */}
+            {!shouldUseChunking && (
+              <Button 
+                onClick={handleGenerate} 
+                className="w-full"
+                disabled={generateMutation.isPending}
+              >
+                {generateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkle className="mr-2 h-4 w-4" />
+                    Generate More Original Version
+                  </>
+                )}
+              </Button>
+            )}
 
             {generatedResult && (
               <div className="space-y-4 pt-4">
