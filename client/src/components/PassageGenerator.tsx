@@ -269,13 +269,16 @@ ${searchInstructions || "Please incorporate relevant information from these sour
             </div>
           </div>
 
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Wand2 className="h-4 w-4" />
-                Custom Improvement Instructions
-              </label>
-              <div className="flex items-center gap-2">
+          <div className="mb-6">
+            <div className="border rounded-lg p-4 bg-primary/5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Custom Rewrite Instructions
+                  </label>
+                  <Badge variant="default" className="text-xs">MOST EFFECTIVE</Badge>
+                </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -286,43 +289,30 @@ ${searchInstructions || "Please incorporate relevant information from these sour
                   <Globe className="h-3 w-3" />
                   Search Online
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowCustomInstructions(!showCustomInstructions)}
-                  className="h-8 text-xs"
-                >
-                  {showCustomInstructions ? 'Hide' : 'Show'}
-                </Button>
+              </div>
+              <Textarea
+                placeholder="Describe exactly how you want the passage to be rewritten. Be specific about style, content additions, structural changes, or any modifications you want. These custom instructions are far more effective than the preset options below."
+                className="resize-none"
+                rows={5}
+                value={customInstructions}
+                onChange={(e) => setCustomInstructions(e.target.value)}
+                disabled={generateMutation.isPending}
+              />
+              <div className="mt-3 text-xs text-muted-foreground">
+                <p className="font-medium text-primary">Custom instructions completely override preset style options and produce much better results.</p>
+                <p className="mt-1">Be specific about exactly what you want. Examples:</p>
+                <div className="mt-2 p-3 border rounded-md bg-background/50">
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>"Rewrite in the style of Malcolm Gladwell with concrete examples and storytelling"</li>
+                    <li>"Add economic data and statistics while maintaining academic rigor"</li>
+                    <li>"Transform into a dialogue between two experts debating the topic"</li>
+                    <li>"Make it more technical with footnotes and additional scholarly context"</li>
+                    <li>"Simplify for general audience and add analogies from everyday life"</li>
+                    <li>"Write like David Foster Wallace with complex sentence structures and digressions"</li>
+                  </ul>
+                </div>
               </div>
             </div>
-            
-            {showCustomInstructions && (
-              <>
-                <Textarea
-                  placeholder="Describe exactly how you want the passage to be improved. These instructions will override the standard style options."
-                  className="mt-2 resize-none"
-                  rows={4}
-                  value={customInstructions}
-                  onChange={(e) => setCustomInstructions(e.target.value)}
-                  disabled={generateMutation.isPending}
-                />
-                <div className="mt-2 text-xs text-muted-foreground">
-                  <p className="font-medium text-primary">These custom instructions will completely override all other style settings.</p>
-                  <p className="mt-1">Be specific about the exact changes you want. You can request specific styles, content additions, or formatting changes.</p>
-                  <div className="mt-2 p-2 border rounded-md bg-muted/20">
-                    <p className="font-medium">Example Instructions:</p>
-                    <ul className="list-disc pl-5 mt-1 space-y-1">
-                      <li>"Make it sound more like Nietzsche but add examples from modern physics"</li>
-                      <li>"Improve coherence and add more concrete examples from economics"</li>
-                      <li>"Rewrite this as a Socratic dialogue between two philosophers"</li>
-                      <li>"Add technical terminology from quantum mechanics while maintaining readability"</li>
-                      <li>"Write it in the style of David Foster Wallace, including footnotes"</li>
-                    </ul>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
 
           <div className="mb-6">

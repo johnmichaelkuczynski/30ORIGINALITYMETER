@@ -6,7 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { FileText, CheckSquare, Square, Loader2, Wand2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FileText, CheckSquare, Square, Loader2, Wand2, Eye, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -38,6 +41,8 @@ export function ChunkSelector({ text, title, analysisResult, onChunksGenerated }
   const [chunkedDocument, setChunkedDocument] = useState<ChunkedDocument | null>(null);
   const [selectedChunks, setSelectedChunks] = useState<Set<number>>(new Set());
   const [isChunking, setIsChunking] = useState(false);
+  const [customInstructions, setCustomInstructions] = useState<string>('');
+  const [previewChunk, setPreviewChunk] = useState<TextChunk | null>(null);
   const { toast } = useToast();
 
   // Mutation for chunking text
@@ -84,7 +89,7 @@ export function ChunkSelector({ text, title, analysisResult, onChunksGenerated }
         selectedChunks: selectedChunkData,
         analysisResult,
         styleOption: 'prioritize-originality',
-        customInstructions: undefined
+        customInstructions: customInstructions.trim() || undefined
       });
       return response.json();
     },
@@ -207,16 +212,16 @@ export function ChunkSelector({ text, title, analysisResult, onChunksGenerated }
             {chunkedDocument.chunks.map((chunk, index) => (
               <div key={chunk.id}>
                 <div 
-                  className={`flex items-start space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                  className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors ${
                     selectedChunks.has(chunk.id) 
                       ? 'bg-primary/5 border-primary' 
                       : 'hover:bg-muted/50'
                   }`}
-                  onClick={() => handleChunkToggle(chunk.id)}
                 >
                   <Checkbox 
                     checked={selectedChunks.has(chunk.id)}
                     onChange={() => handleChunkToggle(chunk.id)}
+                    onClick={() => handleChunkToggle(chunk.id)}
                     className="mt-1"
                   />
                   <div className="flex-1 space-y-2">
@@ -224,12 +229,40 @@ export function ChunkSelector({ text, title, analysisResult, onChunksGenerated }
                       <span className="font-medium text-sm">
                         Chunk {chunk.id}
                       </span>
-                      <Badge variant="outline" className="text-xs">
-                        {chunk.wordCount} words
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {chunk.wordCount} words
+                        </Badge>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-6 w-6 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewChunk(chunk);
+                              }}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[80vh]">
+                            <DialogHeader>
+                              <DialogTitle>Chunk {chunk.id} Preview</DialogTitle>
+                            </DialogHeader>
+                            <ScrollArea className="h-96 w-full rounded-md border p-4">
+                              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                                {chunk.content}
+                              </div>
+                            </ScrollArea>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {chunk.preview}
+                      {chunk.content.substring(0, 300)}
+                      {chunk.content.length > 300 ? '...' : ''}
                     </p>
                   </div>
                 </div>
@@ -238,6 +271,38 @@ export function ChunkSelector({ text, title, analysisResult, onChunksGenerated }
             ))}
           </div>
         </ScrollArea>
+        
+        <div className="mt-6 space-y-4">
+          <div className="border rounded-lg p-4 bg-muted/20">
+            <div className="flex items-center justify-between mb-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Custom Rewrite Instructions
+              </Label>
+            </div>
+            <Textarea
+              placeholder="Describe exactly how you want the selected chunks to be rewritten. Be specific about style, content additions, structural changes, or any other modifications you want."
+              className="resize-none"
+              rows={4}
+              value={customInstructions}
+              onChange={(e) => setCustomInstructions(e.target.value)}
+              disabled={generateMutation.isPending}
+            />
+            <div className="mt-2 text-xs text-muted-foreground">
+              <p className="font-medium text-primary">These instructions will completely override default rewriting behavior.</p>
+              <p className="mt-1">Be specific about exactly what you want. Examples:</p>
+              <div className="mt-2 p-2 border rounded-md bg-background/50">
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>"Rewrite in the style of Malcolm Gladwell with more concrete examples"</li>
+                  <li>"Add economic data and statistics while maintaining academic tone"</li>
+                  <li>"Transform into a Socratic dialogue between two experts"</li>
+                  <li>"Make it more technical and add footnotes with additional context"</li>
+                  <li>"Simplify for general audience and add analogies"</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="mt-4 flex justify-end">
           <Button 
