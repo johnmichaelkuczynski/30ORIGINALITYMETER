@@ -760,6 +760,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate more original version endpoint
+  app.post("/api/generate-original", async (req: Request, res: Response) => {
+    try {
+      const { passage, analysisResult, styleOption, customInstructions } = req.body;
+      
+      if (!passage || !analysisResult) {
+        return res.status(400).json({ 
+          message: "Missing required fields: passage and analysisResult" 
+        });
+      }
+
+      // Use OpenAI service for generating improved passages
+      const openaiService = await import('./lib/openai.js');
+      const result = await openaiService.generateMoreOriginalVersion(
+        passage,
+        analysisResult,
+        styleOption,
+        customInstructions
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error generating original version:", error);
+      res.status(500).json({ 
+        message: "Failed to generate improved passage", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
