@@ -242,8 +242,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         };
 
-        // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(resultWithMetadata);
+        // Validate the response against our schema with fallback handling
+        let validatedResult;
+        try {
+          validatedResult = analysisResultSchema.parse(resultWithMetadata);
+        } catch (error) {
+          console.error("Schema validation failed, using available data:", error);
+          // Return the analysis result as-is with metadata
+          validatedResult = {
+            ...analysisResult,
+            metadata: {
+              provider,
+              timestamp: new Date().toISOString(),
+              validationError: true
+            }
+          };
+        }
 
         // Store the analysis in our database
         await storage.createAnalysis({
@@ -629,8 +643,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         };
 
-        // Validate the response against our schema
-        const validatedResult = analysisResultSchema.parse(resultWithMetadata);
+        // Validate the response against our schema with fallback handling
+        let validatedResult;
+        try {
+          validatedResult = analysisResultSchema.parse(resultWithMetadata);
+        } catch (error) {
+          console.error("Schema validation failed, using available data:", error);
+          // Return the analysis result as-is with metadata
+          validatedResult = {
+            ...analysisResult,
+            metadata: {
+              provider,
+              timestamp: new Date().toISOString(),
+              validationError: true
+            }
+          };
+        }
 
         // Store the analysis in our database with a special flag for single mode
         await storage.createAnalysis({

@@ -91,14 +91,14 @@ export const analysisResultSchema = z.object({
       components: z.array(z.object({
         name: z.string(),
         score: z.number(),
-      })),
+      })).optional(),
     }),
     passageB: z.object({
       score: z.number(),
       components: z.array(z.object({
         name: z.string(),
         score: z.number(),
-      })),
+      })).optional(),
     }),
     feedback: z.object({
       comment: z.string(),
