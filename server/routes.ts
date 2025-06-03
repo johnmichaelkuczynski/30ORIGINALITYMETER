@@ -905,6 +905,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat with AI endpoint
+  app.post("/api/chat", async (req: Request, res: Response) => {
+    try {
+      const { message, context, provider = 'anthropic' } = req.body;
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      // Build context-aware system prompt
+      let systemPrompt = `You are an expert AI assistant integrated into the Originality Meter application. You help users analyze, improve, and generate original scholarly and creative content.
+
+Your capabilities include:
+- Analyzing text for originality, coherence, and quality
+- Generating completely new content (exams, assignments, essays, etc.)
+- Providing writing improvement suggestions
+- Answering questions about any topic
+- Helping with academic and creative writing
+
+Always provide helpful, accurate, and well-formatted responses. When generating content that users might want to send to the input box for analysis, ensure proper formatting and structure.`;
+
+      // Add current context if available
+      if (context?.currentPassage) {
+        systemPrompt += `\n\nCurrent context: The user is working with a text titled "${context.currentPassage.title}" containing ${context.currentPassage.text?.length || 0} characters. You can reference this text in your responses.`;
+      }
+
+      if (context?.analysisResult) {
+        systemPrompt += `\n\nAnalysis results: The current text has an overall originality score of ${context.analysisResult.overallScore}/100.`;
+      }
+
+      const service = getServiceForProvider(provider as LLMProvider);
+      let response;
+
+      if (provider === 'anthropic') {
+        // Use Anthropic for chat
+        const Anthropic = (await import('@anthropic-ai/sdk')).default;
+        const anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY,
+        });
+
+        const chatResponse = await anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [
+            ...(context?.conversationHistory?.slice(-6)?.map((msg: any) => ({
+              role: msg.role,
+              content: msg.content
+            })) || []),
+            { role: 'user', content: message }
+          ],
+        });
+
+        response = { message: (chatResponse.content[0] as any).text };
+      } else {
+        // Fallback to OpenAI
+        const OpenAI = (await import('openai')).default;
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+        const chatResponse = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...(context?.conversationHistory?.slice(-6)?.map((msg: any) => ({
+              role: msg.role,
+              content: msg.content
+            })) || []),
+            { role: 'user', content: message }
+          ],
+          max_tokens: 2000,
+        });
+
+        response = { message: chatResponse.choices[0].message.content };
+      }
+
+      res.json(response);
+    } catch (error) {
+      console.error('Chat error:', error);
+      res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
