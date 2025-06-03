@@ -790,6 +790,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email report endpoint
+  app.post("/api/email-report", async (req: Request, res: Response) => {
+    try {
+      const { recipientEmail, reportContent, reportTitle, analysisType } = req.body;
+      
+      if (!recipientEmail || !reportContent || !reportTitle) {
+        return res.status(400).json({ 
+          message: "Missing required fields: recipientEmail, reportContent, and reportTitle" 
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(recipientEmail)) {
+        return res.status(400).json({ 
+          message: "Invalid email address format" 
+        });
+      }
+
+      const emailService = await import('./lib/emailService.js');
+      const success = await emailService.sendReportEmail({
+        recipientEmail,
+        reportContent,
+        reportTitle,
+        analysisType: analysisType || 'single'
+      });
+
+      if (success) {
+        res.json({ 
+          message: "Report sent successfully",
+          success: true 
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to send email",
+          success: false 
+        });
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ 
+        message: "Failed to send email", 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);

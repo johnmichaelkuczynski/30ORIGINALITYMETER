@@ -12,6 +12,7 @@ import {
 import { AnalysisResult, PassageData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { jsPDF } from "jspdf";
+import { EmailReportDialog } from "./EmailReportDialog";
 
 // Extended type to handle various possible properties from different AI providers
 type ExtendedResult = AnalysisResult & {
@@ -925,7 +926,7 @@ export default function ComprehensiveReport({
               <div className="border rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-2">Strengths</h3>
                 <ul className="list-disc pl-5 space-y-1">
-                  {generateReport().strengths.map((strength, index) => (
+                  {generateReport().strengths.map((strength: string, index: number) => (
                     <li key={index} className="text-sm">{strength}</li>
                   ))}
                 </ul>
@@ -934,7 +935,7 @@ export default function ComprehensiveReport({
               <div className="border rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-2">Areas for Improvement</h3>
                 <ul className="list-disc pl-5 space-y-1">
-                  {generateReport().weaknesses.map((weakness, index) => (
+                  {generateReport().weaknesses.map((weakness: string, index: number) => (
                     <li key={index} className="text-sm">{weakness}</li>
                   ))}
                 </ul>
@@ -944,7 +945,7 @@ export default function ComprehensiveReport({
             <div className="border rounded-lg p-4">
               <h3 className="text-lg font-medium mb-2">Improvement Recommendations</h3>
               <ul className="list-decimal pl-5 space-y-2">
-                {generateReport().improvements.map((improvement, index) => (
+                {generateReport().improvements.map((improvement: string, index: number) => (
                   <li key={index} className="text-sm">{improvement}</li>
                 ))}
               </ul>
@@ -952,6 +953,36 @@ export default function ComprehensiveReport({
           </div>
           
           <DialogFooter className="flex-col sm:flex-row gap-2">
+            <EmailReportDialog
+              reportContent={(() => {
+                const reportData = generateReport();
+                let content = `ORIGINALITY ANALYSIS REPORT\n`;
+                content += `${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}\n\n`;
+                content += `Executive Summary:\n${reportData.summary}\n\n`;
+                content += `Key Metrics:\n`;
+                Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+                  content += `${data.label}: ${data.value}\n`;
+                });
+                content += `\nStrengths:\n`;
+                reportData.strengths.forEach((strength: string, index: number) => {
+                  content += `${index + 1}. ${strength}\n`;
+                });
+                content += `\nAreas for Improvement:\n`;
+                reportData.weaknesses.forEach((weakness: string, index: number) => {
+                  content += `${index + 1}. ${weakness}\n`;
+                });
+                content += `\nRecommendations:\n`;
+                reportData.improvements.forEach((improvement: string, index: number) => {
+                  content += `${index + 1}. ${improvement}\n`;
+                });
+                return content;
+              })()}
+              reportTitle={isSinglePassageMode 
+                ? passageA.title || "Single Passage Analysis" 
+                : `Comparison: ${passageA.title || "Document A"} vs ${passageB?.title || "Document B"}`
+              }
+              analysisType={isSinglePassageMode ? 'single' : 'comparison'}
+            />
             <Button 
               variant="secondary" 
               onClick={handleDownloadWord}
