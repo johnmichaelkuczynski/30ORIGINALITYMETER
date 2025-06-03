@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import ChatWithAI from "@/components/ChatWithAI";
 
 export default function SemanticAnalyzer() {
   const { toast } = useToast();
@@ -534,6 +535,30 @@ export default function SemanticAnalyzer() {
           />
         )}
       </div>
+
+      {/* Chat with AI Section */}
+      <ChatWithAI
+        currentPassage={passageA.text ? passageA : undefined}
+        analysisResult={analysisResult || undefined}
+        onSendToInput={(text: string, title?: string) => {
+          // Set the text as Passage A for analysis
+          setPassageA({
+            title: title || "Generated from Chat",
+            text: text,
+            userContext: ""
+          });
+          
+          // Switch to single passage mode for generated content
+          setAnalysisMode("single");
+          
+          // Clear any existing results
+          setShowResults(false);
+          setAnalysisResult(null);
+          
+          // Scroll to top to show the new input
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
   );
 }

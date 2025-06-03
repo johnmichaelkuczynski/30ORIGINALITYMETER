@@ -317,7 +317,7 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                   <div>📄 Text: "{currentPassage.title}" ({currentPassage.text.length} chars)</div>
                 )}
                 {analysisResult && (
-                  <div>📊 Analysis: Overall Score {analysisResult.overallScore}/100</div>
+                  <div>📊 Analysis: Results available for discussion</div>
                 )}
               </div>
             </div>
