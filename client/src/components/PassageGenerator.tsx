@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
 import { AnalysisResult, PassageData, StyleOption, GeneratedPassageResult } from '@/lib/types';
-import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Globe } from 'lucide-react';
+import { Loader2, Download, RefreshCcw, Sparkle, Wand2, Copy, Trash2, Search, Globe, Settings } from 'lucide-react';
 import useAIDetection from '@/hooks/use-ai-detection';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
 import CustomRewriteSearch from '@/components/CustomRewriteSearch';
