@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
-import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X } from 'lucide-react';
+import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText } from 'lucide-react';
 import { PassageData, AnalysisResult } from '@/lib/types';
 import DocumentUpload from './DocumentUpload';
 

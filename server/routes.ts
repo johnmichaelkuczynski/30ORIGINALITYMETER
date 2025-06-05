@@ -42,10 +42,11 @@ const documentUpload = multer({
   },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.txt' || ext === '.docx' || ext === '.mp3' || ext === '.pdf') {
+    const allowedExts = ['.txt', '.docx', '.mp3', '.pdf', '.jpg', '.jpeg', '.png'];
+    if (allowedExts.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Only .txt, .docx, .pdf, and .mp3 files are allowed'));
+      cb(new Error('Only .txt, .docx, .pdf, .mp3, .jpg, .jpeg, and .png files are allowed'));
     }
   },
 });
@@ -984,6 +985,142 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     } catch (error) {
       console.error('Chat error:', error);
       res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
+  // Enhanced document processing endpoint with OCR support
+  app.post("/api/process-document", documentUpload.single('file'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const file = req.file;
+      const fileType = path.extname(file.originalname).toLowerCase().substring(1);
+      
+      console.log(`Processing file: ${file.originalname} (${fileType})`);
+
+      let content: string;
+
+      // Handle different file types including images
+      if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
+        // Use OCR for image files
+        const { extractTextFromImage } = await import('./lib/ocrProcessing');
+        const base64Image = file.buffer.toString('base64');
+        content = await extractTextFromImage(base64Image);
+      } else {
+        // Use existing file processing for documents
+        content = await processFile(file.buffer, fileType);
+      }
+
+      res.json({ 
+        content,
+        filename: file.originalname,
+        type: fileType,
+        length: content.length
+      });
+    } catch (error) {
+      console.error("Error processing document:", error);
+      res.status(500).json({ 
+        error: "Document processing failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Document rewriting endpoint
+  app.post("/api/rewrite-document", async (req: Request, res: Response) => {
+    try {
+      const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = req.body;
+
+      if (!sourceText || !customInstructions) {
+        return res.status(400).json({ error: "Source text and custom instructions are required" });
+      }
+
+      const { rewriteDocument } = await import('./lib/documentRewriter');
+      
+      const rewrittenText = await rewriteDocument({
+        sourceText,
+        customInstructions,
+        contentSource,
+        styleSource,
+        preserveMath: preserveMath !== false // Default to true
+      });
+
+      res.json({ rewrittenText });
+    } catch (error) {
+      console.error("Error rewriting document:", error);
+      res.status(500).json({ 
+        error: "Document rewriting failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Homework solving endpoint
+  app.post("/api/solve-homework", async (req: Request, res: Response) => {
+    try {
+      const { assignmentText, preserveMath } = req.body;
+
+      if (!assignmentText) {
+        return res.status(400).json({ error: "Assignment text is required" });
+      }
+
+      const { solveHomework } = await import('./lib/documentRewriter');
+      
+      const solution = await solveHomework(assignmentText);
+
+      res.json({ solution });
+    } catch (error) {
+      console.error("Error solving homework:", error);
+      res.status(500).json({ 
+        error: "Homework solving failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Document download endpoint
+  app.post("/api/download-document", async (req: Request, res: Response) => {
+    try {
+      const { content, format, title } = req.body;
+
+      if (!content || !format || !title) {
+        return res.status(400).json({ error: "Content, format, and title are required" });
+      }
+
+      const { exportDocument } = await import('./lib/documentExport');
+      
+      const documentBuffer = await exportDocument({
+        content,
+        format,
+        title
+      });
+
+      // Set appropriate headers for download
+      const mimeTypes = {
+        'word': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'pdf': 'application/pdf',
+        'txt': 'text/plain',
+        'html': 'text/html'
+      };
+
+      const extensions = {
+        'word': 'docx',
+        'pdf': 'pdf',
+        'txt': 'txt',
+        'html': 'html'
+      };
+
+      res.setHeader('Content-Type', mimeTypes[format as keyof typeof mimeTypes]);
+      res.setHeader('Content-Disposition', `attachment; filename="${title}.${extensions[format as keyof typeof extensions]}"`);
+      res.send(documentBuffer);
+    } catch (error) {
+      console.error("Error exporting document:", error);
+      res.status(500).json({ 
+        error: "Document export failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
     }
   });
 
