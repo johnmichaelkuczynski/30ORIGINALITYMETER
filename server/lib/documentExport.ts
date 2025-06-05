@@ -97,54 +97,42 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
         return Buffer.from(htmlTemplate, 'utf8');
         
       case 'word':
-        // Create a basic DOCX structure with math support
-        const wordContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:body>
-        <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Title"/>
-            </w:pPr>
-            <w:r>
-                <w:t>${title}</w:t>
-            </w:r>
-        </w:p>
-        <w:p>
-            <w:r>
-                <w:t xml:space="preserve">${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</w:t>
-            </w:r>
-        </w:p>
-    </w:body>
-</w:document>`;
-        return Buffer.from(wordContent, 'utf8');
+        // Create RTF format that Word can open properly
+        const cleanContent = content
+          .replace(/\*\*(.*?)\*\*/g, '{\\b $1}') // Bold
+          .replace(/\*(.*?)\*/g, '{\\i $1}') // Italic
+          .replace(/^## (.*$)/gim, '{\\fs28\\b $1}\\par\\par') // Headers
+          .replace(/^# (.*$)/gim, '{\\fs32\\b $1}\\par\\par') // Main headers
+          .replace(/\n\n/g, '\\par\\par') // Paragraph breaks
+          .replace(/\n/g, '\\par') // Line breaks
+          .replace(/\$/g, '') // Remove math delimiters for now
+          .replace(/\{/g, '\\{') // Escape braces
+          .replace(/\}/g, '\\}')
+          .replace(/\\/g, '\\\\'); // Escape backslashes
+
+        const rtfContent = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}
+\\f0\\fs24
+{\\fs32\\b ${title}}\\par\\par
+${cleanContent}
+}`;
+        return Buffer.from(rtfContent, 'utf8');
         
       case 'pdf':
-        // For now, return HTML that can be converted to PDF client-side
-        const pdfHtml = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>${title}</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <style>
-        body { 
-            font-family: 'Times New Roman', serif; 
-            line-height: 1.6; 
-            padding: 40px; 
-            background: white;
-        }
-        @media print {
-            body { margin: 0; padding: 20px; }
-        }
-    </style>
-</head>
-<body>
-    <h1>${title}</h1>
-    ${convertMathToHTML(content)}
-</body>
-</html>`;
-        return Buffer.from(pdfHtml, 'utf8');
+        // Return clean text content that can be saved as PDF-compatible format
+        const pdfContent = content
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
+          .replace(/^## (.*$)/gim, '$1') // Headers
+          .replace(/^# (.*$)/gim, '$1') // Main headers
+          .replace(/\$/g, '') // Remove math delimiters
+          .replace(/<[^>]*>/g, '') // Remove HTML tags
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>');
+          
+        const finalContent = `${title}\n\n${pdfContent}`;
+        return Buffer.from(finalContent, 'utf8');
         
       default:
         throw new Error(`Unsupported export format: ${format}`);

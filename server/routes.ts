@@ -1122,15 +1122,15 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
       // Set appropriate headers for download
       const mimeTypes = {
-        'word': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'pdf': 'application/pdf',
+        'word': 'application/rtf', // RTF format, compatible with Word
+        'pdf': 'text/plain', // Plain text for now
         'txt': 'text/plain',
         'html': 'text/html'
       };
 
       const extensions = {
-        'word': 'docx',
-        'pdf': 'pdf',
+        'word': 'rtf', // RTF extension
+        'pdf': 'txt', // Text file for now
         'txt': 'txt',
         'html': 'html'
       };
