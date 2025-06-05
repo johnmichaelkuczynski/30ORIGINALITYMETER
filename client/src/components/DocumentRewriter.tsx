@@ -301,7 +301,16 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
         {/* Rewrite Button */}
         <div className="flex justify-center">
           <Button
-            onClick={handleRewrite}
+            onClick={() => {
+              console.log('Rewrite button clicked:', {
+                sourceTextLength: sourceText.length,
+                sourceTextTrimmed: sourceText.trim().length,
+                customInstructionsLength: customInstructions.length,
+                customInstructionsTrimmed: customInstructions.trim().length,
+                isRewriting
+              });
+              handleRewrite();
+            }}
             disabled={isRewriting || !sourceText.trim() || !customInstructions.trim()}
             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2"
           >
