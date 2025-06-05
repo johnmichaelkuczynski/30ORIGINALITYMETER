@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2 } from 'lucide-react';
+import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Eye } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
@@ -68,7 +68,7 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
   const [styleSource, setStyleSource] = useState('');
   const [rewriteResult, setRewriteResult] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('word');
+  const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('html');
   const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
   const { toast } = useToast();
 
@@ -153,6 +153,41 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
     }
   };
 
+  const handleViewHTML = () => {
+    if (!rewriteResult) return;
+    
+    const htmlContent = convertMarkdownToHTML(rewriteResult);
+    const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${sourceTitle || 'Rewritten Document'}</title>
+  <style>
+    body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; max-width: 800px; }
+    h1 { color: #000; font-size: 24px; margin-bottom: 20px; }
+    h2 { color: #000; font-size: 20px; margin: 20px 0 10px 0; }
+    h3 { color: #000; font-size: 16px; margin: 16px 0 8px 0; }
+    p { margin: 12px 0; }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>${sourceTitle || 'Rewritten Document'}</h1>
+  <div>${htmlContent}</div>
+</body>
+</html>`;
+
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    
+    toast({
+      title: "HTML preview opened",
+      description: "The formatted document opened in a new tab",
+    });
+  };
+
   const handleDownload = async () => {
     if (!rewriteResult) {
       toast({
@@ -184,7 +219,7 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `rewritten-${sourceTitle || 'document'}.${downloadFormat === 'word' ? 'docx' : downloadFormat}`;
+      a.download = `rewritten-${sourceTitle || 'document'}.${downloadFormat === 'html' ? 'html' : downloadFormat}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -392,6 +427,14 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
                     <SelectItem value="html">HTML</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  onClick={handleViewHTML}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  View HTML
+                </Button>
                 <Button
                   onClick={handleDownload}
                   variant="outline"

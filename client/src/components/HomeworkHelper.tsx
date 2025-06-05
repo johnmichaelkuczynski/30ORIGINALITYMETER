@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { GraduationCap, Download, FileText, Image as ImageIcon, Brain } from 'lucide-react';
+import { GraduationCap, Download, FileText, Image as ImageIcon, Brain, Eye } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,7 +55,7 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
   }, [initialContent]);
   const [solution, setSolution] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('word');
+  const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('html');
   const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
   const { toast } = useToast();
 
