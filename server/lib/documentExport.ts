@@ -133,23 +133,29 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
         return Buffer.from(htmlTemplate, 'utf8');
         
       case 'word':
-        // Create RTF format that Word can open properly
-        const plainForWord = convertMarkdownToPlainText(content);
-        let rtfContent = plainForWord
-          // RTF requires escaping special characters
-          .replace(/\{/g, '\\{')
-          .replace(/\}/g, '\\}')
-          .replace(/\\/g, '\\\\')
-          // Convert line breaks to RTF paragraph breaks
-          .replace(/\n\n/g, '\\par\\par')
-          .replace(/\n/g, '\\par');
-
-        const rtfDocument = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}
-\\f0\\fs24
-{\\fs32\\b ${title.replace(/[{}\\]/g, '')}}\\par\\par
-${rtfContent}
-}`;
-        return Buffer.from(rtfDocument, 'utf8');
+        // Create a simple DOCX-compatible format using HTML
+        const htmlForWord = convertMarkdownToHTML(content);
+        const wordDocument = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; }
+    h1 { color: #000; font-size: 24px; }
+    h2 { color: #000; font-size: 20px; }
+    h3 { color: #000; font-size: 16px; }
+    p { margin: 12px 0; }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div>${htmlForWord}</div>
+</body>
+</html>`;
+        return Buffer.from(wordDocument, 'utf8');
         
       case 'pdf':
         // Return clean text content that can be saved as PDF-compatible format

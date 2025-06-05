@@ -1108,6 +1108,8 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     try {
       const { content, format, title } = req.body;
 
+      console.log('Download request:', { format, titleLength: title?.length || 0, contentLength: content?.length || 0 });
+
       if (!content || !format || !title) {
         return res.status(400).json({ error: "Content, format, and title are required" });
       }
@@ -1120,23 +1122,31 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         title
       });
 
-      // Set appropriate headers for download
+      console.log('Document exported successfully:', { format, bufferSize: documentBuffer.length });
+
+      // Set appropriate headers for download based on actual format
       const mimeTypes = {
-        'word': 'application/rtf', // RTF format, compatible with Word
-        'pdf': 'text/plain', // Plain text for now
+        'word': 'text/html', // HTML content that Word can open
+        'pdf': 'text/plain', // Plain text content
         'txt': 'text/plain',
         'html': 'text/html'
       };
 
       const extensions = {
-        'word': 'rtf', // RTF extension
+        'word': 'html', // HTML file that Word can import
         'pdf': 'txt', // Text file for now
         'txt': 'txt',
         'html': 'html'
       };
 
+      // Clean filename of any problematic characters
+      const cleanTitle = title.replace(/[^a-zA-Z0-9\-_\s]/g, '').trim() || 'document';
+      const filename = `${cleanTitle}.${extensions[format as keyof typeof extensions]}`;
+
       res.setHeader('Content-Type', mimeTypes[format as keyof typeof mimeTypes]);
-      res.setHeader('Content-Disposition', `attachment; filename="${title}.${extensions[format as keyof typeof extensions]}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Length', documentBuffer.length.toString());
+      
       res.send(documentBuffer);
     } catch (error) {
       console.error("Error exporting document:", error);
