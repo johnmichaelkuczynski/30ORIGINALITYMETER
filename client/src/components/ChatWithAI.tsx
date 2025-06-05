@@ -33,9 +33,12 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
   const [isExpanded, setIsExpanded] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [attachedDocuments, setAttachedDocuments] = useState<string[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -67,6 +70,74 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
 
   const removeAttachedDocument = (index: number) => {
     setAttachedDocuments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // File processing functions
+  const processFiles = async (files: FileList) => {
+    setIsProcessingFiles(true);
+    
+    for (const file of Array.from(files)) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/process-document', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to process ${file.name}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        handleDocumentProcessed(result.content, file.name);
+      } catch (error) {
+        console.error('Error processing file:', error);
+        toast({
+          title: "Error processing file",
+          description: `Failed to process ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          variant: "destructive",
+        });
+      }
+    }
+    
+    setIsProcessingFiles(false);
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      processFiles(files);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      processFiles(files);
+    }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   // Send message mutation
@@ -337,16 +408,41 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
             />
           )}
 
-          {/* Input Area */}
-          <div className="space-y-2">
+          {/* Input Area with Drag and Drop */}
+          <div 
+            className={`space-y-2 relative ${isDragOver ? 'ring-2 ring-blue-500 ring-opacity-50 bg-blue-50' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {isDragOver && (
+              <div className="absolute inset-0 bg-blue-100 bg-opacity-75 border-2 border-dashed border-blue-400 rounded-md flex items-center justify-center z-10">
+                <div className="text-center">
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                  <p className="text-blue-700 font-medium">Drop files here to attach them</p>
+                  <p className="text-blue-600 text-sm">PDF, Word, TXT, or images</p>
+                </div>
+              </div>
+            )}
+            
             <Textarea
               ref={textareaRef}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything, request content generation, or discuss your analysis..."
+              placeholder="Ask me anything, request content generation, or discuss your analysis... You can also drag & drop files here!"
               className="min-h-[80px] resize-none"
-              disabled={sendMessageMutation.isPending}
+              disabled={sendMessageMutation.isPending || isProcessingFiles}
+            />
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+              onChange={handleFileSelect}
+              className="hidden"
             />
             
             <div className="flex justify-between items-center">
@@ -354,12 +450,28 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1"
+                  disabled={isProcessingFiles}
+                >
+                  <Paperclip className="h-4 w-4" />
+                  {isProcessingFiles ? 'Processing...' : 'Attach'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowUpload(!showUpload)}
                   className="flex items-center gap-1"
                 >
-                  <Paperclip className="h-4 w-4" />
-                  Attach
+                  <FileText className="h-4 w-4" />
+                  Upload
                 </Button>
+                {isProcessingFiles && (
+                  <div className="flex items-center gap-1 text-xs text-blue-600">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Processing files...
+                  </div>
+                )}
                 <div className="text-xs text-gray-500">
                   Press Enter to send, Shift+Enter for new line
                 </div>
