@@ -5,17 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
-import { Send, Bot, User, ArrowUp, Copy, Loader2 } from 'lucide-react';
+import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X } from 'lucide-react';
 import { PassageData, AnalysisResult } from '@/lib/types';
+import DocumentUpload from './DocumentUpload';
 
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  attachedFiles?: string[];
 }
 
 interface ChatWithAIProps {
@@ -28,6 +31,8 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [attachedDocuments, setAttachedDocuments] = useState<string[]>([]);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -41,6 +46,18 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
       }
     }
   }, [messages]);
+
+  const handleDocumentProcessed = (content: string, filename?: string) => {
+    setAttachedDocuments(prev => [...prev, content]);
+    toast({
+      title: "Document attached",
+      description: `${filename} is now available in the conversation.`,
+    });
+  };
+
+  const removeAttachedDocument = (index: number) => {
+    setAttachedDocuments(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -56,7 +73,8 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
           derivativeIndex: analysisResult.derivativeIndex,
           semanticDistance: analysisResult.semanticDistance
         } : null,
-        conversationHistory: messages.slice(-6) // Last 6 messages for context
+        conversationHistory: messages.slice(-6), // Last 6 messages for context
+        attachedDocuments: attachedDocuments.length > 0 ? attachedDocuments : null
       };
 
       const response = await apiRequest(
@@ -276,6 +294,39 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
 
           <Separator />
 
+          {/* Attached Documents */}
+          {attachedDocuments.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-gray-700">Attached Documents:</Label>
+              <div className="flex flex-wrap gap-2">
+                {attachedDocuments.map((doc, index) => (
+                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    Document {index + 1}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 hover:bg-red-100"
+                      onClick={() => removeAttachedDocument(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Document Upload */}
+          {showUpload && (
+            <DocumentUpload
+              onDocumentProcessed={handleDocumentProcessed}
+              acceptImages={true}
+              placeholder="Upload documents or screenshots to discuss with AI"
+              className="border border-gray-200 rounded-md"
+            />
+          )}
+
           {/* Input Area */}
           <div className="space-y-2">
             <Textarea
@@ -289,8 +340,19 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
             />
             
             <div className="flex justify-between items-center">
-              <div className="text-xs text-gray-500">
-                Press Enter to send, Shift+Enter for new line
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowUpload(!showUpload)}
+                  className="flex items-center gap-1"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  Attach
+                </Button>
+                <div className="text-xs text-gray-500">
+                  Press Enter to send, Shift+Enter for new line
+                </div>
               </div>
               
               <Button
