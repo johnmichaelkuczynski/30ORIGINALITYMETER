@@ -114,6 +114,41 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
     }
   };
 
+  const handleViewHTML = () => {
+    if (!solution) return;
+    
+    const htmlContent = convertMarkdownToHTML(solution);
+    const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${assignmentTitle} - Solution</title>
+  <style>
+    body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; max-width: 800px; }
+    h1 { color: #000; font-size: 24px; margin-bottom: 20px; }
+    h2 { color: #000; font-size: 20px; margin: 20px 0 10px 0; }
+    h3 { color: #000; font-size: 16px; margin: 16px 0 8px 0; }
+    p { margin: 12px 0; }
+    strong { font-weight: bold; }
+    em { font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>${assignmentTitle} - Solution</h1>
+  <div>${htmlContent}</div>
+</body>
+</html>`;
+
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    
+    toast({
+      title: "HTML preview opened",
+      description: "The solution opened in a new tab",
+    });
+  };
+
   const handleDownload = async () => {
     if (!solution) {
       toast({
@@ -269,6 +304,14 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
                   <SelectItem value="html">HTML</SelectItem>
                 </SelectContent>
               </Select>
+              <Button
+                onClick={handleViewHTML}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                View HTML
+              </Button>
               <Button
                 onClick={handleDownload}
                 variant="outline"
