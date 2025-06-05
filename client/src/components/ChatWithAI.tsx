@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
-import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText, FileEdit } from 'lucide-react';
+import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText, FileEdit, GraduationCap } from 'lucide-react';
 import { PassageData, AnalysisResult } from '@/lib/types';
 import DocumentUpload from './DocumentUpload';
 
@@ -25,9 +25,11 @@ interface ChatWithAIProps {
   currentPassage?: PassageData;
   analysisResult?: AnalysisResult;
   onSendToInput: (text: string, title?: string) => void;
+  onSendToRewriter?: (text: string, title?: string) => void;
+  onSendToHomework?: (text: string) => void;
 }
 
-export default function ChatWithAI({ currentPassage, analysisResult, onSendToInput }: ChatWithAIProps) {
+export default function ChatWithAI({ currentPassage, analysisResult, onSendToInput, onSendToRewriter, onSendToHomework }: ChatWithAIProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);

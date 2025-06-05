@@ -14,7 +14,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ChatWithAI from "@/components/ChatWithAI";
 
-export default function SemanticAnalyzer() {
+interface SemanticAnalyzerProps {
+  onSendToRewriter?: (text: string, title?: string) => void;
+  onSendToHomework?: (text: string) => void;
+}
+
+export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }: SemanticAnalyzerProps) {
   const { toast } = useToast();
   
   // Analysis modes
@@ -558,6 +563,8 @@ export default function SemanticAnalyzer() {
           // Scroll to top to show the new input
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+        onSendToRewriter={onSendToRewriter}
+        onSendToHomework={onSendToHomework}
       />
     </div>
   );

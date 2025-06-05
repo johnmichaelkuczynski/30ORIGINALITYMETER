@@ -11,8 +11,13 @@ import { GraduationCap, Download, FileText, Image as ImageIcon, Brain } from 'lu
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
-export default function HomeworkHelper() {
-  const [assignmentText, setAssignmentText] = useState('');
+interface HomeworkHelperProps {
+  onSendToAnalysis?: (text: string, title?: string) => void;
+  initialContent?: string;
+}
+
+export default function HomeworkHelper({ onSendToAnalysis, initialContent }: HomeworkHelperProps) {
+  const [assignmentText, setAssignmentText] = useState(initialContent || '');
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [solution, setSolution] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
