@@ -371,8 +371,8 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
               <Label className="text-sm font-medium">Rewritten Document</Label>
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
-                  className="prose max-w-none text-sm whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: rewriteResult }}
+                  className="prose max-w-none text-sm"
+                  dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(rewriteResult) }}
                 />
               </Card>
             </div>
