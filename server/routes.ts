@@ -906,7 +906,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Chat with AI endpoint
+  // Enhanced chat with AI endpoint supporting document attachments
   app.post("/api/chat", async (req: Request, res: Response) => {
     try {
       const { message, context, provider = 'anthropic' } = req.body;
@@ -924,6 +924,12 @@ Your capabilities include:
 - Providing writing improvement suggestions
 - Answering questions about any topic
 - Helping with academic and creative writing
+- Discussing uploaded documents including PDFs, Word docs, and OCR-processed images
+- Perfect mathematical notation rendering using LaTeX format
+
+When working with mathematical content, always use proper LaTeX notation:
+- Inline math: $expression$
+- Display math: $$expression$$
 
 Always provide helpful, accurate, and well-formatted responses. When generating content that users might want to send to the input box for analysis, ensure proper formatting and structure.`;
 
@@ -934,6 +940,20 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
       if (context?.analysisResult) {
         systemPrompt += `\n\nAnalysis results: The current text has an overall originality score of ${context.analysisResult.overallScore}/100.`;
+      }
+
+      // Add attached documents context
+      if (context?.attachedDocuments && context.attachedDocuments.length > 0) {
+        systemPrompt += `\n\nAttached documents: The user has uploaded ${context.attachedDocuments.length} document(s) for discussion. You can reference and analyze these documents in your responses.`;
+      }
+
+      // Build message with document context
+      let fullMessage = message;
+      if (context?.attachedDocuments && context.attachedDocuments.length > 0) {
+        fullMessage += `\n\nAttached documents content:\n`;
+        context.attachedDocuments.forEach((doc: string, index: number) => {
+          fullMessage += `\nDocument ${index + 1}:\n${doc.substring(0, 2000)}${doc.length > 2000 ? '...[truncated]' : ''}\n`;
+        });
       }
 
       const service = getServiceForProvider(provider as LLMProvider);
@@ -948,14 +968,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
         const chatResponse = await anthropic.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 2000,
+          max_tokens: 3000,
           system: systemPrompt,
           messages: [
             ...(context?.conversationHistory?.slice(-6)?.map((msg: any) => ({
               role: msg.role,
               content: msg.content
             })) || []),
-            { role: 'user', content: message }
+            { role: 'user', content: fullMessage }
           ],
         });
 
@@ -973,9 +993,9 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
               role: msg.role,
               content: msg.content
             })) || []),
-            { role: 'user', content: message }
+            { role: 'user', content: fullMessage }
           ],
-          max_tokens: 2000,
+          max_tokens: 3000,
         });
 
         response = { message: chatResponse.choices[0].message.content };

@@ -1,16 +1,62 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { FileEdit, GraduationCap, Search, Home as HomeIcon } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import DocumentRewriterPage from "@/pages/DocumentRewriter";
+import HomeworkHelperPage from "@/pages/HomeworkHelper";
+
+function Navigation() {
+  const [location] = useLocation();
+
+  const navItems = [
+    { path: "/", label: "Originality Analysis", icon: <Search className="h-4 w-4" /> },
+    { path: "/rewriter", label: "Document Rewriter", icon: <FileEdit className="h-4 w-4" /> },
+    { path: "/homework", label: "Homework Helper", icon: <GraduationCap className="h-4 w-4" /> },
+  ];
+
+  return (
+    <Card className="mb-6">
+      <CardContent className="p-4">
+        <nav className="flex flex-wrap gap-2">
+          {navItems.map((item) => (
+            <Link key={item.path} href={item.path}>
+              <Button
+                variant={location === item.path ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                {item.icon}
+                {item.label}
+              </Button>
+            </Link>
+          ))}
+        </nav>
+      </CardContent>
+    </Card>
+  );
+}
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home}/>
-      <Route component={NotFound} />
-    </Switch>
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Originality Meter</h1>
+        <p className="text-xl text-gray-600">Advanced AI-powered platform for scholarly writing analysis and enhancement</p>
+      </div>
+      
+      <Navigation />
+      
+      <Switch>
+        <Route path="/" component={Home}/>
+        <Route path="/rewriter" component={DocumentRewriterPage}/>
+        <Route path="/homework" component={HomeworkHelperPage}/>
+        <Route component={NotFound} />
+      </Switch>
+    </div>
   );
 }
 
