@@ -273,8 +273,13 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
       content = lines.slice(1).join('\n').trim();
     }
 
+    console.log('Sending to rewriter:', { contentLength: content.length, title });
+    console.log('Content preview:', content.substring(0, 200));
+
     // Navigate to rewriter page with the content
-    window.location.href = `/rewriter?content=${encodeURIComponent(content)}&title=${encodeURIComponent(title)}`;
+    const url = `/rewriter?content=${encodeURIComponent(content)}&title=${encodeURIComponent(title)}`;
+    console.log('Navigation URL:', url.substring(0, 100) + '...');
+    window.location.href = url;
     
     toast({
       title: 'Sent to Rewriter',

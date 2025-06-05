@@ -11,11 +11,17 @@ export default function DocumentRewriterPage() {
     const content = urlParams.get('content');
     const title = urlParams.get('title');
     
+    console.log('URL params:', { content: !!content, title: !!title, contentLength: content?.length });
+    
     if (content) {
-      setInitialContent(decodeURIComponent(content));
+      const decodedContent = decodeURIComponent(content);
+      console.log('Setting initial content:', decodedContent.substring(0, 100) + '...');
+      setInitialContent(decodedContent);
     }
     if (title) {
-      setInitialTitle(decodeURIComponent(title));
+      const decodedTitle = decodeURIComponent(title);
+      console.log('Setting initial title:', decodedTitle);
+      setInitialTitle(decodedTitle);
     }
     
     // Clean up URL parameters after loading
