@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +20,20 @@ interface DocumentRewriterProps {
 export default function DocumentRewriter({ onSendToAnalysis, initialContent, initialTitle }: DocumentRewriterProps) {
   const [sourceText, setSourceText] = useState(initialContent || '');
   const [sourceTitle, setSourceTitle] = useState(initialTitle || '');
+
+  // Update content when props change
+  useEffect(() => {
+    if (initialContent) {
+      setSourceText(initialContent);
+      setInputMethod('type'); // Switch to type mode when content is received
+    }
+  }, [initialContent]);
+
+  useEffect(() => {
+    if (initialTitle) {
+      setSourceTitle(initialTitle);
+    }
+  }, [initialTitle]);
   const [customInstructions, setCustomInstructions] = useState('');
   const [contentSource, setContentSource] = useState('');
   const [styleSource, setStyleSource] = useState('');

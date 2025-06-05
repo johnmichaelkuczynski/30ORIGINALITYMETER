@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,14 @@ interface HomeworkHelperProps {
 export default function HomeworkHelper({ onSendToAnalysis, initialContent }: HomeworkHelperProps) {
   const [assignmentText, setAssignmentText] = useState(initialContent || '');
   const [assignmentTitle, setAssignmentTitle] = useState('');
+
+  // Update content when props change
+  useEffect(() => {
+    if (initialContent) {
+      setAssignmentText(initialContent);
+      setInputMethod('type'); // Switch to type mode when content is received
+    }
+  }, [initialContent]);
   const [solution, setSolution] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('word');
