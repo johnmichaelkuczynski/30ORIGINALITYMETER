@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { useMutation } from '@tanstack/react-query';
-import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText } from 'lucide-react';
+import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText, FileEdit } from 'lucide-react';
 import { PassageData, AnalysisResult } from '@/lib/types';
 import DocumentUpload from './DocumentUpload';
 
@@ -250,6 +250,38 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
     });
   };
 
+  const sendToRewriter = (text: string) => {
+    // Extract potential title from the beginning of the text
+    const lines = text.split('\n');
+    const firstLine = lines[0].trim();
+    let title = 'Generated from Chat';
+    let content = text;
+
+    // If first line looks like a title (short and contains certain keywords)
+    if (firstLine.length < 100 && (
+      firstLine.includes('Exam') || 
+      firstLine.includes('Assignment') || 
+      firstLine.includes('Exercise') ||
+      firstLine.includes('Problem') ||
+      firstLine.includes('#') ||
+      firstLine.includes('Test') ||
+      firstLine.includes('Analysis') ||
+      firstLine.includes('Essay') ||
+      firstLine.includes('Paper')
+    )) {
+      title = firstLine.replace(/^#+\s*/, ''); // Remove markdown headers
+      content = lines.slice(1).join('\n').trim();
+    }
+
+    // Navigate to rewriter page with the content
+    window.location.href = `/rewriter?content=${encodeURIComponent(content)}&title=${encodeURIComponent(title)}`;
+    
+    toast({
+      title: 'Sent to Rewriter',
+      description: 'Content has been sent to the Document Rewriter for editing.',
+    });
+  };
+
   // Auto-send context when input changes
   useEffect(() => {
     if (currentPassage && messages.length === 0) {
@@ -325,7 +357,7 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                       
                       {/* Action buttons for assistant messages */}
                       {message.role === 'assistant' && (
-                        <div className="flex gap-1 mt-2">
+                        <div className="flex gap-1 mt-2 flex-wrap">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -343,6 +375,15 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                           >
                             <ArrowUp className="h-3 w-3 mr-1" />
                             Send to Input
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700"
+                            onClick={() => sendToRewriter(message.content)}
+                          >
+                            <FileEdit className="h-3 w-3 mr-1" />
+                            Send to Rewriter
                           </Button>
                         </div>
                       )}

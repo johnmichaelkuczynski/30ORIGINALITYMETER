@@ -13,11 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DocumentRewriterProps {
   onSendToAnalysis: (text: string, title?: string) => void;
+  initialContent?: string;
+  initialTitle?: string;
 }
 
-export default function DocumentRewriter({ onSendToAnalysis }: DocumentRewriterProps) {
-  const [sourceText, setSourceText] = useState('');
-  const [sourceTitle, setSourceTitle] = useState('');
+export default function DocumentRewriter({ onSendToAnalysis, initialContent, initialTitle }: DocumentRewriterProps) {
+  const [sourceText, setSourceText] = useState(initialContent || '');
+  const [sourceTitle, setSourceTitle] = useState(initialTitle || '');
   const [customInstructions, setCustomInstructions] = useState('');
   const [contentSource, setContentSource] = useState('');
   const [styleSource, setStyleSource] = useState('');
