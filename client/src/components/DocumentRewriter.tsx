@@ -11,6 +11,35 @@ import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2 } f
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
+// Utility function to convert markdown to HTML
+function convertMarkdownToHTML(markdown: string): string {
+  let html = markdown;
+  
+  // Convert bold markdown **text** to <strong>
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Convert italic markdown *text* to <em>
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  
+  // Convert headers
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  
+  // Convert double line breaks to paragraphs
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = `<p>${html}</p>`;
+  
+  // Convert single line breaks to <br>
+  html = html.replace(/\n/g, '<br>');
+  
+  // Clean up empty paragraphs
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p><br><\/p>/g, '');
+  
+  return html;
+}
+
 interface DocumentRewriterProps {
   onSendToAnalysis: (text: string, title?: string) => void;
   initialContent?: string;
