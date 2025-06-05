@@ -15,8 +15,20 @@ function Navigation() {
 
   const navItems = [
     { path: "/", label: "Originality Analysis", icon: <Search className="h-4 w-4" /> },
-    { path: "/rewriter", label: "Document Rewriter", icon: <FileEdit className="h-4 w-4" /> },
-    { path: "/homework", label: "Homework Helper", icon: <GraduationCap className="h-4 w-4" /> },
+    { 
+      id: "document-rewriter",
+      href: "#document-rewriter", 
+      label: "Document Rewriter", 
+      icon: <FileEdit className="h-4 w-4" />,
+      isSection: true 
+    },
+    { 
+      id: "homework-helper",
+      href: "#homework-helper", 
+      label: "Homework Helper", 
+      icon: <GraduationCap className="h-4 w-4" />,
+      isSection: true 
+    },
   ];
 
   return (
@@ -24,15 +36,29 @@ function Navigation() {
       <CardContent className="p-4">
         <nav className="flex flex-wrap gap-2">
           {navItems.map((item) => (
-            <Link key={item.path} href={item.path}>
+            item.isSection ? (
               <Button
-                variant={location === item.path ? "default" : "outline"}
+                key={item.id}
+                variant="outline"
                 className="flex items-center gap-2"
+                onClick={() => {
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 {item.icon}
                 {item.label}
               </Button>
-            </Link>
+            ) : (
+              <Link key={item.path} href={item.path!}>
+                <Button
+                  variant={location === item.path ? "default" : "outline"}
+                  className="flex items-center gap-2"
+                >
+                  {item.icon}
+                  {item.label}
+                </Button>
+              </Link>
+            )
           ))}
         </nav>
       </CardContent>

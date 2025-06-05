@@ -253,6 +253,8 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
   };
 
   const sendToRewriter = (text: string) => {
+    if (!onSendToRewriter) return;
+    
     // Extract potential title from the beginning of the text
     const lines = text.split('\n');
     const firstLine = lines[0].trim();
@@ -275,17 +277,22 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
       content = lines.slice(1).join('\n').trim();
     }
 
-    console.log('Sending to rewriter:', { contentLength: content.length, title });
-    console.log('Content preview:', content.substring(0, 200));
-
-    // Navigate to rewriter page with the content
-    const url = `/rewriter?content=${encodeURIComponent(content)}&title=${encodeURIComponent(title)}`;
-    console.log('Navigation URL:', url.substring(0, 100) + '...');
-    window.location.href = url;
+    onSendToRewriter(content, title);
     
     toast({
       title: 'Sent to Rewriter',
       description: 'Content has been sent to the Document Rewriter for editing.',
+    });
+  };
+
+  const sendToHomework = (text: string) => {
+    if (!onSendToHomework) return;
+    
+    onSendToHomework(text);
+    
+    toast({
+      title: 'Sent to Homework Helper',
+      description: 'Content has been sent to the Homework Helper for solving.',
     });
   };
 
@@ -383,15 +390,28 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                             <ArrowUp className="h-3 w-3 mr-1" />
                             Send to Input
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700"
-                            onClick={() => sendToRewriter(message.content)}
-                          >
-                            <FileEdit className="h-3 w-3 mr-1" />
-                            Send to Rewriter
-                          </Button>
+                          {onSendToRewriter && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs bg-purple-50 hover:bg-purple-100 text-purple-700"
+                              onClick={() => sendToRewriter(message.content)}
+                            >
+                              <FileEdit className="h-3 w-3 mr-1" />
+                              Send to Rewriter
+                            </Button>
+                          )}
+                          {onSendToHomework && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs bg-blue-50 hover:bg-blue-100 text-blue-700"
+                              onClick={() => sendToHomework(message.content)}
+                            >
+                              <GraduationCap className="h-3 w-3 mr-1" />
+                              Send to Homework
+                            </Button>
+                          )}
                         </div>
                       )}
                       
