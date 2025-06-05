@@ -40,7 +40,7 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
   const [rewriteResult, setRewriteResult] = useState('');
   const [isRewriting, setIsRewriting] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('word');
-  const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('upload');
+  const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
   const { toast } = useToast();
 
   const handleDocumentProcessed = (content: string, filename?: string, type?: 'content' | 'style') => {
@@ -230,7 +230,10 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
                 <Textarea
                   placeholder="Type your content here, or upload a screenshot for OCR processing..."
                   value={sourceText}
-                  onChange={(e) => setSourceText(e.target.value)}
+                  onChange={(e) => {
+                    console.log('Source text changed:', e.target.value.length, 'characters');
+                    setSourceText(e.target.value);
+                  }}
                   rows={8}
                   className="resize-none"
                 />
@@ -256,7 +259,10 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
             id="instructions"
             placeholder="Describe how you want the document rewritten (e.g., 'Make it more formal and academic', 'Simplify for undergraduate level', 'Add more technical depth', etc.)"
             value={customInstructions}
-            onChange={(e) => setCustomInstructions(e.target.value)}
+            onChange={(e) => {
+              console.log('Custom instructions changed:', e.target.value.length, 'characters');
+              setCustomInstructions(e.target.value);
+            }}
             rows={4}
             className="mt-2 resize-none"
           />
