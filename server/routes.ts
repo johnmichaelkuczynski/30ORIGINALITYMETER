@@ -944,17 +944,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
       // Add attached documents context
       if (context?.attachedDocuments && context.attachedDocuments.length > 0) {
-        systemPrompt += `\n\nAttached documents: The user has uploaded ${context.attachedDocuments.length} document(s) for discussion. You can reference and analyze these documents in your responses.`;
+        systemPrompt += `\n\nATTACHED DOCUMENTS CONTEXT:\n`;
+        context.attachedDocuments.forEach((doc: string, index: number) => {
+          systemPrompt += `\nDocument ${index + 1}:\n${doc.substring(0, 3000)}${doc.length > 3000 ? '...[content continues]' : ''}\n`;
+        });
+        systemPrompt += `\nThese documents remain available throughout the conversation. Reference them when relevant to user questions.`;
       }
 
-      // Build message with document context
       let fullMessage = message;
-      if (context?.attachedDocuments && context.attachedDocuments.length > 0) {
-        fullMessage += `\n\nAttached documents content:\n`;
-        context.attachedDocuments.forEach((doc: string, index: number) => {
-          fullMessage += `\nDocument ${index + 1}:\n${doc.substring(0, 2000)}${doc.length > 2000 ? '...[truncated]' : ''}\n`;
-        });
-      }
 
       const service = getServiceForProvider(provider as LLMProvider);
       let response;
@@ -979,7 +976,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
           ],
         });
 
-        response = { message: (chatResponse.content[0] as any).text };
+        let responseText = (chatResponse.content[0] as any).text;
+        // Remove markdown formatting
+        responseText = responseText.replace(/#{1,6}\s*/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+        response = { message: responseText };
       } else {
         // Fallback to OpenAI
         const OpenAI = (await import('openai')).default;
@@ -998,7 +998,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
           max_tokens: 3000,
         });
 
-        response = { message: chatResponse.choices[0].message.content };
+        let responseText = chatResponse.choices[0].message.content || "";
+        // Remove markdown formatting
+        responseText = responseText.replace(/#{1,6}\s*/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+        response = { message: responseText };
       }
 
       res.json(response);

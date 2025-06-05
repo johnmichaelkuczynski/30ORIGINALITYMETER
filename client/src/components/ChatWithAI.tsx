@@ -48,7 +48,17 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
   }, [messages]);
 
   const handleDocumentProcessed = (content: string, filename?: string) => {
+    // Prevent duplicate documents
+    if (attachedDocuments.some(doc => doc === content)) {
+      toast({
+        title: "Document already attached",
+        description: `${filename} is already in the conversation.`,
+      });
+      return;
+    }
+    
     setAttachedDocuments(prev => [...prev, content]);
+    setShowUpload(false); // Hide upload area after successful upload
     toast({
       title: "Document attached",
       description: `${filename} is now available in the conversation.`,
