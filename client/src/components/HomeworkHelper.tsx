@@ -56,7 +56,7 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
   const [solution, setSolution] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('word');
-  const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('upload');
+  const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
   const { toast } = useToast();
 
   const handleAssignmentProcessed = (content: string, filename?: string) => {
