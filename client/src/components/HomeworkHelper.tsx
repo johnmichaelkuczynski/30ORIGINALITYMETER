@@ -11,6 +11,32 @@ import { GraduationCap, Download, FileText, Image as ImageIcon, Brain } from 'lu
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
+// Simple markdown to HTML converter
+const convertMarkdownToHTML = (markdown: string): string => {
+  return markdown
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-6 mb-3">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>')
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    // Italic text
+    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    // Code blocks
+    .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-3 rounded-md my-2 overflow-x-auto"><code>$1</code></pre>')
+    // Inline code
+    .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>')
+    // Line breaks
+    .replace(/\n\n/g, '</p><p class="mb-2">')
+    .replace(/\n/g, '<br>')
+    // Wrap in paragraphs
+    .replace(/^(.+)/, '<p class="mb-2">$1')
+    .replace(/(.+)$/, '$1</p>')
+    // Lists
+    .replace(/^\- (.*$)/gim, '<li class="ml-4">• $1</li>')
+    .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4">$1. $2</li>');
+};
+
 interface HomeworkHelperProps {
   onSendToAnalysis?: (text: string, title?: string) => void;
   initialContent?: string;
@@ -223,8 +249,8 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
               <Label className="text-sm font-medium">Complete Solution</Label>
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
-                  className="prose max-w-none text-sm whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: solution }}
+                  className="prose max-w-none text-sm"
+                  dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(solution) }}
                 />
               </Card>
             </div>
