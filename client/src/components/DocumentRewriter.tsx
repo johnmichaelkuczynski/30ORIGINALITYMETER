@@ -1,4 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
+
+// Declare MathJax type for TypeScript
+declare global {
+  interface Window {
+    MathJax?: {
+      typesetPromise?: (elements?: HTMLElement[]) => Promise<void>;
+      startup?: {
+        promise?: Promise<void>;
+      };
+    };
+  }
+}
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,15 +23,33 @@ import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Ey
 import DocumentUpload from './DocumentUpload';
 import { useToast } from '@/hooks/use-toast';
 
-// Utility function to convert markdown to HTML
+// Utility function to convert markdown to HTML with proper math preservation
 function convertMarkdownToHTML(markdown: string): string {
   let html = markdown;
   
-  // Convert bold markdown **text** to <strong>
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // First preserve existing math notation
+  const mathBlocks: string[] = [];
+  let mathIndex = 0;
   
-  // Convert italic markdown *text* to <em>
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  // Store display math blocks
+  html = html.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
+    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
+    mathBlocks[mathIndex] = `$$${content}$$`;
+    mathIndex++;
+    return placeholder;
+  });
+  
+  // Store inline math
+  html = html.replace(/\$([^$\n]+)\$/g, (match, content) => {
+    const placeholder = `__MATH_INLINE_${mathIndex}__`;
+    mathBlocks[mathIndex] = `$${content}$`;
+    mathIndex++;
+    return placeholder;
+  });
+  
+  // Convert markdown formatting (avoiding math placeholders)
+  html = html.replace(/\*\*((?!__MATH_)[^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*((?!__MATH_)[^*]+)\*/g, '<em>$1</em>');
   
   // Convert headers
   html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
@@ -36,6 +66,12 @@ function convertMarkdownToHTML(markdown: string): string {
   // Clean up empty paragraphs
   html = html.replace(/<p><\/p>/g, '');
   html = html.replace(/<p><br><\/p>/g, '');
+  
+  // Restore math notation
+  for (let i = 0; i < mathBlocks.length; i++) {
+    html = html.replace(`__MATH_DISPLAY_${i}__`, mathBlocks[i]);
+    html = html.replace(`__MATH_INLINE_${i}__`, mathBlocks[i]);
+  }
   
   return html;
 }
@@ -70,7 +106,29 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
   const [isRewriting, setIsRewriting] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('html');
   const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
+  const [extractedText, setExtractedText] = useState('');
   const { toast } = useToast();
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Re-render MathJax when rewrite result changes
+  useEffect(() => {
+    if (rewriteResult) {
+      const renderMath = async () => {
+        try {
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            await window.MathJax.startup?.promise;
+            if (resultRef.current) {
+              await window.MathJax.typesetPromise([resultRef.current]);
+            }
+          }
+        } catch (error) {
+          console.warn('MathJax rendering error:', error);
+        }
+      };
+      
+      setTimeout(renderMath, 100);
+    }
+  }, [rewriteResult]);
 
   const handleDocumentProcessed = (content: string, filename?: string, type?: 'content' | 'style') => {
     if (type === 'content') {
@@ -88,6 +146,7 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
     } else {
       setSourceText(content);
       setSourceTitle(filename || 'Uploaded Document');
+      setExtractedText(content); // Show extracted text
       toast({
         title: "Document loaded",
         description: `${filename} is ready to be rewritten.`,
