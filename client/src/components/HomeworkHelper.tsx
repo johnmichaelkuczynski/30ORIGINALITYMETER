@@ -99,11 +99,34 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('html');
   const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
+  const [extractedText, setExtractedText] = useState('');
   const { toast } = useToast();
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Re-render MathJax when solution changes
+  useEffect(() => {
+    if (solution) {
+      const renderMath = async () => {
+        try {
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            await window.MathJax.startup?.promise;
+            if (resultRef.current) {
+              await window.MathJax.typesetPromise([resultRef.current]);
+            }
+          }
+        } catch (error) {
+          console.warn('MathJax rendering error:', error);
+        }
+      };
+      
+      setTimeout(renderMath, 100);
+    }
+  }, [solution]);
 
   const handleAssignmentProcessed = (content: string, filename?: string) => {
     setAssignmentText(content);
     setAssignmentTitle(filename || 'Assignment');
+    setExtractedText(content); // Show extracted text
     toast({
       title: "Assignment loaded",
       description: `${filename} is ready to be solved.`,
@@ -295,6 +318,18 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
           </Tabs>
         </div>
 
+        {/* Extracted Text Display */}
+        {extractedText && (
+          <div>
+            <Label className="text-sm font-medium">Extracted Text from Upload</Label>
+            <Card className="mt-2 p-3 bg-blue-50 border-blue-200">
+              <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {extractedText}
+              </div>
+            </Card>
+          </div>
+        )}
+
         <Separator />
 
         {/* Solve Button */}
@@ -326,6 +361,7 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
               <Label className="text-sm font-medium">Complete Solution</Label>
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
+                  ref={resultRef}
                   className="prose max-w-none text-sm"
                   dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(solution) }}
                 />
