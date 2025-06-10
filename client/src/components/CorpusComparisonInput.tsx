@@ -177,7 +177,7 @@ export default function CorpusComparisonInput({
           type="button"
           variant="destructive"
           onClick={clearAllContent}
-          disabled={disabled || ((!passage.title && !passage.text) && (!corpus.title && !corpus.text))}
+          disabled={disabled || ((!passage.title && !passage.text && !passage.userContext) && (!corpus.title && !corpus.text))}
           className="mb-2"
         >
           Clear Everything
@@ -237,8 +237,8 @@ export default function CorpusComparisonInput({
                     type="button"
                     variant="destructive"
                     size="sm"
-                    onClick={() => onPassageChange({ title: "", text: "", userContext: passage.userContext })}
-                    disabled={disabled || (!passage.title && !passage.text)}
+                    onClick={() => onPassageChange({ title: "", text: "", userContext: "" })}
+                    disabled={disabled || (!passage.title && !passage.text && !passage.userContext)}
                   >
                     Clear Passage
                   </Button>

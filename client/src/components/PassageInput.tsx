@@ -319,8 +319,8 @@ export default function PassageInput({
             type="button"
             variant="destructive"
             size="sm"
-            onClick={() => onChange({ ...passage, title: "", text: "" })}
-            disabled={disabled || (!passage.title && !passage.text)}
+            onClick={() => onChange({ ...passage, title: "", text: "", userContext: "" })}
+            disabled={disabled || (!passage.title && !passage.text && !passage.userContext)}
             className="ml-2"
           >
             Clear All
