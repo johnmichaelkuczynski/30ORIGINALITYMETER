@@ -373,6 +373,18 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
 
         <Separator />
 
+        {/* Extracted Text Display */}
+        {extractedText && (
+          <div>
+            <Label className="text-sm font-medium">Extracted Text from Upload</Label>
+            <Card className="mt-2 p-3 bg-blue-50 border-blue-200">
+              <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {extractedText}
+              </div>
+            </Card>
+          </div>
+        )}
+
         {/* Custom Instructions */}
         <div>
           <Label htmlFor="instructions" className="text-sm font-medium">
@@ -465,6 +477,7 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
               <Label className="text-sm font-medium">Rewritten Document</Label>
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
+                  ref={resultRef}
                   className="prose max-w-none text-sm"
                   dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(rewriteResult) }}
                 />
