@@ -13,6 +13,7 @@ import { AnalysisResult, PassageData } from '@/lib/types';
 import { Loader2, Download, Sparkle, Copy, RefreshCcw, Lightbulb } from 'lucide-react';
 import AIDetectionBadge from '@/components/AIDetectionBadge';
 import useAIDetection from '@/hooks/use-ai-detection';
+import { VoiceDictation } from '@/components/ui/voice-dictation';
 
 interface NaturalLanguageGeneratorProps {
   onTextGenerated?: (text: string, title: string) => void;
@@ -236,6 +237,21 @@ export default function NaturalLanguageGenerator({
               className="min-h-[100px] resize-y"
               disabled={isLoading}
             />
+            <div className="flex gap-2 mt-2">
+              <VoiceDictation
+                onTranscriptionComplete={(text) => {
+                  const updatedPrompt = prompt 
+                    ? prompt.trim() + (prompt.endsWith('.') ? ' ' : '. ') + text
+                    : text;
+                  setPrompt(updatedPrompt);
+                  toast({
+                    title: "Voice instructions added",
+                    description: "Your dictated instructions have been added.",
+                  });
+                }}
+                disabled={isLoading}
+              />
+            </div>
             <p className="text-xs text-muted-foreground mt-2">
               Specify topic, length (pages or words), authors to reference, conceptual density level, 
               parasite index level, and originality level.
