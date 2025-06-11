@@ -12,6 +12,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText, FileEdit, GraduationCap } from 'lucide-react';
 import { PassageData, AnalysisResult } from '@/lib/types';
 import DocumentUpload from './DocumentUpload';
+import { VoiceDictation } from '@/components/ui/voice-dictation';
 
 interface ChatMessage {
   id: string;

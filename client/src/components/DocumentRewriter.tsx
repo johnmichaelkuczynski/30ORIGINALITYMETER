@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Eye } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
+import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
 
 // Utility function to convert markdown to HTML with proper math preservation
@@ -360,6 +361,20 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
                   rows={8}
                   className="resize-none"
                 />
+                <div className="flex gap-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      const updatedText = sourceText 
+                        ? sourceText.trim() + (sourceText.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      setSourceText(updatedText);
+                      toast({
+                        title: "Voice input added",
+                        description: "Your dictated text has been added to the document.",
+                      });
+                    }}
+                  />
+                </div>
                 <DocumentUpload
                   onDocumentProcessed={handleDocumentProcessed}
                   acceptImages={true}
@@ -401,6 +416,20 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
             rows={4}
             className="mt-2 resize-none"
           />
+          <div className="flex gap-2 mt-2">
+            <VoiceDictation
+              onTranscriptionComplete={(text) => {
+                const updatedInstructions = customInstructions 
+                  ? customInstructions.trim() + (customInstructions.endsWith('.') ? ' ' : '. ') + text
+                  : text;
+                setCustomInstructions(updatedInstructions);
+                toast({
+                  title: "Voice instructions added",
+                  description: "Your dictated instructions have been added.",
+                });
+              }}
+            />
+          </div>
         </div>
 
         {/* Optional Sources */}
