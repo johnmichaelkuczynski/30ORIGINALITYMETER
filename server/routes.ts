@@ -1157,6 +1157,132 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Voice dictation endpoints
+  // Audio upload setup for voice dictation
+  const audioUpload = multer({
+    dest: 'uploads/audio/',
+    limits: {
+      fileSize: 25 * 1024 * 1024, // 25MB limit for audio files
+    },
+    fileFilter: (_req, file, cb) => {
+      const allowedMimes = [
+        'audio/webm',
+        'audio/wav', 
+        'audio/wave',
+        'audio/mp3',
+        'audio/mpeg',
+        'audio/ogg',
+        'audio/mp4'
+      ];
+      
+      if (allowedMimes.includes(file.mimetype) || file.originalname.match(/\.(webm|wav|mp3|ogg|m4a)$/i)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid audio file type'));
+      }
+    }
+  });
+
+  // Voice dictation streaming endpoint
+  app.post("/api/dictate/stream", audioUpload.single('file'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No audio file provided" });
+      }
+
+      console.log(`Processing streaming audio: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
+
+      // Use OpenAI's Whisper API for transcription
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: require('fs').createReadStream(req.file.path),
+        model: "whisper-1",
+        language: "en",
+        response_format: "text"
+      });
+
+      // Clean up uploaded file
+      require('fs').unlinkSync(req.file.path);
+
+      console.log(`Streaming transcription result: "${transcription}"`);
+
+      res.json({ 
+        text: transcription || "",
+        streaming: true
+      });
+
+    } catch (error) {
+      console.error("Error in streaming transcription:", error);
+      
+      // Clean up file if it exists
+      if (req.file?.path) {
+        try {
+          require('fs').unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up file:", cleanupError);
+        }
+      }
+
+      res.status(500).json({ 
+        error: "Transcription failed",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Voice dictation complete transcription endpoint
+  app.post("/api/dictate", audioUpload.single('file'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No audio file provided" });
+      }
+
+      console.log(`Processing complete audio: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
+
+      // Use OpenAI's Whisper API for transcription
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: require('fs').createReadStream(req.file.path),
+        model: "whisper-1",
+        language: "en",
+        response_format: "text"
+      });
+
+      // Clean up uploaded file
+      require('fs').unlinkSync(req.file.path);
+
+      console.log(`Complete transcription result: "${transcription}"`);
+
+      res.json({ 
+        text: transcription || "",
+        streaming: false
+      });
+
+    } catch (error) {
+      console.error("Error in complete transcription:", error);
+      
+      // Clean up file if it exists
+      if (req.file?.path) {
+        try {
+          require('fs').unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up file:", cleanupError);
+        }
+      }
+
+      res.status(500).json({ 
+        error: "Transcription failed",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
