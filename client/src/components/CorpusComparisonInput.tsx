@@ -315,6 +315,24 @@ export default function CorpusComparisonInput({
                     </button>
                   )}
                 </div>
+                <div className="flex gap-2 mt-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      const updatedText = passage.text 
+                        ? passage.text.trim() + (passage.text.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      onPassageChange({
+                        ...passage,
+                        text: updatedText,
+                      });
+                      toast({
+                        title: "Voice input added to passage",
+                        description: "Your dictated text has been added to the passage.",
+                      });
+                    }}
+                    disabled={disabled || isUploading}
+                  />
+                </div>
               </div>
 
               {/* User Context */}
@@ -344,6 +362,24 @@ export default function CorpusComparisonInput({
                       </svg>
                     </button>
                   )}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      const updatedContext = passage.userContext 
+                        ? passage.userContext.trim() + (passage.userContext.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      onPassageChange({
+                        ...passage,
+                        userContext: updatedContext,
+                      });
+                      toast({
+                        title: "Voice context added",
+                        description: "Your dictated context has been added.",
+                      });
+                    }}
+                    disabled={disabled}
+                  />
                 </div>
                 <p className="text-xs text-blue-700 mt-1">
                   This helps our AI better evaluate your text. For example, we won't penalize drafts for style issues or excerpts for being incomplete.
@@ -465,6 +501,24 @@ export default function CorpusComparisonInput({
                       </svg>
                     </button>
                   )}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      const updatedText = corpus.text 
+                        ? corpus.text.trim() + (corpus.text.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      onCorpusChange({
+                        ...corpus,
+                        text: updatedText,
+                      });
+                      toast({
+                        title: "Voice input added to corpus",
+                        description: "Your dictated text has been added to the corpus.",
+                      });
+                    }}
+                    disabled={disabled || isUploading}
+                  />
                 </div>
               </div>
               

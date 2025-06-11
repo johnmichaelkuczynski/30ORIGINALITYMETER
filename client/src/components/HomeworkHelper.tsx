@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { GraduationCap, Download, FileText, Image as ImageIcon, Brain, Eye } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
+import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
 
 // Advanced markdown to HTML converter with proper math preservation
@@ -307,6 +308,20 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
                   rows={8}
                   className="resize-none"
                 />
+                <div className="flex gap-2">
+                  <VoiceDictation
+                    onTranscriptionComplete={(text) => {
+                      const updatedText = assignmentText 
+                        ? assignmentText.trim() + (assignmentText.endsWith('.') ? ' ' : '. ') + text
+                        : text;
+                      setAssignmentText(updatedText);
+                      toast({
+                        title: "Voice input added",
+                        description: "Your dictated assignment has been added.",
+                      });
+                    }}
+                  />
+                </div>
                 <DocumentUpload
                   onDocumentProcessed={handleAssignmentProcessed}
                   acceptImages={true}

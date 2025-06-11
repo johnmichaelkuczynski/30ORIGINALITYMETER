@@ -516,6 +516,19 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
             
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
+                <VoiceDictation
+                  onTranscriptionComplete={(text) => {
+                    const updatedMessage = inputMessage 
+                      ? inputMessage.trim() + (inputMessage.endsWith('.') || inputMessage.endsWith('?') || inputMessage.endsWith('!') ? ' ' : '. ') + text
+                      : text;
+                    setInputMessage(updatedMessage);
+                    toast({
+                      title: "Voice message added",
+                      description: "Your dictated message has been added.",
+                    });
+                  }}
+                  disabled={sendMessageMutation.isPending || isProcessingFiles}
+                />
                 <Button
                   variant="ghost"
                   size="sm"
