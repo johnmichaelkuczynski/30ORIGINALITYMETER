@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { Mic, StopCircle, MicOff, Upload } from 'lucide-react';
+import { Mic, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -9,13 +9,6 @@ interface VoiceDictationProps {
   className?: string;
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
-
 export function VoiceDictation({
   onTranscriptionComplete,
   disabled = false,
@@ -23,268 +16,159 @@ export function VoiceDictation({
 }: VoiceDictationProps) {
   const { toast } = useToast();
   
-  const [isListening, setIsListening] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [transcript, setTranscript] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    setIsSupported(!!SpeechRecognition);
-    
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-      
-      recognition.onstart = () => {
-        setIsListening(true);
-        console.log('Speech recognition started');
-      };
-      
-      recognition.onresult = (event: any) => {
-        let finalTranscript = '';
-        
-        for (let i = 0; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          }
-        }
-        
-        if (finalTranscript) {
-          setTranscript(finalTranscript);
-          onTranscriptionComplete(finalTranscript);
-          toast({
-            title: "Voice input complete",
-            description: "Your dictation has been added",
-          });
-        }
-      };
-      
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        
-        if (event.error === 'not-allowed') {
-          toast({
-            title: "Microphone access denied",
-            description: "Please allow microphone access in your browser settings",
-            variant: "destructive",
-          });
-        } else if (event.error === 'no-speech') {
-          toast({
-            title: "No speech detected",
-            description: "Please speak clearly into your microphone",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Speech recognition error",
-            description: `Error: ${event.error}`,
-            variant: "destructive",
-          });
-        }
-      };
-      
-      recognition.onend = () => {
-        setIsListening(false);
-        console.log('Speech recognition ended');
-      };
-      
-      recognitionRef.current = recognition;
-    }
-    
-    return () => {
-      if (recognitionRef.current && isListening) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [onTranscriptionComplete, toast, isListening]);
-  
-  const startListening = () => {
-    if (!isSupported) {
-      toast({
-        title: "Speech recognition not supported",
-        description: "Your browser doesn't support speech recognition. Please try Chrome or Edge.",
-        variant: "destructive",
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true
+        } 
       });
-      return;
-    }
-
-    if (recognitionRef.current && !isListening) {
-      setTranscript('');
-      recognitionRef.current.start();
+      
+      streamRef.current = stream;
+      chunksRef.current = [];
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        setIsProcessing(true);
+        
+        try {
+          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+          
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'recording.webm');
+          
+          const response = await fetch('/api/dictate', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!response.ok) {
+            throw new Error('Transcription failed');
+          }
+          
+          const result = await response.json();
+          
+          if (result.text && result.text.trim()) {
+            onTranscriptionComplete(result.text.trim());
+            toast({
+              title: "Dictation complete",
+              description: "Your speech has been converted to text",
+            });
+          } else {
+            toast({
+              title: "No speech detected",
+              description: "Please speak clearly and try again",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error('Transcription error:', error);
+          toast({
+            title: "Transcription failed",
+            description: "Failed to convert speech to text",
+            variant: "destructive",
+          });
+        } finally {
+          setIsProcessing(false);
+          cleanup();
+        }
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      
       toast({
-        title: "Listening...",
+        title: "Recording started",
         description: "Speak clearly into your microphone",
       });
-    }
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-    }
-  };
-
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check if it's an audio file
-    const allowedTypes = ['audio/webm', 'audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/mp4'];
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(webm|wav|mp3|ogg|m4a)$/i)) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an audio file (MP3, WAV, WebM, OGG)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/dictate', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Transcription failed');
-      }
-
-      const result = await response.json();
       
-      if (result.text) {
-        onTranscriptionComplete(result.text);
-        toast({
-          title: "Audio transcribed",
-          description: "Your audio has been converted to text",
-        });
-      } else {
-        toast({
-          title: "No speech detected",
-          description: "Could not detect speech in the audio file",
-          variant: "destructive",
-        });
-      }
     } catch (error) {
-      console.error('Transcription error:', error);
+      console.error('Error starting recording:', error);
       toast({
-        title: "Transcription failed",
-        description: "Failed to transcribe the audio file",
+        title: "Microphone access denied",
+        description: "Please allow microphone access to use voice dictation",
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      cleanup();
     }
   };
-
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
+  
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
-
-  if (!isSupported) {
-    return (
-      <div className={`flex items-center gap-1 ${className}`}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={triggerFileUpload}
-          disabled={disabled || isUploading}
-          className="flex items-center gap-1"
-          title="Upload audio file for transcription"
-        >
-          {isUploading ? (
-            <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <Upload className="h-4 w-4" />
-              Voice
-            </>
-          )}
-        </Button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept="audio/*,.mp3,.wav,.webm,.ogg,.m4a"
-          onChange={handleFileUpload}
-          className="hidden"
-          disabled={disabled}
-        />
-      </div>
-    );
-  }
-
+  
+  const cleanup = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    mediaRecorderRef.current = null;
+    chunksRef.current = [];
+  };
+  
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, []);
+  
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={toggleListening}
-        disabled={disabled}
-        className={`flex items-center gap-1 ${isListening ? 'text-red-600 bg-red-50' : ''}`}
-        title={isListening ? "Stop listening" : "Start voice dictation"}
-      >
-        {isListening ? (
-          <>
-            <StopCircle className="h-4 w-4 animate-pulse" />
-            Stop
-          </>
-        ) : (
-          <>
-            <Mic className="h-4 w-4" />
-            Voice
-          </>
-        )}
-      </Button>
-      
-      {/* Fallback file upload for supported browsers too */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={triggerFileUpload}
-        disabled={disabled || isUploading}
-        className="flex items-center gap-1"
-        title="Upload audio file for transcription"
-      >
-        {isUploading ? (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={toggleRecording}
+      disabled={disabled || isProcessing}
+      className={`flex items-center gap-1 ${isRecording ? 'text-red-600 bg-red-50' : ''} ${className}`}
+      title={isRecording ? "Stop recording" : "Start voice dictation"}
+    >
+      {isProcessing ? (
+        <>
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-        ) : (
-          <Upload className="h-4 w-4" />
-        )}
-      </Button>
-      
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="audio/*,.mp3,.wav,.webm,.ogg,.m4a"
-        onChange={handleFileUpload}
-        className="hidden"
-        disabled={disabled}
-      />
-    </div>
+          Processing...
+        </>
+      ) : isRecording ? (
+        <>
+          <StopCircle className="h-4 w-4 animate-pulse" />
+          Stop
+        </>
+      ) : (
+        <>
+          <Mic className="h-4 w-4" />
+          Voice
+        </>
+      )}
+    </Button>
   );
 }

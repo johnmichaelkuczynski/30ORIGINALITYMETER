@@ -1192,9 +1192,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
       console.log(`Processing streaming audio: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
 
-      // Use OpenAI's Whisper API for transcription
+      // Use Azure OpenAI's Whisper API for transcription
       const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: process.env.AZURE_OPENAI_KEY,
+        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/whisper-1`,
+        defaultQuery: { 'api-version': '2024-06-01' },
+        defaultHeaders: {
+          'api-key': process.env.AZURE_OPENAI_KEY,
+        },
       });
 
       const transcription = await openai.audio.transcriptions.create({
@@ -1242,9 +1247,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
 
       console.log(`Processing complete audio: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
 
-      // Use OpenAI's Whisper API for transcription
+      // Use Azure OpenAI's Whisper API for transcription
       const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: process.env.AZURE_OPENAI_KEY,
+        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/whisper-1`,
+        defaultQuery: { 'api-version': '2024-06-01' },
+        defaultHeaders: {
+          'api-key': process.env.AZURE_OPENAI_KEY,
+        },
       });
 
       const transcription = await openai.audio.transcriptions.create({
