@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { Mic, StopCircle, MicOff } from 'lucide-react';
+import { Mic, StopCircle, MicOff, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,7 +25,9 @@ export function VoiceDictation({
   
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [transcript, setTranscript] = useState('');
   
   useEffect(() => {
@@ -136,41 +138,153 @@ export function VoiceDictation({
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's an audio file
+    const allowedTypes = ['audio/webm', 'audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/mp4'];
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(webm|wav|mp3|ogg|m4a)$/i)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an audio file (MP3, WAV, WebM, OGG)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/dictate', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+
+      const result = await response.json();
+      
+      if (result.text) {
+        onTranscriptionComplete(result.text);
+        toast({
+          title: "Audio transcribed",
+          description: "Your audio has been converted to text",
+        });
+      } else {
+        toast({
+          title: "No speech detected",
+          description: "Could not detect speech in the audio file",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast({
+        title: "Transcription failed",
+        description: "Failed to transcribe the audio file",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   if (!isSupported) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        disabled={true}
-        className={`flex items-center gap-1 ${className}`}
-        title="Speech recognition not supported in this browser"
-      >
-        <MicOff className="h-4 w-4" />
-        Voice
-      </Button>
+      <div className={`flex items-center gap-1 ${className}`}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={triggerFileUpload}
+          disabled={disabled || isUploading}
+          className="flex items-center gap-1"
+          title="Upload audio file for transcription"
+        >
+          {isUploading ? (
+            <>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4" />
+              Voice
+            </>
+          )}
+        </Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="audio/*,.mp3,.wav,.webm,.ogg,.m4a"
+          onChange={handleFileUpload}
+          className="hidden"
+          disabled={disabled}
+        />
+      </div>
     );
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={toggleListening}
-      disabled={disabled}
-      className={`flex items-center gap-1 ${isListening ? 'text-red-600 bg-red-50' : ''} ${className}`}
-      title={isListening ? "Stop listening" : "Start voice dictation"}
-    >
-      {isListening ? (
-        <>
-          <StopCircle className="h-4 w-4 animate-pulse" />
-          Stop
-        </>
-      ) : (
-        <>
-          <Mic className="h-4 w-4" />
-          Voice
-        </>
-      )}
-    </Button>
+    <div className={`flex items-center gap-1 ${className}`}>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggleListening}
+        disabled={disabled}
+        className={`flex items-center gap-1 ${isListening ? 'text-red-600 bg-red-50' : ''}`}
+        title={isListening ? "Stop listening" : "Start voice dictation"}
+      >
+        {isListening ? (
+          <>
+            <StopCircle className="h-4 w-4 animate-pulse" />
+            Stop
+          </>
+        ) : (
+          <>
+            <Mic className="h-4 w-4" />
+            Voice
+          </>
+        )}
+      </Button>
+      
+      {/* Fallback file upload for supported browsers too */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={triggerFileUpload}
+        disabled={disabled || isUploading}
+        className="flex items-center gap-1"
+        title="Upload audio file for transcription"
+      >
+        {isUploading ? (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+        ) : (
+          <Upload className="h-4 w-4" />
+        )}
+      </Button>
+      
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="audio/*,.mp3,.wav,.webm,.ogg,.m4a"
+        onChange={handleFileUpload}
+        className="hidden"
+        disabled={disabled}
+      />
+    </div>
   );
 }
