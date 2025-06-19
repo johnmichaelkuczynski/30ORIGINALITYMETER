@@ -14,6 +14,7 @@ import path from "path";
 import { processFile } from "./lib/fileProcessing";
 import { processAudioFile, verifyAssemblyAIApiKey } from "./lib/assemblyai";
 import { detectAIContent, AIDetectionResult } from "./lib/aiDetection";
+import { generateGraph } from "./lib/graphGenerator";
 import * as googleSearch from "./lib/googleSearch";
 import * as mammoth from 'mammoth';
 import pdfParse from 'pdf-parse';
@@ -1289,6 +1290,39 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       res.status(500).json({ 
         error: "Transcription failed",
         message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Graph generation endpoint
+  app.post("/api/generate-graph", async (req: Request, res: Response) => {
+    try {
+      const { description, type, data, title, xLabel, yLabel, width, height } = req.body;
+
+      if (!description) {
+        return res.status(400).json({ error: "Graph description is required" });
+      }
+
+      console.log(`Generating graph for: "${description}"`);
+
+      const result = await generateGraph({
+        description,
+        type,
+        data,
+        title,
+        xLabel,
+        yLabel,
+        width,
+        height
+      });
+
+      res.json(result);
+
+    } catch (error) {
+      console.error("Error generating graph:", error);
+      res.status(500).json({ 
+        error: "Graph generation failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
       });
     }
   });

@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { PassageData, SupportingDocument, StyleOption, FeedbackData, SubmitFeedbackRequest } from "../../client/src/lib/types";
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
+import { generateGraph } from './graphGenerator';
 
 // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
 // Use environment variable for Anthropic API key
@@ -300,8 +301,25 @@ PARAMETERS:
 
 Generate scholarly text that meets these parameters and follows the user's instructions. Create text with novel perspectives, insightful connections, and precise vocabulary. Avoid repetition, clichés, and conventional thinking. Format the output in well-structured paragraphs with a clear title.`;
 
+    // Check if graphs are requested in the instructions
+    const needsGraphs = /graph|chart|plot|diagram|visual|figure|illustration/i.test(instructions);
+    
+    // Enhanced system prompt for graph-aware content generation
+    const enhancedSystemPrompt = systemPrompt + `
+
+${needsGraphs ? `
+GRAPH INTEGRATION INSTRUCTIONS:
+When the user requests graphs, charts, or visual elements:
+1. Include placeholder markers in your text like [GRAPH: description of graph needed]
+2. Place these markers where the graph would logically appear in the document
+3. Be specific about the type of graph and data it should show
+4. Example: [GRAPH: Line chart showing inflation rates from 2010-2024 with y-axis as percentage and x-axis as years]
+5. Example: [GRAPH: Bar chart comparing GDP growth across different economic sectors]
+6. Example: [GRAPH: Scatter plot of y=x^2 function from x=-5 to x=5]
+7. Write the surrounding text to reference and explain the graphs appropriately
+` : ''}`;
+
     // Call Anthropic API
-    // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
     const anthropicClient = new Anthropic({
       apiKey: apiKey
     });
@@ -312,13 +330,48 @@ Generate scholarly text that meets these parameters and follows the user's instr
       messages: [
         { role: "user", content: instructions }
       ],
-      system: systemPrompt,
+      system: enhancedSystemPrompt,
       temperature: 0.9,
     });
 
     // Extract text and process it
-    const generatedContent = response.content[0].type === 'text' ? 
+    let generatedContent = response.content[0].type === 'text' ? 
       response.content[0].text : "";
+    
+    // Process graph placeholders if present
+    if (needsGraphs) {
+      const graphPlaceholders = generatedContent.match(/\[GRAPH:\s*([^\]]+)\]/g);
+      
+      if (graphPlaceholders) {
+        for (const placeholder of graphPlaceholders) {
+          try {
+            const description = placeholder.replace(/\[GRAPH:\s*/, '').replace(/\]$/, '').trim();
+            console.log(`Generating graph for: ${description}`);
+            
+            const graphResult = await generateGraph({
+              description,
+              width: 600,
+              height: 400
+            });
+            
+            // Replace placeholder with SVG and descriptive text
+            const graphHtml = `
+<div class="graph-container" style="margin: 20px 0; text-align: center;">
+  <h4 style="margin-bottom: 10px; font-weight: bold;">${graphResult.title}</h4>
+  ${graphResult.svg}
+  <p style="margin-top: 10px; font-style: italic; color: #666; font-size: 0.9em;">${graphResult.description}</p>
+</div>`;
+            
+            generatedContent = generatedContent.replace(placeholder, graphHtml);
+          } catch (error) {
+            console.error(`Error generating graph for "${placeholder}":`, error);
+            // Replace with error message
+            generatedContent = generatedContent.replace(placeholder, 
+              `[Graph generation failed: ${error instanceof Error ? error.message : 'Unknown error'}]`);
+          }
+        }
+      }
+    }
     
     // Try to extract title if there's one in the response
     let extractedTitle = title;
