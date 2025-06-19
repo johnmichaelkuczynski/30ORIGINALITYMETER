@@ -10,7 +10,7 @@ const apiKey = process.env.ANTHROPIC_API_KEY;
 console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 
 // Helper function to detect and embed graphs in text
-async function processGraphRequests(text: string): Promise<string> {
+export async function processGraphRequests(text: string): Promise<string> {
   try {
     let processedText = text;
     

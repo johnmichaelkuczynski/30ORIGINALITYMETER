@@ -927,10 +927,18 @@ Your capabilities include:
 - Helping with academic and creative writing
 - Discussing uploaded documents including PDFs, Word docs, and OCR-processed images
 - Perfect mathematical notation rendering using LaTeX format
+- Creating mathematical graphs and visualizations (exponential, quadratic, sine, cosine, logarithmic functions)
 
 When working with mathematical content, always use proper LaTeX notation:
 - Inline math: $expression$
 - Display math: $$expression$$
+
+When users request graphs or mathematical visualizations, include phrases like:
+- "plot the exponential function"
+- "create a graph of the quadratic function"
+- "show a sine graph"
+- "generate a logarithmic function graph"
+These will automatically generate interactive SVG visualizations.
 
 Always provide helpful, accurate, and well-formatted responses. When generating content that users might want to send to the input box for analysis, ensure proper formatting and structure.`;
 
@@ -1005,7 +1013,12 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         });
 
         let responseText = chatResponse.choices[0].message.content || "";
-        // Remove markdown formatting
+        
+        // Process graph requests in the response
+        const anthropicLib = await import('./lib/anthropic');
+        responseText = await anthropicLib.processGraphRequests(responseText);
+        
+        // Remove markdown formatting while preserving math notation
         responseText = responseText.replace(/#{1,6}\s*/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
         response = { message: responseText };
       }
