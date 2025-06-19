@@ -537,6 +537,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             passageBTitle={passageB.title || "Passage B"}
             onNewComparison={() => setShowResults(false)}
             isSinglePassageMode={analysisMode === "single"}
+            onSendToRewriter={onSendToRewriter}
+            onSendToHomework={onSendToHomework}
           />
         )}
       </div>
