@@ -1052,10 +1052,55 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
-  // Document rewriting endpoint
+  // Document analysis endpoint
+  app.post("/api/analyze-document", async (req: Request, res: Response) => {
+    try {
+      const { sourceText } = req.body;
+
+      if (!sourceText) {
+        return res.status(400).json({ error: "Source text is required" });
+      }
+
+      const { getDocumentStats, chunkDocument } = await import('./lib/documentChunker');
+      
+      const stats = getDocumentStats(sourceText);
+      const willNeedChunking = stats.wordCount > 800;
+      
+      if (willNeedChunking) {
+        const chunks = chunkDocument(sourceText, {
+          maxWordsPerChunk: 800,
+          overlapWords: 100,
+          preserveParagraphs: true,
+          preserveMath: true
+        });
+        
+        res.json({ 
+          stats,
+          willNeedChunking: true,
+          chunkCount: chunks.length,
+          estimatedProcessingTime: chunks.length * 30 // seconds
+        });
+      } else {
+        res.json({ 
+          stats,
+          willNeedChunking: false,
+          chunkCount: 1,
+          estimatedProcessingTime: 30
+        });
+      }
+    } catch (error) {
+      console.error("Error analyzing document:", error);
+      res.status(500).json({ 
+        error: "Document analysis failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Document rewriting endpoint with chunking support
   app.post("/api/rewrite-document", async (req: Request, res: Response) => {
     try {
-      const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = req.body;
+      const { sourceText, customInstructions, contentSource, styleSource, preserveMath, enableChunking, maxWordsPerChunk } = req.body;
 
       if (!sourceText || !customInstructions) {
         return res.status(400).json({ error: "Source text and custom instructions are required" });
@@ -1068,7 +1113,9 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         customInstructions,
         contentSource,
         styleSource,
-        preserveMath: preserveMath !== false // Default to true
+        preserveMath: preserveMath !== false, // Default to true
+        enableChunking: enableChunking !== false, // Default to true
+        maxWordsPerChunk: maxWordsPerChunk || 800
       });
 
       res.json({ rewrittenText });

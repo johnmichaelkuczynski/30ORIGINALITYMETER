@@ -108,6 +108,8 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
   const [downloadFormat, setDownloadFormat] = useState<'word' | 'pdf' | 'txt' | 'html'>('html');
   const [inputMethod, setInputMethod] = useState<'upload' | 'type'>('type');
   const [extractedText, setExtractedText] = useState('');
+  const [documentStats, setDocumentStats] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
   const resultRef = useRef<HTMLDivElement>(null);
 

@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { chunkDocument, reassembleDocument, getDocumentStats, DocumentChunk } from './documentChunker';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -10,20 +11,104 @@ export interface RewriteRequest {
   preserveMath: boolean;
 }
 
+export interface ChunkedRewriteRequest extends RewriteRequest {
+  enableChunking?: boolean;
+  maxWordsPerChunk?: number;
+}
+
 /**
- * Rewrites a document according to custom instructions with perfect math preservation
+ * Rewrites a document according to custom instructions with perfect math preservation and chunking support
  * @param request - Rewrite request parameters
  * @returns Promise containing the rewritten text with preserved mathematical notation
  */
-export async function rewriteDocument(request: RewriteRequest): Promise<string> {
+export async function rewriteDocument(request: ChunkedRewriteRequest): Promise<string> {
   try {
-    const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = request;
+    const { sourceText, customInstructions, contentSource, styleSource, preserveMath, enableChunking = true, maxWordsPerChunk = 800 } = request;
 
-    // Build comprehensive system prompt
-    let systemPrompt = `You are an expert document rewriter specializing in academic and scholarly content. Your task is to rewrite the provided text according to the user's custom instructions while maintaining the highest quality and accuracy.
+    // Get document statistics
+    const stats = getDocumentStats(sourceText);
+    console.log(`Document stats: ${stats.wordCount} words, ${stats.mathBlockCount} math blocks, estimated ${stats.estimatedChunks} chunks`);
+
+    // Determine if chunking is needed
+    const needsChunking = enableChunking && stats.wordCount > maxWordsPerChunk;
+
+    if (needsChunking) {
+      console.log(`Large document detected (${stats.wordCount} words). Using chunked processing.`);
+      return await rewriteDocumentInChunks(request, stats);
+    }
+
+    // Process as single document for smaller texts
+    return await rewriteSingleDocument(request);
+  } catch (error) {
+    console.error('Error in rewriteDocument:', error);
+    throw error;
+  }
+}
+
+/**
+ * Rewrites a document in chunks for large texts
+ */
+async function rewriteDocumentInChunks(request: ChunkedRewriteRequest, stats: any): Promise<string> {
+  const { sourceText, customInstructions, contentSource, styleSource, preserveMath, maxWordsPerChunk = 800 } = request;
+
+  // Create chunks
+  const chunks = chunkDocument(sourceText, {
+    maxWordsPerChunk,
+    overlapWords: 100,
+    preserveParagraphs: true,
+    preserveMath: preserveMath || false
+  });
+
+  console.log(`Created ${chunks.length} chunks for processing`);
+
+  const rewrittenChunks: string[] = [];
+
+  // Process each chunk
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    console.log(`Processing chunk ${i + 1}/${chunks.length} (${chunk.wordCount} words)`);
+
+    try {
+      const chunkRequest: RewriteRequest = {
+        sourceText: chunk.content,
+        customInstructions: customInstructions + `\n\nNOTE: This is chunk ${i + 1} of ${chunks.length} from a larger document. Maintain consistency with the overall document style and ensure smooth transitions.`,
+        contentSource,
+        styleSource,
+        preserveMath: preserveMath || false
+      };
+
+      const rewrittenChunk = await rewriteSingleDocument(chunkRequest);
+      rewrittenChunks.push(rewrittenChunk);
+
+      // Add small delay between chunks to avoid rate limiting
+      if (i < chunks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    } catch (error) {
+      console.error(`Error processing chunk ${i + 1}:`, error);
+      // If a chunk fails, use the original content
+      rewrittenChunks.push(chunk.content);
+    }
+  }
+
+  // Reassemble the document
+  const reassembled = reassembleDocument(rewrittenChunks, chunks);
+  console.log(`Successfully reassembled document from ${chunks.length} chunks`);
+  
+  return reassembled;
+}
+
+/**
+ * Rewrites a single document or chunk
+ */
+async function rewriteSingleDocument(request: RewriteRequest): Promise<string> {
+  const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = request;
+
+  // Build comprehensive system prompt
+  let systemPrompt = `You are an expert document rewriter specializing in academic and scholarly content. Your task is to rewrite the provided text according to the user's custom instructions while maintaining the highest quality and accuracy.
 
 CRITICAL REQUIREMENTS:
-1. MATHEMATICAL NOTATION: If preserveMath is enabled, maintain ALL mathematical expressions, formulas, symbols, and equations in their original LaTeX format or convert to proper LaTeX notation
+1. MATHEMATICAL NOTATION: ${preserveMath ? 'PRESERVE ALL mathematical expressions, formulas, symbols, and equations EXACTLY as they appear. Use proper LaTeX notation: $...$ for inline math, $$...$$ for display math. Examples: $\\mathbb{Q}$, $\\frac{a}{b}$, $$\\int_0^\\infty f(x)dx$$' : 'Convert any mathematical expressions to clear text descriptions'}
 2. STRUCTURE: Preserve the logical flow and academic structure unless specifically instructed otherwise
 3. ACCURACY: Maintain factual accuracy and scholarly integrity
 4. COMPLETENESS: Ensure the rewritten version covers all important points from the original
