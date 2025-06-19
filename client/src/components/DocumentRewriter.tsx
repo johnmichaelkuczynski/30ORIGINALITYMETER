@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Eye } from 'lucide-react';
+import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Eye, BookOpen } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
 import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
@@ -79,11 +79,12 @@ function convertMarkdownToHTML(markdown: string): string {
 
 interface DocumentRewriterProps {
   onSendToAnalysis: (text: string, title?: string) => void;
+  onSendToHomework?: (text: string) => void;
   initialContent?: string;
   initialTitle?: string;
 }
 
-export default function DocumentRewriter({ onSendToAnalysis, initialContent, initialTitle }: DocumentRewriterProps) {
+export default function DocumentRewriter({ onSendToAnalysis, onSendToHomework, initialContent, initialTitle }: DocumentRewriterProps) {
   const [sourceText, setSourceText] = useState(initialContent || '');
   const [sourceTitle, setSourceTitle] = useState(initialTitle || '');
 
@@ -378,6 +379,25 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
       title: "Sent to analysis",
       description: "Your rewritten document is now ready for originality evaluation.",
     });
+  };
+
+  const handleSendToHomework = () => {
+    if (!rewriteResult) {
+      toast({
+        title: "No content to send",
+        description: "Please complete a rewrite first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (onSendToHomework) {
+      onSendToHomework(rewriteResult);
+      toast({
+        title: "Sent to homework helper",
+        description: "Your rewritten document is now ready for homework assignment creation.",
+      });
+    }
   };
 
   const handleRewriteAgain = async () => {
@@ -726,13 +746,25 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
                   </Button>
                 </div>
                 
-                <Button
-                  onClick={handleSendToAnalysis}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Send to Analysis
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSendToAnalysis}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Send to Analysis
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  {onSendToHomework && (
+                    <Button
+                      onClick={handleSendToHomework}
+                      variant="outline"
+                      className="flex items-center gap-2 border-orange-300 text-orange-700 hover:bg-orange-50"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Send to Homework Helper
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -40,6 +40,7 @@ export default function Home() {
       <div id="document-rewriter">
         <DocumentRewriter 
           onSendToAnalysis={handleSendToAnalysis}
+          onSendToHomework={handleSendToHomework}
           initialContent={rewriterContent}
           initialTitle={rewriterTitle}
         />
