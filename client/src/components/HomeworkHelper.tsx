@@ -23,62 +23,9 @@ import { GraduationCap, Download, FileText, Image as ImageIcon, Brain, Eye } fro
 import DocumentUpload from './DocumentUpload';
 import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
+import { convertMarkdownWithMath, renderMathInElement } from '@/lib/mathUtils';
 
-// Advanced markdown to HTML converter with proper math preservation
-const convertMarkdownToHTML = (markdown: string): string => {
-  let html = markdown;
-  
-  // First preserve existing math notation
-  const mathBlocks: string[] = [];
-  let mathIndex = 0;
-  
-  // Store display math blocks
-  html = html.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
-    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
-    mathBlocks[mathIndex] = `$$${content}$$`;
-    mathIndex++;
-    return placeholder;
-  });
-  
-  // Store inline math
-  html = html.replace(/\$([^$\n]+)\$/g, (match, content) => {
-    const placeholder = `__MATH_INLINE_${mathIndex}__`;
-    mathBlocks[mathIndex] = `$${content}$`;
-    mathIndex++;
-    return placeholder;
-  });
-  
-  // Convert markdown formatting (avoiding math placeholders)
-  html = html.replace(/\*\*((?!__MATH_)[^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>');
-  html = html.replace(/\*((?!__MATH_)[^*]+)\*/g, '<em class="italic">$1</em>');
-  
-  // Headers
-  html = html.replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>');
-  html = html.replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-6 mb-3">$1</h2>');
-  html = html.replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>');
-  
-  // Code blocks
-  html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-3 rounded-md my-2 overflow-x-auto"><code>$1</code></pre>');
-  // Inline code
-  html = html.replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>');
-  
-  // Line breaks and paragraphs
-  html = html.replace(/\n\n/g, '</p><p class="mb-2">');
-  html = `<p class="mb-2">${html}</p>`;
-  html = html.replace(/\n/g, '<br>');
-  
-  // Clean up empty paragraphs
-  html = html.replace(/<p class="mb-2"><\/p>/g, '');
-  html = html.replace(/<p class="mb-2"><br><\/p>/g, '');
-  
-  // Restore math notation
-  for (let i = 0; i < mathBlocks.length; i++) {
-    html = html.replace(`__MATH_DISPLAY_${i}__`, mathBlocks[i]);
-    html = html.replace(`__MATH_INLINE_${i}__`, mathBlocks[i]);
-  }
-  
-  return html;
-};
+
 
 interface HomeworkHelperProps {
   onSendToAnalysis?: (text: string, title?: string) => void;
@@ -106,21 +53,10 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
 
   // Re-render MathJax when solution changes
   useEffect(() => {
-    if (solution) {
-      const renderMath = async () => {
-        try {
-          if (window.MathJax && window.MathJax.typesetPromise) {
-            await window.MathJax.startup?.promise;
-            if (resultRef.current) {
-              await window.MathJax.typesetPromise([resultRef.current]);
-            }
-          }
-        } catch (error) {
-          console.warn('MathJax rendering error:', error);
-        }
-      };
-      
-      setTimeout(renderMath, 100);
+    if (solution && resultRef.current) {
+      setTimeout(() => {
+        renderMathInElement(resultRef.current);
+      }, 100);
     }
   }, [solution]);
 
@@ -183,7 +119,7 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
   const handleViewHTML = () => {
     if (!solution) return;
     
-    const htmlContent = convertMarkdownToHTML(solution);
+    const htmlContent = convertMarkdownWithMath(solution);
     const fullHTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -377,8 +313,8 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
                   ref={resultRef}
-                  className="prose max-w-none text-sm"
-                  dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(solution) }}
+                  className="prose max-w-none text-sm math-container"
+                  dangerouslySetInnerHTML={{ __html: convertMarkdownWithMath(solution) }}
                 />
               </Card>
             </div>

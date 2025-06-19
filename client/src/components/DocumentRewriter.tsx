@@ -25,58 +25,7 @@ import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
 import { convertMarkdownWithMath, renderMathInElement } from '@/lib/mathUtils';
 
-// Utility function to convert markdown to HTML with proper math preservation
-function convertMarkdownToHTML(markdown: string): string {
-  let html = markdown;
-  
-  // First preserve existing math notation
-  const mathBlocks: string[] = [];
-  let mathIndex = 0;
-  
-  // Store display math blocks
-  html = html.replace(/\$\$([^$]+)\$\$/g, (match, content) => {
-    const placeholder = `__MATH_DISPLAY_${mathIndex}__`;
-    mathBlocks[mathIndex] = `$$${content}$$`;
-    mathIndex++;
-    return placeholder;
-  });
-  
-  // Store inline math
-  html = html.replace(/\$([^$\n]+)\$/g, (match, content) => {
-    const placeholder = `__MATH_INLINE_${mathIndex}__`;
-    mathBlocks[mathIndex] = `$${content}$`;
-    mathIndex++;
-    return placeholder;
-  });
-  
-  // Convert markdown formatting (avoiding math placeholders)
-  html = html.replace(/\*\*((?!__MATH_)[^*]+)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\*((?!__MATH_)[^*]+)\*/g, '<em>$1</em>');
-  
-  // Convert headers
-  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-  
-  // Convert double line breaks to paragraphs
-  html = html.replace(/\n\n/g, '</p><p>');
-  html = `<p>${html}</p>`;
-  
-  // Convert single line breaks to <br>
-  html = html.replace(/\n/g, '<br>');
-  
-  // Clean up empty paragraphs
-  html = html.replace(/<p><\/p>/g, '');
-  html = html.replace(/<p><br><\/p>/g, '');
-  
-  // Restore math notation
-  for (let i = 0; i < mathBlocks.length; i++) {
-    html = html.replace(`__MATH_DISPLAY_${i}__`, mathBlocks[i]);
-    html = html.replace(`__MATH_INLINE_${i}__`, mathBlocks[i]);
-  }
-  
-  return html;
-}
+
 
 interface DocumentRewriterProps {
   onSendToAnalysis: (text: string, title?: string) => void;
@@ -146,41 +95,12 @@ export default function DocumentRewriter({ onSendToAnalysis, onSendToHomework, i
     }
   };
 
-  // Enhanced MathJax rendering
-  const renderMathJax = async () => {
-    try {
-      // Ensure MathJax is loaded
-      if (!window.MathJax) {
-        // Load MathJax if not already loaded
-        const script = document.createElement('script');
-        script.src = 'https://polyfill.io/v3/polyfill.min.js?features=es6';
-        document.head.appendChild(script);
-        
-        const mathJaxScript = document.createElement('script');
-        mathJaxScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-        mathJaxScript.async = true;
-        document.head.appendChild(mathJaxScript);
-        
-        await new Promise(resolve => {
-          mathJaxScript.onload = resolve;
-        });
-      }
-
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        await window.MathJax.startup?.promise;
-        if (resultRef.current) {
-          await window.MathJax.typesetPromise([resultRef.current]);
-        }
-      }
-    } catch (error) {
-      console.warn('MathJax rendering error:', error);
-    }
-  };
-
   // Re-render MathJax when rewrite result changes
   useEffect(() => {
-    if (rewriteResult) {
-      setTimeout(renderMathJax, 100);
+    if (rewriteResult && resultRef.current) {
+      setTimeout(() => {
+        renderMathInElement(resultRef.current);
+      }, 100);
     }
   }, [rewriteResult]);
 
@@ -282,7 +202,7 @@ export default function DocumentRewriter({ onSendToAnalysis, onSendToHomework, i
   const handleViewHTML = () => {
     if (!rewriteResult) return;
     
-    const htmlContent = convertMarkdownToHTML(rewriteResult);
+    const htmlContent = convertMarkdownWithMath(rewriteResult);
     const fullHTML = `<!DOCTYPE html>
 <html>
 <head>
@@ -685,8 +605,8 @@ export default function DocumentRewriter({ onSendToAnalysis, onSendToHomework, i
               <Card className="mt-2 p-4 bg-gray-50">
                 <div 
                   ref={resultRef}
-                  className="prose max-w-none text-sm"
-                  dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(rewriteResult) }}
+                  className="prose max-w-none text-sm math-container"
+                  dangerouslySetInnerHTML={{ __html: convertMarkdownWithMath(rewriteResult) }}
                 />
               </Card>
             </div>
