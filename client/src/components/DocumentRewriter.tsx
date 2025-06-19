@@ -113,23 +113,72 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
   const { toast } = useToast();
   const resultRef = useRef<HTMLDivElement>(null);
 
+  // Document analysis when source text changes
+  useEffect(() => {
+    if (sourceText && sourceText.trim().length > 100) {
+      analyzeDocument();
+    }
+  }, [sourceText]);
+
+  const analyzeDocument = async () => {
+    if (!sourceText || sourceText.trim().length < 100) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch('/api/analyze-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sourceText }),
+      });
+
+      if (response.ok) {
+        const stats = await response.json();
+        setDocumentStats(stats);
+      }
+    } catch (error) {
+      console.warn('Document analysis failed:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Enhanced MathJax rendering
+  const renderMathJax = async () => {
+    try {
+      // Ensure MathJax is loaded
+      if (!window.MathJax) {
+        // Load MathJax if not already loaded
+        const script = document.createElement('script');
+        script.src = 'https://polyfill.io/v3/polyfill.min.js?features=es6';
+        document.head.appendChild(script);
+        
+        const mathJaxScript = document.createElement('script');
+        mathJaxScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+        mathJaxScript.async = true;
+        document.head.appendChild(mathJaxScript);
+        
+        await new Promise(resolve => {
+          mathJaxScript.onload = resolve;
+        });
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        await window.MathJax.startup?.promise;
+        if (resultRef.current) {
+          await window.MathJax.typesetPromise([resultRef.current]);
+        }
+      }
+    } catch (error) {
+      console.warn('MathJax rendering error:', error);
+    }
+  };
+
   // Re-render MathJax when rewrite result changes
   useEffect(() => {
     if (rewriteResult) {
-      const renderMath = async () => {
-        try {
-          if (window.MathJax && window.MathJax.typesetPromise) {
-            await window.MathJax.startup?.promise;
-            if (resultRef.current) {
-              await window.MathJax.typesetPromise([resultRef.current]);
-            }
-          }
-        } catch (error) {
-          console.warn('MathJax rendering error:', error);
-        }
-      };
-      
-      setTimeout(renderMath, 100);
+      setTimeout(renderMathJax, 100);
     }
   }, [rewriteResult]);
 
@@ -363,6 +412,33 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
                   rows={8}
                   className="resize-none"
                 />
+                {documentStats && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="font-medium">Words:</span> {documentStats.stats.wordCount.toLocaleString()}
+                        </div>
+                        <div>
+                          <span className="font-medium">Characters:</span> {documentStats.stats.characterCount.toLocaleString()}
+                        </div>
+                      </div>
+                      {documentStats.willNeedChunking && (
+                        <div className="text-blue-700">
+                          <div className="font-medium">Chunking Required</div>
+                          <div className="text-xs">
+                            {documentStats.chunkCount} chunks • ~{Math.ceil(documentStats.estimatedProcessingTime / 60)}min processing
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {documentStats.stats.mathBlockCount > 0 && (
+                      <div className="mt-2 text-xs text-green-700">
+                        ✓ {documentStats.stats.mathBlockCount} mathematical expressions detected
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <VoiceDictation
                     onTranscriptionComplete={(text) => {

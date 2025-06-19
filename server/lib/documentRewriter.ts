@@ -102,10 +102,11 @@ async function rewriteDocumentInChunks(request: ChunkedRewriteRequest, stats: an
  * Rewrites a single document or chunk
  */
 async function rewriteSingleDocument(request: RewriteRequest): Promise<string> {
-  const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = request;
+  try {
+    const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = request;
 
-  // Build comprehensive system prompt
-  let systemPrompt = `You are an expert document rewriter specializing in academic and scholarly content. Your task is to rewrite the provided text according to the user's custom instructions while maintaining the highest quality and accuracy.
+    // Build comprehensive system prompt
+    let systemPrompt = `You are an expert document rewriter specializing in academic and scholarly content. Your task is to rewrite the provided text according to the user's custom instructions while maintaining the highest quality and accuracy.
 
 CRITICAL REQUIREMENTS:
 1. MATHEMATICAL NOTATION: ${preserveMath ? 'PRESERVE ALL mathematical expressions, formulas, symbols, and equations EXACTLY as they appear. Use proper LaTeX notation: $...$ for inline math, $$...$$ for display math. Examples: $\\mathbb{Q}$, $\\frac{a}{b}$, $$\\int_0^\\infty f(x)dx$$' : 'Convert any mathematical expressions to clear text descriptions'}
