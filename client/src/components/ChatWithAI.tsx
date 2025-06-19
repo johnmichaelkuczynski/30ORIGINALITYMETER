@@ -13,6 +13,7 @@ import { Send, Bot, User, ArrowUp, Copy, Loader2, Paperclip, X, FileText, FileEd
 import { PassageData, AnalysisResult } from '@/lib/types';
 import DocumentUpload from './DocumentUpload';
 import { VoiceDictation } from '@/components/ui/voice-dictation';
+import { convertMarkdownWithMath, renderMathInElement } from '@/lib/mathUtils';
 
 interface ChatMessage {
   id: string;
@@ -42,6 +43,7 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -50,6 +52,22 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
       if (scrollElement) {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
+    }
+  }, [messages]);
+
+  // Render math in all message elements when messages change
+  useEffect(() => {
+    const renderAllMath = async () => {
+      const elements = Array.from(messageRefs.current.values());
+      for (const element of elements) {
+        if (element) {
+          await renderMathInElement(element);
+        }
+      }
+    };
+    
+    if (messages.length > 0) {
+      setTimeout(renderAllMath, 100);
     }
   }, [messages]);
 
@@ -361,14 +379,22 @@ export default function ChatWithAI({ currentPassage, analysisResult, onSendToInp
                     
                     <div className={`max-w-[80%] ${message.role === 'user' ? 'order-2' : ''}`}>
                       <div
-                        className={`rounded-lg p-3 text-sm whitespace-pre-wrap ${
+                        ref={(el) => {
+                          if (el) {
+                            messageRefs.current.set(message.id, el);
+                          }
+                        }}
+                        className={`rounded-lg p-3 text-sm math-container ${
                           message.role === 'user'
                             ? 'bg-blue-600 text-white'
                             : 'bg-gray-100 text-gray-900'
                         }`}
-                      >
-                        {message.content}
-                      </div>
+                        dangerouslySetInnerHTML={{ 
+                          __html: message.role === 'assistant' 
+                            ? convertMarkdownWithMath(message.content)
+                            : message.content.replace(/\n/g, '<br>')
+                        }}
+                      />
                       
                       {/* Action buttons for assistant messages */}
                       {message.role === 'assistant' && (

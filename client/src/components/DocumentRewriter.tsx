@@ -23,6 +23,7 @@ import { FileEdit, Download, ArrowRight, FileText, Image as ImageIcon, Wand2, Ey
 import DocumentUpload from './DocumentUpload';
 import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
+import { convertMarkdownWithMath, renderMathInElement } from '@/lib/mathUtils';
 
 // Utility function to convert markdown to HTML with proper math preservation
 function convertMarkdownToHTML(markdown: string): string {
