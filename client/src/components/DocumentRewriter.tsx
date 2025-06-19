@@ -380,6 +380,72 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
     });
   };
 
+  const handleRewriteAgain = async () => {
+    if (!rewriteResult) {
+      toast({
+        title: "No content to rewrite",
+        description: "Please complete a rewrite first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!customInstructions.trim()) {
+      toast({
+        title: "Instructions required",
+        description: "Please provide custom instructions for the recursive rewrite.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRewriting(true);
+    
+    toast({
+      title: "Starting recursive rewrite",
+      description: "Using your current rewrite as the new source text...",
+    });
+
+    try {
+      const response = await fetch('/api/rewrite-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sourceText: rewriteResult, // Use the current rewrite result as source
+          customInstructions,
+          contentSource: contentSource || undefined,
+          styleSource: styleSource || undefined,
+          preserveMath: true,
+          enableChunking: true,
+          maxWordsPerChunk: 800
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Recursive rewrite failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      setRewriteResult(result.rewrittenText);
+      
+      toast({
+        title: "Recursive rewrite completed",
+        description: "Your document has been rewritten again with the same instructions.",
+      });
+    } catch (error) {
+      console.error('Error during recursive rewrite:', error);
+      toast({
+        title: "Recursive rewrite failed",
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: "destructive",
+      });
+    } finally {
+      setIsRewriting(false);
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -604,46 +670,70 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
               </Card>
             </div>
 
-            {/* Download and Analysis Options */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between">
-              <div className="flex items-center gap-2">
-                <Label className="text-sm">Download as:</Label>
-                <Select value={downloadFormat} onValueChange={(value: any) => setDownloadFormat(value)}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="word">Word</SelectItem>
-                    <SelectItem value="pdf">PDF</SelectItem>
-                    <SelectItem value="txt">TXT</SelectItem>
-                    <SelectItem value="html">HTML</SelectItem>
-                  </SelectContent>
-                </Select>
+            {/* Action Options */}
+            <div className="flex flex-col gap-4">
+              {/* Recursive Rewrite Button */}
+              <div className="flex items-center justify-center">
                 <Button
-                  onClick={handleViewHTML}
-                  variant="outline"
-                  className="flex items-center gap-2"
+                  onClick={handleRewriteAgain}
+                  disabled={isRewriting || !customInstructions.trim()}
+                  className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white"
                 >
-                  <Eye className="h-4 w-4" />
-                  View HTML
-                </Button>
-                <Button
-                  onClick={handleDownload}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Download
+                  {isRewriting ? (
+                    <>
+                      <Wand2 className="h-4 w-4 animate-spin" />
+                      Rewriting Again...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-4 w-4" />
+                      Rewrite Again
+                    </>
+                  )}
                 </Button>
               </div>
               
-              <Button
-                onClick={handleSendToAnalysis}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Send to Analysis
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              {/* Download and Analysis Options */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm">Download as:</Label>
+                  <Select value={downloadFormat} onValueChange={(value: any) => setDownloadFormat(value)}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="word">Word</SelectItem>
+                      <SelectItem value="pdf">PDF</SelectItem>
+                      <SelectItem value="txt">TXT</SelectItem>
+                      <SelectItem value="html">HTML</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    onClick={handleViewHTML}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Eye className="h-4 w-4" />
+                    View HTML
+                  </Button>
+                  <Button
+                    onClick={handleDownload}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
+                
+                <Button
+                  onClick={handleSendToAnalysis}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Send to Analysis
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         )}
