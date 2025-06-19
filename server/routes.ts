@@ -1015,8 +1015,8 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         let responseText = chatResponse.choices[0].message.content || "";
         
         // Process graph requests in the response
-        const anthropicLib = await import('./lib/anthropic');
-        responseText = await anthropicLib.processGraphRequests(responseText);
+        const { processGraphRequests } = await import('./lib/anthropic');
+        responseText = await processGraphRequests(responseText);
         
         // Remove markdown formatting while preserving math notation
         responseText = responseText.replace(/#{1,6}\s*/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
