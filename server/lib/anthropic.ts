@@ -2,12 +2,84 @@ import Anthropic from '@anthropic-ai/sdk';
 import { PassageData, SupportingDocument, StyleOption, FeedbackData, SubmitFeedbackRequest } from "../../client/src/lib/types";
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
-import { generateGraph } from './graphGenerator';
+import { generateGraph, GraphRequest } from './graphGenerator';
 
 // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
 // Use environment variable for Anthropic API key
 const apiKey = process.env.ANTHROPIC_API_KEY;
 console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
+
+// Helper function to detect and embed graphs in text
+async function processGraphRequests(text: string): Promise<string> {
+  try {
+    let processedText = text;
+    
+    // Look for graph-related requests in the text using simple string matching
+    const graphKeywords = [
+      'plot the graph',
+      'create a graph',
+      'draw a graph',
+      'show a graph',
+      'generate a graph',
+      'exponential function',
+      'quadratic function',
+      'sine function',
+      'cosine function',
+      'logarithmic function',
+      'linear function',
+      'exponential graph',
+      'quadratic graph',
+      'sine graph',
+      'cosine graph'
+    ];
+    
+    // Check each sentence for graph requests
+    const sentences = text.split(/[.!?]+/);
+    
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i].trim();
+      const lowerSentence = sentence.toLowerCase();
+      
+      for (const keyword of graphKeywords) {
+        if (lowerSentence.includes(keyword)) {
+          try {
+            console.log(`Generating graph for: "${sentence}"`);
+            
+            const graphRequest: GraphRequest = {
+              description: sentence.trim(),
+              width: 600,
+              height: 400
+            };
+            
+            const graphResult = await generateGraph(graphRequest);
+            
+            // Create the graph embed
+            const graphEmbed = `
+**${graphResult.title}**
+
+${graphResult.svg}
+
+*Figure: ${graphResult.description}*
+`;
+            
+            // Replace the sentence with the graph
+            processedText = processedText.replace(sentence, graphEmbed);
+            break; // Only generate one graph per sentence
+            
+          } catch (error) {
+            console.error('Error generating graph:', error);
+            // Keep original text if graph generation fails
+          }
+        }
+      }
+    }
+    
+    return processedText;
+  } catch (error) {
+    console.error('Error processing graph requests:', error);
+    return text;
+  }
+}
 
 export async function analyzePassages(
   passageA: PassageData,
@@ -385,8 +457,11 @@ When the user requests graphs, charts, or visual elements:
       finalText = generatedContent.replace(titleMatch[0], '').trim();
     }
 
+    // Process the text for graph requests after generation
+    const processedText = await processGraphRequests(finalText);
+    
     return {
-      text: finalText,
+      text: processedText,
       title: extractedTitle
     };
   } catch (error) {

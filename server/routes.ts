@@ -978,7 +978,12 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         });
 
         let responseText = (chatResponse.content[0] as any).text;
-        // Remove markdown formatting
+        
+        // Process graph requests in the response
+        const { processGraphRequests } = await import('./lib/anthropic');
+        responseText = await processGraphRequests(responseText);
+        
+        // Remove markdown formatting while preserving math notation
         responseText = responseText.replace(/#{1,6}\s*/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
         response = { message: responseText };
       } else {
