@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileEdit, GraduationCap, Search, Home as HomeIcon } from "lucide-react";
+import { FileEdit, GraduationCap, Search, BarChart3, Home as HomeIcon } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DocumentRewriterPage from "@/pages/DocumentRewriter";
@@ -27,6 +27,13 @@ function Navigation() {
       href: "#homework-helper", 
       label: "Homework Helper", 
       icon: <GraduationCap className="h-4 w-4" />,
+      isSection: true 
+    },
+    { 
+      id: "graph-generator",
+      href: "#graph-generator", 
+      label: "Graph Generator", 
+      icon: <BarChart3 className="h-4 w-4" />,
       isSection: true 
     },
   ];

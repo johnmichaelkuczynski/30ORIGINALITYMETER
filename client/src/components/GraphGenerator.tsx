@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, LineChart, Scatter, PieChart, AreaChart } from 'lucide-react';
+import { BarChart3, LineChart, PieChart, AreaChart, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface GraphResult {
@@ -147,7 +147,7 @@ export default function GraphGenerator() {
                   </SelectItem>
                   <SelectItem value="scatter">
                     <div className="flex items-center gap-2">
-                      <Scatter className="h-4 w-4" />
+                      <Zap className="h-4 w-4" />
                       Scatter Plot
                     </div>
                   </SelectItem>

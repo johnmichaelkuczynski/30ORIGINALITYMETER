@@ -2,6 +2,7 @@ import { useState } from "react";
 import SemanticAnalyzer from "@/components/SemanticAnalyzer";
 import DocumentRewriter from "@/components/DocumentRewriter";
 import HomeworkHelper from "@/components/HomeworkHelper";
+import GraphGenerator from "@/components/GraphGenerator";
 import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
@@ -51,6 +52,12 @@ export default function Home() {
           onSendToAnalysis={handleSendToAnalysis}
           initialContent={homeworkContent}
         />
+      </div>
+      
+      <Separator className="my-8" />
+      
+      <div id="graph-generator">
+        <GraphGenerator />
       </div>
     </div>
   );
