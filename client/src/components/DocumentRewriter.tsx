@@ -226,6 +226,15 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
     }
 
     setIsRewriting(true);
+    
+    // Show initial progress for large documents
+    if (documentStats?.willNeedChunking) {
+      toast({
+        title: "Processing large document",
+        description: `Breaking into ${documentStats.chunkCount} chunks for optimal processing...`,
+      });
+    }
+
     try {
       const response = await fetch('/api/rewrite-document', {
         method: 'POST',
@@ -238,6 +247,8 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
           contentSource: contentSource || undefined,
           styleSource: styleSource || undefined,
           preserveMath: true,
+          enableChunking: true,
+          maxWordsPerChunk: 800
         }),
       });
 
@@ -250,7 +261,9 @@ export default function DocumentRewriter({ onSendToAnalysis, initialContent, ini
       
       toast({
         title: "Rewrite completed",
-        description: "Your document has been successfully rewritten with perfect math notation.",
+        description: documentStats?.willNeedChunking 
+          ? `Large document processed in ${documentStats.chunkCount} chunks with perfect math preservation.`
+          : "Your document has been successfully rewritten with perfect math notation.",
       });
     } catch (error) {
       console.error('Error during rewrite:', error);
