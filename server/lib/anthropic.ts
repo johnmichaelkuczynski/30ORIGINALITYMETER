@@ -4,6 +4,37 @@ import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 import { generateGraph, GraphRequest } from './graphGenerator';
 
+// Advanced comparison result interface
+export interface AdvancedComparisonResult {
+  originality_score: number;
+  is_ripoff: boolean;
+  is_development: boolean;
+  development_mode: string;
+  development_strength: number;
+  doctrinal_alignment: {
+    alignment_score: number;
+    type: string;
+    affinity_axis: string;
+  };
+  psychological_profiles: {
+    text_a: {
+      interests: string[];
+      bias: string[];
+      cognitive_strength: string[];
+      posture: string;
+    };
+    text_b: {
+      interests: string[];
+      bias: string[];
+      cognitive_strength: string[];
+      posture: string;
+    };
+    match_score: number;
+    narrative_relationship: string;
+  };
+  summary: string;
+}
+
 // the newest Anthropic model is "claude-3-7-sonnet-20250219" which was released February 24, 2025
 // Use environment variable for Anthropic API key
 const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -700,5 +731,127 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
   } catch (error) {
     console.error("Error calling Anthropic for single passage analysis:", error);
     throw new Error(`Failed to analyze passage with Anthropic: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Advanced comparison function for comprehensive text analysis
+ * Analyzes originality, developmental relationship, doctrinal alignment, and psychological profiling
+ * @param textA First text for comparison
+ * @param textB Second text for comparison
+ * @returns Structured analysis with all requested metrics
+ */
+export async function advancedComparison(
+  textA: PassageData,
+  textB: PassageData
+): Promise<AdvancedComparisonResult> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({ apiKey });
+
+  try {
+    const systemPrompt = `You are an expert literary and philosophical analyst specializing in advanced text comparison. You must analyze two texts comprehensively across multiple dimensions and return results in strict JSON format.
+
+Your analysis must cover:
+1. ORIGINALITY & RIPOFF ANALYSIS - Score 0-100 (lower = more derivative)
+2. DEVELOPMENTAL RELATIONSHIP - Whether B develops A's ideas and how
+3. DOCTRINAL ALIGNMENT - Alignment score and type classification
+4. PSYCHOLOGICAL PROFILING - Detailed author profiling for both texts
+5. SUMMARY - Comprehensive natural language verdict
+
+Return ONLY valid JSON with no additional text. Use the exact structure provided.`;
+
+    const userPrompt = `Analyze these two texts comprehensively:
+
+TEXT A:
+Title: ${textA.title || 'Untitled'}
+Content: ${textA.text}
+Context: ${textA.userContext || 'None provided'}
+
+TEXT B:
+Title: ${textB.title || 'Untitled'}
+Content: ${textB.text}
+Context: ${textB.userContext || 'None provided'}
+
+Return analysis in this exact JSON format:
+
+{
+  "originality_score": [0-100 number],
+  "is_ripoff": [true/false],
+  "is_development": [true/false],
+  "development_mode": "[Conceptual/Methodological/Rhetorical/Critical/Other or null if not development]",
+  "development_strength": [0-100 number],
+  "doctrinal_alignment": {
+    "alignment_score": [0-100 number],
+    "type": "[Kindred/Compatible/Opposed/Antithetical]",
+    "affinity_axis": "[Content/Method/Mentality/Tone/Multiple]"
+  },
+  "psychological_profiles": {
+    "text_a": {
+      "interests": ["interest1", "interest2", "interest3"],
+      "bias": ["bias1", "bias2", "bias3"],
+      "cognitive_strength": ["strength1", "strength2", "strength3"],
+      "posture": "[missionary/institutionalist/outsider/other]"
+    },
+    "text_b": {
+      "interests": ["interest1", "interest2", "interest3"],
+      "bias": ["bias1", "bias2", "bias3"],
+      "cognitive_strength": ["strength1", "strength2", "strength3"],
+      "posture": "[missionary/institutionalist/outsider/other]"
+    },
+    "match_score": [0-100 number],
+    "narrative_relationship": "[2-3 sentence description of psychological relationship]"
+  },
+  "summary": "[Comprehensive paragraph covering derivative vs developmental vs oppositional relationship, psychological contrast, stylistic differences, doctrinal affinity, and overall originality verdict]"
+}
+
+Analyze thoroughly and provide precise scores and classifications.`;
+
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 2000,
+      temperature: 0.1,
+      system: systemPrompt,
+      messages: [
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ]
+    });
+
+    const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
+    
+    // Extract JSON from response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No valid JSON found in response");
+    }
+
+    const jsonContent = jsonMatch[0];
+    
+    try {
+      const result = JSON.parse(jsonContent) as AdvancedComparisonResult;
+      
+      // Validate required fields
+      if (typeof result.originality_score !== 'number' ||
+          typeof result.is_ripoff !== 'boolean' ||
+          typeof result.is_development !== 'boolean' ||
+          !result.doctrinal_alignment ||
+          !result.psychological_profiles ||
+          !result.summary) {
+        throw new Error("Invalid response structure from API");
+      }
+      
+      return result;
+    } catch (parseError) {
+      console.error("Error parsing advanced comparison JSON:", parseError);
+      throw new Error(`Failed to parse advanced comparison response: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+    }
+  } catch (error) {
+    console.error("Error in advanced comparison:", error);
+    throw new Error(`Advanced comparison failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

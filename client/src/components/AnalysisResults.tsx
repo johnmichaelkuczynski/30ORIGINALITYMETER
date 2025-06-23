@@ -5,6 +5,7 @@ import AnalysisTabs from "./AnalysisTabs";
 import DownloadReportButton from "./DownloadReportButton";
 import PassageGenerator from "./PassageGenerator";
 import EnhancedComprehensiveReport from "./EnhancedComprehensiveReport";
+import AdvancedComparison from "./AdvancedComparison";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
