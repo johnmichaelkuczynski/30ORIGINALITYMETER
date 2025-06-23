@@ -5,86 +5,71 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PassageData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Users, Target, TrendingUp, Shield, AlertTriangle, BookOpen, Zap } from "lucide-react";
-
-const ProgressBar = ({ value, className = "" }: { value: number; className?: string }) => (
-  <div className={`w-full bg-gray-200 rounded-full h-2 ${className}`}>
-    <div 
-      className="bg-blue-600 h-2 rounded-full" 
-      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-    ></div>
-  </div>
-);
-
-interface ComparisonVector {
-  contentSimilarity: {
-    lexicalOverlap: number;
-    conceptualParaphraseOverlap: number;
-    argumentStructureMatching: number;
-  };
-  stylisticSimilarity: {
-    sentenceRhythm: number;
-    rhetoricalDevicePatterning: number;
-    toneRegister: number;
-  };
-  epistemicProfileSimilarity: {
-    compressionDegree: number;
-    abstractionLevel: number;
-    inferentialChainComplexity: number;
-    frictionLevel: number;
-  };
-  narrativeTopicalSimilarity: {
-    subjectMatterOverlap: number;
-    illustrativeStructure: number;
-    sharedReferencePoints: number;
-  };
-}
-
-interface RipOffRisk {
-  score: number;
-  label: string;
-  explanation: string;
-  matchingSections?: string[];
-}
-
-interface DevelopmentRelationship {
-  score: number;
-  direction: string;
-  description: string;
-}
-
-interface DoctrinalAffinity {
-  classification: string;
-  justification: string;
-  contentAgreement: number;
-  methodologicalSimilarity: number;
-}
-
-interface AuthorProfile {
-  intellectualInterests: string[];
-  intellectualStrengths: string[];
-  cognitiveWeaknesses: string[];
-  emotionalSignatures: string[];
-  personalAgenda: string;
-}
-
-interface ComparativeProfile {
-  sharedTraits: string[];
-  conflictingTraits: string[];
-  authoralStance: string;
-}
+import { Zap, Target, Shield, TrendingUp, BookOpen, Users } from "lucide-react";
 
 interface EnhancedComparisonResult {
   overallSimilarityScore: number;
-  ripOffRisk: RipOffRisk;
-  developmentRelationship: DevelopmentRelationship;
-  doctrinalAffinity: DoctrinalAffinity;
-  authorProfiles: {
-    textA: AuthorProfile;
-    textB: AuthorProfile;
+  ripOffRisk: {
+    score: number;
+    label: string;
+    explanation: string;
+    matchingSections?: string[];
   };
-  comparativeProfile: ComparativeProfile;
-  comparisonVectors: ComparisonVector;
+  developmentRelationship: {
+    score: number;
+    direction: string;
+    description: string;
+  };
+  doctrinalAffinity: {
+    classification: string;
+    justification: string;
+    contentAgreement: number;
+    methodologicalSimilarity: number;
+  };
+  authorProfiles: {
+    textA: {
+      intellectualInterests: string[];
+      intellectualStrengths: string[];
+      cognitiveWeaknesses: string[];
+      emotionalSignatures: string[];
+      personalAgenda: string;
+    };
+    textB: {
+      intellectualInterests: string[];
+      intellectualStrengths: string[];
+      cognitiveWeaknesses: string[];
+      emotionalSignatures: string[];
+      personalAgenda: string;
+    };
+  };
+  comparativeProfile: {
+    sharedTraits: string[];
+    conflictingTraits: string[];
+    authoralStance: string;
+  };
+  comparisonVectors: {
+    contentSimilarity: {
+      lexicalOverlap: number;
+      conceptualParaphraseOverlap: number;
+      argumentStructureMatching: number;
+    };
+    stylisticSimilarity: {
+      sentenceRhythm: number;
+      rhetoricalDevicePatterning: number;
+      toneRegister: number;
+    };
+    epistemicProfileSimilarity: {
+      compressionDegree: number;
+      abstractionLevel: number;
+      inferentialChainComplexity: number;
+      frictionLevel: number;
+    };
+    narrativeTopicalSimilarity: {
+      subjectMatterOverlap: number;
+      illustrativeStructure: number;
+      sharedReferencePoints: number;
+    };
+  };
   detailedAnalysis: string;
 }
 
@@ -95,7 +80,7 @@ interface EnhancedComparisonProps {
   passageBTitle: string;
 }
 
-export default function EnhancedComparison({
+export default function EnhancedComparisonSimple({
   passageA,
   passageB,
   passageATitle,
@@ -163,6 +148,15 @@ export default function EnhancedComparison({
     return 'bg-gray-100 text-gray-800';
   };
 
+  const ScoreBar = ({ score, max = 10, color = 'bg-blue-500' }: { score: number; max?: number; color?: string }) => (
+    <div className="w-full bg-gray-200 rounded-full h-2">
+      <div 
+        className={`h-2 rounded-full ${color}`}
+        style={{ width: `${(score / max) * 100}%` }}
+      ></div>
+    </div>
+  );
+
   if (!result) {
     return (
       <Card className="w-full">
@@ -226,7 +220,7 @@ export default function EnhancedComparison({
                       <div className={`text-3xl font-bold ${getScoreColor(result.overallSimilarityScore / 10)}`}>
                         {result.overallSimilarityScore}%
                       </div>
-                      <ProgressBar value={result.overallSimilarityScore} className="mt-2" />
+                      <ScoreBar score={result.overallSimilarityScore} max={100} />
                     </div>
                   </CardContent>
                 </Card>
@@ -285,29 +279,35 @@ export default function EnhancedComparison({
                     <CardTitle className="text-lg">Content Similarity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Lexical Overlap</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.lexicalOverlap)}`}>
-                        {result.comparisonVectors.contentSimilarity.lexicalOverlap}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Lexical Overlap</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.lexicalOverlap)}`}>
+                          {result.comparisonVectors.contentSimilarity.lexicalOverlap}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.contentSimilarity.lexicalOverlap} color="bg-green-500" />
                     </div>
-                    <ProgressBar value={result.comparisonVectors.contentSimilarity.lexicalOverlap * 10} />
                     
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Conceptual Paraphrase</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap)}`}>
-                        {result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Conceptual Paraphrase</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap)}`}>
+                          {result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap} color="bg-green-500" />
                     </div>
-                    <ProgressBar value={result.comparisonVectors.contentSimilarity.conceptualParaphraseOverlap * 10} />
                     
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Argument Structure</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.argumentStructureMatching)}`}>
-                        {result.comparisonVectors.contentSimilarity.argumentStructureMatching}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Argument Structure</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.contentSimilarity.argumentStructureMatching)}`}>
+                          {result.comparisonVectors.contentSimilarity.argumentStructureMatching}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.contentSimilarity.argumentStructureMatching} color="bg-green-500" />
                     </div>
-                    <Progress value={result.comparisonVectors.contentSimilarity.argumentStructureMatching * 10} />
                   </CardContent>
                 </Card>
 
@@ -316,99 +316,35 @@ export default function EnhancedComparison({
                     <CardTitle className="text-lg">Stylistic Similarity</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Sentence Rhythm</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.sentenceRhythm)}`}>
-                        {result.comparisonVectors.stylisticSimilarity.sentenceRhythm}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Sentence Rhythm</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.sentenceRhythm)}`}>
+                          {result.comparisonVectors.stylisticSimilarity.sentenceRhythm}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.stylisticSimilarity.sentenceRhythm} color="bg-blue-500" />
                     </div>
-                    <Progress value={result.comparisonVectors.stylisticSimilarity.sentenceRhythm * 10} />
                     
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Rhetorical Devices</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning)}`}>
-                        {result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Rhetorical Devices</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning)}`}>
+                          {result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning} color="bg-blue-500" />
                     </div>
-                    <Progress value={result.comparisonVectors.stylisticSimilarity.rhetoricalDevicePatterning * 10} />
                     
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Tone & Register</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.toneRegister)}`}>
-                        {result.comparisonVectors.stylisticSimilarity.toneRegister}/10
-                      </span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Tone & Register</span>
+                        <span className={`font-semibold ${getScoreColor(result.comparisonVectors.stylisticSimilarity.toneRegister)}`}>
+                          {result.comparisonVectors.stylisticSimilarity.toneRegister}/10
+                        </span>
+                      </div>
+                      <ScoreBar score={result.comparisonVectors.stylisticSimilarity.toneRegister} color="bg-blue-500" />
                     </div>
-                    <Progress value={result.comparisonVectors.stylisticSimilarity.toneRegister * 10} />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Epistemic Profile</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Compression Degree</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.epistemicProfileSimilarity.compressionDegree)}`}>
-                        {result.comparisonVectors.epistemicProfileSimilarity.compressionDegree}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.epistemicProfileSimilarity.compressionDegree * 10} />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Abstraction Level</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.epistemicProfileSimilarity.abstractionLevel)}`}>
-                        {result.comparisonVectors.epistemicProfileSimilarity.abstractionLevel}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.epistemicProfileSimilarity.abstractionLevel * 10} />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Inferential Complexity</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.epistemicProfileSimilarity.inferentialChainComplexity)}`}>
-                        {result.comparisonVectors.epistemicProfileSimilarity.inferentialChainComplexity}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.epistemicProfileSimilarity.inferentialChainComplexity * 10} />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Friction Level</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.epistemicProfileSimilarity.frictionLevel)}`}>
-                        {result.comparisonVectors.epistemicProfileSimilarity.frictionLevel}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.epistemicProfileSimilarity.frictionLevel * 10} />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Narrative & Topical</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Subject Matter</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.narrativeTopicalSimilarity.subjectMatterOverlap)}`}>
-                        {result.comparisonVectors.narrativeTopicalSimilarity.subjectMatterOverlap}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.narrativeTopicalSimilarity.subjectMatterOverlap * 10} />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Illustrative Structure</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.narrativeTopicalSimilarity.illustrativeStructure)}`}>
-                        {result.comparisonVectors.narrativeTopicalSimilarity.illustrativeStructure}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.narrativeTopicalSimilarity.illustrativeStructure * 10} />
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Reference Points</span>
-                      <span className={`font-semibold ${getScoreColor(result.comparisonVectors.narrativeTopicalSimilarity.sharedReferencePoints)}`}>
-                        {result.comparisonVectors.narrativeTopicalSimilarity.sharedReferencePoints}/10
-                      </span>
-                    </div>
-                    <Progress value={result.comparisonVectors.narrativeTopicalSimilarity.sharedReferencePoints * 10} />
                   </CardContent>
                 </Card>
               </div>
@@ -418,7 +354,7 @@ export default function EnhancedComparison({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5" />
+                    <Shield className="h-5 w-5" />
                     Rip-Off Risk Assessment
                   </CardTitle>
                 </CardHeader>
@@ -501,7 +437,7 @@ export default function EnhancedComparison({
                         <div className={`text-xl font-semibold ${getScoreColor(result.doctrinalAffinity.contentAgreement)}`}>
                           {result.doctrinalAffinity.contentAgreement}/10
                         </div>
-                        <Progress value={result.doctrinalAffinity.contentAgreement * 10} className="mt-1" />
+                        <ScoreBar score={result.doctrinalAffinity.contentAgreement} color="bg-purple-500" />
                       </div>
                       
                       <div>
@@ -509,7 +445,7 @@ export default function EnhancedComparison({
                         <div className={`text-xl font-semibold ${getScoreColor(result.doctrinalAffinity.methodologicalSimilarity)}`}>
                           {result.doctrinalAffinity.methodologicalSimilarity}/10
                         </div>
-                        <Progress value={result.doctrinalAffinity.methodologicalSimilarity * 10} className="mt-1" />
+                        <ScoreBar score={result.doctrinalAffinity.methodologicalSimilarity} color="bg-purple-500" />
                       </div>
                     </div>
                     
@@ -548,28 +484,6 @@ export default function EnhancedComparison({
                         {result.authorProfiles.textA.intellectualStrengths.map((strength, index) => (
                           <Badge key={index} variant="default" className="text-xs">
                             {strength}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Cognitive Weaknesses</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {result.authorProfiles.textA.cognitiveWeaknesses.map((weakness, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {weakness}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Emotional Signatures</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {result.authorProfiles.textA.emotionalSignatures.map((signature, index) => (
-                          <Badge key={index} className="bg-purple-100 text-purple-800 text-xs">
-                            {signature}
                           </Badge>
                         ))}
                       </div>
@@ -615,28 +529,6 @@ export default function EnhancedComparison({
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium">Cognitive Weaknesses</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {result.authorProfiles.textB.cognitiveWeaknesses.map((weakness, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {weakness}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Emotional Signatures</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {result.authorProfiles.textB.emotionalSignatures.map((signature, index) => (
-                          <Badge key={index} className="bg-purple-100 text-purple-800 text-xs">
-                            {signature}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
                       <label className="text-sm font-medium">Personal Agenda</label>
                       <div className="mt-1 p-2 bg-gray-50 rounded text-xs">
                         {result.authorProfiles.textB.personalAgenda}
@@ -657,17 +549,6 @@ export default function EnhancedComparison({
                       <div className="flex flex-wrap gap-1 mt-1">
                         {result.comparativeProfile.sharedTraits.map((trait, index) => (
                           <Badge key={index} className="bg-green-100 text-green-800 text-xs">
-                            {trait}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium">Conflicting Traits</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {result.comparativeProfile.conflictingTraits.map((trait, index) => (
-                          <Badge key={index} className="bg-red-100 text-red-800 text-xs">
                             {trait}
                           </Badge>
                         ))}
