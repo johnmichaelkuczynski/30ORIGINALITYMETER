@@ -7,8 +7,103 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { AnalysisResult } from "@/lib/types";
-import { generatePdfFromElement, generateReportFromData } from "@/lib/reportGenerator";
+import { generatePdfFromElement } from "@/lib/reportGenerator";
 import { useToast } from "@/hooks/use-toast";
+
+// Generate basic HTML report from analysis data
+function generateBasicReportHTML(
+  result: AnalysisResult, 
+  passageATitle: string, 
+  passageBTitle: string, 
+  isSinglePassageMode: boolean
+): string {
+  const date = new Date().toLocaleDateString();
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Originality Analysis Report</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; max-width: 800px; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 25px; }
+        .metric { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #3498db; }
+        .score { font-weight: bold; color: #e74c3c; }
+        strong { color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <h1>Originality Analysis Report</h1>
+    <p><strong>Document:</strong> ${passageATitle || 'Analysis Document'}</p>
+    <p><strong>Generated:</strong> ${date}</p>
+    <p><strong>Mode:</strong> ${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}</p>
+    
+    <h2>Analysis Summary</h2>
+    ${result.overallScore ? `<div class="metric"><strong>Overall Originality Score:</strong> <span class="score">${result.overallScore}/100</span></div>` : ''}
+    
+    ${result.derivativeIndex?.passageA ? `
+    <div class="metric">
+        <strong>Derivative Index:</strong> <span class="score">${result.derivativeIndex.passageA.score || 'N/A'}/10</span><br>
+        <strong>Assessment:</strong> ${result.derivativeIndex.passageA.assessment || 'No assessment available'}
+        ${result.derivativeIndex.passageA.strengths ? `<br><strong>Strengths:</strong> ${result.derivativeIndex.passageA.strengths.join(', ')}` : ''}
+        ${result.derivativeIndex.passageA.weaknesses ? `<br><strong>Areas for Improvement:</strong> ${result.derivativeIndex.passageA.weaknesses.join(', ')}` : ''}
+    </div>` : ''}
+    
+    ${result.conceptualLineage?.passageA ? `
+    <div class="metric">
+        <strong>Conceptual Lineage:</strong><br>
+        ${result.conceptualLineage.passageA.primaryInfluences ? `<strong>Primary Influences:</strong> ${result.conceptualLineage.passageA.primaryInfluences}<br>` : ''}
+        ${result.conceptualLineage.passageA.intellectualTrajectory ? `<strong>Intellectual Trajectory:</strong> ${result.conceptualLineage.passageA.intellectualTrajectory}` : ''}
+    </div>` : ''}
+    
+    ${result.semanticDistance?.passageA ? `
+    <div class="metric">
+        <strong>Semantic Distance:</strong> <span class="score">${result.semanticDistance.passageA.distance || 'N/A'}/100</span><br>
+        <strong>Classification:</strong> ${result.semanticDistance.passageA.label || 'No classification available'}
+    </div>` : ''}
+    
+    ${result.coherence?.passageA ? `
+    <div class="metric">
+        <strong>Coherence:</strong> <span class="score">${result.coherence.passageA.score || 'N/A'}/10</span><br>
+        <strong>Assessment:</strong> ${result.coherence.passageA.assessment || 'No assessment available'}
+    </div>` : ''}
+    
+    ${result.depth?.passageA ? `
+    <div class="metric">
+        <strong>Conceptual Depth:</strong> <span class="score">${result.depth.passageA.score || 'N/A'}/10</span><br>
+        <strong>Assessment:</strong> ${result.depth.passageA.assessment || 'No assessment available'}
+    </div>` : ''}
+    
+    ${result.accuracy?.passageA ? `
+    <div class="metric">
+        <strong>Accuracy:</strong> <span class="score">${result.accuracy.passageA.score || 'N/A'}/10</span><br>
+        <strong>Assessment:</strong> ${result.accuracy.passageA.assessment || 'No assessment available'}
+    </div>` : ''}
+    
+    ${result.clarity?.passageA ? `
+    <div class="metric">
+        <strong>Clarity:</strong> <span class="score">${result.clarity.passageA.score || 'N/A'}/10</span><br>
+        <strong>Assessment:</strong> ${result.clarity.passageA.assessment || 'No assessment available'}
+    </div>` : ''}
+    
+    ${result.aiDetection?.passageA ? `
+    <h2>AI Detection Results</h2>
+    <div class="metric">
+        <strong>AI Detection:</strong> ${result.aiDetection.passageA.isAIGenerated ? 'Likely AI-generated' : 'Likely human-written'}<br>
+        <strong>Confidence:</strong> ${result.aiDetection.passageA.confidence}<br>
+        <strong>Score:</strong> ${(result.aiDetection.passageA.score * 100).toFixed(1)}%
+        ${result.aiDetection.passageA.details ? `<br><strong>Details:</strong> ${result.aiDetection.passageA.details}` : ''}
+    </div>` : ''}
+    
+    <hr style="margin-top: 40px;">
+    <p style="text-align: center; color: #7f8c8d; font-size: 12px;">
+        Generated by Originality Meter Analysis System | ${date}
+    </p>
+</body>
+</html>`;
+}
 
 interface DownloadReportButtonProps {
   result: AnalysisResult;
@@ -60,7 +155,7 @@ export default function DownloadReportButton({
     }
   };
 
-  const handleTextDownload = () => {
+  const handleTextDownload = async () => {
     try {
       setIsGenerating(true);
       toast({
@@ -68,17 +163,40 @@ export default function DownloadReportButton({
         description: "Please wait while we prepare your text report...",
       });
       
-      generateReportFromData(
-        result,
-        passageATitle,
-        passageBTitle,
-        isSinglePassageMode
-      );
+      // Generate basic report content from analysis data
+      const reportContent = generateBasicReportHTML(result, passageATitle, passageBTitle, isSinglePassageMode);
       
-      toast({
-        title: "Download Complete",
-        description: "Your text report has been downloaded.",
+      // Use the backend download system for reliable PDF generation
+      const response = await fetch('/api/download-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: reportContent,
+          format: 'pdf',
+          title: `Originality Analysis Report - ${new Date().toLocaleDateString()}`
+        }),
       });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analysis-report.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download Complete",
+          description: "Your analysis report has been downloaded.",
+        });
+      } else {
+        throw new Error('Download failed');
+      }
     } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error(String(err));
       console.error("Error generating text report:", error);

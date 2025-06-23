@@ -1207,6 +1207,16 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     const passageText = passageA.text || '';
     const passages = passageText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0).slice(0, 5); // Limit for performance
 
+    // Helper function to escape HTML content
+    const escapeHtml = (text: string) => {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    };
+
     return `
 <!DOCTYPE html>
 <html>
@@ -1250,7 +1260,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         
         <div class="evidence">
             <strong>Textual Evidence:</strong>
-            <div class="quote">"${passages[0]?.substring(0, 200) || passageText.substring(0, 200)}..."</div>
+            <div class="quote">"${escapeHtml(passages[0]?.substring(0, 200) || passageText.substring(0, 200))}..."</div>
             <p>This opening demonstrates the author's engagement with existing intellectual traditions while establishing their unique perspective. The conceptual foundation reveals ${conceptualLineage.primaryInfluences ? 'clear influences from ' + conceptualLineage.primaryInfluences : 'a developing theoretical framework'}.</p>
         </div>
     </div>
@@ -1264,10 +1274,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         <div class="evidence">
             <strong>Supporting Analysis:</strong>
             ${noveltyHeatmap.length > 0 ? noveltyHeatmap.map((item: any, index: number) => `
-                <div class="quote">"${item.quote || item.content?.substring(0, 150) || passages[index]?.substring(0, 150)}..."</div>
-                <p><strong>Novelty Score:</strong> ${item.heat || 'N/A'}/100 - ${item.explanation || 'This section demonstrates the author\'s approach to the subject matter.'}</p>
+                <div class="quote">"${escapeHtml(item.quote || item.content?.substring(0, 150) || passages[index]?.substring(0, 150) || '')}..."</div>
+                <p><strong>Novelty Score:</strong> ${item.heat || 'N/A'}/100 - ${escapeHtml(item.explanation || 'This section demonstrates the author\'s approach to the subject matter.')}</p>
             `).join('') : `
-                <div class="quote">"${passageText.substring(0, 300)}..."</div>
+                <div class="quote">"${escapeHtml(passageText.substring(0, 300))}..."</div>
                 <p>This passage demonstrates ${semanticDistance.distance ? (semanticDistance.distance > 70 ? 'high' : semanticDistance.distance > 40 ? 'moderate' : 'limited') : 'developing'} semantic originality through its approach to the subject matter.</p>
             `}
         </div>
@@ -1289,7 +1299,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
                 <ul>${derivativeIndex.weaknesses.map((weakness: string) => `<li>${weakness}</li>`).join('')}</ul>
             ` : ''}
             
-            <div class="quote">"${passages[passages.length > 1 ? 1 : 0]?.substring(0, 200) || passageText.substring(200, 400)}..."</div>
+            <div class="quote">"${escapeHtml(passages[passages.length > 1 ? 1 : 0]?.substring(0, 200) || passageText.substring(200, 400))}..."</div>
             <p>This section exemplifies the ${derivativeIndex.score ? (derivativeIndex.score > 7 ? 'strong originality' : derivativeIndex.score > 5 ? 'moderate originality' : 'developing originality') : 'analytical approach'} evident throughout the work.</p>
         </div>
     </div>
