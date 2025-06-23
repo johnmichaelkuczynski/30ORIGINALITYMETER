@@ -41,14 +41,14 @@ function generateBasicReportHTML(
     <p><strong>Mode:</strong> ${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}</p>
     
     <h2>Analysis Summary</h2>
-    ${result.overallScore ? `<div class="metric"><strong>Overall Originality Score:</strong> <span class="score">${result.overallScore}/100</span></div>` : ''}
+    ${(result as any).overallScore ? `<div class="metric"><strong>Overall Originality Score:</strong> <span class="score">${(result as any).overallScore}/100</span></div>` : ''}
     
     ${result.derivativeIndex?.passageA ? `
     <div class="metric">
         <strong>Derivative Index:</strong> <span class="score">${result.derivativeIndex.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.derivativeIndex.passageA.assessment || 'No assessment available'}
-        ${result.derivativeIndex.passageA.strengths ? `<br><strong>Strengths:</strong> ${result.derivativeIndex.passageA.strengths.join(', ')}` : ''}
-        ${result.derivativeIndex.passageA.weaknesses ? `<br><strong>Areas for Improvement:</strong> ${result.derivativeIndex.passageA.weaknesses.join(', ')}` : ''}
+        ${(result.derivativeIndex.passageA as any).strengths ? `<br><strong>Strengths:</strong> ${(result.derivativeIndex.passageA as any).strengths.join(', ')}` : ''}
+        ${(result.derivativeIndex.passageA as any).weaknesses ? `<br><strong>Areas for Improvement:</strong> ${(result.derivativeIndex.passageA as any).weaknesses.join(', ')}` : ''}
     </div>` : ''}
     
     ${result.conceptualLineage?.passageA ? `
@@ -93,7 +93,7 @@ function generateBasicReportHTML(
     <div class="metric">
         <strong>AI Detection:</strong> ${result.aiDetection.passageA.isAIGenerated ? 'Likely AI-generated' : 'Likely human-written'}<br>
         <strong>Confidence:</strong> ${result.aiDetection.passageA.confidence}<br>
-        <strong>Score:</strong> ${(result.aiDetection.passageA.score * 100).toFixed(1)}%
+        <strong>Score:</strong> ${((result.aiDetection.passageA.score || 0) * 100).toFixed(1)}%
         ${result.aiDetection.passageA.details ? `<br><strong>Details:</strong> ${result.aiDetection.passageA.details}` : ''}
     </div>` : ''}
     

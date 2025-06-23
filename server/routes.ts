@@ -1313,7 +1313,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         
         <div class="evidence">
             <strong>Coherence Evidence:</strong>
-            <div class="quote">"${passages[Math.floor(passages.length/2)]?.substring(0, 180) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 180)}..."</div>
+            <div class="quote">"${escapeHtml(passages[Math.floor(passages.length/2)]?.substring(0, 180) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 180))}..."</div>
             <p>The structural coherence is demonstrated through ${coherence.strengths ? coherence.strengths.join(', ') : 'logical progression of ideas and consistent argumentation'}.</p>
         </div>
     </div>
@@ -1325,7 +1325,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         
         <div class="evidence">
             <strong>Depth Indicators:</strong>
-            <div class="quote">"${passages[passages.length-1]?.substring(0, 200) || passageText.substring(passageText.length-300)}..."</div>
+            <div class="quote">"${escapeHtml(passages[passages.length-1]?.substring(0, 200) || passageText.substring(passageText.length-300))}..."</div>
             <p>The intellectual depth is evidenced by ${depth.strengths ? depth.strengths.join(', ') : 'sophisticated analysis and nuanced argumentation'}.</p>
         </div>
     </div>
@@ -1334,9 +1334,9 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     ${passages.map((paragraph: string, index: number) => `
         <div class="metric">
             <h3>Paragraph ${index + 1} Analysis</h3>
-            <div class="quote">"${paragraph.substring(0, 250)}${paragraph.length > 250 ? '...' : ''}"</div>
+            <div class="quote">"${escapeHtml(paragraph.substring(0, 250))}${paragraph.length > 250 ? '...' : ''}"</div>
             <p><strong>Novelty Assessment:</strong> ${noveltyHeatmap[index]?.heat || Math.floor(Math.random() * 30) + 50}/100</p>
-            <p><strong>Analysis:</strong> ${noveltyHeatmap[index]?.explanation || `This paragraph demonstrates ${index === 0 ? 'the author\'s introduction of key concepts' : index === passages.length-1 ? 'the culmination of the argument' : 'development of central themes'} with ${paragraph.includes('however') || paragraph.includes('nevertheless') || paragraph.includes('moreover') ? 'sophisticated transitions and' : ''} clear intellectual engagement.`}</p>
+            <p><strong>Analysis:</strong> ${escapeHtml(noveltyHeatmap[index]?.explanation || `This paragraph demonstrates ${index === 0 ? 'the author\'s introduction of key concepts' : index === passages.length-1 ? 'the culmination of the argument' : 'development of central themes'} with ${paragraph.includes('however') || paragraph.includes('nevertheless') || paragraph.includes('moreover') ? 'sophisticated transitions and' : ''} clear intellectual engagement.`)}</p>
         </div>
     `).join('')}
 
