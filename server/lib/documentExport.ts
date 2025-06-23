@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { jsPDF } from 'jspdf';
 
 export interface ExportRequest {
   content: string;
@@ -158,10 +159,41 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
         return Buffer.from(wordDocument, 'utf8');
         
       case 'pdf':
-        // Return clean text content that can be saved as PDF-compatible format
+        // Generate actual PDF using jsPDF
+        const doc = new jsPDF();
+        
+        // Set up fonts and initial position
+        doc.setFont('times', 'normal');
+        doc.setFontSize(16);
+        
+        // Add title
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const titleLines = doc.splitTextToSize(title, pageWidth - 40);
+        doc.text(titleLines, 20, 30);
+        
+        let yPosition = 30 + (titleLines.length * 10) + 10; // Start below title
+        
+        // Process content
         const pdfContent = convertMarkdownToPlainText(content);
-        const finalContent = `${title}\n${'='.repeat(title.length)}\n\n${pdfContent}`;
-        return Buffer.from(finalContent, 'utf8');
+        doc.setFontSize(12);
+        
+        // Split content into lines that fit on the page
+        const lines = doc.splitTextToSize(pdfContent, pageWidth - 40);
+        
+        for (let i = 0; i < lines.length; i++) {
+          // Check if we need a new page
+          if (yPosition > 270) { // Near bottom of page
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          doc.text(lines[i], 20, yPosition);
+          yPosition += 7; // Line spacing
+        }
+        
+        // Convert to buffer
+        const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+        return pdfBuffer;
         
       default:
         throw new Error(`Unsupported export format: ${format}`);

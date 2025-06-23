@@ -1193,14 +1193,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       // Set appropriate headers for download based on actual format
       const mimeTypes = {
         'word': 'text/html', // HTML content that Word can open
-        'pdf': 'text/plain', // Plain text content
+        'pdf': 'application/pdf', // Actual PDF content
         'txt': 'text/plain',
         'html': 'text/html'
       };
 
       const extensions = {
         'word': 'html', // HTML file that Word can import
-        'pdf': 'txt', // Text file for now
+        'pdf': 'pdf', // Actual PDF file
         'txt': 'txt',
         'html': 'html'
       };
