@@ -172,6 +172,15 @@ export default function AnalysisResults({
           }}
         />
       )}
+
+      {!isSinglePassageMode && (
+        <AdvancedComparison
+          passageA={passageA}
+          passageB={passageB}
+          passageATitle={passageATitle}
+          passageBTitle={passageBTitle}
+        />
+      )}
     </div>
   );
 }
