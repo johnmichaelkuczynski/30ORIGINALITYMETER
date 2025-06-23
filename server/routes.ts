@@ -1169,6 +1169,72 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Generate comprehensive report endpoint
+  app.post("/api/generate-comprehensive-report", async (req: Request, res: Response) => {
+    try {
+      const { result, passageA, passageB, isSinglePassageMode } = req.body;
+
+      if (!result || !passageA) {
+        return res.status(400).json({ error: "Analysis result and passage data are required" });
+      }
+
+      // Generate comprehensive report using OpenAI
+      const OpenAI = (await import('openai')).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const systemPrompt = `You are an expert academic writing analyst specializing in comprehensive originality reports. Generate a detailed, professional report that includes:
+
+1. COMPLETE REPRODUCTION of all metrics from the analysis with full explanations
+2. EXTENSIVE QUOTATION-BASED ARGUMENTS for each metric, using specific quotes from the passages
+3. DETAILED EVIDENCE supporting each score and assessment
+4. COMPREHENSIVE BREAKDOWN of novelty heatmap with paragraph-by-paragraph analysis
+5. IN-DEPTH EXPLORATION of conceptual lineage, semantic distance, and derivative patterns
+6. THOROUGH EXAMINATION of coherence, accuracy, depth, and clarity
+7. EXTENDED DISCUSSION of implications and recommendations
+
+Format as professional HTML with proper headings, sections, and emphasis. Include direct quotes in italics and make extensive use of the passage text to justify every analytical point.`;
+
+      const userPrompt = `Generate a comprehensive originality analysis report based on this analysis:
+
+ANALYSIS RESULT:
+${JSON.stringify(result, null, 2)}
+
+PASSAGE A:
+Title: ${passageA.title || 'Untitled'}
+Text: ${passageA.text}
+Context: ${passageA.userContext || 'None provided'}
+
+${!isSinglePassageMode && passageB ? `PASSAGE B:
+Title: ${passageB.title || 'Untitled'}
+Text: ${passageB.text}
+Context: ${passageB.userContext || 'None provided'}` : ''}
+
+MODE: ${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}
+
+Generate a comprehensive report that includes EVERYTHING shown in the interface plus extensive additional analysis with quotations. The report should be 5x more detailed than a basic summary, with specific quotes supporting every metric and assessment.`;
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 4000,
+        temperature: 0.3,
+      });
+
+      const report = response.choices[0].message.content || '';
+      
+      res.json({ report });
+    } catch (error) {
+      console.error("Error generating comprehensive report:", error);
+      res.status(500).json({ 
+        error: "Report generation failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Document download endpoint
   app.post("/api/download-document", async (req: Request, res: Response) => {
     try {

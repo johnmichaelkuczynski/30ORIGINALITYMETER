@@ -4,7 +4,7 @@ import SummarySection from "./SummarySection";
 import AnalysisTabs from "./AnalysisTabs";
 import DownloadReportButton from "./DownloadReportButton";
 import PassageGenerator from "./PassageGenerator";
-import ComprehensiveReport from "./ComprehensiveReport";
+import EnhancedComprehensiveReport from "./EnhancedComprehensiveReport";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -68,7 +68,7 @@ export default function AnalysisResults({
             isSinglePassageMode={isSinglePassageMode}
           />
           
-          <ComprehensiveReport
+          <EnhancedComprehensiveReport
             result={processedResult}
             passageA={passageA}
             passageB={isSinglePassageMode ? undefined : passageB}
