@@ -1237,14 +1237,37 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     const date = new Date().toLocaleDateString();
     const passageATitle = passageA.title || 'Untitled Document';
     
-    // Extract key metrics efficiently
-    const overallScore = result.overallScore || 0;
+    // Extract key metrics efficiently and calculate proper overall score
     const conceptualLineage = result.conceptualLineage?.passageA || {};
     const semanticDistance = result.semanticDistance?.passageA || {};
     const derivativeIndex = result.derivativeIndex?.passageA || {};
     const coherence = result.coherence?.passageA || {};
     const depth = result.depth?.passageA || {};
     const noveltyHeatmap = result.noveltyHeatmap?.passageA || [];
+    
+    // Calculate overall score properly from available metrics
+    let overallScore = 0;
+    let scoreCount = 0;
+    
+    if (derivativeIndex.score && derivativeIndex.score > 0) {
+      overallScore += (derivativeIndex.score * 10); // Convert 0-10 to 0-100 scale
+      scoreCount++;
+    }
+    if (semanticDistance.distance && semanticDistance.distance > 0) {
+      overallScore += semanticDistance.distance;
+      scoreCount++;
+    }
+    if (coherence.score && coherence.score > 0) {
+      overallScore += (coherence.score * 10);
+      scoreCount++;
+    }
+    if (depth.score && depth.score > 0) {
+      overallScore += (depth.score * 10);
+      scoreCount++;
+    }
+    
+    // Use calculated score or fallback to derivative index
+    overallScore = scoreCount > 0 ? Math.round(overallScore / scoreCount) : (derivativeIndex.score ? derivativeIndex.score * 10 : 0);
     
     const passageText = passageA.text || '';
     const passages = passageText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0).slice(0, 5); // Limit for performance

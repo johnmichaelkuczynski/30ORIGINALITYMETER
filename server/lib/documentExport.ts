@@ -262,7 +262,8 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
   try {
     switch (format) {
       case 'txt':
-        const txtContent = convertMarkdownToPlainText(content);
+        // For text format, preserve the original content structure if it's already plain text
+        const txtContent = content.includes('<') ? convertMarkdownToPlainText(content) : content;
         return Buffer.from(`${title}\n${'='.repeat(title.length)}\n\n${txtContent}`, 'utf8');
         
       case 'html':
@@ -353,9 +354,72 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
         
         let yPosition = 30 + (titleLines.length * 10) + 15; // Start below title
         
-        // Parse HTML content and format for PDF
-        const htmlContent = content.includes('<') ? content : convertMarkdownToHTML(content);
-        parseHTMLForPDF(htmlContent, doc, yPosition, pageWidth);
+        // Handle plain text content properly for PDF
+        if (content.includes('<')) {
+          // HTML content - parse with existing function
+          parseHTMLForPDF(content, doc, yPosition, pageWidth);
+        } else {
+          // Plain text content - format directly for PDF
+          const leftMargin = 20;
+          const rightMargin = 20;
+          const textWidth = pageWidth - leftMargin - rightMargin;
+          
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(12);
+          
+          // Split content into sections by double line breaks
+          const sections = content.split(/\n\s*\n/);
+          
+          for (const section of sections) {
+            if (section.trim().length === 0) continue;
+            
+            // Check for section headers (lines with = or - underneath)
+            const lines = section.split('\n');
+            let isHeader = false;
+            
+            if (lines.length >= 2 && (lines[1].match(/^=+$/) || lines[1].match(/^-+$/))) {
+              // This is a header
+              if (yPosition > 270) {
+                doc.addPage();
+                yPosition = 20;
+              }
+              
+              doc.setFont('helvetica', 'bold');
+              doc.setFontSize(lines[1].match(/^=+$/) ? 16 : 14);
+              const headerLines = doc.splitTextToSize(lines[0].trim(), textWidth);
+              doc.text(headerLines, leftMargin, yPosition);
+              yPosition += headerLines.length * 8 + 10;
+              
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(12);
+              isHeader = true;
+              
+              // Process remaining lines if any
+              if (lines.length > 2) {
+                const remainingText = lines.slice(2).join('\n').trim();
+                if (remainingText) {
+                  const remainingLines = doc.splitTextToSize(remainingText, textWidth);
+                  if (yPosition + remainingLines.length * 6 > 280) {
+                    doc.addPage();
+                    yPosition = 20;
+                  }
+                  doc.text(remainingLines, leftMargin, yPosition);
+                  yPosition += remainingLines.length * 6 + 8;
+                }
+              }
+            } else {
+              // Regular text paragraph
+              if (yPosition > 270) {
+                doc.addPage();
+                yPosition = 20;
+              }
+              
+              const textLines = doc.splitTextToSize(section.trim(), textWidth);
+              doc.text(textLines, leftMargin, yPosition);
+              yPosition += textLines.length * 6 + 8;
+            }
+          }
+        }
         
         // Convert to buffer
         const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
