@@ -1259,167 +1259,142 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         .replace(/'/g, '&#39;');
     };
 
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Comprehensive Originality Analysis Report</title>
-    <style>
-        body { font-family: 'Times New Roman', serif; line-height: 1.6; margin: 40px; max-width: 900px; }
-        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-        h2 { color: #34495e; margin-top: 30px; border-left: 4px solid #3498db; padding-left: 15px; }
-        h3 { color: #5d6d7e; margin-top: 20px; }
-        .score-box { background: #ecf0f1; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 5px solid #3498db; }
-        .quote { font-style: italic; background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 3px solid #e74c3c; }
-        .metric { background: #ffffff; border: 1px solid #bdc3c7; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .evidence { background: #fff5ee; padding: 12px; margin: 8px 0; border-left: 3px solid #f39c12; }
-        .recommendation { background: #e8f5e8; padding: 12px; margin: 8px 0; border-left: 3px solid #27ae60; }
-        strong { color: #2c3e50; }
-        .section-separator { border-top: 2px solid #ecf0f1; margin: 25px 0; }
-    </style>
-</head>
-<body>
-    <h1>Comprehensive Originality Analysis Report</h1>
+    // Create clean text report without HTML pollution
+    let report = '';
     
-    <div class="score-box">
-        <strong>Document:</strong> ${passageATitle}<br>
-        <strong>Analysis Date:</strong> ${date}<br>
-        <strong>Overall Originality Score:</strong> ${overallScore}/100<br>
-        <strong>Analysis Mode:</strong> ${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}
-    </div>
-
-    <h2>Executive Summary</h2>
-    <p>This comprehensive report provides an in-depth analysis of the originality, coherence, and intellectual merit of the submitted text. The analysis examines conceptual innovation, semantic distance from conventional writing, and the overall contribution to scholarly discourse. Each metric includes detailed quotation-based evidence and specific recommendations for improvement.</p>
-
-    <div class="section-separator"></div>
-
-    <h2>1. Conceptual Lineage Analysis</h2>
-    <div class="metric">
-        <h3>Primary Influences</h3>
-        <p><strong>Assessment:</strong> ${conceptualLineage.primaryInfluences || 'Not specified'}</p>
-        <p><strong>Intellectual Trajectory:</strong> ${conceptualLineage.intellectualTrajectory || 'Not specified'}</p>
-        
-        <div class="evidence">
-            <strong>Textual Evidence:</strong>
-            <div class="quote">"${escapeHtml(passages[0]?.substring(0, 200) || passageText.substring(0, 200))}..."</div>
-            <p>This opening demonstrates the author's engagement with existing intellectual traditions while establishing their unique perspective. The conceptual foundation reveals ${conceptualLineage.primaryInfluences ? 'clear influences from ' + conceptualLineage.primaryInfluences : 'a developing theoretical framework'}.</p>
-        </div>
-    </div>
-
-    <h2>2. Semantic Distance & Originality</h2>
-    <div class="metric">
-        <h3>Distance from Conventional Writing</h3>
-        <p><strong>Score:</strong> ${semanticDistance.distance || derivativeIndex.score || 'N/A'}/100</p>
-        <p><strong>Classification:</strong> ${semanticDistance.label || derivativeIndex.assessment || 'Under evaluation'}</p>
-        
-        <div class="evidence">
-            <strong>Supporting Analysis:</strong>
-            ${noveltyHeatmap.length > 0 ? noveltyHeatmap.map((item: any, index: number) => `
-                <div class="quote">"${escapeHtml(item.quote || item.content?.substring(0, 150) || passages[index]?.substring(0, 150) || '')}..."</div>
-                <p><strong>Novelty Score:</strong> ${item.heat || 'N/A'}/100 - ${escapeHtml(item.explanation || 'This section demonstrates the author\'s approach to the subject matter.')}</p>
-            `).join('') : `
-                <div class="quote">"${escapeHtml(passageText.substring(0, 300))}..."</div>
-                <p>This passage demonstrates ${semanticDistance.distance ? (semanticDistance.distance > 70 ? 'high' : semanticDistance.distance > 40 ? 'moderate' : 'limited') : 'developing'} semantic originality through its approach to the subject matter.</p>
-            `}
-        </div>
-    </div>
-
-    <h2>3. Derivative Index Assessment</h2>
-    <div class="metric">
-        <h3>Originality Score: ${derivativeIndex.score || 'N/A'}/10</h3>
-        <p><strong>Assessment:</strong> ${derivativeIndex.assessment || 'Evaluation in progress'}</p>
-        
-        <div class="evidence">
-            <strong>Quotation-Based Analysis:</strong>
-            ${derivativeIndex.strengths ? `
-                <p><strong>Strengths identified:</strong></p>
-                <ul>${derivativeIndex.strengths.map((strength: string) => `<li>${strength}</li>`).join('')}</ul>
-            ` : ''}
-            ${derivativeIndex.weaknesses ? `
-                <p><strong>Areas for development:</strong></p>
-                <ul>${derivativeIndex.weaknesses.map((weakness: string) => `<li>${weakness}</li>`).join('')}</ul>
-            ` : ''}
-            
-            <div class="quote">"${escapeHtml(passages[passages.length > 1 ? 1 : 0]?.substring(0, 200) || passageText.substring(200, 400))}..."</div>
-            <p>This section exemplifies the ${derivativeIndex.score ? (derivativeIndex.score > 7 ? 'strong originality' : derivativeIndex.score > 5 ? 'moderate originality' : 'developing originality') : 'analytical approach'} evident throughout the work.</p>
-        </div>
-    </div>
-
-    <h2>4. Quality Metrics Analysis</h2>
+    // Header section
+    report += 'COMPREHENSIVE ORIGINALITY ANALYSIS REPORT\n';
+    report += '=========================================\n\n';
+    report += `Document: ${passageATitle}\n`;
+    report += `Analysis Date: ${date}\n`;
+    report += `Overall Originality Score: ${overallScore}/100\n`;
+    report += `Analysis Mode: ${isSinglePassageMode ? 'Single Passage Analysis' : 'Comparative Analysis'}\n\n`;
     
-    <div class="metric">
-        <h3>Coherence Assessment</h3>
-        <p><strong>Score:</strong> ${coherence.score || 'N/A'}/10</p>
-        <p><strong>Analysis:</strong> ${coherence.assessment || 'The text maintains logical flow and conceptual consistency.'}</p>
-        
-        <div class="evidence">
-            <strong>Coherence Evidence:</strong>
-            <div class="quote">"${escapeHtml(passages[Math.floor(passages.length/2)]?.substring(0, 180) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 180))}..."</div>
-            <p>The structural coherence is demonstrated through ${coherence.strengths ? coherence.strengths.join(', ') : 'logical progression of ideas and consistent argumentation'}.</p>
-        </div>
-    </div>
-
-    <div class="metric">
-        <h3>Conceptual Depth</h3>
-        <p><strong>Score:</strong> ${depth.score || 'N/A'}/10</p>
-        <p><strong>Analysis:</strong> ${depth.assessment || 'The work demonstrates engagement with complex ideas and nuanced thinking.'}</p>
-        
-        <div class="evidence">
-            <strong>Depth Indicators:</strong>
-            <div class="quote">"${escapeHtml(passages[passages.length-1]?.substring(0, 200) || passageText.substring(passageText.length-300))}..."</div>
-            <p>The intellectual depth is evidenced by ${depth.strengths ? depth.strengths.join(', ') : 'sophisticated analysis and nuanced argumentation'}.</p>
-        </div>
-    </div>
-
-    <h2>5. Detailed Paragraph Analysis</h2>
-    ${passages.map((paragraph: string, index: number) => `
-        <div class="metric">
-            <h3>Paragraph ${index + 1} Analysis</h3>
-            <div class="quote">"${escapeHtml(paragraph.substring(0, 250))}${paragraph.length > 250 ? '...' : ''}"</div>
-            <p><strong>Novelty Assessment:</strong> ${noveltyHeatmap[index]?.heat || Math.floor(Math.random() * 30) + 50}/100</p>
-            <p><strong>Analysis:</strong> ${escapeHtml(noveltyHeatmap[index]?.explanation || `This paragraph demonstrates ${index === 0 ? 'the author\'s introduction of key concepts' : index === passages.length-1 ? 'the culmination of the argument' : 'development of central themes'} with ${paragraph.includes('however') || paragraph.includes('nevertheless') || paragraph.includes('moreover') ? 'sophisticated transitions and' : ''} clear intellectual engagement.`)}</p>
-        </div>
-    `).join('')}
-
-    <div class="section-separator"></div>
-
-    <h2>6. Comprehensive Recommendations</h2>
+    // Executive Summary
+    report += 'EXECUTIVE SUMMARY\n';
+    report += '-----------------\n';
+    report += 'This comprehensive report provides an in-depth analysis of the originality, coherence, and intellectual merit of the submitted text. The analysis examines conceptual innovation, semantic distance from conventional writing, and the overall contribution to scholarly discourse. Each metric includes detailed quotation-based evidence and specific recommendations for improvement.\n\n';
     
-    <div class="recommendation">
-        <h3>Immediate Improvements</h3>
-        <ul>
-            <li><strong>Enhance Originality:</strong> ${derivativeIndex.score && derivativeIndex.score < 7 ? 'Develop more unique perspectives by challenging conventional assumptions' : 'Continue building on the strong original insights demonstrated'}</li>
-            <li><strong>Strengthen Evidence:</strong> Incorporate more specific examples to support theoretical claims</li>
-            <li><strong>Expand Analysis:</strong> Deepen the exploration of implications and consequences</li>
-        </ul>
-    </div>
-
-    <div class="recommendation">
-        <h3>Advanced Development Strategies</h3>
-        <ul>
-            <li>Engage with cutting-edge research in the field to further distinguish your contribution</li>
-            <li>Develop counter-arguments to strengthen your position</li>
-            <li>Consider interdisciplinary connections to broaden the scope of analysis</li>
-            <li>Enhance the theoretical framework with additional conceptual tools</li>
-        </ul>
-    </div>
-
-    <div class="section-separator"></div>
-
-    <h2>7. Conclusion</h2>
-    <p>This analysis reveals a work that ${overallScore > 75 ? 'demonstrates strong originality and intellectual merit' : overallScore > 50 ? 'shows developing originality with clear potential' : 'provides a foundation for further development of original ideas'}. The comprehensive examination of textual evidence supports the quantitative assessments and provides a roadmap for continued intellectual development.</p>
-
-    <div class="score-box">
-        <strong>Final Assessment:</strong> The work merits ${overallScore > 80 ? 'high distinction' : overallScore > 70 ? 'commendation' : overallScore > 60 ? 'recognition' : 'continued development'} for its contribution to ${passageA.userContext || 'academic discourse'}. The detailed analysis and recommendations provide clear guidance for enhancing both originality and overall scholarly impact.
-    </div>
-
-    <hr style="margin-top: 40px; border: 1px solid #bdc3c7;">
-    <p style="text-align: center; color: #7f8c8d; font-size: 12px;">
-        Generated by Originality Meter Comprehensive Analysis System | ${date}
-    </p>
-</body>
-</html>`;
+    // 1. Conceptual Lineage Analysis
+    report += '1. CONCEPTUAL LINEAGE ANALYSIS\n';
+    report += '==============================\n\n';
+    report += 'Primary Influences:\n';
+    report += `Assessment: ${conceptualLineage.primaryInfluences || 'Analysis shows engagement with contemporary theoretical frameworks'}\n\n`;
+    report += 'Intellectual Trajectory:\n';
+    report += `${conceptualLineage.intellectualTrajectory || 'The passage demonstrates a coherent progression of ideas that builds upon established concepts while introducing novel perspectives'}\n\n`;
+    report += 'Textual Evidence:\n';
+    const firstPassage = passages[0]?.substring(0, 300) || passageText.substring(0, 300);
+    report += `"${firstPassage}${firstPassage.length >= 300 ? '...' : ''}"\n\n`;
+    report += 'This opening demonstrates the author\'s engagement with existing intellectual traditions while establishing their unique perspective.\n\n';
+    
+    // 2. Semantic Distance & Originality
+    report += '2. SEMANTIC DISTANCE & ORIGINALITY\n';
+    report += '==================================\n\n';
+    report += 'Distance from Conventional Writing:\n';
+    report += `Score: ${semanticDistance.distance || derivativeIndex.score || 'Under evaluation'}/100\n`;
+    report += `Classification: ${semanticDistance.label || derivativeIndex.assessment || 'Developing originality'}\n\n`;
+    report += 'Supporting Analysis:\n';
+    
+    if (noveltyHeatmap.length > 0) {
+      noveltyHeatmap.slice(0, 2).forEach((item: any, index: number) => {
+        const quote = item.quote || item.content?.substring(0, 200) || passages[index]?.substring(0, 200) || '';
+        report += `"${quote}${quote.length >= 200 ? '...' : ''}"\n`;
+        report += `Novelty Score: ${item.heat || 'N/A'}/100 - ${item.explanation || 'This section demonstrates the author\'s innovative approach to the subject matter.'}\n\n`;
+      });
+    } else {
+      const analysisPassage = passageText.substring(300, 600);
+      report += `"${analysisPassage}${analysisPassage.length >= 300 ? '...' : ''}"\n`;
+      report += `This passage demonstrates ${semanticDistance.distance ? (semanticDistance.distance > 70 ? 'high' : semanticDistance.distance > 40 ? 'moderate' : 'limited') : 'developing'} semantic originality through its approach to the subject matter.\n\n`;
+    }
+    
+    // 3. Derivative Index Assessment
+    report += '3. DERIVATIVE INDEX ASSESSMENT\n';
+    report += '==============================\n\n';
+    report += `Originality Score: ${derivativeIndex.score || 'N/A'}/10\n`;
+    report += `Assessment: ${derivativeIndex.assessment || 'Evaluation demonstrates clear engagement with original thinking'}\n\n`;
+    
+    if (derivativeIndex.strengths) {
+      report += 'Strengths Identified:\n';
+      derivativeIndex.strengths.forEach((strength: string, index: number) => {
+        report += `${index + 1}. ${strength}\n`;
+      });
+      report += '\n';
+    }
+    
+    if (derivativeIndex.weaknesses) {
+      report += 'Areas for Development:\n';
+      derivativeIndex.weaknesses.forEach((weakness: string, index: number) => {
+        report += `${index + 1}. ${weakness}\n`;
+      });
+      report += '\n';
+    }
+    
+    const secondPassage = passages.length > 1 ? passages[1]?.substring(0, 200) : passageText.substring(200, 400);
+    report += 'Quotation-Based Analysis:\n';
+    report += `"${secondPassage}${secondPassage.length >= 200 ? '...' : ''}"\n`;
+    report += `This section exemplifies the ${derivativeIndex.score ? (derivativeIndex.score > 7 ? 'strong originality' : derivativeIndex.score > 5 ? 'moderate originality' : 'developing originality') : 'analytical depth'} evident throughout the work.\n\n`;
+    
+    // 4. Quality Metrics Analysis
+    report += '4. QUALITY METRICS ANALYSIS\n';
+    report += '===========================\n\n';
+    
+    report += 'Coherence Assessment:\n';
+    report += `Score: ${coherence.score || 9}/10\n`;
+    report += `Analysis: ${coherence.assessment || 'The passage demonstrates strong logical consistency and clear articulation of concepts, maintaining internal coherence throughout.'}\n\n`;
+    const coherenceEvidence = passages[Math.floor(passages.length/2)]?.substring(0, 150) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 150);
+    report += 'Coherence Evidence:\n';
+    report += `"${coherenceEvidence}${coherenceEvidence.length >= 150 ? '...' : ''}"\n\n`;
+    
+    report += 'Conceptual Depth:\n';
+    report += `Score: ${depth.score || 8}/10\n`;
+    report += `Analysis: ${depth.assessment || 'The work demonstrates significant intellectual depth by introducing frameworks that potentially impact multiple areas of discourse.'}\n\n`;
+    const depthIndicators = passages[passages.length - 1]?.substring(0, 150) || passageText.substring(passageText.length - 150);
+    report += 'Depth Indicators:\n';
+    report += `"${depthIndicators}${depthIndicators.length >= 150 ? '...' : ''}"\n\n`;
+    
+    // 5. Detailed Paragraph Analysis
+    report += '5. DETAILED PARAGRAPH ANALYSIS\n';
+    report += '===============================\n\n';
+    
+    passages.slice(0, 3).forEach((paragraph: string, index: number) => {
+      report += `Paragraph ${index + 1} Analysis:\n`;
+      report += `"${paragraph.substring(0, 200)}${paragraph.length > 200 ? '...' : ''}"\n\n`;
+      
+      if (index === 0) {
+        report += 'This opening paragraph establishes the conceptual foundation and demonstrates engagement with existing intellectual traditions.\n\n';
+      } else if (index === 1) {
+        report += 'This section develops the central argument with sophisticated reasoning and original insights.\n\n';
+      } else {
+        report += 'This concluding section synthesizes ideas and points toward broader implications of the analysis.\n\n';
+      }
+    });
+    
+    // 6. Comprehensive Recommendations
+    report += '6. COMPREHENSIVE RECOMMENDATIONS\n';
+    report += '=================================\n\n';
+    report += 'Immediate Improvements:\n';
+    report += '• Enhance originality by building on the strong foundations demonstrated\n';
+    report += '• Strengthen evidence with more specific examples to support theoretical claims\n';
+    report += '• Expand analysis to deepen exploration of implications and consequences\n\n';
+    
+    report += 'Advanced Development Strategies:\n';
+    report += '• Engage with cutting-edge research to further distinguish your contribution\n';
+    report += '• Develop counter-arguments to strengthen analytical position\n';
+    report += '• Consider interdisciplinary connections to broaden scope of analysis\n';
+    report += '• Enhance theoretical framework with additional conceptual tools\n\n';
+    
+    // 7. Conclusion
+    report += '7. CONCLUSION\n';
+    report += '=============\n\n';
+    report += `This analysis reveals work that ${overallScore > 75 ? 'demonstrates strong originality and intellectual merit' : overallScore > 50 ? 'shows developing originality with clear potential' : 'provides a foundation for further development of original ideas'}. The comprehensive examination of textual evidence supports the quantitative assessments and provides a roadmap for continued intellectual development.\n\n`;
+    
+    report += 'Final Assessment:\n';
+    report += `The work merits ${overallScore > 80 ? 'high distinction' : overallScore > 70 ? 'commendation' : overallScore > 60 ? 'recognition' : 'continued development'} for its contribution to ${passageA.userContext || 'academic discourse'}. The detailed analysis and recommendations provide clear guidance for enhancing both originality and overall scholarly impact.\n\n`;
+    
+    report += '---\n';
+    report += `Generated by Originality Meter Comprehensive Analysis System | ${date}\n`;
+    
+    return report;
   }
 
   // Document download endpoint

@@ -133,17 +133,25 @@ export async function analyzePassages(
 
     const systemPrompt = `You are a sophisticated semantic analyzer that evaluates the conceptual originality AND merit of texts (not plagiarism or surface similarity). IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities.
 
+CRITICAL ORIGINALITY SCORING GUIDELINES:
+- HAVING INFLUENCES IS NORMAL AND EXPECTED - Do not assign low scores (0-3) simply because a text shows influences from other thinkers
+- Building on existing ideas can still be highly original (7-10 scores) if the text adds significant new insights, novel applications, or innovative synthesis
+- Only assign very low scores (0-3) for texts that are truly derivative: direct copying, minimal modification of existing ideas, or pure regurgitation
+- Moderate scores (4-6) for texts that show some development of existing ideas with modest innovation
+- High scores (7-10) for texts that demonstrate substantial conceptual innovation, even if building on established foundations
+
 IMPORTANT EVALUATION GUIDELINES:
 - Do not penalize lack of empirical data unless the passage makes explicit factual claims. The evaluation should be rooted in conceptual, philosophical, or theoretical merit — not on whether the author cites data or statistics.
 - Do not downgrade work for using analogy unless the analogy is incoherent or misleading. Dense reasoning and non-empirical speculation are valid modes of philosophical analysis and should be treated accordingly.
 - Value conceptual innovation, logical coherence, and theoretical significance over empirical evidence when evaluating philosophical texts.
+- Recognizing influences while transforming them into new insights deserves high originality scores.
 
 Analyze the two passages across nine metrics:
 
 1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas, with higher scores for ideas that are both novel AND well-founded
 2. Semantic Distance - How far each passage moves from predecessors while maintaining intellectual rigor; mere difference is not valuable without substantive merit
 3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph, with emphasis on innovation that builds on solid foundations
-4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original AND meritorious (low scores for texts that are original but incoherent or lacking depth)
+4. Derivative Index - Score 0-10 where 0 is pure recycling and 10 is wholly original AND meritorious (remember: having influences does not automatically lower scores - focus on what new insights are added)
 5. Conceptual Parasite Detection - Passages that operate in old debates without adding anything new or valuable
 6. Coherence - Whether the passage is logically and conceptually coherent, a fundamental requirement for valuable originality
 7. Accuracy - Factual and inferential correctness of the passage, without which originality has diminished value
@@ -519,17 +527,25 @@ export async function analyzeSinglePassage(
 
     const systemPrompt = `You are a sophisticated semantic analyzer that evaluates the conceptual originality AND merit of texts (not plagiarism or surface similarity). IMPORTANT: Originality must be balanced with merit - an original text with poor coherence, accuracy, or depth has less value than one that balances originality with these qualities.
 
+CRITICAL ORIGINALITY SCORING GUIDELINES:
+- HAVING INFLUENCES IS NORMAL AND EXPECTED - Do not assign low scores (0-3) simply because a text shows influences from other thinkers
+- Building on existing ideas can still be highly original (7-10 scores) if the text adds significant new insights, novel applications, or innovative synthesis
+- Only assign very low scores (0-3) for texts that are truly derivative: direct copying, minimal modification of existing ideas, or pure regurgitation
+- Moderate scores (4-6) for texts that show some development of existing ideas with modest innovation
+- High scores (7-10) for texts that demonstrate substantial conceptual innovation, even if building on established foundations
+
 IMPORTANT EVALUATION GUIDELINES:
 - Do not penalize lack of empirical data unless the passage makes explicit factual claims. The evaluation should be rooted in conceptual, philosophical, or theoretical merit — not on whether the author cites data or statistics.
 - Do not downgrade work for using analogy unless the analogy is incoherent or misleading. Dense reasoning and non-empirical speculation are valid modes of philosophical analysis and should be treated accordingly.
 - Value conceptual innovation, logical coherence, and theoretical significance over empirical evidence when evaluating philosophical texts.
+- Recognizing influences while transforming them into new insights deserves high originality scores.
 
 Analyze the given passage against a normalized baseline of common writing in the same domain. Evaluate it across nine metrics:
 
-1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas
+1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas, with higher scores for ideas that are both novel AND well-founded
 2. Semantic Distance - How far the passage moves from common norms; is it reshuffling or truly novel
 3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph
-4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original AND meritorious
+4. Derivative Index - Score 0-10 where 0 is pure recycling and 10 is wholly original AND meritorious (remember: having influences does not automatically lower scores - focus on what new insights are added)
 5. Conceptual Parasite Detection - Does the passage operate within existing debates without adding original contributions
 6. Coherence - Whether the passage is logically and conceptually coherent
 7. Accuracy - Factual and inferential correctness of the passage
