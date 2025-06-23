@@ -6,6 +6,7 @@ import DownloadReportButton from "./DownloadReportButton";
 import PassageGenerator from "./PassageGenerator";
 import EnhancedComprehensiveReport from "./EnhancedComprehensiveReport";
 import AdvancedComparison from "./AdvancedComparison";
+import EnhancedComparison from "./EnhancedComparison";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -174,12 +175,20 @@ export default function AnalysisResults({
       )}
 
       {!isSinglePassageMode && (
-        <AdvancedComparison
-          passageA={passageA}
-          passageB={passageB}
-          passageATitle={passageATitle}
-          passageBTitle={passageBTitle}
-        />
+        <>
+          <AdvancedComparison
+            passageA={passageA}
+            passageB={passageB}
+            passageATitle={passageATitle}
+            passageBTitle={passageBTitle}
+          />
+          <EnhancedComparison
+            passageA={passageA}
+            passageB={passageB}
+            passageATitle={passageATitle}
+            passageBTitle={passageBTitle}
+          />
+        </>
       )}
     </div>
   );

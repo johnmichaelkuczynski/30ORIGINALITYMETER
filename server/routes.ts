@@ -1211,6 +1211,49 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Enhanced multi-dimensional comparison endpoint
+  app.post("/api/analyze/enhanced-comparison", async (req: Request, res: Response) => {
+    try {
+      const requestSchema = z.object({
+        textA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Text A is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        textB: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Text B is required"),
+          userContext: z.string().optional().default(""),
+        })
+      });
+
+      const { textA, textB } = requestSchema.parse(req.body);
+      
+      console.log("Enhanced comparison request:", {
+        textALength: textA.text.length,
+        textBLength: textB.text.length
+      });
+
+      // Use enhanced comparison service
+      const { enhancedTextComparison } = await import('./lib/enhancedComparison');
+      const result = await enhancedTextComparison(textA, textB);
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error in enhanced comparison:", error);
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          error: "Validation failed",
+          details: error.errors
+        });
+      }
+      res.status(500).json({
+        error: "Enhanced comparison analysis failed",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Generate comprehensive report endpoint
   app.post("/api/generate-comprehensive-report", async (req: Request, res: Response) => {
     try {
