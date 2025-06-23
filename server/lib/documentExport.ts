@@ -73,6 +73,185 @@ function convertMarkdownToPlainText(content: string): string {
 }
 
 /**
+ * Parse HTML content and format it for PDF output
+ * @param htmlContent - HTML content to parse
+ * @param doc - jsPDF document instance
+ * @param startY - Starting Y position
+ * @param pageWidth - Page width
+ * @returns Updated Y position
+ */
+function parseHTMLForPDF(htmlContent: string, doc: any, startY: number, pageWidth: number): number {
+  let yPosition = startY;
+  const leftMargin = 20;
+  const rightMargin = 20;
+  const textWidth = pageWidth - leftMargin - rightMargin;
+  
+  // Strip HTML tags but preserve structure
+  let content = htmlContent;
+  
+  // Handle headings
+  content = content.replace(/<h1[^>]*>(.*?)<\/h1>/gi, (match, text) => {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    const lines = doc.splitTextToSize(text.trim(), textWidth);
+    doc.text(lines, leftMargin, yPosition);
+    yPosition += lines.length * 12 + 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    return '';
+  });
+  
+  content = content.replace(/<h2[^>]*>(.*?)<\/h2>/gi, (match, text) => {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    const lines = doc.splitTextToSize(text.trim(), textWidth);
+    doc.text(lines, leftMargin, yPosition);
+    yPosition += lines.length * 10 + 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    return '';
+  });
+  
+  content = content.replace(/<h3[^>]*>(.*?)<\/h3>/gi, (match, text) => {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    const lines = doc.splitTextToSize(text.trim(), textWidth);
+    doc.text(lines, leftMargin, yPosition);
+    yPosition += lines.length * 9 + 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    return '';
+  });
+  
+  // Handle metric boxes with special formatting
+  content = content.replace(/<div class="metric"[^>]*>([\s\S]*?)<\/div>/g, (match, text) => {
+    if (yPosition > 260) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Add background-like effect with border
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.5);
+    
+    const boxStartY = yPosition;
+    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const lines = doc.splitTextToSize(cleanText, textWidth - 10);
+    const boxHeight = lines.length * 6 + 10;
+    
+    // Draw box
+    doc.rect(leftMargin - 2, boxStartY - 3, textWidth + 4, boxHeight);
+    
+    // Add text inside box
+    doc.text(lines, leftMargin + 3, yPosition + 3);
+    yPosition += boxHeight + 5;
+    
+    return '';
+  });
+  
+  // Handle quote boxes
+  content = content.replace(/<div class="quote"[^>]*>([\s\S]*?)<\/div>/g, (match, text) => {
+    if (yPosition > 260) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.setFont('helvetica', 'italic');
+    const cleanText = text.replace(/<[^>]*>/g, '').trim();
+    const lines = doc.splitTextToSize(cleanText, textWidth - 20);
+    
+    // Add quote formatting
+    doc.setDrawColor(220, 50, 50);
+    doc.setLineWidth(2);
+    doc.line(leftMargin, yPosition, leftMargin, yPosition + lines.length * 6);
+    
+    doc.text(lines, leftMargin + 10, yPosition + 3);
+    yPosition += lines.length * 6 + 8;
+    doc.setFont('helvetica', 'normal');
+    
+    return '';
+  });
+  
+  // Handle recommendation boxes
+  content = content.replace(/<div class="recommendation"[^>]*>([\s\S]*?)<\/div>/g, (match, text) => {
+    if (yPosition > 260) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const lines = doc.splitTextToSize(cleanText, textWidth - 10);
+    
+    // Add green left border for recommendations
+    doc.setDrawColor(40, 170, 96);
+    doc.setLineWidth(3);
+    doc.line(leftMargin, yPosition, leftMargin, yPosition + lines.length * 6);
+    
+    doc.text(lines, leftMargin + 8, yPosition + 3);
+    yPosition += lines.length * 6 + 8;
+    
+    return '';
+  });
+  
+  // Handle score boxes
+  content = content.replace(/<div class="score-box"[^>]*>([\s\S]*?)<\/div>/g, (match, text) => {
+    if (yPosition > 260) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.setFillColor(236, 240, 241);
+    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const lines = doc.splitTextToSize(cleanText, textWidth - 10);
+    const boxHeight = lines.length * 6 + 8;
+    
+    // Draw filled box
+    doc.rect(leftMargin - 2, yPosition - 2, textWidth + 4, boxHeight, 'F');
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(lines, leftMargin + 3, yPosition + 3);
+    doc.setFont('helvetica', 'normal');
+    yPosition += boxHeight + 5;
+    
+    return '';
+  });
+  
+  // Remove remaining HTML tags and add remaining content as paragraphs
+  content = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  
+  if (content.length > 0) {
+    const paragraphs = content.split(/\n\s*\n/);
+    
+    for (const paragraph of paragraphs) {
+      if (paragraph.trim().length === 0) continue;
+      
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const lines = doc.splitTextToSize(paragraph.trim(), textWidth);
+      doc.text(lines, leftMargin, yPosition);
+      yPosition += lines.length * 6 + 8;
+    }
+  }
+  
+  return yPosition;
+}
+
+/**
  * Exports document content in the specified format
  * @param request - Export request parameters
  * @returns Buffer containing the exported document
@@ -159,37 +338,24 @@ export async function exportDocument(request: ExportRequest): Promise<Buffer> {
         return Buffer.from(wordDocument, 'utf8');
         
       case 'pdf':
-        // Generate actual PDF using jsPDF
+        // Generate actual PDF using jsPDF with HTML parsing
         const doc = new jsPDF();
         
         // Set up fonts and initial position
-        doc.setFont('times', 'normal');
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(16);
         
         // Add title
         const pageWidth = doc.internal.pageSize.getWidth();
         const titleLines = doc.splitTextToSize(title, pageWidth - 40);
+        doc.setFont('helvetica', 'bold');
         doc.text(titleLines, 20, 30);
         
-        let yPosition = 30 + (titleLines.length * 10) + 10; // Start below title
+        let yPosition = 30 + (titleLines.length * 10) + 15; // Start below title
         
-        // Process content
-        const pdfContent = convertMarkdownToPlainText(content);
-        doc.setFontSize(12);
-        
-        // Split content into lines that fit on the page
-        const lines = doc.splitTextToSize(pdfContent, pageWidth - 40);
-        
-        for (let i = 0; i < lines.length; i++) {
-          // Check if we need a new page
-          if (yPosition > 270) { // Near bottom of page
-            doc.addPage();
-            yPosition = 20;
-          }
-          
-          doc.text(lines[i], 20, yPosition);
-          yPosition += 7; // Line spacing
-        }
+        // Parse HTML content and format for PDF
+        const htmlContent = content.includes('<') ? content : convertMarkdownToHTML(content);
+        parseHTMLForPDF(htmlContent, doc, yPosition, pageWidth);
         
         // Convert to buffer
         const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
