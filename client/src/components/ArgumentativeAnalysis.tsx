@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { PassageData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Gavel, Target, CheckCircle, TrendingUp, FileText, Award, Download, Mail } from "lucide-react";
+import { Gavel, Target, CheckCircle, TrendingUp, FileText, Award, Download, Mail, MessageCircle, Send } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface ArgumentativeResult {
   singlePaperAnalysis?: {
@@ -72,6 +75,9 @@ export default function ArgumentativeAnalysis({
   const [result, setResult] = useState<ArgumentativeResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [emailAddress, setEmailAddress] = useState('');
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant'; content: string}>>([]);
+  const [currentQuestion, setCurrentQuestion] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const { toast } = useToast();
 
   const runArgumentativeAnalysis = async () => {

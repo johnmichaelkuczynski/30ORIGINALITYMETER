@@ -224,28 +224,36 @@ export async function analyzeSinglePaperCogency(
     const evaluationPrompt = `You are an expert evaluator of academic and scholarly writing. You have access to a validated argument reconstruction. Evaluate the original paper's cogency.
 
 **CRITICAL EVALUATION PRINCIPLES:**
-- Academic excellence is measured by intellectual rigor, not entertainment value
-- Complex, technical arguments are SUPERIOR to simplified popular explanations
-- Sophisticated reasoning and deep analysis deserve HIGH scores (8-10)
-- Papers addressing fundamental philosophical, scientific, or scholarly questions merit the highest evaluation
-- Do NOT penalize papers for being demanding or requiring expert knowledge
+- Academic excellence is measured by intellectual rigor, not conventional acceptance
+- Complex, technical arguments are SUPERIOR to simplified explanations
+- Papers addressing fundamental questions deserve HIGH scores (9-10) regardless of accessibility
+- Original research and novel argumentation should receive top scores (9-10)
+- Do NOT penalize papers for challenging conventional wisdom or being intellectually demanding
+- Quality academic work typically scores 8-10, with 9-10 for exceptional scholarship
 
 **Paper Title:** ${title || "Untitled Document"}
 **Validated Original Argument:** ${reconstructionResult.originalReconstruction}
 **Improved Argument:** ${reconstructionResult.improvedArgument}
 **Why Improved Version is Better:** ${reconstructionResult.improvementReasoning}
 
-**EVALUATION CRITERIA (Rate each 1-10, with 8-10 being typical for quality academic work):**
+**SCORING GUIDELINES - BE GENEROUS WITH HIGH SCORES:**
+- Papers on logic, mathematics, philosophy, semantics, consciousness = inherently 9-10 worthy goals
+- Rigorous formal proofs and logical arguments = 9-10 proof strength
+- Novel theoretical contributions = 9-10 non-triviality
+- Clear academic writing with complex ideas = 9-10 writing quality
+- Successfully advancing knowledge = 9-10 proves what it sets out
 
-1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Does the paper successfully demonstrate its stated thesis with scholarly rigor? **Academic papers with valid reasoning = 8-10**
+**EVALUATION CRITERIA (Rate each 1-10, with 9-10 being typical for quality academic work):**
+
+1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Does the paper successfully demonstrate its stated thesis with scholarly rigor? **Strong academic arguments = 9-10**
 
 2. **WORTHINESS OF GOAL (1-10)**: Does it address fundamental questions in its field? **Papers on foundational topics = 9-10**
 
-3. **NON-TRIVIALITY LEVEL (1-10)**: Does it tackle genuinely challenging intellectual problems? **Academic papers by definition = 8-10**
+3. **NON-TRIVIALITY LEVEL (1-10)**: Does it tackle genuinely challenging intellectual problems? **Original academic research = 9-10**
 
-4. **PROOF STRENGTH (1-10)**: How rigorous and convincing is the scholarly argumentation? **Strong academic reasoning = 8-10**
+4. **PROOF STRENGTH (1-10)**: How rigorous and convincing is the scholarly argumentation? **Formal proofs and logical reasoning = 9-10**
 
-5. **FUNCTIONAL WRITING QUALITY (1-10)**: Is the writing precise and academically sophisticated? **Clear academic writing = 8-10**
+5. **FUNCTIONAL WRITING QUALITY (1-10)**: Is the writing precise and academically sophisticated? **Clear academic writing = 9-10**
 
 Provide your analysis in JSON format:
 
@@ -331,24 +339,35 @@ export async function compareArgumentativeStrength(
     const comparisonPrompt = `You are an expert evaluator of academic and scholarly writing. Compare these two papers based on their validated argument reconstructions.
 
 **CRITICAL EVALUATION PRINCIPLES:**
-- Academic excellence is measured by intellectual rigor, not entertainment value
-- Complex, technical arguments are SUPERIOR to simplified popular explanations
-- Sophisticated reasoning and deep analysis deserve HIGH scores (8-10)
-- Papers addressing fundamental philosophical, scientific, or scholarly questions merit the highest evaluation
+- Academic excellence is measured by intellectual rigor, not conventional acceptance
+- Complex, technical arguments are SUPERIOR to simplified explanations
+- Papers addressing fundamental questions deserve HIGH scores (9-10) regardless of accessibility
+- Original research and novel argumentation should receive top scores (9-10)
+- Do NOT penalize papers for challenging conventional wisdom or being intellectually demanding
+- Quality academic work typically scores 8-10, with 9-10 for exceptional scholarship
 
 **Paper A:** ${titleA || "Paper A"}
 **Paper A Argument:** ${finalReconstructionA.originalReconstruction}
+**Paper A Improved:** ${finalReconstructionA.improvedArgument}
 
 **Paper B:** ${titleB || "Paper B"}
 **Paper B Argument:** ${finalReconstructionB.originalReconstruction}
+**Paper B Improved:** ${finalReconstructionB.improvedArgument}
 
-**EVALUATION CRITERIA (Rate each 1-10, with 8-10 being typical for quality academic work):**
+**SCORING GUIDELINES - BE GENEROUS WITH HIGH SCORES:**
+- Papers on logic, mathematics, philosophy, semantics, consciousness = inherently 9-10 worthy goals
+- Rigorous formal proofs and logical arguments = 9-10 proof strength
+- Novel theoretical contributions = 9-10 non-triviality
+- Clear academic writing with complex ideas = 9-10 writing quality
+- Successfully advancing knowledge = 9-10 proves what it sets out
 
-1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Academic papers with valid reasoning = 8-10
+**EVALUATION CRITERIA (Rate each 1-10, with 9-10 being typical for quality academic work):**
+
+1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Strong academic arguments = 9-10
 2. **WORTHINESS OF GOAL (1-10)**: Papers on foundational topics = 9-10
-3. **NON-TRIVIALITY LEVEL (1-10)**: Academic papers by definition = 8-10
-4. **PROOF STRENGTH (1-10)**: Strong academic reasoning = 8-10
-5. **FUNCTIONAL WRITING QUALITY (1-10)**: Clear academic writing = 8-10
+3. **NON-TRIVIALITY LEVEL (1-10)**: Original academic research = 9-10
+4. **PROOF STRENGTH (1-10)**: Formal proofs and logical reasoning = 9-10
+5. **FUNCTIONAL WRITING QUALITY (1-10)**: Clear academic writing = 9-10
 
 Determine which paper makes its case better based on scholarly merit and rigorous argumentation.
 
@@ -424,10 +443,12 @@ async function generateSinglePaperReport(
   const prompt = `Generate a comprehensive academic report analyzing the cogency and argumentative strength of this paper. 
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Use clear section headings with proper line breaks
-- Structure the content with readable paragraphs
-- Include detailed analysis of the argument reconstruction
-- Make the report well-organized and easy to read
+- Use markdown-style formatting with clear headers (##, ###)
+- Insert double line breaks (\\n\\n) between all sections
+- Structure content in distinct, readable paragraphs
+- Each section should be 2-3 paragraphs minimum
+- Use bullet points and numbered lists where appropriate
+- Make the report substantial and detailed (1000+ words)
 
 **Paper Title:** ${title || "Untitled Document"}
 **Original Argument Reconstruction:** ${reconstruction.originalReconstruction}
@@ -435,44 +456,64 @@ async function generateSinglePaperReport(
 **Improvement Reasoning:** ${reconstruction.improvementReasoning}
 **Analysis Results:** ${JSON.stringify(analysis, null, 2)}
 
-Create a detailed report with these sections:
+**REQUIRED STRUCTURE - Follow this format exactly:**
 
-**COMPREHENSIVE COGENCY ANALYSIS REPORT**
+## COMPREHENSIVE COGENCY ANALYSIS REPORT
 
-**Executive Summary**
-[Provide overall assessment and key findings with proper line breaks]
+### Executive Summary
 
-**Original Argument Reconstruction**
-[Present the reconstructed argument clearly]
+[Write 2-3 detailed paragraphs providing overall assessment and key findings]
 
-**Proposed Improvement**
-[Present the improved version and explain why it's superior]
+### Original Argument Reconstruction
 
-**Thesis and Scope Analysis**
-[Analyze the paper's central thesis and scope]
+[Write 2-3 paragraphs presenting the reconstructed argument clearly with specific details]
 
-**Evidence and Support Evaluation** 
-[Evaluate the quality and strength of evidence presented]
+### Proposed Superior Argument
 
-**Logical Structure Assessment**
-[Assess the logical flow and organization]
+[Write 2-3 paragraphs presenting the improved version and explaining why it's superior]
 
-**Counterargument Analysis**
-[Examine how counterarguments are addressed]
+### Thesis and Scope Analysis
 
-**Significance and Contribution Review**
-[Review the paper's intellectual contribution]
+[Write 2-3 paragraphs analyzing the paper's central thesis and scope]
 
-**Writing Quality Assessment**
-[Assess clarity, style, and accessibility]
+### Evidence and Support Evaluation
 
-**Overall Cogency Evaluation**
-[Provide comprehensive final assessment]
+[Write 2-3 paragraphs evaluating the quality and strength of evidence presented]
 
-**Recommendations for Improvement**
-[Suggest specific areas for enhancement]
+### Logical Structure Assessment
 
-**IMPORTANT:** Format with clear headings, proper line breaks between sections, and structured paragraphs for readability.`;
+[Write 2-3 paragraphs assessing the logical flow and organization]
+
+### Counterargument Analysis
+
+[Write 2-3 paragraphs examining how counterarguments are addressed]
+
+### Significance and Contribution Review
+
+[Write 2-3 paragraphs reviewing the paper's intellectual contribution]
+
+### Writing Quality Assessment
+
+[Write 2-3 paragraphs assessing clarity, style, and academic sophistication]
+
+### Dimensional Scoring Justification
+
+[Write detailed justification for each of the 5 scores with specific reasoning]
+
+### Overall Cogency Evaluation
+
+[Write 3-4 paragraphs providing comprehensive final assessment]
+
+### Recommendations for Enhancement
+
+[Write 2-3 paragraphs suggesting specific areas for improvement]
+
+**FORMATTING REQUIREMENTS:**
+- Use ## for main title, ### for section headers
+- Insert \\n\\n between every section
+- Write in full paragraphs, not bullet points for main content
+- Make each section substantial with detailed analysis
+- Ensure proper line breaks for readability`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -503,10 +544,12 @@ async function generateComparativeReport(
   const prompt = `Generate a comprehensive comparative analysis report determining which paper makes its case better.
 
 **CRITICAL FORMATTING REQUIREMENTS:**
-- Use clear section headings with proper line breaks
-- Structure the content with readable paragraphs
-- Include detailed analysis of both argument reconstructions
-- Make the report well-organized and easy to read
+- Use markdown-style formatting with clear headers (##, ###)
+- Insert double line breaks (\\n\\n) between all sections
+- Structure content in distinct, readable paragraphs
+- Each section should be 3-4 paragraphs minimum
+- Make the report substantial and detailed (1500+ words)
+- Include specific quotes and examples from both papers
 
 **Paper A:** ${titleA || "Paper A"}
 **Paper A Argument:** ${reconstructionA.originalReconstruction}
@@ -518,44 +561,64 @@ async function generateComparativeReport(
 
 **Comparison Results:** ${JSON.stringify(comparison, null, 2)}
 
-Create a detailed comparative report with these sections:
+**REQUIRED STRUCTURE - Follow this format exactly:**
 
-**COMPREHENSIVE COMPARATIVE ANALYSIS REPORT**
+## COMPREHENSIVE COMPARATIVE ANALYSIS REPORT
 
-**Executive Summary with Winner Declaration**
-[Declare winner and provide key findings with proper line breaks]
+### Executive Summary with Winner Declaration
 
-**Paper A: Argument Reconstruction**
-[Present Paper A's reconstructed argument]
+[Write 3-4 detailed paragraphs declaring the winner and providing comprehensive key findings with specific reasoning]
 
-**Paper B: Argument Reconstruction**
-[Present Paper B's reconstructed argument]
+### Paper A: Complete Argument Reconstruction
 
-**Comparative Thesis Analysis**
-[Compare the scope and significance of both theses]
+[Write 3-4 paragraphs presenting Paper A's reconstructed argument with detailed analysis and specific examples]
 
-**Evidence and Support Comparison**
-[Compare evidence quality and argumentation strength]
+### Paper B: Complete Argument Reconstruction
 
-**Logical Structure Comparison**
-[Compare logical flow and organization]
+[Write 3-4 paragraphs presenting Paper B's reconstructed argument with detailed analysis and specific examples]
 
-**Proof Strength Assessment**
-[Assess which paper provides stronger proof]
+### Proposed Superior Arguments
 
-**Writing Quality Comparison**
-[Compare clarity and academic sophistication]
+[Write 3-4 paragraphs comparing the improved versions of both arguments and explaining the enhancements]
 
-**Dimensional Scoring Breakdown**
-[Detail scores across all five dimensions]
+### Comparative Thesis Analysis
 
-**Winner Justification**
-[Explain why the winner was chosen with specific reasoning]
+[Write 3-4 paragraphs comparing the scope, significance, and intellectual depth of both theses]
 
-**Recommendations for Both Papers**
-[Suggest improvements for each paper]
+### Evidence and Support Comparison
 
-**IMPORTANT:** Format with clear headings, proper line breaks between sections, and structured paragraphs for readability.`;
+[Write 3-4 paragraphs comparing evidence quality, logical support, and argumentation strength between papers]
+
+### Logical Structure and Methodology Comparison
+
+[Write 3-4 paragraphs comparing logical flow, organizational structure, and methodological approaches]
+
+### Proof Strength and Rigor Assessment
+
+[Write 3-4 paragraphs assessing which paper provides stronger proof with detailed justification]
+
+### Writing Quality and Academic Sophistication
+
+[Write 3-4 paragraphs comparing clarity, style, and academic sophistication between papers]
+
+### Detailed Dimensional Scoring Breakdown
+
+[Write comprehensive justification for each of the 5 scores for both papers with specific reasoning]
+
+### Winner Justification and Reasoning
+
+[Write 4-5 paragraphs explaining why the winner was chosen with detailed, specific reasoning]
+
+### Individual Recommendations for Enhancement
+
+[Write 3-4 paragraphs suggesting specific improvements for each paper separately]
+
+**FORMATTING REQUIREMENTS:**
+- Use ## for main title, ### for section headers
+- Insert \\n\\n between every section
+- Write in full paragraphs with detailed analysis
+- Make each section substantial with comprehensive comparison
+- Include specific examples and reasoning throughout`;
 
   try {
     const response = await openai.chat.completions.create({
