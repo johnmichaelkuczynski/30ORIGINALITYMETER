@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 
 interface PassageData {
   title: string;
@@ -73,43 +73,38 @@ export async function analyzeSinglePaperEnhanced(
   passage: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const analysisPrompt = `You are an expert evaluator of academic and intellectual arguments. Conduct a comprehensive analysis using the enhanced evaluation framework.
+    const prompt = `You are an expert evaluator of academic and philosophical argumentation. Analyze this paper for cogency - how well it proves what it sets out to prove.
 
-**CRITICAL SCORING PRINCIPLES:**
-- Use a 0-100 scale where scores should be generous for quality work (typically 60-95 range)
+**SCORING PRINCIPLES:**
+- Use 0-100 scale, be generous with quality work (typically 60-95 range)
 - Academic writing should score 70-90+ for competent work
-- Reserve scores below 60 only for seriously flawed arguments
-- Value intellectual rigor, scholarly depth, and argumentative sophistication
+- Consider intellectual rigor and argumentative sophistication
 
-**Paper Title:** ${passage.title || "Untitled Paper"}
-**Paper Content:** ${passage.text}
+**PAPER TO ANALYZE:**
+Title: ${passage.title}
+${passage.text}
 
 **REQUIRED ANALYSIS:**
 
-1. **ARGUMENT SUMMARY** (not characterization): Provide a clear, factual summary of the main argument and supporting claims made in the text.
+1. **ARGUMENT SUMMARY**: Provide a factual summary of the paper's main argument
 
-2. **SUPERIOR RECONSTRUCTION**: Create an improved version of the argument that strengthens weak points while maintaining the core thesis.
+2. **SUPERIOR RECONSTRUCTION**: Create an improved version of the argument that strengthens weaknesses while preserving the core thesis
 
-3. **CORE PARAMETERS EVALUATION** (0-100 scale each):
+3. **COMPREHENSIVE EVALUATION** using 7 core parameters (0-100 each):
+   - **Clarity of Argument**: How clearly the thesis and reasoning are presented
+   - **Inferential Cohesion**: How well premises connect to conclusions
+   - **Conceptual Precision**: Accuracy and specificity of key concepts
+   - **Evidential Support/Substantiation**: Quality and relevance of evidence
+   - **Counterargument Handling**: Recognition and refutation of objections
+   - **Cognitive Risk**: Intellectual boldness and non-triviality of claims
+   - **Epistemic Control**: Appropriate confidence levels and scope limitations
 
-   **Clarity of Argument**: Is the thesis clearly stated? Are supporting claims coherent and well organized?
-   
-   **Inferential Cohesion**: Does the argument proceed logically? Are conclusions well-supported by premises?
-   
-   **Conceptual Precision**: Are key terms well-defined and used consistently? Is terminology appropriate?
-   
-   **Evidential Support/Substantiation**: Are claims backed by evidence, reasoning, or examples? Is the text persuasive on its own terms?
-   
-   **Counterargument Handling**: Does the author anticipate objections or address alternative views? Is the rebuttal adequate?
-   
-   **Cognitive Risk**: Does the argument push into new terrain or tackle hard questions? Is there intellectual boldness?
-   
-   **Epistemic Control**: Does the author display command of relevant knowledge? Are ambiguities navigated well?
+4. **OVERALL JUDGMENT**: Comprehensive assessment of argumentative merit
 
 For each parameter, provide:
 - Score (0-100)
-- Detailed assessment
-- 2-3 relevant quotes from the text when available
+- Assessment (detailed explanation)
+- Supporting quotes (2-3 relevant excerpts from the text)
 
 Respond in valid JSON format:
 {
@@ -118,46 +113,48 @@ Respond in valid JSON format:
   "clarityOfArgument": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "inferentialCohesion": {
     "score": number,
     "assessment": "detailed evaluation", 
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "conceptualPrecision": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "evidentialSupport": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "counterargumentHandling": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "cognitiveRisk": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
   "epistemicControl": {
     "score": number,
     "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2"]
+    "quotes": ["quote1", "quote2", "quote3"]
   },
-  "overallJudgment": "comprehensive evaluation with specific reasoning"
+  "overallJudgment": "comprehensive assessment of argumentative merit"
 }`;
 
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [{ role: "user", content: analysisPrompt }],
+      messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
-      temperature: 0.7,
+      temperature: 0.1,
       max_tokens: 4000
     });
 
@@ -168,7 +165,7 @@ Respond in valid JSON format:
 
     const parsed = JSON.parse(content);
 
-    // Calculate overall cogency score as average of all parameters
+    // Calculate overall score from core parameters
     const parameterScores = [
       parsed.clarityOfArgument.score,
       parsed.inferentialCohesion.score,
@@ -180,12 +177,15 @@ Respond in valid JSON format:
     ];
 
     const overallScore = Math.round(parameterScores.reduce((a, b) => a + b, 0) / parameterScores.length);
-
-    let cogencyLabel = "Excellent";
-    if (overallScore < 60) cogencyLabel = "Poor";
-    else if (overallScore < 70) cogencyLabel = "Fair";
-    else if (overallScore < 80) cogencyLabel = "Good";
-    else if (overallScore < 90) cogencyLabel = "Very Good";
+    
+    // Determine cogency label
+    let cogencyLabel: string;
+    if (overallScore >= 90) cogencyLabel = "Exceptionally Cogent";
+    else if (overallScore >= 80) cogencyLabel = "Highly Cogent";
+    else if (overallScore >= 70) cogencyLabel = "Moderately Cogent";
+    else if (overallScore >= 60) cogencyLabel = "Somewhat Cogent";
+    else if (overallScore >= 50) cogencyLabel = "Minimally Cogent";
+    else cogencyLabel = "Poorly Cogent";
 
     const result: EnhancedArgumentativeResult = {
       singlePaperAnalysis: {
@@ -216,114 +216,136 @@ Respond in valid JSON format:
 }
 
 /**
- * Enhanced comparative analysis with 0-100 scoring and comprehensive parameters
+ * Enhanced comparative analysis with consistent scoring
+ * First analyzes each document individually, then compares based on those scores
  */
 export async function compareArgumentativeStrengthEnhanced(
   passageA: PassageData,
   passageB: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const comparisonPrompt = `You are an expert evaluator comparing two academic papers to determine which makes its case better.
+    // First, get individual cogency analyses for both papers
+    console.log("Running individual cogency analysis for Paper A...");
+    const paperAAnalysis = await analyzeSinglePaperEnhanced(passageA);
+    
+    console.log("Running individual cogency analysis for Paper B...");
+    const paperBAnalysis = await analyzeSinglePaperEnhanced(passageB);
 
-**SCORING PRINCIPLES:**
-- Use 0-100 scale, be generous with quality work (typically 60-95 range)
-- Academic writing should score 70-90+ for competent work
-- Consider intellectual rigor and argumentative sophistication
+    if (!paperAAnalysis.singlePaperAnalysis || !paperBAnalysis.singlePaperAnalysis) {
+      throw new Error("Failed to generate individual paper analyses");
+    }
 
-**Paper A:** ${passageA.title}
-${passageA.text}
+    const paperAScore = paperAAnalysis.singlePaperAnalysis.overallCogencyScore;
+    const paperBScore = paperBAnalysis.singlePaperAnalysis.overallCogencyScore;
+    
+    // Determine winner based on individual scores
+    let winner: 'A' | 'B' | 'Tie';
+    let winnerScore: number;
+    
+    if (Math.abs(paperAScore - paperBScore) <= 3) {
+      winner = 'Tie';
+      winnerScore = Math.max(paperAScore, paperBScore);
+    } else if (paperAScore > paperBScore) {
+      winner = 'A';
+      winnerScore = paperAScore;
+    } else {
+      winner = 'B';
+      winnerScore = paperBScore;
+    }
 
-**Paper B:** ${passageB.title}
-${passageB.text}
+    // Generate comparative reasoning using OpenAI
+    const comparisonPrompt = `Based on individual cogency analyses, provide a detailed comparison:
 
-**REQUIRED ANALYSIS:**
+**Paper A Analysis:**
+- Title: ${passageA.title}
+- Overall Score: ${paperAScore}/100
+- Summary: ${paperAAnalysis.singlePaperAnalysis.argumentSummary}
 
-1. **ARGUMENT SUMMARIES**: Provide factual summaries of both papers' main arguments
+**Paper B Analysis:**
+- Title: ${passageB.title}
+- Overall Score: ${paperBScore}/100  
+- Summary: ${paperBAnalysis.singlePaperAnalysis.argumentSummary}
 
-2. **SUPERIOR RECONSTRUCTIONS**: Create improved versions of both arguments
+**Winner:** ${winner} ${winner !== 'Tie' ? `(Score: ${winnerScore})` : '(Scores too close to call)'}
 
-3. **COMPARATIVE EVALUATION** using 7 core parameters (0-100 each):
-   - Clarity of Argument
-   - Inferential Cohesion  
-   - Conceptual Precision
-   - Evidential Support/Substantiation
-   - Counterargument Handling
-   - Cognitive Risk
-   - Epistemic Control
-
-4. **WINNER DETERMINATION**: Based on overall parameter scores
-
-Respond in valid JSON format:
+Provide JSON response with:
 {
-  "paperASummary": "factual summary of Paper A's argument",
-  "paperBSummary": "factual summary of Paper B's argument", 
-  "paperASuperiorReconstruction": "improved version of Paper A's argument",
-  "paperBSuperiorReconstruction": "improved version of Paper B's argument",
-  "paperAScores": {
-    "clarityOfArgument": number,
-    "inferentialCohesion": number,
-    "conceptualPrecision": number,
-    "evidentialSupport": number,
-    "counterargumentHandling": number,
-    "cognitiveRisk": number,
-    "epistemicControl": number
-  },
-  "paperBScores": {
-    "clarityOfArgument": number,
-    "inferentialCohesion": number,
-    "conceptualPrecision": number,
-    "evidentialSupport": number,
-    "counterargumentHandling": number,
-    "cognitiveRisk": number,
-    "epistemicControl": number
-  },
-  "winner": "A or B or Tie",
-  "detailedComparison": "comprehensive comparison analysis",
-  "reasoning": "specific justification for winner selection"
+  "detailedComparison": "Comprehensive comparison of argumentative strengths and weaknesses",
+  "reasoning": "Detailed explanation of why ${winner === 'Tie' ? 'the papers are roughly equivalent' : `Paper ${winner} is superior`}"
 }`;
 
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
       messages: [{ role: "user", content: comparisonPrompt }],
       response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 4000
+      temperature: 0.1,
     });
 
-    const content = response.choices[0].message.content;
-    if (!content) {
-      throw new Error("No response content from OpenAI");
-    }
+    const comparisonResult = JSON.parse(response.choices[0].message.content || '{}');
 
-    const parsed = JSON.parse(content);
-
-    // Calculate overall scores
-    const paperAScores = Object.values(parsed.paperAScores) as number[];
-    const paperBScores = Object.values(parsed.paperBScores) as number[];
-    
-    const paperAOverall = Math.round(paperAScores.reduce((a, b) => a + b, 0) / paperAScores.length);
-    const paperBOverall = Math.round(paperBScores.reduce((a, b) => a + b, 0) / paperBScores.length);
-
-    const winnerScore = parsed.winner === 'A' ? paperAOverall : parsed.winner === 'B' ? paperBOverall : Math.max(paperAOverall, paperBOverall);
-
+    // Build the result using individual analyses but with comparison
     const result: EnhancedArgumentativeResult = {
       comparativeAnalysis: {
-        winner: parsed.winner,
+        winner,
         winnerScore,
-        paperAScore: paperAOverall,
-        paperBScore: paperBOverall,
-        paperASummary: parsed.paperASummary,
-        paperBSummary: parsed.paperBSummary,
-        paperASuperiorReconstruction: parsed.paperASuperiorReconstruction,
-        paperBSuperiorReconstruction: parsed.paperBSuperiorReconstruction,
+        paperAScore,
+        paperBScore,
+        paperASummary: paperAAnalysis.singlePaperAnalysis.argumentSummary,
+        paperBSummary: paperBAnalysis.singlePaperAnalysis.argumentSummary,
+        paperASuperiorReconstruction: paperAAnalysis.singlePaperAnalysis.superiorReconstruction,
+        paperBSuperiorReconstruction: paperBAnalysis.singlePaperAnalysis.superiorReconstruction,
         comparisonBreakdown: {
-          paperA: parsed.paperAScores,
-          paperB: parsed.paperBScores
+          paperA: {
+            clarityOfArgument: paperAAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
+            inferentialCohesion: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
+            conceptualPrecision: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
+            evidentialSupport: paperAAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
+            counterargumentHandling: paperAAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
+            cognitiveRisk: paperAAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
+            epistemicControl: paperAAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+          },
+          paperB: {
+            clarityOfArgument: paperBAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
+            inferentialCohesion: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
+            conceptualPrecision: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
+            evidentialSupport: paperBAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
+            counterargumentHandling: paperBAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
+            cognitiveRisk: paperBAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
+            epistemicControl: paperBAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+          }
         },
-        detailedComparison: parsed.detailedComparison,
-        reasoning: parsed.reasoning
+        detailedComparison: comparisonResult.detailedComparison,
+        reasoning: comparisonResult.reasoning
       },
-      reportContent: await generateEnhancedComparativeReport(parsed, passageA.title, passageB.title, paperAOverall, paperBOverall)
+      reportContent: await generateEnhancedComparativeReport({
+        paperASummary: paperAAnalysis.singlePaperAnalysis.argumentSummary,
+        paperBSummary: paperBAnalysis.singlePaperAnalysis.argumentSummary,
+        paperASuperiorReconstruction: paperAAnalysis.singlePaperAnalysis.superiorReconstruction,
+        paperBSuperiorReconstruction: paperBAnalysis.singlePaperAnalysis.superiorReconstruction,
+        paperAScores: {
+          clarityOfArgument: paperAAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
+          inferentialCohesion: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
+          conceptualPrecision: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
+          evidentialSupport: paperAAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
+          counterargumentHandling: paperAAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
+          cognitiveRisk: paperAAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
+          epistemicControl: paperAAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+        },
+        paperBScores: {
+          clarityOfArgument: paperBAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
+          inferentialCohesion: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
+          conceptualPrecision: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
+          evidentialSupport: paperBAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
+          counterargumentHandling: paperBAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
+          cognitiveRisk: paperBAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
+          epistemicControl: paperBAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+        },
+        detailedComparison: comparisonResult.detailedComparison,
+        reasoning: comparisonResult.reasoning,
+        winner
+      }, passageA.title, passageB.title, paperAScore, paperBScore)
     };
 
     return result;
@@ -343,7 +365,7 @@ async function generateEnhancedSingleReport(
   overallScore: number,
   cogencyLabel: string
 ): Promise<string> {
-  return `# COMPREHENSIVE ARGUMENTATIVE ANALYSIS REPORT
+  return `# COMPREHENSIVE COGENCY ANALYSIS REPORT
 
 ## Paper: ${title || "Untitled Document"}
 
@@ -419,11 +441,11 @@ async function generateEnhancedComparativeReport(
   scoreA: number,
   scoreB: number
 ): Promise<string> {
-  return `# COMPREHENSIVE COMPARATIVE ANALYSIS REPORT
+  return `# COMPREHENSIVE COMPARATIVE COGENCY ANALYSIS
 
-## Papers Compared
-**Paper A:** ${titleA || "Untitled Document A"} (Score: ${scoreA}/100)
-**Paper B:** ${titleB || "Untitled Document B"} (Score: ${scoreB}/100)
+## Papers Analyzed
+- **Paper A:** ${titleA || "Untitled Document A"}
+- **Paper B:** ${titleB || "Untitled Document B"}
 
 ### Executive Summary
 **Winner:** Paper ${analysis.winner} makes its case better
