@@ -32,13 +32,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const isArgumentativeMode = analysisMode === "argumentative";
   
   // LLM Provider
-  type LLMProvider = "openai" | "anthropic" | "perplexity";
-  const [provider, setProvider] = useState<LLMProvider>("openai");
+  type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
+  const [provider, setProvider] = useState<LLMProvider>("deepseek");
   const [providerStatus, setProviderStatus] = useState<{
+    deepseek: boolean;
     openai: boolean;
     anthropic: boolean;
     perplexity: boolean;
   }>({
+    deepseek: true,
     openai: true,
     anthropic: false,
     perplexity: false
@@ -59,9 +61,11 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           const data = await response.json();
           setProviderStatus(data);
           
-          // Select the first available provider
+          // Select the first available provider (prioritize DeepSeek as default)
           if (!data[provider]) {
-            if (data.openai) {
+            if (data.deepseek) {
+              setProvider('deepseek');
+            } else if (data.openai) {
               setProvider('openai');
             } else if (data.anthropic) {
               setProvider('anthropic');
@@ -327,8 +331,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           <RadioGroup
             value={provider}
             onValueChange={(value) => setProvider(value as LLMProvider)}
-            className="grid grid-cols-1 md:grid-cols-3 gap-2"
+            className="grid grid-cols-1 md:grid-cols-4 gap-2"
           >
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "deepseek" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="deepseek" id="deepseek" />
+              <Label htmlFor="deepseek" className="font-medium text-sm">
+                DeepSeek (Default)
+              </Label>
+            </div>
+            
             <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "openai" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
               <RadioGroupItem value="openai" id="openai" />
               <Label htmlFor="openai" className="font-medium text-sm">

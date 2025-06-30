@@ -32,8 +32,10 @@ const getServiceForProvider = (provider: LLMProvider) => {
     case "perplexity":
       return perplexityService;
     case "openai":
-    default:
       return openaiService;
+    case "deepseek":
+    default:
+      return deepseekService;
   }
 };
 
@@ -161,13 +163,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check status of provider API keys
   app.post("/api/provider-status", async (req, res) => {
     try {
-      // Check OpenAI API key
+      // Check all provider API keys
+      const deepseekKey = process.env.DEEPSEEK_API_KEY;
       const openaiKey = process.env.OPENAI_API_KEY;
       const anthropicKey = process.env.ANTHROPIC_API_KEY;
       const perplexityKey = process.env.PERPLEXITY_API_KEY;
       const assemblyAIKey = process.env.ASSEMBLYAI_API_KEY;
       
       const response = {
+        deepseek: !!deepseekKey,
         openai: !!openaiKey,
         anthropic: !!anthropicKey,
         perplexity: !!perplexityKey,

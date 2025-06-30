@@ -127,6 +127,10 @@ The application integrates with multiple AI providers for comprehensive analysis
 ```
 Changelog:
 - June 30, 2025. Initial setup
+- June 30, 2025. Added DeepSeek as default LLM provider option
+- June 30, 2025. Fixed argumentative analysis scoring logic to properly value academic excellence
+- June 30, 2025. Improved report formatting with markdown structure and proper line breaks
+- June 30, 2025. Implemented comprehensive argument reconstruction and validation system
 ```
 
 ## User Preferences
