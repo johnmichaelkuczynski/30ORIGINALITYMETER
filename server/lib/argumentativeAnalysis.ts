@@ -234,24 +234,47 @@ async function generateSinglePaperReport(
   passage: PassageData,
   title: string
 ): Promise<string> {
-  const prompt = `Generate a comprehensive academic report analyzing the cogency and argumentative strength of this paper.
+  const prompt = `Generate a comprehensive academic report analyzing the cogency and argumentative strength of this paper. **CRITICAL: Format the report with proper structure and line breaks for readability.**
 
 Paper Title: ${title || "Untitled Document"}
 Analysis Results: ${JSON.stringify(analysis, null, 2)}
 
-Create a detailed report (800-1200 words) that includes:
+Create a detailed report that includes these sections with **clear headings and proper paragraph breaks**:
 
-1. Executive Summary
-2. Thesis and Scope Analysis  
-3. Evidence and Support Evaluation
-4. Logical Structure Assessment
-5. Counterargument Analysis
-6. Significance and Contribution Review
-7. Writing Quality Assessment
-8. Overall Cogency Evaluation
-9. Recommendations for Improvement
+**COMPREHENSIVE COGENCY ANALYSIS REPORT**
 
-Use professional academic language with specific examples and detailed reasoning. Format with clear headings and comprehensive analysis.`;
+**Executive Summary**
+[Provide overall assessment and key findings]
+
+**Thesis and Scope Analysis**
+[Analyze the paper's central thesis and scope]
+
+**Evidence and Support Evaluation** 
+[Evaluate the quality and strength of evidence presented]
+
+**Logical Structure Assessment**
+[Assess the logical flow and organization]
+
+**Counterargument Analysis**
+[Examine how counterarguments are addressed]
+
+**Significance and Contribution Review**
+[Review the paper's intellectual contribution]
+
+**Writing Quality Assessment**
+[Assess clarity, style, and accessibility]
+
+**Overall Cogency Evaluation**
+[Provide comprehensive final assessment]
+
+**Recommendations for Improvement**
+[Suggest specific areas for enhancement]
+
+**IMPORTANT FORMATTING REQUIREMENTS:**
+- Use clear section headings with ** markers
+- Include line breaks between sections
+- Write in structured paragraphs, not one continuous block
+- Make the report easily readable and well-organized`;
 
   try {
     const response = await openai.chat.completions.create({
