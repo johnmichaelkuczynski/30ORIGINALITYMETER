@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { PassageData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Gavel, Download, Mail, MessageCircle, Send } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { Gavel, BookOpen, Scale } from "lucide-react";
 import ArgumentativeResults from "./ArgumentativeResults";
 
 interface ArgumentativeAnalysisProps {
@@ -17,9 +15,29 @@ interface ArgumentativeAnalysisProps {
   onNewComparison: () => void;
 }
 
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
+interface EnhancedArgumentativeResult {
+  singlePaperAnalysis?: {
+    overallCogencyScore: number;
+    cogencyLabel: string;
+    argumentSummary: string;
+    superiorReconstruction: string;
+    coreParameters: any;
+    overallJudgment: string;
+  };
+  comparativeAnalysis?: {
+    winner: 'A' | 'B' | 'Tie';
+    winnerScore: number;
+    paperAScore: number;
+    paperBScore: number;
+    paperASummary: string;
+    paperBSummary: string;
+    paperASuperiorReconstruction: string;
+    paperBSuperiorReconstruction: string;
+    comparisonBreakdown: any;
+    detailedComparison: string;
+    reasoning: string;
+  };
+  reportContent: string;
 }
 
 export default function ArgumentativeAnalysis({
@@ -28,42 +46,63 @@ export default function ArgumentativeAnalysis({
   onResults,
   onNewComparison
 }: ArgumentativeAnalysisProps) {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<EnhancedArgumentativeResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [emailAddress, setEmailAddress] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState("");
-  const [isChatLoading, setIsChatLoading] = useState(false);
   const [cogencyMode, setCogencyMode] = useState<'single' | 'comparative'>('single');
   const { toast } = useToast();
 
-  // Determine if we should show single or comparative mode
+  // Determine if we have content for both passages
   const hasBothPassages = passageA.text.trim() && passageB.text.trim();
   const isSingleMode = cogencyMode === 'single';
 
-  const runArgumentativeAnalysis = async () => {
+  const runCogencyAnalysis = async () => {
+    if (isSingleMode && !passageA.text.trim()) {
+      toast({
+        title: "Missing Input",
+        description: "Please enter text for cogency analysis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isSingleMode && (!passageA.text.trim() || !passageB.text.trim())) {
+      toast({
+        title: "Missing Input", 
+        description: "Please enter text for both documents to compare.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
-      const response = await fetch("/api/analyze/argumentative", {
+      // Use the enhanced cogency analysis functions
+      const endpoint = "/api/analyze/argumentative";
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           passageA,
-          passageB: passageB || null,
-          provider: "deepseek"
+          passageB: isSingleMode ? null : passageB,
+          passageATitle: passageA.title || "Document A",
+          passageBTitle: passageB.title || "Document B",
+          isSingleMode,
+          provider: "openai"
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setResult(data);
+        onResults(data);
         toast({
-          title: "Analysis Complete",
+          title: "Cogency Test Complete",
           description: isSingleMode 
-            ? "Cogency analysis completed successfully" 
-            : "Comparative analysis completed successfully",
+            ? "Single document cogency analysis completed" 
+            : "Comparative cogency analysis completed",
         });
       } else {
         throw new Error("Analysis failed");
@@ -79,288 +118,141 @@ export default function ArgumentativeAnalysis({
     }
   };
 
-  const downloadReport = async () => {
-    try {
-      const response = await fetch("/api/download-argumentative-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          result,
-          passageATitle,
-          passageBTitle,
-          isSingleMode
-        }),
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `argumentative-analysis-${Date.now()}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        
-        toast({
-          title: "Report Downloaded",
-          description: "Your analysis report has been downloaded successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Download Failed",
-        description: "Could not download the report",
-        variant: "destructive",
-      });
-    }
+  const startNewAnalysis = () => {
+    setResult(null);
+    onNewComparison();
   };
 
-  const emailReport = async () => {
-    try {
-      const response = await fetch("/api/email-argumentative-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          result,
-          passageATitle,
-          passageBTitle,
-          isSingleMode,
-          email: emailAddress
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Report Emailed",
-          description: `Analysis report sent to ${emailAddress}`,
-        });
-        setEmailAddress("");
-      }
-    } catch (error) {
-      toast({
-        title: "Email Failed",
-        description: "Could not send the report",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const askQuestionAboutAnalysis = async () => {
-    if (!currentQuestion.trim()) return;
-
-    const userMessage: ChatMessage = {
-      role: 'user',
-      content: currentQuestion
-    };
-
-    setChatMessages(prev => [...prev, userMessage]);
-    setIsChatLoading(true);
-    setCurrentQuestion("");
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: currentQuestion,
-          context: `Here is the argumentative analysis result: ${JSON.stringify(result)}`,
-          provider: "deepseek"
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const assistantMessage: ChatMessage = {
-          role: 'assistant',
-          content: data.response
-        };
-        setChatMessages(prev => [...prev, assistantMessage]);
-      }
-    } catch (error) {
-      toast({
-        title: "Chat Failed",
-        description: "Could not get a response",
-        variant: "destructive",
-      });
-    } finally {
-      setIsChatLoading(false);
-    }
-  };
-
-  // Show loading state while analyzing
-  if (isAnalyzing) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Gavel className="h-5 w-5" />
-            {isSingleMode ? 'Analyzing Cogency...' : 'Comparing Arguments...'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">
-              {isSingleMode 
-                ? 'Evaluating argumentative strength and cogency...'
-                : 'Comparing argumentative effectiveness between the two papers...'
-              }
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Show results if analysis is complete
   if (result) {
     return (
-      <div className="space-y-6">
-        <ArgumentativeResults
-          result={result}
-          isSingleMode={isSingleMode}
-          passageATitle={passageATitle}
-          passageBTitle={passageBTitle}
-        />
-
-        {/* Download and Email Actions */}
-        <div className="flex gap-4 mt-6">
-          <Button 
-            onClick={downloadReport}
-            className="flex items-center gap-2"
-            variant="outline"
-          >
-            <Download className="h-4 w-4" />
-            Download Report
-          </Button>
-          
-          <div className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="Enter email address"
-              value={emailAddress}
-              onChange={(e) => setEmailAddress(e.target.value)}
-              className="w-64"
-            />
-            <Button 
-              onClick={emailReport}
-              className="flex items-center gap-2"
-              disabled={!emailAddress}
-            >
-              <Mail className="h-4 w-4" />
-              Email Report
-            </Button>
-          </div>
-        </div>
-
-        {/* Chat Interface for discussing results */}
-        {chatMessages.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5" />
-                Discussion About Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-64 w-full rounded border p-4 mb-4">
-                {chatMessages.map((msg, idx) => (
-                  <div key={idx} className={`mb-3 p-3 rounded ${
-                    msg.role === 'user' 
-                      ? 'bg-blue-50 ml-8' 
-                      : 'bg-gray-50 mr-8'
-                  }`}>
-                    <div className="font-medium text-xs mb-1">
-                      {msg.role === 'user' ? 'You' : 'AI Assistant'}
-                    </div>
-                    <div className="text-sm whitespace-pre-line">{msg.content}</div>
-                  </div>
-                ))}
-              </ScrollArea>
-              
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Ask a question about the analysis..."
-                  value={currentQuestion}
-                  onChange={(e) => setCurrentQuestion(e.target.value)}
-                  className="flex-1"
-                  disabled={isChatLoading}
-                />
-                <Button 
-                  onClick={askQuestionAboutAnalysis}
-                  disabled={!currentQuestion.trim() || isChatLoading}
-                  className="flex items-center gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  {isChatLoading ? 'Sending...' : 'Ask'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Start chat button if no messages */}
-        {chatMessages.length === 0 && (
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">Discuss This Analysis</h3>
-                  <p className="text-sm text-gray-600">Ask questions or get clarification about the results</p>
-                </div>
-                <Button 
-                  onClick={() => {
-                    setCurrentQuestion("Can you explain the scoring in more detail?");
-                    askQuestionAboutAnalysis();
-                  }}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Start Discussion
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      <ArgumentativeResults
+        result={result}
+        isSingleMode={isSingleMode}
+        passageATitle={passageA.title || "Document A"}
+        passageBTitle={passageB.title || "Document B"}
+      />
     );
   }
 
-  // Analysis not started yet
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Gavel className="h-5 w-5" />
-          Cogency Test
-        </CardTitle>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Gavel className="h-6 w-6 text-blue-600" />
+          <CardTitle className="text-2xl font-bold text-blue-800">
+            Cogency Test
+          </CardTitle>
+        </div>
+        <p className="text-sm text-blue-600">
+          Test how well a document proves what it sets out to prove
+        </p>
       </CardHeader>
-      <CardContent>
-        <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">
+      
+      <CardContent className="p-6">
+        {/* Mode Selection */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Analysis Mode</h3>
+          <RadioGroup
+            value={cogencyMode}
+            onValueChange={(value) => setCogencyMode(value as 'single' | 'comparative')}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+              cogencyMode === 'single' 
+                ? "bg-blue-50 border-blue-300 shadow-md" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            }`}>
+              <RadioGroupItem value="single" id="single" />
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                <Label htmlFor="single" className="font-medium cursor-pointer">
+                  Single Document Analysis
+                </Label>
+              </div>
+            </div>
+            
+            <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+              cogencyMode === 'comparative' 
+                ? "bg-blue-50 border-blue-300 shadow-md" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            }`}>
+              <RadioGroupItem value="comparative" id="comparative" />
+              <div className="flex items-center gap-2">
+                <Scale className="h-5 w-5 text-blue-600" />
+                <Label htmlFor="comparative" className="font-medium cursor-pointer">
+                  Comparative Analysis
+                </Label>
+              </div>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Analysis Description */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <h4 className="font-medium text-gray-800 mb-2">
+            {isSingleMode ? "Single Document Cogency Test" : "Comparative Cogency Analysis"}
+          </h4>
+          <p className="text-sm text-gray-600">
             {isSingleMode 
-              ? 'Test the cogency of this document by evaluating how well it proves what it sets out to prove, analyzing argument strength, evidence quality, and logical coherence.'
-              : 'Test and compare the cogency of both documents to determine which makes its case better through comprehensive evaluation of argumentative strength and proof quality.'
+              ? "Evaluate how well a single document proves its claims using 7 core parameters: clarity of argument, inferential cohesion, conceptual precision, evidential support, counterargument handling, cognitive risk, and epistemic control."
+              : "Compare two documents to determine which makes its case better. Each document is first analyzed individually using the same 7 parameters, then compared based on those consistent scores."
             }
           </p>
-          <Button 
-            onClick={runArgumentativeAnalysis}
-            disabled={isAnalyzing}
-            className="gap-2"
+        </div>
+
+        {/* Input Validation Messages */}
+        {isSingleMode && !passageA.text.trim() && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              Please enter text in Document A to run single document cogency analysis.
+            </p>
+          </div>
+        )}
+
+        {!isSingleMode && (!passageA.text.trim() || !passageB.text.trim()) && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              Please enter text in both Document A and Document B to run comparative cogency analysis.
+            </p>
+          </div>
+        )}
+
+        {!isSingleMode && hasBothPassages && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-800">
+              Ready to compare: "{passageA.title || "Document A"}" vs "{passageB.title || "Document B"}"
+            </p>
+          </div>
+        )}
+
+        {/* Run Analysis Button */}
+        <div className="text-center">
+          <Button
+            onClick={runCogencyAnalysis}
+            disabled={
+              isAnalyzing || 
+              (isSingleMode && !passageA.text.trim()) ||
+              (!isSingleMode && (!passageA.text.trim() || !passageB.text.trim()))
+            }
+            size="lg"
+            className="px-8 py-3 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white"
           >
-            <Gavel className="h-4 w-4" />
-            {isAnalyzing ? 'Testing...' : 'Cogency Test'}
+            {isAnalyzing ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Running Cogency Test...
+              </>
+            ) : (
+              <>
+                <Gavel className="h-5 w-5 mr-2" />
+                Run Cogency Test
+              </>
+            )}
           </Button>
+          
+          <p className="text-xs text-center text-gray-500 mt-2">
+            Analysis typically takes 30-60 seconds
+          </p>
         </div>
       </CardContent>
     </Card>
