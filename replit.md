@@ -131,6 +131,8 @@ Changelog:
 - June 30, 2025. Fixed argumentative analysis scoring logic to properly value academic excellence
 - June 30, 2025. Improved report formatting with markdown structure and proper line breaks
 - June 30, 2025. Implemented comprehensive argument reconstruction and validation system
+- June 30, 2025. Added separate Single Document Cogency analysis alongside existing dual-document Cogency Test
+- June 30, 2025. Implemented 7-parameter cogency evaluation system for single documents
 ```
 
 ## User Preferences

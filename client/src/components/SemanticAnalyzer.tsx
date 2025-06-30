@@ -630,7 +630,16 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           />
         )}
         
-        {showResults && analysisResult && analysisMode !== "argumentative" && (
+        {showResults && analysisResult && analysisMode === "single-cogency" && (
+          <ArgumentativeResults
+            result={analysisResult}
+            isSingleMode={true}
+            passageATitle={passageA.title || "Document A"}
+            passageBTitle=""
+          />
+        )}
+        
+        {showResults && analysisResult && analysisMode !== "argumentative" && analysisMode !== "single-cogency" && (
           <AnalysisResults 
             result={analysisResult}
             setResult={(newResult) => setAnalysisResult(newResult)}
