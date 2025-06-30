@@ -23,11 +23,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus" | "generate";
+  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative";
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
   const isGenerateMode = analysisMode === "generate";
+  const isArgumentativeMode = analysisMode === "argumentative";
   
   // LLM Provider
   type LLMProvider = "openai" | "anthropic" | "perplexity";
@@ -349,7 +350,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               setShowResults(false);
             }
           }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2"
         >
           <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "comparison" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
             <RadioGroupItem value="comparison" id="comparison" />
@@ -378,6 +379,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               Generate Original Text
             </Label>
           </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "argumentative" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="argumentative" id="argumentative" />
+            <Label htmlFor="argumentative" className="font-medium text-sm">
+              Which Makes Its Case Better?
+            </Label>
+          </div>
         </RadioGroup>
         
         <div className="mt-3 text-xs text-slate-500">
@@ -392,6 +400,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           )}
           {analysisMode === "generate" && (
             <p>Generate highly original text using natural language instructions that specify topic, length, authors, conceptual density, and other parameters.</p>
+          )}
+          {analysisMode === "argumentative" && (
+            <p>Compare two papers to determine which makes its case better, or analyze a single paper's cogency and argumentative strength.</p>
           )}
         </div>
       </div>
@@ -435,16 +446,16 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           disabled={analysisMutation.isPending}
         />
       ) : (
-        <div className={`grid grid-cols-1 ${analysisMode === "single" ? "" : "lg:grid-cols-2"} gap-6`}>
+        <div className={`grid grid-cols-1 ${(analysisMode === "single") ? "" : "lg:grid-cols-2"} gap-6`}>
           <PassageInput
             passage={passageA}
             onChange={setPassageA}
-            label={analysisMode === "single" ? "" : "A"}
+            label={(analysisMode === "single") ? "" : "A"}
             disabled={analysisMutation.isPending}
             showUserContext={true}
           />
           
-          {analysisMode === "comparison" && (
+          {(analysisMode === "comparison" || analysisMode === "argumentative") && (
             <PassageInput
               passage={passageB}
               onChange={setPassageB}
@@ -466,6 +477,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 {analysisMode === "single" && "Click the button below to analyze the semantic originality of your passage"}
                 {analysisMode === "comparison" && "Click the button below to compare the semantic originality of both passages"}
                 {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
+                {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
               </p>
             </div>
             
@@ -475,7 +487,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               disabled={
                 analysisMutation.isPending || 
                 !passageA.text.trim() || 
-                (analysisMode === "comparison" && !passageB.text.trim()) ||
+                ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())
               }
               className="w-full py-6 bg-green-600 hover:bg-green-700 text-white font-bold text-xl rounded-lg shadow-lg transition-all border-2 border-green-500 hover:border-green-600 cursor-pointer flex items-center justify-center"
