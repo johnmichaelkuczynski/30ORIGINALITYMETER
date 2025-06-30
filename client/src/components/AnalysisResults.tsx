@@ -7,6 +7,7 @@ import PassageGenerator from "./PassageGenerator";
 import EnhancedComprehensiveReport from "./EnhancedComprehensiveReport";
 import AdvancedComparison from "./AdvancedComparison";
 import EnhancedComparisonSimple from "./EnhancedComparisonSimple";
+import ArgumentativeAnalysis from "./ArgumentativeAnalysis";
 import { Button } from "@/components/ui/button";
 
 interface AnalysisResultsProps {
@@ -157,21 +158,29 @@ export default function AnalysisResults({
       />
 
       {isSinglePassageMode && (
-        <PassageGenerator
-          analysisResult={result}
-          passage={passageA}
-          onReanalyze={(improvedPassage) => {
-            // When user wants to re-analyze the improved passage
-            onNewComparison();
-            setTimeout(() => {
-              // Wait a moment to ensure the form is reset then programmatically trigger analysis
-              const analyzeEvent = new CustomEvent('analyze-improved-passage', {
-                detail: { passage: improvedPassage }
-              });
-              document.dispatchEvent(analyzeEvent);
-            }, 100);
-          }}
-        />
+        <div className="space-y-6">
+          <ArgumentativeAnalysis
+            passageA={passageA}
+            passageATitle={passageATitle}
+            isSingleMode={true}
+          />
+          
+          <PassageGenerator
+            analysisResult={result}
+            passage={passageA}
+            onReanalyze={(improvedPassage) => {
+              // When user wants to re-analyze the improved passage
+              onNewComparison();
+              setTimeout(() => {
+                // Wait a moment to ensure the form is reset then programmatically trigger analysis
+                const analyzeEvent = new CustomEvent('analyze-improved-passage', {
+                  detail: { passage: improvedPassage }
+                });
+                document.dispatchEvent(analyzeEvent);
+              }, 100);
+            }}
+          />
+        </div>
       )}
 
       {!isSinglePassageMode && (
@@ -187,6 +196,14 @@ export default function AnalysisResults({
             passageB={passageB}
             passageATitle={passageATitle}
             passageBTitle={passageBTitle}
+          />
+          
+          <ArgumentativeAnalysis
+            passageA={passageA}
+            passageB={passageB}
+            passageATitle={passageATitle}
+            passageBTitle={passageBTitle}
+            isSingleMode={false}
           />
         </>
       )}
