@@ -6,6 +6,7 @@ import { AnalysisResult, PassageData } from "@/lib/types";
 import PassageInput from "./PassageInput";
 import CorpusComparisonInput from "./CorpusComparisonInput";
 import AnalysisResults from "./AnalysisResults";
+import ArgumentativeResults from "./ArgumentativeResults";
 import NaturalLanguageGenerator from "./NaturalLanguageGenerator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -180,7 +181,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
     
-    if (analysisMode === "comparison" && passageB.text.trim() === '') {
+    if ((analysisMode === "comparison" || analysisMode === "argumentative") && passageB.text.trim() === '') {
       toast({
         title: "Error",
         description: "Please enter text for passage B.",
@@ -198,7 +199,18 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
     
-    // Log analysis request
+    // For argumentative analysis mode, directly show results without API call
+    if (analysisMode === "argumentative") {
+      console.log("Starting argumentative analysis mode");
+      setShowResults(true);
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return;
+    }
+    
+    // Log analysis request for other modes
     console.log(`Analyzing in mode: ${analysisMode}`);
     console.log("Request payload:", {
       passageA: {
@@ -220,7 +232,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       provider
     });
     
-    // Perform analysis
+    // Perform analysis for other modes
     analysisMutation.mutate();
   };
   
@@ -535,7 +547,18 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       
       {/* Results Section */}
       <div id="results-section">
-        {showResults && analysisResult && (
+        {showResults && analysisMode === "argumentative" && (
+          <ArgumentativeResults
+            passageA={passageA}
+            passageB={passageB}
+            passageATitle={passageA.title || "Paper A"}
+            passageBTitle={passageB.title || "Paper B"}
+            isSingleMode={false}
+            onNewComparison={() => setShowResults(false)}
+          />
+        )}
+        
+        {showResults && analysisResult && analysisMode !== "argumentative" && (
           <AnalysisResults 
             result={analysisResult}
             setResult={(newResult) => setAnalysisResult(newResult)}
