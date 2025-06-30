@@ -186,7 +186,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
     
-    if ((analysisMode === "comparison" || analysisMode === "argumentative") && passageB.text.trim() === '') {
+    if (analysisMode === "comparison" && passageB.text.trim() === '') {
       toast({
         title: "Error",
         description: "Please enter text for passage B.",
