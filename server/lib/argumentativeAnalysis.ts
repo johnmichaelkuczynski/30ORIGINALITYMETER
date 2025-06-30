@@ -63,18 +63,30 @@ export async function analyzeSinglePaperCogency(
   passage: PassageData,
   title: string
 ): Promise<ArgumentativeResult> {
-  const prompt = `You are an expert academic evaluator specializing in argumentative analysis and proof assessment. Analyze the following paper for its argumentative cogency and strength.
+  const prompt = `You are an expert evaluator of academic and scholarly writing with deep expertise across all disciplines. You understand that academic papers should be evaluated by the standards of rigorous scholarship, not popular accessibility.
+
+**CRITICAL EVALUATION PRINCIPLES:**
+- Academic excellence is measured by intellectual rigor, not entertainment value
+- Complex, technical arguments are SUPERIOR to simplified popular explanations
+- Sophisticated reasoning and deep analysis deserve HIGH scores (8-10)
+- Papers addressing fundamental philosophical, scientific, or scholarly questions merit the highest evaluation
+- Do NOT penalize papers for being demanding or requiring expert knowledge
+- Papers on causation, induction, religion, consciousness, etc. are inherently addressing worthy goals (9-10)
 
 Paper Title: ${title || "Untitled Document"}
 Paper Content: ${passage.text}
 
-Evaluate this paper on the following dimensions and provide scores from 1-10:
+**EVALUATION CRITERIA (Rate each 1-10, with 8-10 being typical for quality academic work):**
 
-1. PROVES WHAT IT SETS OUT TO PROVE (1-10): Does the paper successfully establish its thesis or research question?
-2. WORTHINESS OF GOAL (1-10): Is what the paper attempts to prove valuable, significant, and worth proving?
-3. NON-TRIVIALITY LEVEL (1-10): How non-trivial and substantial is the contribution? Does it go beyond obvious claims?
-4. PROOF STRENGTH (1-10): How rigorous, convincing, and well-supported is the argumentation?
-5. FUNCTIONAL WRITING QUALITY (1-10): How effectively written is the paper from a functional perspective (clarity, structure, accessibility)?
+1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Does the paper successfully demonstrate its stated thesis with scholarly rigor? Are conclusions warranted by rigorous analysis? **Academic papers with valid reasoning = 8-10**
+
+2. **WORTHINESS OF GOAL (1-10)**: Does it address fundamental questions in its field? Is the research intellectually significant? **Papers on foundational topics like causation, religion, consciousness = 9-10**
+
+3. **NON-TRIVIALITY LEVEL (1-10)**: Does it tackle genuinely challenging intellectual problems with sophisticated insights? **Academic papers by definition address non-trivial questions = 8-10**
+
+4. **PROOF STRENGTH (1-10)**: How rigorous and convincing is the scholarly argumentation? Is evidence substantial and well-integrated? **Strong academic reasoning deserves 8-10**
+
+5. **FUNCTIONAL WRITING QUALITY (1-10)**: Is the writing precise and academically sophisticated? **Clear academic writing = 8-10, not penalized for technical complexity**
 
 Provide your analysis in the following JSON format:
 
@@ -132,7 +144,15 @@ export async function compareArgumentativeStrength(
   titleA: string,
   titleB: string
 ): Promise<ArgumentativeResult> {
-  const prompt = `You are an expert academic evaluator specializing in comparative argumentative analysis. Compare these two papers to determine which makes its case better.
+  const prompt = `You are an expert evaluator of academic and scholarly writing with deep expertise across all disciplines. You understand that academic papers should be evaluated by the standards of rigorous scholarship, not popular accessibility.
+
+**CRITICAL EVALUATION PRINCIPLES:**
+- Academic excellence is measured by intellectual rigor, not entertainment value
+- Complex, technical arguments are SUPERIOR to simplified popular explanations
+- Sophisticated reasoning and deep analysis deserve HIGH scores (8-10)
+- Papers addressing fundamental philosophical, scientific, or scholarly questions merit the highest evaluation
+- Do NOT penalize papers for being demanding or requiring expert knowledge
+- Papers on causation, induction, religion, consciousness, etc. are inherently addressing worthy goals (9-10)
 
 Paper A Title: ${titleA || "Paper A"}
 Paper A Content: ${passageA.text}
@@ -140,14 +160,19 @@ Paper A Content: ${passageA.text}
 Paper B Title: ${titleB || "Paper B"}  
 Paper B Content: ${passageB.text}
 
-Evaluate each paper on these dimensions (1-10 scale):
-1. PROVES WHAT IT SETS OUT TO PROVE: Success in establishing thesis/research question
-2. WORTHINESS OF GOAL: Value and significance of what it attempts to prove
-3. NON-TRIVIALITY LEVEL: Substantiality and depth of contribution
-4. PROOF STRENGTH: Rigor and persuasiveness of argumentation  
-5. FUNCTIONAL WRITING QUALITY: Clarity, structure, and accessibility
+**EVALUATION CRITERIA (Rate each 1-10, with 8-10 being typical for quality academic work):**
 
-Determine which paper makes its case better and provide detailed comparison.
+1. **PROVES WHAT IT SETS OUT TO PROVE (1-10)**: Does the paper successfully demonstrate its stated thesis with scholarly rigor? **Academic papers with valid reasoning = 8-10**
+
+2. **WORTHINESS OF GOAL (1-10)**: Does it address fundamental questions in its field? **Papers on foundational topics = 9-10**
+
+3. **NON-TRIVIALITY LEVEL (1-10)**: Does it tackle genuinely challenging intellectual problems? **Academic papers by definition = 8-10**
+
+4. **PROOF STRENGTH (1-10)**: How rigorous and convincing is the scholarly argumentation? **Strong academic reasoning = 8-10**
+
+5. **FUNCTIONAL WRITING QUALITY (1-10)**: Is the writing precise and academically sophisticated? **Clear academic writing = 8-10**
+
+Determine which paper makes its case better based on scholarly merit and rigorous argumentation.
 
 Respond in JSON format:
 
