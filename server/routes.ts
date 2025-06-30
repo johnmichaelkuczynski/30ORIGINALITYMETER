@@ -1693,7 +1693,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
-  // Argumentative analysis endpoint
+  // Enhanced argumentative analysis endpoint with 0-100 scoring
   app.post("/api/analyze/argumentative", async (req: Request, res: Response) => {
     try {
       const { passageA, passageB, isSingleMode, passageATitle, passageBTitle } = req.body;
@@ -1703,25 +1703,35 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       }
 
       if (isSingleMode) {
-        // Single paper cogency analysis
-        const result = await analyzeSinglePaperCogency(passageA, passageATitle || '');
+        // Enhanced single paper analysis with 7 core parameters and 0-100 scoring
+        const result = await analyzeSinglePaperEnhanced({
+          title: passageATitle || 'Untitled Document',
+          text: passageA.text,
+          userContext: passageA.userContext || ''
+        });
         res.json(result);
       } else {
-        // Comparative argumentative analysis
+        // Enhanced comparative argumentative analysis
         if (!passageB || !passageB.text) {
           return res.status(400).json({ error: 'Passage B is required for comparison mode' });
         }
         
-        const result = await compareArgumentativeStrength(
-          passageA, 
-          passageB, 
-          passageATitle || '', 
-          passageBTitle || ''
+        const result = await compareArgumentativeStrengthEnhanced(
+          {
+            title: passageATitle || 'Untitled Document A',
+            text: passageA.text,
+            userContext: passageA.userContext || ''
+          },
+          {
+            title: passageBTitle || 'Untitled Document B', 
+            text: passageB.text,
+            userContext: passageB.userContext || ''
+          }
         );
         res.json(result);
       }
     } catch (error) {
-      console.error('Argumentative analysis error:', error);
+      console.error('Enhanced argumentative analysis error:', error);
       res.status(500).json({ 
         error: 'Failed to analyze argumentative strength',
         details: error instanceof Error ? error.message : 'Unknown error'
@@ -1738,7 +1748,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         return res.status(400).json({ error: 'Analysis result is required' });
       }
 
-      const PDFDocument = require('pdfkit');
+      const PDFDocument = (await import('pdfkit')).default;
       const doc = new PDFDocument({ margin: 50 });
 
       // Set response headers for PDF download
