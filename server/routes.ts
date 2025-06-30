@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as openaiService from "./lib/openai";
 import * as anthropicService from "./lib/anthropic";
 import * as perplexityService from "./lib/perplexity";
+import * as deepseekService from "./lib/deepseek";
 import OpenAI from "openai";
 import { splitIntoParagraphs } from "../client/src/lib/utils";
 import { analysisResultSchema } from "@shared/schema";
@@ -21,7 +22,7 @@ import * as mammoth from 'mammoth';
 import pdfParse from 'pdf-parse';
 
 // Service provider types
-type LLMProvider = "openai" | "anthropic" | "perplexity";
+type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
 
 // Get the appropriate service based on the provider
 const getServiceForProvider = (provider: LLMProvider) => {
