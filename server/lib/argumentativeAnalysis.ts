@@ -1,5 +1,10 @@
 import OpenAI from "openai";
-import { PassageData } from "../../shared/schema";
+
+interface PassageData {
+  title: string;
+  text: string;
+  userContext: string;
+}
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

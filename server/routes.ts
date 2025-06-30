@@ -1687,6 +1687,173 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Argumentative analysis endpoint
+  app.post("/api/analyze/argumentative", async (req: Request, res: Response) => {
+    try {
+      const { passageA, passageB, isSingleMode, passageATitle, passageBTitle } = req.body;
+
+      if (!passageA || !passageA.text) {
+        return res.status(400).json({ error: 'Passage A is required' });
+      }
+
+      if (isSingleMode) {
+        // Single paper cogency analysis
+        const result = await analyzeSinglePaperCogency(passageA, passageATitle || '');
+        res.json(result);
+      } else {
+        // Comparative argumentative analysis
+        if (!passageB || !passageB.text) {
+          return res.status(400).json({ error: 'Passage B is required for comparison mode' });
+        }
+        
+        const result = await compareArgumentativeStrength(
+          passageA, 
+          passageB, 
+          passageATitle || '', 
+          passageBTitle || ''
+        );
+        res.json(result);
+      }
+    } catch (error) {
+      console.error('Argumentative analysis error:', error);
+      res.status(500).json({ 
+        error: 'Failed to analyze argumentative strength',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Download argumentative analysis report
+  app.post("/api/download-argumentative-report", async (req: Request, res: Response) => {
+    try {
+      const { result, passageATitle, passageBTitle, isSingleMode } = req.body;
+
+      if (!result || !result.reportContent) {
+        return res.status(400).json({ error: 'Analysis result is required' });
+      }
+
+      const PDFDocument = require('pdfkit');
+      const doc = new PDFDocument({ margin: 50 });
+
+      // Set response headers for PDF download
+      const filename = isSingleMode 
+        ? `cogency-analysis-${passageATitle || 'document'}.pdf`
+        : `argumentative-comparison-${passageATitle || 'A'}-vs-${passageBTitle || 'B'}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+      // Pipe the PDF to the response
+      doc.pipe(res);
+
+      // Add title
+      doc.fontSize(20).font('Helvetica-Bold');
+      if (isSingleMode) {
+        doc.text('Cogency Analysis Report', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(16).text(`Document: ${passageATitle || 'Untitled'}`, { align: 'center' });
+      } else {
+        doc.text('Argumentative Comparison Report', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(16).text(`${passageATitle || 'Paper A'} vs ${passageBTitle || 'Paper B'}`, { align: 'center' });
+      }
+
+      doc.moveDown(2);
+
+      // Add main content
+      doc.fontSize(12).font('Helvetica');
+      
+      // Clean up HTML and format for PDF
+      let cleanContent = result.reportContent
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\n\s*\n/g, '\n\n'); // Clean up extra whitespace
+
+      doc.text(cleanContent, {
+        align: 'left',
+        lineGap: 2
+      });
+
+      // Add generation timestamp
+      doc.moveDown(2);
+      doc.fontSize(10).fillColor('gray');
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, { align: 'right' });
+
+      doc.end();
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate PDF report',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Email argumentative analysis report
+  app.post("/api/email-argumentative-report", async (req: Request, res: Response) => {
+    try {
+      const { result, emailAddress, passageATitle, passageBTitle, isSingleMode } = req.body;
+
+      if (!result || !result.reportContent || !emailAddress) {
+        return res.status(400).json({ error: 'Analysis result and email address are required' });
+      }
+
+      const sgMail = require('@sendgrid/mail');
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+      const subject = isSingleMode 
+        ? `Cogency Analysis Report: ${passageATitle || 'Document'}`
+        : `Argumentative Comparison: ${passageATitle || 'Paper A'} vs ${passageBTitle || 'Paper B'}`;
+
+      // Clean up HTML for email
+      let emailContent = result.reportContent
+        .replace(/<h[1-6][^>]*>/g, '\n**')
+        .replace(/<\/h[1-6]>/g, '**\n')
+        .replace(/<strong>/g, '**')
+        .replace(/<\/strong>/g, '**')
+        .replace(/<em>/g, '*')
+        .replace(/<\/em>/g, '*')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\n\s*\n/g, '\n\n');
+
+      const msg = {
+        to: emailAddress,
+        from: 'noreply@originality-meter.com',
+        subject: subject,
+        text: emailContent,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+              ${subject}
+            </h1>
+            <div style="line-height: 1.6; color: #555;">
+              ${result.reportContent}
+            </div>
+            <footer style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
+              <p>Generated by Originality Meter on ${new Date().toLocaleString()}</p>
+            </footer>
+          </div>
+        `
+      };
+
+      await sgMail.send(msg);
+      res.json({ success: true, message: 'Report sent successfully' });
+    } catch (error) {
+      console.error('Email sending error:', error);
+      res.status(500).json({ 
+        error: 'Failed to send email report',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);
