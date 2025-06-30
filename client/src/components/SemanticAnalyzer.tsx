@@ -25,12 +25,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative";
+  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency";
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
   const isGenerateMode = analysisMode === "generate";
   const isArgumentativeMode = analysisMode === "argumentative";
+  const isSingleCogencyMode = analysisMode === "single-cogency";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -117,6 +118,47 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   // Analysis results
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showResults, setShowResults] = useState(false);
+  
+  // Single document cogency analysis mutation
+  const singleCogencyMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Analyzing single document cogency");
+      const endpoint = '/api/analyze/argumentative';
+      const payload = {
+        passageA,
+        passageB: null,
+        passageATitle: passageA.title || "Document A",
+        passageBTitle: null,
+        isSingleMode: true,
+        provider: "openai"
+      };
+      
+      console.log("Single cogency request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      console.log("Single cogency analysis successful:", data);
+      setAnalysisResult(data);
+      setShowResults(true);
+      
+      // Scroll to the results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Single cogency analysis error:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
   
   // Handle analysis mutation
   const analysisMutation = useMutation({
@@ -212,6 +254,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
+      return;
+    }
+    
+    // For single document cogency mode, call the API directly
+    if (analysisMode === "single-cogency") {
+      console.log("Starting single document cogency analysis");
+      singleCogencyMutation.mutate();
       return;
     }
     
@@ -374,7 +423,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               setShowResults(false);
             }
           }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
         >
           <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "comparison" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
             <RadioGroupItem value="comparison" id="comparison" />
@@ -404,6 +453,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             </Label>
           </div>
           
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "single-cogency" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="single-cogency" id="single-cogency" />
+            <Label htmlFor="single-cogency" className="font-medium text-sm">
+              Single Document Cogency
+            </Label>
+          </div>
+          
           <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "argumentative" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
             <RadioGroupItem value="argumentative" id="argumentative" />
             <Label htmlFor="argumentative" className="font-medium text-sm">
@@ -424,6 +480,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           )}
           {analysisMode === "generate" && (
             <p>Generate highly original text using natural language instructions that specify topic, length, authors, conceptual density, and other parameters.</p>
+          )}
+          {analysisMode === "single-cogency" && (
+            <p>Test how well a single document proves what it sets out to prove using 7 core parameters: clarity of argument, inferential cohesion, conceptual precision, evidential support, counterargument handling, cognitive risk, and epistemic control.</p>
           )}
           {analysisMode === "argumentative" && (
             <p>Test how well a document proves what it sets out to prove. Works for single documents or document comparisons using consistent scoring.</p>
