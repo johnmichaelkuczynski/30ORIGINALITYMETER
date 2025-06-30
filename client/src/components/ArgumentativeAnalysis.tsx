@@ -41,8 +41,11 @@ export default function ArgumentativeAnalysis({
   const runArgumentativeAnalysis = async () => {
     setIsAnalyzing(true);
     try {
-      const response = await apiRequest("/api/analyze/argumentative", {
+      const response = await fetch("/api/analyze/argumentative", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           passageA,
           passageB: passageB || null,
@@ -75,8 +78,11 @@ export default function ArgumentativeAnalysis({
 
   const downloadReport = async () => {
     try {
-      const response = await apiRequest("/api/download-argumentative-report", {
+      const response = await fetch("/api/download-argumentative-report", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           result,
           passageATitle,
@@ -113,8 +119,11 @@ export default function ArgumentativeAnalysis({
 
   const emailReport = async () => {
     try {
-      const response = await apiRequest("/api/email-argumentative-report", {
+      const response = await fetch("/api/email-argumentative-report", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           result,
           passageATitle,
@@ -153,8 +162,11 @@ export default function ArgumentativeAnalysis({
     setCurrentQuestion("");
 
     try {
-      const response = await apiRequest("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           message: currentQuestion,
           context: `Here is the argumentative analysis result: ${JSON.stringify(result)}`,
@@ -327,15 +339,15 @@ export default function ArgumentativeAnalysis({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gavel className="h-5 w-5" />
-          {isSingleMode ? 'Cogency Analysis' : 'Which One Makes Its Case Better?'}
+          Cogency Test
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-center py-8">
           <p className="text-gray-600 mb-4">
             {isSingleMode 
-              ? 'Analyze how well this paper proves what it sets out to prove, evaluating thesis strength, evidence quality, and argumentative cogency.'
-              : 'Compare two papers to determine which makes its case better through comprehensive evaluation of proof quality, thesis strength, and argumentative effectiveness.'
+              ? 'Test the cogency of this document by evaluating how well it proves what it sets out to prove, analyzing argument strength, evidence quality, and logical coherence.'
+              : 'Test and compare the cogency of both documents to determine which makes its case better through comprehensive evaluation of argumentative strength and proof quality.'
             }
           </p>
           <Button 
@@ -344,7 +356,7 @@ export default function ArgumentativeAnalysis({
             className="gap-2"
           >
             <Gavel className="h-4 w-4" />
-            {isAnalyzing ? 'Analyzing...' : isSingleMode ? 'Analyze Cogency' : 'Compare Arguments'}
+            {isAnalyzing ? 'Testing...' : 'Cogency Test'}
           </Button>
         </div>
       </CardContent>
