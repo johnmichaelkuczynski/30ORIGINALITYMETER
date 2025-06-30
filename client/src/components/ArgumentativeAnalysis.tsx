@@ -12,9 +12,9 @@ import ArgumentativeResults from "./ArgumentativeResults";
 
 interface ArgumentativeAnalysisProps {
   passageA: PassageData;
-  passageB?: PassageData;
-  passageATitle: string;
-  passageBTitle?: string;
+  passageB: PassageData;
+  onResults: (result: any) => void;
+  onNewComparison: () => void;
 }
 
 interface ChatMessage {
@@ -25,8 +25,8 @@ interface ChatMessage {
 export default function ArgumentativeAnalysis({
   passageA,
   passageB,
-  passageATitle,
-  passageBTitle = ""
+  onResults,
+  onNewComparison
 }: ArgumentativeAnalysisProps) {
   const [result, setResult] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -34,9 +34,12 @@ export default function ArgumentativeAnalysis({
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [cogencyMode, setCogencyMode] = useState<'single' | 'comparative'>('single');
   const { toast } = useToast();
 
-  const isSingleMode = !passageB;
+  // Determine if we should show single or comparative mode
+  const hasBothPassages = passageA.text.trim() && passageB.text.trim();
+  const isSingleMode = cogencyMode === 'single';
 
   const runArgumentativeAnalysis = async () => {
     setIsAnalyzing(true);

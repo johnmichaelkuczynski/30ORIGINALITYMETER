@@ -7,6 +7,7 @@ import PassageInput from "./PassageInput";
 import CorpusComparisonInput from "./CorpusComparisonInput";
 import AnalysisResults from "./AnalysisResults";
 import ArgumentativeResults from "./ArgumentativeResults";
+import ArgumentativeAnalysis from "./ArgumentativeAnalysis";
 import NaturalLanguageGenerator from "./NaturalLanguageGenerator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -406,7 +407,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "argumentative" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
             <RadioGroupItem value="argumentative" id="argumentative" />
             <Label htmlFor="argumentative" className="font-medium text-sm">
-              Which Makes Its Case Better?
+              Cogency Test
             </Label>
           </div>
         </RadioGroup>
@@ -425,7 +426,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             <p>Generate highly original text using natural language instructions that specify topic, length, authors, conceptual density, and other parameters.</p>
           )}
           {analysisMode === "argumentative" && (
-            <p>Compare two papers to determine which makes its case better, or analyze a single paper's cogency and argumentative strength.</p>
+            <p>Test how well a document proves what it sets out to prove. Works for single documents or document comparisons using consistent scoring.</p>
           )}
         </div>
       </div>
@@ -559,12 +560,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       {/* Results Section */}
       <div id="results-section">
         {showResults && analysisMode === "argumentative" && (
-          <ArgumentativeResults
+          <ArgumentativeAnalysis
             passageA={passageA}
             passageB={passageB}
-            passageATitle={passageA.title || "Paper A"}
-            passageBTitle={passageB.title || "Paper B"}
-            isSingleMode={false}
+            onResults={(result) => {
+              // Handle the cogency test results here
+              console.log("Cogency test results:", result);
+            }}
             onNewComparison={() => setShowResults(false)}
           />
         )}
