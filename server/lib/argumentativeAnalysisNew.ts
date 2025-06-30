@@ -27,19 +27,44 @@ interface ArgumentativeResult {
   singlePaperAnalysis?: {
     overallCogencyScore: number;
     cogencyLabel: string;
-    proofQuality: {
-      provesWhatItSetsOut: number;
-      worthinessOfGoal: number;
-      nonTrivialityLevel: number;
-      proofStrength: number;
-      functionalWritingQuality: number;
-    };
-    detailedAssessment: {
-      thesisClarity: string;
-      evidenceQuality: string;
-      logicalStructure: string;
-      counterargumentHandling: string;
-      significanceOfContribution: string;
+    argumentSummary: string;
+    superiorReconstruction: string;
+    coreParameters: {
+      clarityOfArgument: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      inferentialCohesion: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      conceptualPrecision: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      evidentialSupport: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      counterargumentHandling: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      cognitiveRisk: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
+      epistemicControl: {
+        score: number;
+        assessment: string;
+        quotes: string[];
+      };
     };
     overallJudgment: string;
     argumentReconstruction: ArgumentReconstruction;
@@ -49,20 +74,28 @@ interface ArgumentativeResult {
     winnerScore: number;
     paperAScore: number;
     paperBScore: number;
+    paperASummary: string;
+    paperBSummary: string;
+    paperASuperiorReconstruction: string;
+    paperBSuperiorReconstruction: string;
     comparisonBreakdown: {
       paperA: {
-        provesWhatItSetsOut: number;
-        worthinessOfGoal: number;
-        nonTrivialityLevel: number;
-        proofStrength: number;
-        functionalWritingQuality: number;
+        clarityOfArgument: number;
+        inferentialCohesion: number;
+        conceptualPrecision: number;
+        evidentialSupport: number;
+        counterargumentHandling: number;
+        cognitiveRisk: number;
+        epistemicControl: number;
       };
       paperB: {
-        provesWhatItSetsOut: number;
-        worthinessOfGoal: number;
-        nonTrivialityLevel: number;
-        proofStrength: number;
-        functionalWritingQuality: number;
+        clarityOfArgument: number;
+        inferentialCohesion: number;
+        conceptualPrecision: number;
+        evidentialSupport: number;
+        counterargumentHandling: number;
+        cognitiveRisk: number;
+        epistemicControl: number;
       };
     };
     detailedComparison: string;

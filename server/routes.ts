@@ -18,6 +18,7 @@ import { detectAIContent, AIDetectionResult } from "./lib/aiDetection";
 import { generateGraph } from "./lib/graphGenerator";
 import * as googleSearch from "./lib/googleSearch";
 import { analyzeSinglePaperCogency, compareArgumentativeStrength } from "./lib/argumentativeAnalysisNew";
+import { analyzeSinglePaperEnhanced, compareArgumentativeStrengthEnhanced } from "./lib/argumentativeAnalysisEnhanced";
 import * as mammoth from 'mammoth';
 import pdfParse from 'pdf-parse';
 
