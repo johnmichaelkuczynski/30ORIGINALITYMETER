@@ -38,22 +38,16 @@ interface ArgumentativeResult {
     paperBSuperiorReconstruction: string;
     comparisonBreakdown: {
       paperA: {
-        clarityOfArgument: number;
-        inferentialCohesion: number;
-        conceptualPrecision: number;
-        evidentialSupport: number;
-        counterargumentHandling: number;
-        cognitiveRisk: number;
-        epistemicControl: number;
+        inferentialStructure: number;
+        conceptualControl: number;
+        argumentativeIntegrity: number;
+        synthesisIntegration: number;
       };
       paperB: {
-        clarityOfArgument: number;
-        inferentialCohesion: number;
-        conceptualPrecision: number;
-        evidentialSupport: number;
-        counterargumentHandling: number;
-        cognitiveRisk: number;
-        epistemicControl: number;
+        inferentialStructure: number;
+        conceptualControl: number;
+        argumentativeIntegrity: number;
+        synthesisIntegration: number;
       };
     };
     detailedComparison: string;

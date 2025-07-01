@@ -39,22 +39,16 @@ interface EnhancedArgumentativeResult {
     paperBSuperiorReconstruction: string;
     comparisonBreakdown: {
       paperA: {
-        clarityOfArgument: number;
-        inferentialCohesion: number;
-        conceptualPrecision: number;
-        evidentialSupport: number;
-        counterargumentHandling: number;
-        cognitiveRisk: number;
-        epistemicControl: number;
+        inferentialStructure: number;
+        conceptualControl: number;
+        argumentativeIntegrity: number;
+        synthesisIntegration: number;
       };
       paperB: {
-        clarityOfArgument: number;
-        inferentialCohesion: number;
-        conceptualPrecision: number;
-        evidentialSupport: number;
-        counterargumentHandling: number;
-        cognitiveRisk: number;
-        epistemicControl: number;
+        inferentialStructure: number;
+        conceptualControl: number;
+        argumentativeIntegrity: number;
+        synthesisIntegration: number;
       };
     };
     detailedComparison: string;
@@ -313,22 +307,16 @@ Provide JSON response with:
         paperBSuperiorReconstruction: paperBAnalysis.singlePaperAnalysis.superiorReconstruction,
         comparisonBreakdown: {
           paperA: {
-            clarityOfArgument: paperAAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
-            inferentialCohesion: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
-            conceptualPrecision: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
-            evidentialSupport: paperAAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
-            counterargumentHandling: paperAAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
-            cognitiveRisk: paperAAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
-            epistemicControl: paperAAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+            inferentialStructure: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialStructure.score,
+            conceptualControl: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualControl.score,
+            argumentativeIntegrity: paperAAnalysis.singlePaperAnalysis.coreParameters.argumentativeIntegrity.score,
+            synthesisIntegration: paperAAnalysis.singlePaperAnalysis.coreParameters.synthesisIntegration.score
           },
           paperB: {
-            clarityOfArgument: paperBAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
-            inferentialCohesion: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
-            conceptualPrecision: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
-            evidentialSupport: paperBAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
-            counterargumentHandling: paperBAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
-            cognitiveRisk: paperBAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
-            epistemicControl: paperBAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+            inferentialStructure: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialStructure.score,
+            conceptualControl: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualControl.score,
+            argumentativeIntegrity: paperBAnalysis.singlePaperAnalysis.coreParameters.argumentativeIntegrity.score,
+            synthesisIntegration: paperBAnalysis.singlePaperAnalysis.coreParameters.synthesisIntegration.score
           }
         },
         detailedComparison: comparisonResult.detailedComparison,
@@ -340,22 +328,16 @@ Provide JSON response with:
         paperASuperiorReconstruction: paperAAnalysis.singlePaperAnalysis.superiorReconstruction,
         paperBSuperiorReconstruction: paperBAnalysis.singlePaperAnalysis.superiorReconstruction,
         paperAScores: {
-          clarityOfArgument: paperAAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
-          inferentialCohesion: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
-          conceptualPrecision: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
-          evidentialSupport: paperAAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
-          counterargumentHandling: paperAAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
-          cognitiveRisk: paperAAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
-          epistemicControl: paperAAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+          inferentialStructure: paperAAnalysis.singlePaperAnalysis.coreParameters.inferentialStructure.score,
+          conceptualControl: paperAAnalysis.singlePaperAnalysis.coreParameters.conceptualControl.score,
+          argumentativeIntegrity: paperAAnalysis.singlePaperAnalysis.coreParameters.argumentativeIntegrity.score,
+          synthesisIntegration: paperAAnalysis.singlePaperAnalysis.coreParameters.synthesisIntegration.score
         },
         paperBScores: {
-          clarityOfArgument: paperBAnalysis.singlePaperAnalysis.coreParameters.clarityOfArgument.score,
-          inferentialCohesion: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialCohesion.score,
-          conceptualPrecision: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualPrecision.score,
-          evidentialSupport: paperBAnalysis.singlePaperAnalysis.coreParameters.evidentialSupport.score,
-          counterargumentHandling: paperBAnalysis.singlePaperAnalysis.coreParameters.counterargumentHandling.score,
-          cognitiveRisk: paperBAnalysis.singlePaperAnalysis.coreParameters.cognitiveRisk.score,
-          epistemicControl: paperBAnalysis.singlePaperAnalysis.coreParameters.epistemicControl.score
+          inferentialStructure: paperBAnalysis.singlePaperAnalysis.coreParameters.inferentialStructure.score,
+          conceptualControl: paperBAnalysis.singlePaperAnalysis.coreParameters.conceptualControl.score,
+          argumentativeIntegrity: paperBAnalysis.singlePaperAnalysis.coreParameters.argumentativeIntegrity.score,
+          synthesisIntegration: paperBAnalysis.singlePaperAnalysis.coreParameters.synthesisIntegration.score
         },
         detailedComparison: comparisonResult.detailedComparison,
         reasoning: comparisonResult.reasoning,
@@ -387,7 +369,7 @@ async function generateEnhancedSingleReport(
 ### Executive Summary
 **Overall Cogency Score:** ${overallScore}/100 (${cogencyLabel})
 
-This report provides a comprehensive evaluation of the paper's argumentative strength across seven core parameters using a 0-100 scoring scale.
+This report provides a comprehensive evaluation of the paper's argumentative cogency across four core parameters using a 25-point scale (100 total).
 
 ### Argument Summary
 ${analysis.argumentSummary}
@@ -397,37 +379,29 @@ ${analysis.superiorReconstruction}
 
 ### Core Parameters Analysis
 
-#### 1. Clarity of Argument (${analysis.clarityOfArgument.score}/100)
-${analysis.clarityOfArgument.assessment}
+#### 1. Inferential Structure (${analysis.inferentialStructure.score}/25)
+${analysis.inferentialStructure.assessment}
 
 **Supporting Quotes:**
-${analysis.clarityOfArgument.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.inferentialStructure.quotes.map((q: string) => `> "${q}"`).join('\n')}
 
-#### 2. Inferential Cohesion (${analysis.inferentialCohesion.score}/100)
-${analysis.inferentialCohesion.assessment}
-
-**Supporting Quotes:**
-${analysis.inferentialCohesion.quotes.map((q: string) => `> "${q}"`).join('\n')}
-
-#### 3. Conceptual Precision (${analysis.conceptualPrecision.score}/100)
-${analysis.conceptualPrecision.assessment}
+#### 2. Conceptual Control (${analysis.conceptualControl.score}/25)
+${analysis.conceptualControl.assessment}
 
 **Supporting Quotes:**
-${analysis.conceptualPrecision.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.conceptualControl.quotes.map((q: string) => `> "${q}"`).join('\n')}
 
-#### 4. Evidential Support/Substantiation (${analysis.evidentialSupport.score}/100)
-${analysis.evidentialSupport.assessment}
-
-**Supporting Quotes:**
-${analysis.evidentialSupport.quotes.map((q: string) => `> "${q}"`).join('\n')}
-
-#### 5. Counterargument Handling (${analysis.counterargumentHandling.score}/100)
-${analysis.counterargumentHandling.assessment}
+#### 3. Argumentative Integrity (${analysis.argumentativeIntegrity.score}/25)
+${analysis.argumentativeIntegrity.assessment}
 
 **Supporting Quotes:**
-${analysis.counterargumentHandling.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.argumentativeIntegrity.quotes.map((q: string) => `> "${q}"`).join('\n')}
 
-#### 6. Cognitive Risk (${analysis.cognitiveRisk.score}/100)
+#### 4. Synthesis & Integration (${analysis.synthesisIntegration.score}/25)
+${analysis.synthesisIntegration.assessment}
+
+**Supporting Quotes:**
+${analysis.synthesisIntegration.quotes.map((q: string) => `> "${q}"`).join('\n')}
 ${analysis.cognitiveRisk.assessment}
 
 **Supporting Quotes:**
