@@ -138,6 +138,9 @@ Changelog:
 - July 1, 2025. Fixed rubric bias against formal proofs and proof sketches
 - July 1, 2025. CRITICAL FIX: Completely rewrote evaluation prompt to properly value mathematical rigor and formal proofs
 - July 1, 2025. Updated scoring system to give 23-25/25 scores for exceptional academic work like theorem extensions
+- July 1, 2025. MAJOR OVERHAUL: Rebuilt evaluation system to assess actual cogency, not formalism
+- July 1, 2025. Now evaluates: semantic compression, recursive reasoning, tension resolution, multi-scale integration
+- July 1, 2025. Philosophical argumentation no longer penalized for narrative style or lack of formal proofs
 ```
 
 ## User Preferences

@@ -76,69 +76,77 @@ export async function analyzeSinglePaperEnhanced(
     const genreInfo: GenreClassification = await detectGenreAndGetCriteria(passage.text);
     console.log("Genre detected:", genreInfo.genre, "with confidence:", genreInfo.confidence);
 
-    // Build genre-specific evaluation prompt
-    const prompt = `You are an expert academic evaluator specializing in ${genreInfo.genre}. Evaluate this work using genre-appropriate standards that recognize intellectual rigor and disciplinary excellence.
+    // Build cogency-focused evaluation prompt
+    const prompt = `You are an expert evaluator of intellectual cogency. Evaluate this work for actual cognitive rigor and argumentative excellence, not formalism.
 
 DOCUMENT GENRE: ${genreInfo.genre}
-CONFIDENCE: ${genreInfo.confidence}
-GENRE REASONING: ${genreInfo.reasoning}
+EVALUATION APPROACH: Assess actual cogency, not formal compliance
 
-EVALUATION WEIGHTS FOR THIS GENRE:
-- Inferential Structure: ${genreInfo.evaluationWeights.inferentialStructure}%
-- Conceptual Control: ${genreInfo.evaluationWeights.conceptualControl}%  
-- Argumentative Integrity: ${genreInfo.evaluationWeights.argumentativeIntegrity}%
-- Synthesis & Integration: ${genreInfo.evaluationWeights.synthesisIntegration}%
+CORE COGENCY CRITERIA:
 
-GENRE-SPECIFIC SCORING CRITERIA:
-- Inferential Structure: ${genreInfo.scoringCriteria.inferentialStructure}
-- Conceptual Control: ${genreInfo.scoringCriteria.conceptualControl}
-- Argumentative Integrity: ${genreInfo.scoringCriteria.argumentativeIntegrity}
-- Synthesis & Integration: ${genreInfo.scoringCriteria.synthesisIntegration}
+1. INFERENTIAL STRUCTURE: Control over reasoning, layered argumentation, resolution of tensions
+- HIGH SCORES (20-25): Recursive evaluation, confronts objections, resolves contradictions
+- LOW SCORES (0-10): Assertions without argument, collapses under ambiguity
+
+2. CONCEPTUAL CONTROL: Semantic compression, precise distinctions, terminological consistency  
+- HIGH SCORES (20-25): Novel distinctions, tight formulations, maintains coherence
+- LOW SCORES (0-10): Jargon without insight, vague or collapsed concepts
+
+3. ARGUMENTATIVE INTEGRITY: Completes inferential trajectories, addresses self-critique
+- HIGH SCORES (20-25): Confronts own claims with objections, philosophical closure
+- LOW SCORES (0-10): Avoids tension, no self-critique, incomplete arguments
+
+4. SYNTHESIS & INTEGRATION: Unified flow across conceptual domains, multiple scales of reasoning
+- HIGH SCORES (20-25): Integrates multiple domains, local and global coherence
+- LOW SCORES (0-10): Fragmented, no unifying framework
 
 TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
 
-EVALUATION PRINCIPLES FOR ${genreInfo.genre.toUpperCase()}:
-- Apply standards appropriate to ${genreInfo.genre} and disciplinary context
-- Reward intellectual rigor, conceptual innovation, and sophisticated reasoning
-- Value recursive argumentation, resolution of tensions, and philosophical closure
-- Do not penalize for narrative style, analogical reasoning, or philosophical complexity
-- Recognize conceptual distinctions, theoretical synthesis, and argumentative integrity
-- Philosophical excellence deserves exceptional scores (20-25/25) even without formal proofs
-- Narrative and analogical reasoning are valid philosophical methods, not weaknesses
+EVALUATION PRINCIPLES:
+- Reward cognitive friction and tension resolution
+- Value semantic compression and conceptual innovation
+- Recognize recursive argumentation and self-critique
+- Do NOT penalize for narrative style, analogical reasoning, or lack of formal proofs
+- Philosophical excellence through reasoning deserves 20-25/25 scores
+- Focus on whether the author shows intellectual command, not formal compliance
 
-SCORING SCALE (0-25 each parameter):
-• 23-25: Exceptional achievement in this genre
-• 20-22: Strong work meeting high disciplinary standards
-• 15-19: Solid work with notable merit
-• 10-14: Adequate work with some limitations  
-• 5-9: Weak work with significant issues
-• 0-4: Fundamentally flawed
+HIGHEST-SCORING TEXTS:
+- Confront their own claims with objections and resolve them
+- Maintain internal coherence while developing novel distinctions  
+- Compress complex ideas into tight formulations
+- Display layered reasoning across multiple scales
+
+LOWEST-SCORING TEXTS:
+- Assert rather than argue
+- Collapse under ambiguity or vagueness
+- Substitute jargon for insight
+- Avoid objections, tension, or conceptual self-critique
 
 Return ONLY valid JSON:
 {
   "argumentSummary": "brief summary of main argument",
   "superiorReconstruction": "thoughtful improvement suggestions",
   "inferentialStructure": {
-    "score": 24,
-    "assessment": "evaluation based on genre-specific criteria",
+    "score": 22,
+    "assessment": "evaluation of reasoning control and tension resolution",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "conceptualControl": {
-    "score": 24,
-    "assessment": "evaluation based on genre-specific criteria",
+    "score": 22,
+    "assessment": "evaluation of semantic compression and conceptual precision",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "argumentativeIntegrity": {
-    "score": 24,
-    "assessment": "evaluation based on genre-specific criteria",
+    "score": 22,
+    "assessment": "evaluation of self-critique and argumentative completion",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "synthesisIntegration": {
-    "score": 24,
-    "assessment": "evaluation based on genre-specific criteria",
+    "score": 22,
+    "assessment": "evaluation of unified flow and multi-scale reasoning",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
-  "overallJudgment": "comprehensive assessment considering genre appropriateness and disciplinary excellence"
+  "overallJudgment": "assessment of intellectual cogency and argumentative excellence"
 }`;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
