@@ -64,103 +64,35 @@ export async function analyzeSinglePaperEnhanced(
   passage: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const prompt = `You are an expert evaluator of academic and philosophical argumentation. Provide a completely UNFILTERED assessment of this paper's COGENCY - how well it proves what it sets out to prove.
+    const prompt = `Analyze this academic text and score it on 4 parameters (0-25 each, total 100).
 
-**COGENCY DEFINITION:**
-- Cogency = logical convincingness and proof strength
-- The ONLY consideration is: does the argument successfully make its case?
-- Adjust expectations based on the NON-TRIVIALITY of what's being proven
-- More ambitious claims require proportionally stronger evidence
-- Trivial claims need minimal proof; groundbreaking claims need exceptional proof
+TEXT: ${passage.text.substring(0, 6000)}
 
-**UNFILTERED EVALUATION PRINCIPLES:**
-- Give your RAW, honest assessment without diplomatic softening
-- Score based PURELY on logical convincingness 
-- Technical sophistication and formal rigor are ASSETS, not barriers
-- Mathematical proofs, formal logic, specialized terminology = POSITIVE
-- Judge arguments by the standards of their own domain
-- 95-100: Exceptional proof quality relative to claim difficulty
-- 90-94: Strong proof quality, publication-ready work  
-- 85-89: Good proof quality with minor logical gaps
-- 80-84: Adequate proof with notable weaknesses
-- 70-79: Weak proof, significant logical problems
-- Below 70: Fundamentally flawed argumentation
-
-**DOMAIN-SPECIFIC EVALUATION STANDARDS:**
-- **Mathematical/Logical Papers**: Proof sketches are standard; reward compression when lemmas are well-known
-- **Formal Logic**: Cogency = mathematical validity; counterarguments less critical than in humanities
-- **Philosophy**: Balance formal rigor with argumentative discourse norms
-- **Empirical Sciences**: Evidence standards differ from formal proofs
-
-**CRITICAL GUARDRAILS:**
-- Do NOT penalize texts for lack of counterargument unless they make broad universal claims without qualification
-- Do NOT penalize exposition-based argumentation for lacking "evidence" - exposition IS the evidence in philosophical analysis
-- Do NOT confuse philosophical exposition with unsupported assertion
-- Do NOT assume logic only exists in numbered steps or syllogistic format
-- Do NOT penalize compressed reasoning or implicit synthesis if conceptually sound
-
-**COMMON RUBRIC ERRORS TO AVOID:**
-- Don't penalize dense prose if distinctions are meaningful and sustained
-- Don't penalize implicit transitions if inferential structure is coherent  
-- Don't conflate stylistic clarity with argumentative cogency
-- Don't conflate reader-friendliness with logical validity
-
-**BE COMPLETELY HONEST AND DIRECT IN YOUR ASSESSMENT**
-
-**PAPER TO ANALYZE:**
-Title: ${passage.title}
-${passage.text}
-
-**REQUIRED ANALYSIS:**
-
-1. **ARGUMENT SUMMARY**: Provide a factual summary of the paper's main argument
-
-2. **SUPERIOR RECONSTRUCTION**: Write an actual improved version of the paper that strengthens weaknesses, fills gaps, and enhances clarity while preserving the core thesis. This should be a substantive rewrite with better explanations, stronger evidence, and clearer structure - NOT just tips or suggestions.
-
-3. **COMPREHENSIVE EVALUATION** using 4 core parameters (25 points each = 100 total):
-
-   **EVALUATE ARGUMENTATIVE COGENCY, NOT SURFACE RHETORIC:**
-   
-   - **Inferential Structure (25 points)**: Does the text develop positions with coherent internal logic? Reward compressed reasoning. Do NOT penalize implicit transitions if logic is sound.
-   
-   - **Conceptual Control (25 points)**: Does the author draw meaningful distinctions and sustain them throughout? Reward dense prose if conceptual distinctions are real and stable.
-   
-   - **Argumentative Integrity (25 points)**: Does the author follow through on initial commitments? Do conclusions align with framing and claims? Internal consistency matters.
-   
-   - **Synthesis & Integration (25 points)**: Does the text weave multiple thinkers/ideas into unified argumentative trajectory? Recognize synthesis even when implicit.
-
-4. **OVERALL JUDGMENT**: Comprehensive assessment of argumentative merit
-
-For each parameter, provide:
-- Score (0-25): Assessment out of 25 points 
-- Assessment (detailed explanation)
-- Supporting quotes (2-3 relevant excerpts from the text)
-
-Respond in valid JSON format:
+Return ONLY valid JSON with this exact structure:
 {
-  "argumentSummary": "factual summary of the main argument",
+  "argumentSummary": "brief summary of main argument",
   "superiorReconstruction": "improved version of the argument",
   "inferentialStructure": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
+    "score": 20,
+    "assessment": "evaluation of logical reasoning quality",
+    "quotes": ["quote1", "quote2"]
   },
   "conceptualControl": {
-    "score": number,
-    "assessment": "detailed evaluation", 
-    "quotes": ["quote1", "quote2", "quote3"]
+    "score": 20,
+    "assessment": "evaluation of conceptual precision", 
+    "quotes": ["quote1", "quote2"]
   },
   "argumentativeIntegrity": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
+    "score": 20,
+    "assessment": "evaluation of following through on commitments",
+    "quotes": ["quote1", "quote2"]
   },
   "synthesisIntegration": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
+    "score": 20,
+    "assessment": "evaluation of unified argumentative trajectory",
+    "quotes": ["quote1", "quote2"]
   },
-  "overallJudgment": "comprehensive assessment of argumentative merit"
+  "overallJudgment": "comprehensive assessment"
 }`;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -179,6 +111,16 @@ Respond in valid JSON format:
     }
 
     const parsed = JSON.parse(content);
+    
+    // Debug logging to see what we actually received
+    console.log("Parsed AI response structure:", JSON.stringify(parsed, null, 2));
+    
+    // Validate that we have the expected structure
+    if (!parsed.inferentialStructure || !parsed.conceptualControl || 
+        !parsed.argumentativeIntegrity || !parsed.synthesisIntegration) {
+      console.error("Missing required parameters in AI response:", parsed);
+      throw new Error("AI response missing required parameter structure");
+    }
 
     // Calculate overall score from core parameters (each out of 25, total 100)
     const parameterScores = [
