@@ -136,6 +136,8 @@ Changelog:
 - July 1, 2025. Updated cogency evaluation to focus on logical convincingness, not accessibility
 - July 1, 2025. Implemented domain-aware evaluation standards (mathematical, philosophical, empirical)
 - July 1, 2025. Fixed rubric bias against formal proofs and proof sketches
+- July 1, 2025. CRITICAL FIX: Completely rewrote evaluation prompt to properly value mathematical rigor and formal proofs
+- July 1, 2025. Updated scoring system to give 23-25/25 scores for exceptional academic work like theorem extensions
 ```
 
 ## User Preferences

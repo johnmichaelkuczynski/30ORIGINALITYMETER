@@ -64,35 +64,53 @@ export async function analyzeSinglePaperEnhanced(
   passage: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const prompt = `Analyze this academic text and score it on 4 parameters (0-25 each, total 100).
+    const prompt = `You are an expert academic evaluator specializing in formal logic, mathematics, and philosophical argumentation. Evaluate this academic work with the highest intellectual standards, giving credit for technical rigor, mathematical sophistication, and logical precision.
 
-TEXT: ${passage.text.substring(0, 6000)}
+CRITICAL EVALUATION PRINCIPLES:
+- Mathematical proofs and formal logic deserve the highest scores (20-25/25)
+- Technical precision and rigorous definitions are marks of excellence
+- Original mathematical insights should score very highly
+- Formal notation and systematic reasoning indicate superior work
+- Academic depth is more valuable than accessibility
+- Extensions of major theorems (like Gödel's) represent exceptional achievement
+
+TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
+
+Score each parameter 0-25 points. Mathematical proofs and formal logical arguments should typically score 20-25. Use the full range - excellent work deserves excellent scores.
+
+SCORING GUIDELINES:
+• 23-25: Exceptional academic achievement, formal proofs, major theoretical contributions
+• 20-22: Strong academic work with rigorous methodology 
+• 15-19: Solid academic work with some technical merit
+• 10-14: Basic academic work with limited rigor
+• 5-9: Weak argumentation with significant flaws
+• 0-4: Fundamentally flawed or incoherent
 
 Return ONLY valid JSON with this exact structure:
 {
   "argumentSummary": "brief summary of main argument",
   "superiorReconstruction": "improved version of the argument",
   "inferentialStructure": {
-    "score": 20,
-    "assessment": "evaluation of logical reasoning quality",
+    "score": 23,
+    "assessment": "evaluation of logical reasoning quality - formal proofs score 20-25",
     "quotes": ["quote1", "quote2"]
   },
   "conceptualControl": {
-    "score": 20,
-    "assessment": "evaluation of conceptual precision", 
+    "score": 23,
+    "assessment": "evaluation of conceptual precision - technical definitions score highly", 
     "quotes": ["quote1", "quote2"]
   },
   "argumentativeIntegrity": {
-    "score": 20,
-    "assessment": "evaluation of following through on commitments",
+    "score": 23,
+    "assessment": "evaluation of following through on commitments - complete proofs score highly",
     "quotes": ["quote1", "quote2"]
   },
   "synthesisIntegration": {
-    "score": 20,
-    "assessment": "evaluation of unified argumentative trajectory",
+    "score": 23,
+    "assessment": "evaluation of unified argumentative trajectory - theoretical extensions score highly",
     "quotes": ["quote1", "quote2"]
   },
-  "overallJudgment": "comprehensive assessment"
+  "overallJudgment": "comprehensive assessment focusing on academic merit and intellectual achievement"
 }`;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
