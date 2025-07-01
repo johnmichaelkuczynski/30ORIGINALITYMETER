@@ -224,7 +224,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage B text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
       });
 
       const { passageA, passageB, provider } = requestSchema.parse(req.body);
@@ -440,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
       });
 
       const { passageA, provider } = requestSchema.parse(req.body);
