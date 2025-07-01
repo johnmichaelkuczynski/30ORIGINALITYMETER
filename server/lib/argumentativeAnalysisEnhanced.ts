@@ -76,9 +76,15 @@ export async function analyzeSinglePaperEnhanced(
     const prompt = `You are an expert evaluator of academic and philosophical argumentation. Analyze this paper for cogency - how well it proves what it sets out to prove.
 
 **SCORING PRINCIPLES:**
-- Use 0-100 scale, be generous with quality work (typically 60-95 range)
-- Academic writing should score 70-90+ for competent work
-- Consider intellectual rigor and argumentative sophistication
+- Use 0-100 scale, be generous with quality academic work
+- 95-100: Exceptional academic work - rigorous, sophisticated, groundbreaking insights
+- 90-94: Excellent academic work - strong reasoning, well-substantiated, publication-ready
+- 85-89: Very good academic work - solid arguments with minor areas for improvement  
+- 80-84: Good academic work - competent with some notable weaknesses
+- 70-79: Fair academic work - adequate but significantly flawed
+- Below 70: Poor quality with major fundamental problems
+- RECOGNIZE ACADEMIC EXCELLENCE: Reward sophisticated philosophical arguments, formal proofs, and rigorous theoretical work
+- MATHEMATICAL/LOGICAL RIGOR: Papers with formal proofs and meta-theoretic arguments should score 90+ if technically sound
 
 **PAPER TO ANALYZE:**
 Title: ${passage.title}
@@ -88,7 +94,7 @@ ${passage.text}
 
 1. **ARGUMENT SUMMARY**: Provide a factual summary of the paper's main argument
 
-2. **SUPERIOR RECONSTRUCTION**: Create an improved version of the argument that strengthens weaknesses while preserving the core thesis
+2. **SUPERIOR RECONSTRUCTION**: Write an actual improved version of the paper that strengthens weaknesses, fills gaps, and enhances clarity while preserving the core thesis. This should be a substantive rewrite with better explanations, stronger evidence, and clearer structure - NOT just tips or suggestions.
 
 3. **COMPREHENSIVE EVALUATION** using 7 core parameters (0-100 each):
    - **Clarity of Argument**: How clearly the thesis and reasoning are presented

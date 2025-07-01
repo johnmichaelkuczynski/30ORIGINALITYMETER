@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Gavel, Target, CheckCircle, TrendingUp, FileText, Award, Quote } from "lucide-react";
+import { Gavel, Target, CheckCircle, TrendingUp, FileText, Award, Quote, Download, Mail } from "lucide-react";
+import { EmailReportDialog } from "./EmailReportDialog";
 
 interface CoreParameter {
   score: number;
@@ -130,6 +132,24 @@ export default function ArgumentativeResults({
             </div>
           </CardHeader>
         </Card>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          <Button
+            onClick={() => downloadCogencyReport(analysis, passageATitle, isSingleMode)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download Report
+          </Button>
+          
+          <EmailReportDialog
+            reportContent={generateCogencyReportContent(analysis, passageATitle, isSingleMode)}
+            reportTitle={`Cogency Analysis: ${passageATitle}`}
+            analysisType="single"
+          />
+        </div>
 
         <Tabs defaultValue="summary" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
