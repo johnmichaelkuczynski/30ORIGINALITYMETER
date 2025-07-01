@@ -21,13 +21,10 @@ interface EnhancedArgumentativeResult {
     argumentSummary: string;
     superiorReconstruction: string;
     coreParameters: {
-      clarityOfArgument: CoreParameter;
-      inferentialCohesion: CoreParameter;
-      conceptualPrecision: CoreParameter;
-      evidentialSupport: CoreParameter;
-      counterargumentHandling: CoreParameter;
-      cognitiveRisk: CoreParameter;
-      epistemicControl: CoreParameter;
+      inferentialStructure: CoreParameter;
+      conceptualControl: CoreParameter;
+      argumentativeIntegrity: CoreParameter;
+      synthesisIntegration: CoreParameter;
     };
     overallJudgment: string;
   };

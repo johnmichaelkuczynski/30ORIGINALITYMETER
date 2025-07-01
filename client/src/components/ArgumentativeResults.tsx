@@ -20,13 +20,10 @@ interface ArgumentativeResult {
     argumentSummary: string;
     superiorReconstruction: string;
     coreParameters: {
-      clarityOfArgument: CoreParameter;
-      inferentialCohesion: CoreParameter;
-      conceptualPrecision: CoreParameter;
-      evidentialSupport: CoreParameter;
-      counterargumentHandling: CoreParameter;
-      cognitiveRisk: CoreParameter;
-      epistemicControl: CoreParameter;
+      inferentialStructure: CoreParameter;
+      conceptualControl: CoreParameter;
+      argumentativeIntegrity: CoreParameter;
+      synthesisIntegration: CoreParameter;
     };
     overallJudgment: string;
   };
@@ -75,13 +72,10 @@ interface ArgumentativeResultsProps {
 // Helper function to get parameter labels
 const getParameterLabel = (parameter: string) => {
   switch (parameter) {
-    case 'clarityOfArgument': return 'Clarity of Argument';
-    case 'inferentialCohesion': return 'Inferential Cohesion';
-    case 'conceptualPrecision': return 'Conceptual Precision';
-    case 'evidentialSupport': return 'Evidential Support';
-    case 'counterargumentHandling': return 'Counterargument Handling';
-    case 'cognitiveRisk': return 'Cognitive Risk';
-    case 'epistemicControl': return 'Epistemic Control';
+    case 'inferentialStructure': return 'Inferential Structure';
+    case 'conceptualControl': return 'Conceptual Control';
+    case 'argumentativeIntegrity': return 'Argumentative Integrity';
+    case 'synthesisIntegration': return 'Synthesis & Integration';
     default: return parameter;
   }
 };
