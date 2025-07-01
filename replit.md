@@ -133,6 +133,9 @@ Changelog:
 - June 30, 2025. Implemented comprehensive argument reconstruction and validation system
 - June 30, 2025. Added separate Single Document Cogency analysis alongside existing dual-document Cogency Test
 - June 30, 2025. Implemented 7-parameter cogency evaluation system for single documents
+- July 1, 2025. Updated cogency evaluation to focus on logical convincingness, not accessibility
+- July 1, 2025. Implemented domain-aware evaluation standards (mathematical, philosophical, empirical)
+- July 1, 2025. Fixed rubric bias against formal proofs and proof sketches
 ```
 
 ## User Preferences

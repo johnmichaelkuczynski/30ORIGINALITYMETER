@@ -95,6 +95,18 @@ export async function analyzeSinglePaperEnhanced(
 - 70-79: Weak proof, significant logical problems
 - Below 70: Fundamentally flawed argumentation
 
+**DOMAIN-SPECIFIC EVALUATION STANDARDS:**
+- **Mathematical/Logical Papers**: Proof sketches are standard; reward compression when lemmas are well-known
+- **Formal Logic**: Cogency = mathematical validity; counterarguments less critical than in humanities
+- **Philosophy**: Balance formal rigor with argumentative discourse norms
+- **Empirical Sciences**: Evidence standards differ from formal proofs
+
+**COMMON RUBRIC ERRORS TO AVOID:**
+- Don't penalize proof sketches for brevity when steps are standard (Cantor, diagonalization, etc.)
+- Don't demand disclaimers when scope is clearly delineated
+- Don't apply humanities counterargument standards to formal mathematical proofs
+- Don't conflate accessibility with cogency
+
 **BE COMPLETELY HONEST AND DIRECT IN YOUR ASSESSMENT**
 
 **PAPER TO ANALYZE:**
@@ -108,13 +120,14 @@ ${passage.text}
 2. **SUPERIOR RECONSTRUCTION**: Write an actual improved version of the paper that strengthens weaknesses, fills gaps, and enhances clarity while preserving the core thesis. This should be a substantive rewrite with better explanations, stronger evidence, and clearer structure - NOT just tips or suggestions.
 
 3. **COMPREHENSIVE EVALUATION** using 7 core parameters (0-100 each):
-   - **Clarity of Argument**: Logical structure and precision of reasoning (NOT simplicity for laypeople)
-   - **Inferential Cohesion**: Validity of logical connections between premises and conclusions
+   **ADJUST STANDARDS BY DOMAIN:**
+   - **Clarity of Argument**: Logical structure and precision of reasoning (reward efficiency in formal contexts)
+   - **Inferential Cohesion**: Validity of logical connections (reward compression when steps are standard; penalize only actual gaps)
    - **Conceptual Precision**: Technical accuracy and rigor of definitions and concepts
-   - **Evidential Support/Substantiation**: Quality, relevance, and sufficiency of evidence/proof
-   - **Counterargument Handling**: Anticipation and refutation of legitimate objections
+   - **Evidential Support/Substantiation**: Quality, relevance, and sufficiency of evidence/proof by domain standards
+   - **Counterargument Handling**: Genre-appropriate objection handling (formal proofs need less rhetorical refutation)
    - **Cognitive Risk**: Intellectual ambition and significance of the claims being made
-   - **Epistemic Control**: Appropriate scope, limitations, and confidence calibration
+   - **Epistemic Control**: Actual overreach vs. appropriate confidence (don't penalize lack of unnecessary disclaimers)
 
 4. **OVERALL JUDGMENT**: Comprehensive assessment of argumentative merit
 
