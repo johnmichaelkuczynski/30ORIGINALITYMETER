@@ -402,16 +402,7 @@ ${analysis.synthesisIntegration.assessment}
 
 **Supporting Quotes:**
 ${analysis.synthesisIntegration.quotes.map((q: string) => `> "${q}"`).join('\n')}
-${analysis.cognitiveRisk.assessment}
 
-**Supporting Quotes:**
-${analysis.cognitiveRisk.quotes.map((q: string) => `> "${q}"`).join('\n')}
-
-#### 7. Epistemic Control (${analysis.epistemicControl.score}/100)
-${analysis.epistemicControl.assessment}
-
-**Supporting Quotes:**
-${analysis.epistemicControl.quotes.map((q: string) => `> "${q}"`).join('\n')}
 
 ### Overall Judgment
 ${analysis.overallJudgment}
