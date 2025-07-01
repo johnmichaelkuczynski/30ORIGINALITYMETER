@@ -72,6 +72,64 @@ interface ArgumentativeResultsProps {
   passageBTitle?: string;
 }
 
+// Helper function to get parameter labels
+const getParameterLabel = (parameter: string) => {
+  switch (parameter) {
+    case 'clarityOfArgument': return 'Clarity of Argument';
+    case 'inferentialCohesion': return 'Inferential Cohesion';
+    case 'conceptualPrecision': return 'Conceptual Precision';
+    case 'evidentialSupport': return 'Evidential Support';
+    case 'counterargumentHandling': return 'Counterargument Handling';
+    case 'cognitiveRisk': return 'Cognitive Risk';
+    case 'epistemicControl': return 'Epistemic Control';
+    default: return parameter;
+  }
+};
+
+// Helper function to generate report content
+const generateCogencyReportContent = (analysis: any, title: string, isSingleMode: boolean): string => {
+  return `
+COGENCY ANALYSIS REPORT
+${isSingleMode ? 'Single Document Analysis' : 'Comparative Analysis'}
+Document: ${title}
+Generated: ${new Date().toLocaleDateString()}
+
+OVERALL COGENCY SCORE: ${analysis.overallCogencyScore}/100
+COGENCY LEVEL: ${analysis.cogencyLabel}
+
+ARGUMENT SUMMARY:
+${analysis.argumentSummary}
+
+SUPERIOR RECONSTRUCTION:
+${analysis.superiorReconstruction}
+
+CORE PARAMETERS ANALYSIS:
+${Object.entries(analysis.coreParameters).map(([key, param]: [string, any]) => `
+${getParameterLabel(key)}:
+Score: ${param.score}/100
+Assessment: ${param.assessment}
+Supporting Quotes: ${param.quotes.map((q: string) => `"${q}"`).join(', ')}
+`).join('\n')}
+
+OVERALL JUDGMENT:
+${analysis.overallJudgment}
+  `.trim();
+};
+
+// Helper function to download report
+const downloadCogencyReport = (analysis: any, title: string, isSingleMode: boolean) => {
+  const content = generateCogencyReportContent(analysis, title, isSingleMode);
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cogency-analysis-${title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 export default function ArgumentativeResults({ 
   result, 
   isSingleMode, 

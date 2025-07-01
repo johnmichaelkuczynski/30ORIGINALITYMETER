@@ -73,18 +73,29 @@ export async function analyzeSinglePaperEnhanced(
   passage: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const prompt = `You are an expert evaluator of academic and philosophical argumentation. Analyze this paper for cogency - how well it proves what it sets out to prove.
+    const prompt = `You are an expert evaluator of academic and philosophical argumentation. Provide a completely UNFILTERED assessment of this paper's COGENCY - how well it proves what it sets out to prove.
 
-**SCORING PRINCIPLES:**
-- Use 0-100 scale, be generous with quality academic work
-- 95-100: Exceptional academic work - rigorous, sophisticated, groundbreaking insights
-- 90-94: Excellent academic work - strong reasoning, well-substantiated, publication-ready
-- 85-89: Very good academic work - solid arguments with minor areas for improvement  
-- 80-84: Good academic work - competent with some notable weaknesses
-- 70-79: Fair academic work - adequate but significantly flawed
-- Below 70: Poor quality with major fundamental problems
-- RECOGNIZE ACADEMIC EXCELLENCE: Reward sophisticated philosophical arguments, formal proofs, and rigorous theoretical work
-- MATHEMATICAL/LOGICAL RIGOR: Papers with formal proofs and meta-theoretic arguments should score 90+ if technically sound
+**COGENCY DEFINITION:**
+- Cogency = logical convincingness and proof strength
+- The ONLY consideration is: does the argument successfully make its case?
+- Adjust expectations based on the NON-TRIVIALITY of what's being proven
+- More ambitious claims require proportionally stronger evidence
+- Trivial claims need minimal proof; groundbreaking claims need exceptional proof
+
+**UNFILTERED EVALUATION PRINCIPLES:**
+- Give your RAW, honest assessment without diplomatic softening
+- Score based PURELY on logical convincingness 
+- Technical sophistication and formal rigor are ASSETS, not barriers
+- Mathematical proofs, formal logic, specialized terminology = POSITIVE
+- Judge arguments by the standards of their own domain
+- 95-100: Exceptional proof quality relative to claim difficulty
+- 90-94: Strong proof quality, publication-ready work  
+- 85-89: Good proof quality with minor logical gaps
+- 80-84: Adequate proof with notable weaknesses
+- 70-79: Weak proof, significant logical problems
+- Below 70: Fundamentally flawed argumentation
+
+**BE COMPLETELY HONEST AND DIRECT IN YOUR ASSESSMENT**
 
 **PAPER TO ANALYZE:**
 Title: ${passage.title}
@@ -97,13 +108,13 @@ ${passage.text}
 2. **SUPERIOR RECONSTRUCTION**: Write an actual improved version of the paper that strengthens weaknesses, fills gaps, and enhances clarity while preserving the core thesis. This should be a substantive rewrite with better explanations, stronger evidence, and clearer structure - NOT just tips or suggestions.
 
 3. **COMPREHENSIVE EVALUATION** using 7 core parameters (0-100 each):
-   - **Clarity of Argument**: How clearly the thesis and reasoning are presented
-   - **Inferential Cohesion**: How well premises connect to conclusions
-   - **Conceptual Precision**: Accuracy and specificity of key concepts
-   - **Evidential Support/Substantiation**: Quality and relevance of evidence
-   - **Counterargument Handling**: Recognition and refutation of objections
-   - **Cognitive Risk**: Intellectual boldness and non-triviality of claims
-   - **Epistemic Control**: Appropriate confidence levels and scope limitations
+   - **Clarity of Argument**: Logical structure and precision of reasoning (NOT simplicity for laypeople)
+   - **Inferential Cohesion**: Validity of logical connections between premises and conclusions
+   - **Conceptual Precision**: Technical accuracy and rigor of definitions and concepts
+   - **Evidential Support/Substantiation**: Quality, relevance, and sufficiency of evidence/proof
+   - **Counterargument Handling**: Anticipation and refutation of legitimate objections
+   - **Cognitive Risk**: Intellectual ambition and significance of the claims being made
+   - **Epistemic Control**: Appropriate scope, limitations, and confidence calibration
 
 4. **OVERALL JUDGMENT**: Comprehensive assessment of argumentative merit
 
