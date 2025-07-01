@@ -101,11 +101,18 @@ export async function analyzeSinglePaperEnhanced(
 - **Philosophy**: Balance formal rigor with argumentative discourse norms
 - **Empirical Sciences**: Evidence standards differ from formal proofs
 
+**CRITICAL GUARDRAILS:**
+- Do NOT penalize texts for lack of counterargument unless they make broad universal claims without qualification
+- Do NOT penalize exposition-based argumentation for lacking "evidence" - exposition IS the evidence in philosophical analysis
+- Do NOT confuse philosophical exposition with unsupported assertion
+- Do NOT assume logic only exists in numbered steps or syllogistic format
+- Do NOT penalize compressed reasoning or implicit synthesis if conceptually sound
+
 **COMMON RUBRIC ERRORS TO AVOID:**
-- Don't penalize proof sketches for brevity when steps are standard (Cantor, diagonalization, etc.)
-- Don't demand disclaimers when scope is clearly delineated
-- Don't apply humanities counterargument standards to formal mathematical proofs
-- Don't conflate accessibility with cogency
+- Don't penalize dense prose if distinctions are meaningful and sustained
+- Don't penalize implicit transitions if inferential structure is coherent  
+- Don't conflate stylistic clarity with argumentative cogency
+- Don't conflate reader-friendliness with logical validity
 
 **BE COMPLETELY HONEST AND DIRECT IN YOUR ASSESSMENT**
 
@@ -119,20 +126,22 @@ ${passage.text}
 
 2. **SUPERIOR RECONSTRUCTION**: Write an actual improved version of the paper that strengthens weaknesses, fills gaps, and enhances clarity while preserving the core thesis. This should be a substantive rewrite with better explanations, stronger evidence, and clearer structure - NOT just tips or suggestions.
 
-3. **COMPREHENSIVE EVALUATION** using 7 core parameters (0-100 each):
-   **ADJUST STANDARDS BY DOMAIN:**
-   - **Clarity of Argument**: Logical structure and precision of reasoning (reward efficiency in formal contexts)
-   - **Inferential Cohesion**: Validity of logical connections (reward compression when steps are standard; penalize only actual gaps)
-   - **Conceptual Precision**: Technical accuracy and rigor of definitions and concepts
-   - **Evidential Support/Substantiation**: Quality, relevance, and sufficiency of evidence/proof by domain standards
-   - **Counterargument Handling**: Genre-appropriate objection handling (formal proofs need less rhetorical refutation)
-   - **Cognitive Risk**: Intellectual ambition and significance of the claims being made
-   - **Epistemic Control**: Actual overreach vs. appropriate confidence (don't penalize lack of unnecessary disclaimers)
+3. **COMPREHENSIVE EVALUATION** using 4 core parameters (25 points each = 100 total):
+
+   **EVALUATE ARGUMENTATIVE COGENCY, NOT SURFACE RHETORIC:**
+   
+   - **Inferential Structure (25 points)**: Does the text develop positions with coherent internal logic? Reward compressed reasoning. Do NOT penalize implicit transitions if logic is sound.
+   
+   - **Conceptual Control (25 points)**: Does the author draw meaningful distinctions and sustain them throughout? Reward dense prose if conceptual distinctions are real and stable.
+   
+   - **Argumentative Integrity (25 points)**: Does the author follow through on initial commitments? Do conclusions align with framing and claims? Internal consistency matters.
+   
+   - **Synthesis & Integration (25 points)**: Does the text weave multiple thinkers/ideas into unified argumentative trajectory? Recognize synthesis even when implicit.
 
 4. **OVERALL JUDGMENT**: Comprehensive assessment of argumentative merit
 
 For each parameter, provide:
-- Score (0-100)
+- Score (0-25): Assessment out of 25 points 
 - Assessment (detailed explanation)
 - Supporting quotes (2-3 relevant excerpts from the text)
 
@@ -140,37 +149,22 @@ Respond in valid JSON format:
 {
   "argumentSummary": "factual summary of the main argument",
   "superiorReconstruction": "improved version of the argument",
-  "clarityOfArgument": {
+  "inferentialStructure": {
     "score": number,
     "assessment": "detailed evaluation",
     "quotes": ["quote1", "quote2", "quote3"]
   },
-  "inferentialCohesion": {
+  "conceptualControl": {
     "score": number,
     "assessment": "detailed evaluation", 
     "quotes": ["quote1", "quote2", "quote3"]
   },
-  "conceptualPrecision": {
+  "argumentativeIntegrity": {
     "score": number,
     "assessment": "detailed evaluation",
     "quotes": ["quote1", "quote2", "quote3"]
   },
-  "evidentialSupport": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
-  },
-  "counterargumentHandling": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
-  },
-  "cognitiveRisk": {
-    "score": number,
-    "assessment": "detailed evaluation",
-    "quotes": ["quote1", "quote2", "quote3"]
-  },
-  "epistemicControl": {
+  "synthesisIntegration": {
     "score": number,
     "assessment": "detailed evaluation",
     "quotes": ["quote1", "quote2", "quote3"]
@@ -195,18 +189,15 @@ Respond in valid JSON format:
 
     const parsed = JSON.parse(content);
 
-    // Calculate overall score from core parameters
+    // Calculate overall score from core parameters (each out of 25, total 100)
     const parameterScores = [
-      parsed.clarityOfArgument.score,
-      parsed.inferentialCohesion.score,
-      parsed.conceptualPrecision.score,
-      parsed.evidentialSupport.score,
-      parsed.counterargumentHandling.score,
-      parsed.cognitiveRisk.score,
-      parsed.epistemicControl.score
+      parsed.inferentialStructure.score,
+      parsed.conceptualControl.score,
+      parsed.argumentativeIntegrity.score,
+      parsed.synthesisIntegration.score
     ];
 
-    const overallScore = Math.round(parameterScores.reduce((a, b) => a + b, 0) / parameterScores.length);
+    const overallScore = Math.round(parameterScores.reduce((a, b) => a + b, 0));
     
     // Determine cogency label
     let cogencyLabel: string;
@@ -224,13 +215,10 @@ Respond in valid JSON format:
         argumentSummary: parsed.argumentSummary,
         superiorReconstruction: parsed.superiorReconstruction,
         coreParameters: {
-          clarityOfArgument: parsed.clarityOfArgument,
-          inferentialCohesion: parsed.inferentialCohesion,
-          conceptualPrecision: parsed.conceptualPrecision,
-          evidentialSupport: parsed.evidentialSupport,
-          counterargumentHandling: parsed.counterargumentHandling,
-          cognitiveRisk: parsed.cognitiveRisk,
-          epistemicControl: parsed.epistemicControl
+          inferentialStructure: parsed.inferentialStructure,
+          conceptualControl: parsed.conceptualControl,
+          argumentativeIntegrity: parsed.argumentativeIntegrity,
+          synthesisIntegration: parsed.synthesisIntegration
         },
         overallJudgment: parsed.overallJudgment
       },
