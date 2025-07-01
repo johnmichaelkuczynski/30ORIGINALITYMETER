@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { detectGenreAndGetCriteria, GenreClassification } from "./genreDetection";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 
@@ -20,6 +21,12 @@ interface EnhancedArgumentativeResult {
     cogencyLabel: string;
     argumentSummary: string;
     superiorReconstruction: string;
+    genreClassification: {
+      genre: string;
+      confidence: number;
+      reasoning: string;
+      evaluationExplanation: string;
+    };
     coreParameters: {
       inferentialStructure: CoreParameter;
       conceptualControl: CoreParameter;
@@ -64,53 +71,72 @@ export async function analyzeSinglePaperEnhanced(
   passage: PassageData
 ): Promise<EnhancedArgumentativeResult> {
   try {
-    const prompt = `You are an expert academic evaluator specializing in formal logic, mathematics, and philosophical argumentation. Evaluate this academic work with the highest intellectual standards, giving credit for technical rigor, mathematical sophistication, and logical precision.
+    // First, detect the genre and get appropriate evaluation criteria
+    console.log("Detecting genre for evaluation...");
+    const genreInfo: GenreClassification = await detectGenreAndGetCriteria(passage.text);
+    console.log("Genre detected:", genreInfo.genre, "with confidence:", genreInfo.confidence);
 
-CRITICAL EVALUATION PRINCIPLES:
-- Mathematical proofs and formal logic deserve the highest scores (20-25/25)
-- Technical precision and rigorous definitions are marks of excellence
-- Original mathematical insights should score very highly
-- Formal notation and systematic reasoning indicate superior work
-- Academic depth is more valuable than accessibility
-- Extensions of major theorems (like Gödel's) represent exceptional achievement
+    // Build genre-specific evaluation prompt
+    const prompt = `You are an expert academic evaluator specializing in ${genreInfo.genre}. Evaluate this work using genre-appropriate standards that recognize intellectual rigor and disciplinary excellence.
+
+DOCUMENT GENRE: ${genreInfo.genre}
+CONFIDENCE: ${genreInfo.confidence}
+GENRE REASONING: ${genreInfo.reasoning}
+
+EVALUATION WEIGHTS FOR THIS GENRE:
+- Inferential Structure: ${genreInfo.evaluationWeights.inferentialStructure}%
+- Conceptual Control: ${genreInfo.evaluationWeights.conceptualControl}%  
+- Argumentative Integrity: ${genreInfo.evaluationWeights.argumentativeIntegrity}%
+- Synthesis & Integration: ${genreInfo.evaluationWeights.synthesisIntegration}%
+
+GENRE-SPECIFIC SCORING CRITERIA:
+- Inferential Structure: ${genreInfo.scoringCriteria.inferentialStructure}
+- Conceptual Control: ${genreInfo.scoringCriteria.conceptualControl}
+- Argumentative Integrity: ${genreInfo.scoringCriteria.argumentativeIntegrity}
+- Synthesis & Integration: ${genreInfo.scoringCriteria.synthesisIntegration}
 
 TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
 
-Score each parameter 0-25 points. Mathematical proofs and formal logical arguments should typically score 20-25. Use the full range - excellent work deserves excellent scores.
+EVALUATION PRINCIPLES:
+- Apply standards appropriate to the genre and disciplinary context
+- Reward intellectual rigor, not accessibility or mass appeal
+- Value technical precision and sophisticated reasoning
+- Do not penalize for difficulty, complexity, or specialized knowledge
+- Recognize exceptional work with exceptional scores (20-25/25)
 
-SCORING GUIDELINES:
-• 23-25: Exceptional academic achievement, formal proofs, major theoretical contributions
-• 20-22: Strong academic work with rigorous methodology 
-• 15-19: Solid academic work with some technical merit
-• 10-14: Basic academic work with limited rigor
-• 5-9: Weak argumentation with significant flaws
-• 0-4: Fundamentally flawed or incoherent
+SCORING SCALE (0-25 each parameter):
+• 23-25: Exceptional achievement in this genre
+• 20-22: Strong work meeting high disciplinary standards
+• 15-19: Solid work with notable merit
+• 10-14: Adequate work with some limitations  
+• 5-9: Weak work with significant issues
+• 0-4: Fundamentally flawed
 
-Return ONLY valid JSON with this exact structure:
+Return ONLY valid JSON:
 {
   "argumentSummary": "brief summary of main argument",
-  "superiorReconstruction": "improved version of the argument",
+  "superiorReconstruction": "thoughtful improvement suggestions",
   "inferentialStructure": {
-    "score": 23,
-    "assessment": "evaluation of logical reasoning quality - formal proofs score 20-25",
-    "quotes": ["quote1", "quote2"]
+    "score": 24,
+    "assessment": "evaluation based on genre-specific criteria",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "conceptualControl": {
-    "score": 23,
-    "assessment": "evaluation of conceptual precision - technical definitions score highly", 
-    "quotes": ["quote1", "quote2"]
+    "score": 24,
+    "assessment": "evaluation based on genre-specific criteria",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "argumentativeIntegrity": {
-    "score": 23,
-    "assessment": "evaluation of following through on commitments - complete proofs score highly",
-    "quotes": ["quote1", "quote2"]
+    "score": 24,
+    "assessment": "evaluation based on genre-specific criteria",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "synthesisIntegration": {
-    "score": 23,
-    "assessment": "evaluation of unified argumentative trajectory - theoretical extensions score highly",
-    "quotes": ["quote1", "quote2"]
+    "score": 24,
+    "assessment": "evaluation based on genre-specific criteria",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
-  "overallJudgment": "comprehensive assessment focusing on academic merit and intellectual achievement"
+  "overallJudgment": "comprehensive assessment considering genre appropriateness and disciplinary excellence"
 }`;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -140,15 +166,15 @@ Return ONLY valid JSON with this exact structure:
       throw new Error("AI response missing required parameter structure");
     }
 
-    // Calculate overall score from core parameters (each out of 25, total 100)
-    const parameterScores = [
-      parsed.inferentialStructure.score,
-      parsed.conceptualControl.score,
-      parsed.argumentativeIntegrity.score,
-      parsed.synthesisIntegration.score
-    ];
+    // Calculate weighted overall score based on genre importance
+    const weightedScore = (
+      (parsed.inferentialStructure.score * genreInfo.evaluationWeights.inferentialStructure / 100) +
+      (parsed.conceptualControl.score * genreInfo.evaluationWeights.conceptualControl / 100) +
+      (parsed.argumentativeIntegrity.score * genreInfo.evaluationWeights.argumentativeIntegrity / 100) +
+      (parsed.synthesisIntegration.score * genreInfo.evaluationWeights.synthesisIntegration / 100)
+    );
 
-    const overallScore = Math.round(parameterScores.reduce((a, b) => a + b, 0));
+    const overallScore = Math.round(weightedScore);
     
     // Determine cogency label
     let cogencyLabel: string;
@@ -165,6 +191,12 @@ Return ONLY valid JSON with this exact structure:
         cogencyLabel,
         argumentSummary: parsed.argumentSummary,
         superiorReconstruction: parsed.superiorReconstruction,
+        genreClassification: {
+          genre: genreInfo.genre,
+          confidence: genreInfo.confidence,
+          reasoning: genreInfo.reasoning,
+          evaluationExplanation: `This ${genreInfo.genre} was evaluated using weighted criteria: Inferential Structure (${genreInfo.evaluationWeights.inferentialStructure}%), Conceptual Control (${genreInfo.evaluationWeights.conceptualControl}%), Argumentative Integrity (${genreInfo.evaluationWeights.argumentativeIntegrity}%), Synthesis & Integration (${genreInfo.evaluationWeights.synthesisIntegration}%). These weights reflect the intellectual priorities appropriate to this genre.`
+        },
         coreParameters: {
           inferentialStructure: parsed.inferentialStructure,
           conceptualControl: parsed.conceptualControl,
