@@ -97,12 +97,14 @@ GENRE-SPECIFIC SCORING CRITERIA:
 
 TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
 
-EVALUATION PRINCIPLES:
-- Apply standards appropriate to the genre and disciplinary context
-- Reward intellectual rigor, not accessibility or mass appeal
-- Value technical precision and sophisticated reasoning
-- Do not penalize for difficulty, complexity, or specialized knowledge
-- Recognize exceptional work with exceptional scores (20-25/25)
+EVALUATION PRINCIPLES FOR ${genreInfo.genre.toUpperCase()}:
+- Apply standards appropriate to ${genreInfo.genre} and disciplinary context
+- Reward intellectual rigor, conceptual innovation, and sophisticated reasoning
+- Value recursive argumentation, resolution of tensions, and philosophical closure
+- Do not penalize for narrative style, analogical reasoning, or philosophical complexity
+- Recognize conceptual distinctions, theoretical synthesis, and argumentative integrity
+- Philosophical excellence deserves exceptional scores (20-25/25) even without formal proofs
+- Narrative and analogical reasoning are valid philosophical methods, not weaknesses
 
 SCORING SCALE (0-25 each parameter):
 • 23-25: Exceptional achievement in this genre

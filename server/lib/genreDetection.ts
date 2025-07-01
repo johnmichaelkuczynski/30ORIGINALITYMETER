@@ -45,10 +45,10 @@ MATHEMATICAL LOGIC/FORMAL PROOF:
 - Synthesis Integration (10%): Connection to broader mathematical context
 
 PHILOSOPHICAL ARGUMENTATION:
-- Inferential Structure (30%): Logical reasoning, argument structure
-- Conceptual Control (30%): Conceptual precision, clarity of distinctions
-- Argumentative Integrity (25%): Following through on commitments, addressing objections
-- Synthesis Integration (15%): Integration with philosophical tradition
+- Inferential Structure (25%): Layered reasoning, recursive critique, resolution of tensions
+- Conceptual Control (30%): Precise distinctions, consistent terminology, conceptual innovation
+- Argumentative Integrity (25%): Addressing objections, completing inferential trajectories, philosophical closure
+- Synthesis Integration (20%): Integration of philosophical traditions, theoretical synthesis
 
 EMPIRICAL RESEARCH:
 - Inferential Structure (25%): Data analysis validity, causal reasoning
