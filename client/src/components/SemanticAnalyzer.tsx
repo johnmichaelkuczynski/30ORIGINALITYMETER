@@ -554,13 +554,32 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
-              <p className="text-base text-slate-600 mt-2">
-                {analysisMode === "single" && "Click the button below to analyze the semantic originality of your passage"}
-                {analysisMode === "comparison" && "Click the button below to compare the semantic originality of both passages"}
-                {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
-                {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
-              </p>
+              {(analysisMutation.isPending || singleCogencyMutation.isPending) ? (
+                <>
+                  <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
+                  <p className="text-base text-blue-600 mt-2">
+                    Please wait while we analyze your text. This may take 15-30 seconds.
+                  </p>
+                  <div className="mt-4 flex justify-center">
+                    <div className="animate-pulse flex space-x-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
+                  <p className="text-base text-slate-600 mt-2">
+                    {analysisMode === "single" && "Click the button below to analyze the semantic originality of your passage"}
+                    {analysisMode === "comparison" && "Click the button below to compare the semantic originality of both passages"}
+                    {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
+                    {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
+                    {analysisMode === "single-cogency" && "Click the button below to analyze the logical convincingness of your document"}
+                  </p>
+                </>
+              )}
             </div>
             
             <Button
@@ -568,6 +587,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               onClick={handleCompare}
               disabled={
                 analysisMutation.isPending || 
+                singleCogencyMutation.isPending ||
                 !passageA.text.trim() || 
                 ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())
@@ -597,8 +617,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   </>
                 )}
               </svg>
-              ANALYZE PASSAGE
-              {analysisMutation.isPending && (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending) ? "ANALYZING..." : "ANALYZE PASSAGE"}
+              {(analysisMutation.isPending || singleCogencyMutation.isPending) && (
                 <span className="ml-3 inline-block animate-spin">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
