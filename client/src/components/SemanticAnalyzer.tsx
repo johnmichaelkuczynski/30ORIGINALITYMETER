@@ -63,11 +63,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           const data = await response.json();
           setProviderStatus(data);
           
-          // Select the first available provider (prioritize DeepSeek as default)
-          if (!data[provider]) {
-            if (data.deepseek) {
-              setProvider('deepseek');
-            } else if (data.openai) {
+          // Only auto-switch if the current provider is not available AND user hasn't manually selected DeepSeek
+          // This allows users to select DeepSeek even if API key is missing
+          if (!data[provider] && provider !== 'deepseek') {
+            if (data.openai) {
               setProvider('openai');
             } else if (data.anthropic) {
               setProvider('anthropic');
