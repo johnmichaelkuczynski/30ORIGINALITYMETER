@@ -1153,6 +1153,92 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Get document chunks for selective rewriting
+  app.post("/api/get-document-chunks", async (req: Request, res: Response) => {
+    try {
+      const { sourceText, maxWordsPerChunk = 500 } = req.body;
+
+      if (!sourceText) {
+        return res.status(400).json({ error: "Source text is required" });
+      }
+
+      const { chunkDocument } = await import('./lib/documentChunker');
+      
+      const chunks = chunkDocument(sourceText, {
+        maxWordsPerChunk,
+        overlapWords: 50,
+        preserveParagraphs: true,
+        preserveMath: true
+      });
+
+      // Add chunk IDs and metadata
+      const chunksWithMetadata = chunks.map((chunk, index) => ({
+        id: index,
+        content: chunk.content,
+        wordCount: chunk.wordCount,
+        startIndex: chunk.startIndex,
+        endIndex: chunk.endIndex,
+        preview: chunk.content.substring(0, 150) + (chunk.content.length > 150 ? '...' : '')
+      }));
+
+      res.json({ chunks: chunksWithMetadata });
+    } catch (error) {
+      console.error("Error getting document chunks:", error);
+      res.status(500).json({ 
+        error: "Failed to chunk document", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
+  // Rewrite selected chunks
+  app.post("/api/rewrite-selected-chunks", async (req: Request, res: Response) => {
+    try {
+      const { chunks, selectedChunkIds, customInstructions, contentSource, styleSource, preserveMath } = req.body;
+
+      if (!chunks || !selectedChunkIds || !customInstructions) {
+        return res.status(400).json({ error: "Chunks, selected chunk IDs, and custom instructions are required" });
+      }
+
+      const { rewriteSingleDocument } = await import('./lib/documentRewriter');
+      
+      const rewrittenChunks = [...chunks];
+
+      // Only rewrite selected chunks
+      for (const chunkId of selectedChunkIds) {
+        const chunk = chunks[chunkId];
+        if (chunk) {
+          console.log(`Rewriting chunk ${chunkId} (${chunk.wordCount} words)`);
+          
+          const rewrittenContent = await rewriteSingleDocument({
+            sourceText: chunk.content,
+            customInstructions,
+            contentSource,
+            styleSource,
+            preserveMath: preserveMath !== false
+          });
+
+          rewrittenChunks[chunkId] = {
+            ...chunk,
+            content: rewrittenContent,
+            rewritten: true
+          };
+
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      res.json({ chunks: rewrittenChunks });
+    } catch (error) {
+      console.error("Error rewriting selected chunks:", error);
+      res.status(500).json({ 
+        error: "Failed to rewrite chunks", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Homework solving endpoint
   app.post("/api/solve-homework", async (req: Request, res: Response) => {
     try {

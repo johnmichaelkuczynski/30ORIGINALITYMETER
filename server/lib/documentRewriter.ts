@@ -101,7 +101,7 @@ async function rewriteDocumentInChunks(request: ChunkedRewriteRequest, stats: an
 /**
  * Rewrites a single document or chunk
  */
-async function rewriteSingleDocument(request: RewriteRequest): Promise<string> {
+export async function rewriteSingleDocument(request: RewriteRequest): Promise<string> {
   try {
     const { sourceText, customInstructions, contentSource, styleSource, preserveMath } = request;
 
