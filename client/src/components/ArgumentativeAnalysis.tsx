@@ -52,11 +52,11 @@ export default function ArgumentativeAnalysis({
   const { toast } = useToast();
 
   // Determine if we have content for both passages
-  const hasBothPassages = passageA.text.trim() && passageB.text.trim();
+  const hasBothPassages = passageA?.text?.trim() && passageB?.text?.trim();
   const isSingleMode = cogencyMode === 'single';
 
   const runCogencyAnalysis = async () => {
-    if (isSingleMode && !passageA.text.trim()) {
+    if (isSingleMode && (!passageA?.text || !passageA.text.trim())) {
       toast({
         title: "Missing Input",
         description: "Please enter text for cogency analysis.",
@@ -65,7 +65,7 @@ export default function ArgumentativeAnalysis({
       return;
     }
 
-    if (!isSingleMode && (!passageA.text.trim() || !passageB.text.trim())) {
+    if (!isSingleMode && (!passageA?.text?.trim() || !passageB?.text?.trim())) {
       toast({
         title: "Missing Input", 
         description: "Please enter text for both documents to compare.",

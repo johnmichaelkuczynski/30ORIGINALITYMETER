@@ -196,6 +196,7 @@ export interface AnalysisResult {
   };
   verdict: string;
   supportingDocuments?: SupportingDocument[];
+  reportContent?: string;
 }
 
 export interface AnalyzePassagesRequest {

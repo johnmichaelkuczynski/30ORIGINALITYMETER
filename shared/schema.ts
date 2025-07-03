@@ -204,8 +204,9 @@ export const analysisResultSchema = z.object({
     title: z.string(),
     content: z.string(),
   })).optional(),
+  reportContent: z.string().optional(),
   metadata: z.object({
-    provider: z.enum(["openai", "anthropic", "perplexity"]),
+    provider: z.enum(["openai", "anthropic", "perplexity", "deepseek"]),
     timestamp: z.string().optional(),
   }).optional(),
 });

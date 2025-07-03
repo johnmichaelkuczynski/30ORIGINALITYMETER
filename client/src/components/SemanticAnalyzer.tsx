@@ -35,7 +35,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
-  const [provider, setProvider] = useState<LLMProvider>("deepseek");
+  const [provider, setProvider] = useState<LLMProvider>("openai");
   const [providerStatus, setProviderStatus] = useState<{
     deepseek: boolean;
     openai: boolean;
@@ -649,9 +649,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           />
         )}
         
-        {showResults && analysisResult && analysisMode === "single-cogency" && (
+        {showResults && analysisResult && analysisMode === "single-cogency" && analysisResult.reportContent && (
           <ArgumentativeResults
-            result={analysisResult}
+            result={analysisResult as any}
             isSingleMode={true}
             passageATitle={passageA.title || "Document A"}
             passageBTitle=""
