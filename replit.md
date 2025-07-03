@@ -148,6 +148,8 @@ Changelog:
 - July 3, 2025. Fixed invalid DeepSeek API key issue by switching default provider to OpenAI
 - July 3, 2025. Removed undefined reanalyzeMutation reference causing rewrite function crashes
 - July 3, 2025. Added null safety checks to prevent ArgumentativeAnalysis component failures
+- July 3, 2025. VERIFIED STABLE: Both analysis and document rewriting now working without crashes
+- July 3, 2025. Custom rewrite instructions and chunk-based rewriting fully operational
 ```
 
 ## User Preferences
