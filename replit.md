@@ -144,6 +144,10 @@ Changelog:
 - July 1, 2025. MAJOR FEATURE: Added chunk-based document rewriting with selective chunk selection
 - July 1, 2025. Users can now divide documents into chunks and choose which specific sections to rewrite
 - July 1, 2025. Implemented tabbed interface with "Rewrite Entire Document" vs "Select Chunks to Rewrite"
+- July 3, 2025. CRITICAL FIXES: Resolved app crashes during analysis and rewriting operations
+- July 3, 2025. Fixed invalid DeepSeek API key issue by switching default provider to OpenAI
+- July 3, 2025. Removed undefined reanalyzeMutation reference causing rewrite function crashes
+- July 3, 2025. Added null safety checks to prevent ArgumentativeAnalysis component failures
 ```
 
 ## User Preferences
