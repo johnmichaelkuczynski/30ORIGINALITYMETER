@@ -761,13 +761,8 @@ ${searchInstructions || "Please incorporate relevant information from these sour
                         variant="outline" 
                         size="sm"
                         onClick={handleReanalyze}
-                        disabled={reanalyzeMutation.isPending}
                       >
-                        {reanalyzeMutation.isPending ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                        ) : (
-                          <RefreshCcw className="h-4 w-4 mr-1" />
-                        )}
+                        <RefreshCcw className="h-4 w-4 mr-1" />
                         Evaluate Originality
                       </Button>
 
