@@ -45,11 +45,11 @@ export default function Home() {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="full-rewrite" className="flex items-center gap-2">
               <FileEdit className="h-4 w-4" />
-              Full Document Rewrite
+              Rewrite Entire Document
             </TabsTrigger>
             <TabsTrigger value="chunk-rewrite" className="flex items-center gap-2">
               <Scissors className="h-4 w-4" />
-              Chunk-Based Rewrite
+              Select Chunks to Rewrite
             </TabsTrigger>
           </TabsList>
           

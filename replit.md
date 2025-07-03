@@ -141,6 +141,9 @@ Changelog:
 - July 1, 2025. MAJOR OVERHAUL: Rebuilt evaluation system to assess actual cogency, not formalism
 - July 1, 2025. Now evaluates: semantic compression, recursive reasoning, tension resolution, multi-scale integration
 - July 1, 2025. Philosophical argumentation no longer penalized for narrative style or lack of formal proofs
+- July 1, 2025. MAJOR FEATURE: Added chunk-based document rewriting with selective chunk selection
+- July 1, 2025. Users can now divide documents into chunks and choose which specific sections to rewrite
+- July 1, 2025. Implemented tabbed interface with "Rewrite Entire Document" vs "Select Chunks to Rewrite"
 ```
 
 ## User Preferences

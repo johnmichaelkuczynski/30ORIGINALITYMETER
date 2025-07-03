@@ -94,6 +94,9 @@ export default function ChunkBasedRewriter({ onSendToAnalysis, initialContent, i
       return;
     }
 
+    console.log('Chunking document with maxWordsPerChunk:', maxWordsPerChunk);
+    console.log('Source text length:', sourceText.length, 'characters');
+    
     setIsChunking(true);
     try {
       const response = await fetch('/api/get-document-chunks', {
@@ -110,11 +113,13 @@ export default function ChunkBasedRewriter({ onSendToAnalysis, initialContent, i
       }
 
       const result = await response.json();
+      console.log('Received chunks:', result.chunks.length);
+      
       setChunks(result.chunks);
       setSelectedChunks(new Set()); // Clear selections
       
       toast({
-        title: "Document chunked",
+        title: "Document chunked successfully",
         description: `Created ${result.chunks.length} chunks. Select which ones to rewrite.`,
       });
     } catch (error) {
@@ -233,6 +238,18 @@ export default function ChunkBasedRewriter({ onSendToAnalysis, initialContent, i
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Information Panel */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-medium text-blue-900 mb-2">How Chunk-Based Rewriting Works:</h4>
+            <ol className="text-sm text-blue-800 space-y-1">
+              <li>1. Upload or paste your document</li>
+              <li>2. Click "Create Chunks" to divide the document into sections</li>
+              <li>3. Select only the chunks you want to rewrite</li>
+              <li>4. Provide rewrite instructions and click "Rewrite Selected Chunks"</li>
+              <li>5. The final document combines rewritten and original chunks</li>
+            </ol>
+          </div>
+
           {/* Document Input */}
           <div className="space-y-2">
             <Label>Document Source</Label>
