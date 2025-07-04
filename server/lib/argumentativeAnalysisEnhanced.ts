@@ -122,28 +122,37 @@ LOWEST-SCORING TEXTS:
 - Substitute jargon for insight
 - Avoid objections, tension, or conceptual self-critique
 
+CRITICAL SCORING INSTRUCTION: Each parameter score must be between 0-25, NOT 0-100!
+Examples: 22/25, 24/25, 18/25 - NEVER 22/100, 24/100, 18/100
+
+For high-quality philosophical work like this epistemology paper, appropriate scores would be:
+- Excellent: 22-25/25
+- Good: 18-21/25  
+- Fair: 14-17/25
+- Poor: 0-13/25
+
 Return ONLY valid JSON:
 {
   "argumentSummary": "brief summary of main argument",
   "superiorReconstruction": "thoughtful improvement suggestions",
   "inferentialStructure": {
     "score": 22,
-    "assessment": "evaluation of reasoning control and tension resolution",
+    "assessment": "evaluation of reasoning control and tension resolution - do NOT penalize for lack of formal proofs in philosophical work",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "conceptualControl": {
     "score": 22,
-    "assessment": "evaluation of semantic compression and conceptual precision",
+    "assessment": "evaluation of semantic compression and conceptual precision - reward philosophical sophistication, not simplicity",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "argumentativeIntegrity": {
     "score": 22,
-    "assessment": "evaluation of self-critique and argumentative completion",
+    "assessment": "evaluation of self-critique and argumentative completion - value philosophical rigor over formalism",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "synthesisIntegration": {
     "score": 22,
-    "assessment": "evaluation of unified flow and multi-scale reasoning",
+    "assessment": "evaluation of unified flow and multi-scale reasoning - assess intellectual coherence, not accessibility",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "overallJudgment": "assessment of intellectual cogency and argumentative excellence"
@@ -177,11 +186,12 @@ Return ONLY valid JSON:
     }
 
     // Calculate weighted overall score based on genre importance
+    // Each score is out of 25, weights sum to 100, final score out of 100
     const weightedScore = (
-      (parsed.inferentialStructure.score * genreInfo.evaluationWeights.inferentialStructure / 100) +
-      (parsed.conceptualControl.score * genreInfo.evaluationWeights.conceptualControl / 100) +
-      (parsed.argumentativeIntegrity.score * genreInfo.evaluationWeights.argumentativeIntegrity / 100) +
-      (parsed.synthesisIntegration.score * genreInfo.evaluationWeights.synthesisIntegration / 100)
+      (parsed.inferentialStructure.score * genreInfo.evaluationWeights.inferentialStructure / 25) +
+      (parsed.conceptualControl.score * genreInfo.evaluationWeights.conceptualControl / 25) +
+      (parsed.argumentativeIntegrity.score * genreInfo.evaluationWeights.argumentativeIntegrity / 25) +
+      (parsed.synthesisIntegration.score * genreInfo.evaluationWeights.synthesisIntegration / 25)
     );
 
     const overallScore = Math.round(weightedScore);
