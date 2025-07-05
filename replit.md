@@ -154,6 +154,10 @@ Changelog:
 - July 4, 2025. Scores were incorrectly calculated as out of 100 instead of 25, causing massive underscoring
 - July 4, 2025. Enhanced evaluation prompt to prevent AI from penalizing philosophical work for lack of formal proofs
 - July 4, 2025. High-quality academic work now properly scores 85-95/100 instead of incorrect 78/100
+- July 4, 2025. FUNDAMENTAL REDESIGN: Converted from grading system to pure evaluation passthrough
+- July 4, 2025. App no longer imposes "reader-friendliness" standards - evaluates genre-appropriate cogency
+- July 4, 2025. Cogency = intellectual rigor within discipline, Originality = legitimate innovation, not accessibility
+- July 4, 2025. System now preserves LLM assessments without interference or corruption
 ```
 
 ## User Preferences

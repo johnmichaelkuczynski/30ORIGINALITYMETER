@@ -82,45 +82,34 @@ export async function analyzeSinglePaperEnhanced(
 DOCUMENT GENRE: ${genreInfo.genre}
 EVALUATION APPROACH: Assess actual cogency, not formal compliance
 
-CORE COGENCY CRITERIA:
+EVALUATION PARAMETERS (Use full 0-25 range for genre-appropriate assessment):
 
-1. INFERENTIAL STRUCTURE: Control over reasoning, layered argumentation, resolution of tensions
-- HIGH SCORES (20-25): Recursive evaluation, confronts objections, resolves contradictions
-- LOW SCORES (0-10): Assertions without argument, collapses under ambiguity
+1. INFERENTIAL STRUCTURE: Quality of logical reasoning and argumentative development
+- Assess: logical coherence, inferential control, handling of complexities
+- Genre-specific: formal proofs vs. philosophical argumentation vs. empirical reasoning
 
-2. CONCEPTUAL CONTROL: Semantic compression, precise distinctions, terminological consistency  
-- HIGH SCORES (20-25): Novel distinctions, tight formulations, maintains coherence
-- LOW SCORES (0-10): Jargon without insight, vague or collapsed concepts
+2. CONCEPTUAL CONTROL: Precision and consistency of conceptual framework
+- Assess: terminological clarity, conceptual distinctions, theoretical coherence  
+- Genre-specific: technical precision vs. philosophical subtlety vs. empirical operationalization
 
-3. ARGUMENTATIVE INTEGRITY: Completes inferential trajectories, addresses self-critique
-- HIGH SCORES (20-25): Confronts own claims with objections, philosophical closure
-- LOW SCORES (0-10): Avoids tension, no self-critique, incomplete arguments
+3. ARGUMENTATIVE INTEGRITY: Completeness and thoroughness of the argument
+- Assess: scope coverage, objection handling, inferential completeness
+- Genre-specific: proof rigor vs. philosophical depth vs. empirical comprehensiveness
 
-4. SYNTHESIS & INTEGRATION: Unified flow across conceptual domains, multiple scales of reasoning
-- HIGH SCORES (20-25): Integrates multiple domains, local and global coherence
-- LOW SCORES (0-10): Fragmented, no unifying framework
+4. SYNTHESIS & INTEGRATION: Unified coherence across the work's components
+- Assess: organizational coherence, thematic integration, multi-level consistency
+- Genre-specific: formal systematicity vs. philosophical unity vs. empirical synthesis
 
 TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
 
-EVALUATION PRINCIPLES:
-- Reward cognitive friction and tension resolution
-- Value semantic compression and conceptual innovation
-- Recognize recursive argumentation and self-critique
-- Do NOT penalize for narrative style, analogical reasoning, or lack of formal proofs
-- Philosophical excellence through reasoning deserves 20-25/25 scores
-- Focus on whether the author shows intellectual command, not formal compliance
+EVALUATION INSTRUCTIONS:
+You are evaluating for COGENCY in the genre-appropriate sense - intellectual rigor and argumentative soundness within the discipline's standards, NOT reader-friendliness or accessibility.
 
-HIGHEST-SCORING TEXTS:
-- Confront their own claims with objections and resolve them
-- Maintain internal coherence while developing novel distinctions  
-- Compress complex ideas into tight formulations
-- Display layered reasoning across multiple scales
+COGENCY means the quality of being clear, logical, and convincing within the appropriate academic/intellectual context. For philosophical work, this means conceptual precision, logical coherence, and argumentative strength - NOT simplification for general audiences.
 
-LOWEST-SCORING TEXTS:
-- Assert rather than argue
-- Collapse under ambiguity or vagueness
-- Substitute jargon for insight
-- Avoid objections, tension, or conceptual self-critique
+ORIGINALITY means genuine intellectual innovation balanced by legitimacy - novel insights, distinctions, or approaches that advance understanding, NOT random or arbitrary departures from established knowledge.
+
+Your role is to EVALUATE, not to GRADE. Assess what the text accomplishes intellectually, using the full scoring range appropriately for the genre.
 
 CRITICAL SCORING INSTRUCTION: Each parameter score must be between 0-25, NOT 0-100!
 Examples: 22/25, 24/25, 18/25 - NEVER 22/100, 24/100, 18/100
@@ -137,22 +126,22 @@ Return ONLY valid JSON:
   "superiorReconstruction": "thoughtful improvement suggestions",
   "inferentialStructure": {
     "score": 22,
-    "assessment": "evaluation of reasoning control and tension resolution - do NOT penalize for lack of formal proofs in philosophical work",
+    "assessment": "analysis of the logical structure and inferential control demonstrated in the argument",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "conceptualControl": {
     "score": 22,
-    "assessment": "evaluation of semantic compression and conceptual precision - reward philosophical sophistication, not simplicity",
+    "assessment": "analysis of conceptual precision, terminological consistency, and semantic control",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "argumentativeIntegrity": {
     "score": 22,
-    "assessment": "evaluation of self-critique and argumentative completion - value philosophical rigor over formalism",
+    "assessment": "analysis of how completely the argument addresses its commitments and potential objections",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "synthesisIntegration": {
     "score": 22,
-    "assessment": "evaluation of unified flow and multi-scale reasoning - assess intellectual coherence, not accessibility",
+    "assessment": "analysis of how well the argument integrates multiple considerations into a unified whole",
     "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "overallJudgment": "assessment of intellectual cogency and argumentative excellence"
