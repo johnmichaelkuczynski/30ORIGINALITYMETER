@@ -673,24 +673,66 @@ Return a detailed analysis in the following JSON format using all 20 quality met
     "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "verdict": "comprehensive assessment across all 20 originality parameters"
+  "verdict": "comprehensive assessment across all 20 quality metrics"
 }`,
         },
       ],
       response_format: { type: "json_object" },
-      max_tokens: 4000,
+      max_tokens: 8000,
     });
 
-    // Parse the response from the new 20-parameter analysis
-    const rawResult = JSON.parse(response.choices[0].message.content ?? "{}");
+    // Parse the response from the new 20-parameter analysis with error handling
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      console.log("OpenAI response length:", responseContent.length);
+      
+      // Check if the response was truncated
+      if (!responseContent.trim().endsWith('}')) {
+        console.warn("Response appears to be truncated, attempting to fix...");
+        throw new Error("Response was truncated by OpenAI API");
+      } else {
+        rawResult = JSON.parse(responseContent);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      console.error("Response content length:", response.choices[0].message.content?.length);
+      
+      // Return a fallback result if JSON parsing fails
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
     
-    // Convert new 20-parameter format to our AnalysisResult type for backward compatibility
+    // Extract the new quality metrics and store them for the frontend
+    const qualityMetrics = {
+      conceptualCompression: rawResult.conceptualCompression || null,
+      epistemicFriction: rawResult.epistemicFriction || null,
+      inferenceControl: rawResult.inferenceControl || null,
+      asymmetryOfCognitiveLabor: rawResult.asymmetryOfCognitiveLabor || null,
+      noveltyToBaselineRatio: rawResult.noveltyToBaselineRatio || null,
+      internalDifferentiation: rawResult.internalDifferentiation || null,
+      problemDensity: rawResult.problemDensity || null,
+      compressionAcrossLevels: rawResult.compressionAcrossLevels || null,
+      semanticSpecificity: rawResult.semanticSpecificity || null,
+      explanatoryYield: rawResult.explanatoryYield || null,
+      metaCognitiveSignal: rawResult.metaCognitiveSignal || null,
+      structuralIntegrity: rawResult.structuralIntegrity || null,
+      generativePotential: rawResult.generativePotential || null,
+      signalToRhetoricRatio: rawResult.signalToRhetoricRatio || null,
+      dialecticalEngagement: rawResult.dialecticalEngagement || null,
+      topologicalAwareness: rawResult.topologicalAwareness || null,
+      disambiguationSkill: rawResult.disambiguationSkill || null,
+      crossDisciplinaryFluency: rawResult.crossDisciplinaryFluency || null,
+      psychologicalRealism: rawResult.psychologicalRealism || null,
+      intellectualRiskQuotient: rawResult.intellectualRiskQuotient || null
+    };
+    
+    // Convert new 20-parameter format to legacy AnalysisResult type for backward compatibility
     const result: AnalysisResult = {
-      // Map transformativeSynthesis to conceptualLineage
+      // Map conceptualCompression to conceptualLineage for compatibility
       conceptualLineage: {
         passageA: {
-          primaryInfluences: rawResult.transformativeSynthesis?.passageA?.assessment || "Analysis of conceptual influences",
-          intellectualTrajectory: rawResult.epistemicReframing?.passageA?.assessment || "Analysis of intellectual development"
+          primaryInfluences: rawResult.conceptualCompression?.passageA?.assessment || "Analysis of conceptual influences",
+          intellectualTrajectory: rawResult.epistemicFriction?.passageA?.assessment || "Analysis of intellectual development"
         },
         passageB: {
           primaryInfluences: "Typical writing draws from established academic traditions and common frameworks",
@@ -845,10 +887,13 @@ Return a detailed analysis in the following JSON format using all 20 quality met
         }
       },
       
-      verdict: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
+      verdict: rawResult.verdict || "Comprehensive analysis across 20 quality metrics reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
       
       // Store the raw 20-parameter analysis for potential future use
-      rawTwentyParameterAnalysis: rawResult
+      rawTwentyParameterAnalysis: rawResult,
+      
+      // Include the new quality metrics for the frontend
+      ...qualityMetrics
     };
     
     // Store userContext in the result if it was provided
