@@ -1145,30 +1145,35 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
       // Map dynamicConstraintHandling to semanticDistance
       semanticDistance: {
         passageA: {
-          score: rawResult.dynamicConstraintHandling?.passageA?.score || 5,
-          assessment: rawResult.dynamicConstraintHandling?.passageA?.assessment || "Analysis of constraint handling capabilities",
-          departures: rawResult.dynamicConstraintHandling?.passageA?.strengths || ["Complex constraint management", "Coherent under pressure"],
-          connections: rawResult.dynamicConstraintHandling?.passageA?.weaknesses || ["Some constraint conflicts", "Room for improved precision"]
+          distance: (rawResult.dynamicConstraintHandling?.passageA?.score || 5) * 10,
+          label: rawResult.dynamicConstraintHandling?.passageA?.score >= 7 ? "High Sophistication" : 
+                 rawResult.dynamicConstraintHandling?.passageA?.score >= 4 ? "Moderate Sophistication" : "Basic Sophistication"
         },
         passageB: {
-          score: 5,
-          assessment: "Baseline constraint handling in typical cognitive processing",
-          departures: ["Standard constraint management", "Conventional approach"],
-          connections: ["Typical simplification patterns", "Standard cognitive limitations"]
-        }
+          distance: 50,
+          label: "Baseline Sophistication"
+        },
+        keyFindings: [
+          rawResult.dynamicConstraintHandling?.passageA?.assessment || "Analysis of constraint handling capabilities",
+          rawResult.inferenceArchitecture?.passageA?.assessment || "Evaluation of reasoning architecture",
+          rawResult.cognitiveFrictionTolerance?.passageA?.assessment || "Assessment of cognitive friction tolerance"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive intelligence analysis across 20 cognitive capabilities reveals varying strengths in reasoning architecture, constraint handling, and conceptual sophistication."
       },
       
       // Map inferenceArchitecture to noveltyHeatmap
       noveltyHeatmap: {
         passageA: paragraphs.map((paragraph, index) => ({
-          paragraph: index + 1,
-          noveltyScore: rawResult.inferenceArchitecture?.passageA?.score || 5,
-          description: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageA?.assessment || "Analysis of reasoning structure"}`
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.inferenceArchitecture?.passageA?.score || 5) * 10),
+          quote: rawResult.inferenceArchitecture?.passageA?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageA?.assessment || "Analysis of reasoning structure"}`
         })),
         passageB: paragraphs.map((paragraph, index) => ({
-          paragraph: index + 1,
-          noveltyScore: 5,
-          description: "Baseline inference patterns in typical reasoning"
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: 50,
+          quote: "Standard inference patterns",
+          explanation: "Baseline inference patterns in typical reasoning"
         }))
       },
       
@@ -1176,15 +1181,19 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
       derivativeIndex: {
         passageA: {
           score: rawResult.epistemicRiskManagement?.passageA?.score || 5,
-          assessment: rawResult.epistemicRiskManagement?.passageA?.assessment || "Analysis of epistemic risk awareness",
-          originalElements: rawResult.epistemicRiskManagement?.passageA?.strengths || ["Risk-aware reasoning", "Disciplined claims"],
-          derivativeElements: rawResult.epistemicRiskManagement?.passageA?.weaknesses || ["Some uncalibrated risks", "Room for improved caution"]
+          components: [
+            {name: "Epistemic Risk Management", score: rawResult.epistemicRiskManagement?.passageA?.score || 5},
+            {name: "Cognitive Friction Tolerance", score: rawResult.cognitiveFrictionTolerance?.passageA?.score || 5},
+            {name: "Inference Architecture", score: rawResult.inferenceArchitecture?.passageA?.score || 5}
+          ]
         },
         passageB: {
           score: 5,
-          assessment: "Baseline epistemic risk management in typical reasoning",
-          originalElements: ["Standard caution levels", "Conventional risk assessment"],
-          derivativeElements: ["Typical overconfidence patterns", "Standard epistemic blind spots"]
+          components: [
+            {name: "Epistemic Risk Management", score: 5},
+            {name: "Cognitive Friction Tolerance", score: 5},
+            {name: "Inference Architecture", score: 5}
+          ]
         }
       },
       
