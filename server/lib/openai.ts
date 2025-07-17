@@ -46,17 +46,47 @@ IMPORTANT GUIDELINES FOR EVALUATION:
 
 7. Judge the work on its internal logical consistency, not on adherence to academic conventions.
 
-Analyze the two passages across these nine metrics:
+Analyze the passages across these 20 comprehensive originality parameters:
 
-1. Conceptual Lineage - Where ideas come from, are they new or responses to existing ideas, with higher scores for ideas that are both novel AND well-founded
-2. Semantic Distance - How far each passage moves from predecessors while maintaining intellectual rigor; mere difference is not valuable without substantive merit
-3. Novelty Heatmap - Where the real conceptual thinking/innovation is happening by paragraph, with emphasis on innovation that builds on solid foundations
-4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original AND intellectually meritorious. Important: DO NOT conflate originality with simplicity, empirical backing, or consensus alignment. Highly reward passages that introduce new conceptual frameworks, resolve longstanding problems, or generate new understandings.
-5. Conceptual Parasite Detection - Passages that operate in old debates without adding anything new or valuable. Important: DO NOT classify a passage as parasitic merely because it challenges established views or lacks empirical data.
-6. Coherence - Whether the passage is logically and conceptually coherent, a fundamental requirement for valuable originality
-7. Accuracy - Factual and inferential correctness of the passage, without which originality has diminished value
-8. Depth - Non-triviality and conceptual insight of the passage, which gives originality its purpose
-9. Clarity - Readability, transparency, and semantic accessibility of the passage, necessary for communicating original ideas
+1. Transformative Synthesis - Does the author combine existing ideas to generate a new framework or insight? High: Juxtaposes ideas in a way that yields explanatory surplus or resolves a tension. Low: Glues together unrelated points without new structure or insight.
+
+2. Constraint-Respecting Deformation - Has the author bent or stretched a known theory without breaking internal coherence? High: Adjusts a known model creatively while keeping its logic or evidence intact. Low: Mutates concepts randomly, breaking the internal rules of the tradition it draws from.
+
+3. Epistemic Reframing - Does the author recast a known issue in a way that redefines how it's understood? High: Shifts the angle of approach, producing a reorientation of the debate. Low: Repeats existing framings with cosmetic changes or stale analogies.
+
+4. Historical Rarity - Would the author's moves have been surprising or rare at the time they were written? High: Uses moves that are not found in typical archives or literature of the period. Low: Follows predictable or heavily worked-over patterns.
+
+5. Recursive Innovation - Does the concept or argument generate more versions of itself in different settings? High: Scales across levels or invites reuse and extension. Low: Stays fixed; can't be reapplied without breaking down.
+
+6. Oblique Solution Path - Is the problem solved in an indirect but successful way? High: The answer comes sideways — surprising but coherent. Low: The answer is direct but trivial — or indirect and incoherent.
+
+7. Meta-Theoretic Awareness - Does the author show insight about the frameworks that govern the discourse? High: Challenges or revises the foundational assumptions of a field. Low: Accepts disciplinary defaults without question.
+
+8. Semantic Diagonalization - Are multiple conceptual layers crossed to produce novelty? High: Moves across object/meta, form/content, or logic/ethics in productive ways. Low: Stays at one level; doesn't create new cross-layer understanding.
+
+9. Tool Reappropriation - Does the author use a method or concept from one field in a powerful new domain? High: Transposes ideas in a way that changes both source and target domains. Low: Imports tools without adapting them or showing why they belong.
+
+10. Analogical Leverage - Are analogies used to generate insight — not just to decorate? High: Core arguments depend on analogies that illuminate deeper structure. Low: Analogy is decorative, shallow, or unnecessary.
+
+11. Category Rupture - Does the text challenge or destabilize a settled conceptual category? High: Redefines what counts as 'mind', 'meaning', 'truth', etc. Low: Accepts traditional categories without challenge.
+
+12. Compression-Expansion Tension - Does the author compress prior ideas while opening new ones? High: Minimal setup leads to maximal generativity. Low: Either too compressed (cryptic) or too bloated (inefficient).
+
+13. Semantic Reconfiguration - Are the meanings of key terms redefined in powerful ways? High: Terms are altered to shift the logic of the discussion. Low: Terms retain their conventional definitions.
+
+14. Ontological Innovation - Does the work introduce a new kind of thing, property, or structural level? High: Adds new building blocks to the domain (e.g., new kinds of causality, value, or identity). Low: Uses only familiar ontological components.
+
+15. Generative Asymmetry - Is a small move leveraged to create large conceptual ripples? High: One idea triggers a cascade of consequences. Low: Each move is linear and proportionate — no leverage.
+
+16. Frame Violation - Does the author knowingly break a disciplinary boundary and get away with it? High: Violates norms productively, e.g., importing logic into aesthetics with real effect. Low: Stays in lane, or breaks norms with no gain.
+
+17. Anchor-to-Drift Ratio - Is the text both grounded and original — not just one or the other? High: References tradition but moves far beyond it. Low: Either recycles the past or floats unmoored.
+
+18. Unforced Nonconformity - Does the originality seem necessary — not performative? High: Divergence emerges naturally from logic or insight. Low: Originality feels like branding or affectation.
+
+19. Asymmetric Discourse Positioning - Is the author's voice distinct — not reducible to known positions? High: Not a standard liberal, materialist, idealist, etc. Speaks from a new angle. Low: Slot easily into known schools of thought.
+
+20. Temporal Calibration - Does the originality make sense for the time of writing? High: Author anticipates future developments or marks a break with past norms. Low: Move was either already obvious at the time or incoherent for that era.
 
 For coherence, evaluate:
 - Internal consistency (no contradictions within the passage's own framework)
@@ -127,147 +157,89 @@ ${passageA.text}
 Passage B (${passageBTitle}):
 ${passageB.text}
 
-Return a detailed analysis in the following JSON format:
+Return a detailed analysis in the following JSON format with all 20 originality parameters:
 {
-  "conceptualLineage": {
-    "passageA": {
-      "primaryInfluences": "string explaining main influences",
-      "intellectualTrajectory": "string explaining how it builds on or diverges from influences"
-    },
-    "passageB": {
-      "primaryInfluences": "string explaining main influences",
-      "intellectualTrajectory": "string explaining how it builds on or diverges from influences"
-    }
+  "transformativeSynthesis": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "semanticDistance": {
-    "passageA": {
-      "distance": number from 0-100 representing distance from predecessors,
-      "label": "Low/Moderate/High Distance" description
-    },
-    "passageB": {
-      "distance": number from 0-100 representing distance from predecessors,
-      "label": "Low/Moderate/High Distance" description
-    },
-    "keyFindings": ["string1", "string2", "string3"],
-    "semanticInnovation": "string comparing semantic innovation between passages"
+  "constraintRespectingDeformation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "noveltyHeatmap": {
-    "passageA": [
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      },
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      }
-    ],
-    "passageB": [
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      },
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      }
-    ]
+  "epistemicReframing": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "derivativeIndex": {
-    "passageA": {
-      "score": number from 0-10,
-      "components": [
-        {"name": "Conceptual Innovation", "score": number from 0-10},
-        {"name": "Methodological Novelty", "score": number from 0-10},
-        {"name": "Contextual Application", "score": number from 0-10}
-      ]
-    },
-    "passageB": {
-      "score": number from 0-10,
-      "components": [
-        {"name": "Conceptual Innovation", "score": number from 0-10},
-        {"name": "Methodological Novelty", "score": number from 0-10},
-        {"name": "Contextual Application", "score": number from 0-10}
-      ]
-    }
+  "historicalRarity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "conceptualParasite": {
-    "passageA": {
-      "level": "Low"/"Moderate"/"High",
-      "elements": ["string1", "string2"],
-      "assessment": "string summarizing parasite evaluation"
-    },
-    "passageB": {
-      "level": "Low"/"Moderate"/"High",
-      "elements": ["string1", "string2"],
-      "assessment": "string summarizing parasite evaluation"
-    }
+  "recursiveInnovation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "coherence": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the coherence evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": number from 0-10,
-      "assessment": "string explaining the coherence evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    }
+  "obliqueSolutionPath": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "accuracy": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the accuracy evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": number from 0-10,
-      "assessment": "string explaining the accuracy evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    }
+  "metaTheoreticAwareness": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "depth": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the depth evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": number from 0-10,
-      "assessment": "string explaining the depth evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    }
+  "semanticDiagonalization": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "clarity": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the clarity evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": number from 0-10,
-      "assessment": "string explaining the clarity evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    }
+  "toolReappropriation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "verdict": "comprehensive one-paragraph judgment on which passage is more original and why"
+  "analogicalLeverage": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "categoryRupture": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "compressionExpansionTension": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "semanticReconfiguration": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "ontologicalInnovation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "generativeAsymmetry": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "frameViolation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "anchorToDriftRatio": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "unforcedNonconformity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "asymmetricDiscoursePositioning": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "temporalCalibration": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+  },
+  "verdict": "comprehensive assessment comparing the passages across all 20 originality parameters"
 }`,
         },
       ],
@@ -275,181 +247,174 @@ Return a detailed analysis in the following JSON format:
       max_tokens: 4000,
     });
 
-    // Parse the content into our AnalysisResult type
-    const result = JSON.parse(response.choices[0].message.content ?? "{}") as AnalysisResult;
-
-    // Process and validate all required fields for the response
-    // This ensures the AnalysisResult always matches the expected schema
-
-    // Fix novelty heatmap paragraphs if missing
-    if (!result.noveltyHeatmap?.passageA?.length) {
-      result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageA = paragraphsA.map(p => {
-        // Extract a representative quote from the paragraph (max 40 chars)
-        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
-        return {
-          content: p.substring(0, 100) + "...",
-          heat: Math.floor(50 + Math.random() * 50), // More positive bias
-          quote: quote,
-          explanation: "This section illustrates the conceptual approach typical in this passage."
-        };
-      });
-    } else {
-      // Ensure quotes and explanations exist even if partial data was returned
-      result.noveltyHeatmap.passageA = result.noveltyHeatmap.passageA.map((item, index) => {
-        const paragraph = paragraphsA[index] || "";
-        return {
-          ...item,
-          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
-          explanation: item.explanation || "This quote highlights a key conceptual element in the passage."
-        };
-      });
-    }
-
-    if (!result.noveltyHeatmap?.passageB?.length) {
-      result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageB = paragraphsB.map(p => {
-        // Extract a representative quote from the paragraph (max 40 chars)
-        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
-        return {
-          content: p.substring(0, 100) + "...",
-          heat: Math.floor(50 + Math.random() * 50), // More positive bias
-          quote: quote,
-          explanation: "This section demonstrates typical reasoning in the passage."
-        };
-      });
-    } else {
-      // Ensure quotes and explanations exist even if partial data was returned
-      result.noveltyHeatmap.passageB = result.noveltyHeatmap.passageB.map((item, index) => {
-        const paragraph = paragraphsB[index] || "";
-        return {
-          ...item,
-          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
-          explanation: item.explanation || "This quote represents a significant aspect of the author's approach."
-        };
-      });
-    }
+    // Parse the response from the new 20-parameter analysis
+    const rawResult = JSON.parse(response.choices[0].message.content ?? "{}");
     
-    // Ensure other required fields exist with default values if not provided
-    if (!result.semanticDistance?.keyFindings?.length) {
-      result.semanticDistance = result.semanticDistance || {};
-      result.semanticDistance.keyFindings = ["Different conceptual approaches", "Varying levels of originality", "Distinct methodological frameworks"];
-    }
-    
-    if (!result.semanticDistance?.semanticInnovation) {
-      result.semanticDistance = result.semanticDistance || {};
-      result.semanticDistance.semanticInnovation = "The passages demonstrate varying levels of semantic innovation, with different approaches to integrating concepts and ideas.";
-    }
-    
-    if (!result.conceptualParasite?.passageA?.elements?.length) {
-      result.conceptualParasite = result.conceptualParasite || {};
-      result.conceptualParasite.passageA = result.conceptualParasite.passageA || {};
-      result.conceptualParasite.passageA.elements = ["Builds on existing frameworks", "Extends current knowledge"];
-    }
-    
-    if (!result.conceptualParasite?.passageB?.elements?.length) {
-      result.conceptualParasite = result.conceptualParasite || {};
-      result.conceptualParasite.passageB = result.conceptualParasite.passageB || {};
-      result.conceptualParasite.passageB.elements = ["Draws from established sources", "Utilizes recognized patterns"];
-    }
-    
-    // Ensure coherence data is properly structured
-    if (!result.coherence) {
-      result.coherence = {
+    // Convert new 20-parameter format to our AnalysisResult type for backward compatibility
+    // We'll map the new parameters to the old schema format to avoid breaking the frontend
+    const result: AnalysisResult = {
+      // Map transformativeSynthesis to conceptualLineage
+      conceptualLineage: {
         passageA: {
-          score: 5,
-          assessment: "The coherence of this passage has not been fully evaluated.",
-          strengths: ["Consistent terminology", "Logical structure"],
-          weaknesses: ["Could improve clarity in some sections"]
+          primaryInfluences: rawResult.transformativeSynthesis?.passageA?.assessment || "Analysis of conceptual influences",
+          intellectualTrajectory: rawResult.epistemicReframing?.passageA?.assessment || "Analysis of intellectual development"
         },
         passageB: {
-          score: 5,
-          assessment: "This represents an average level of coherence.",
-          strengths: ["Standard logical flow", "Conventional structure"],
-          weaknesses: ["Typical clarity issues found in average texts"]
+          primaryInfluences: rawResult.transformativeSynthesis?.passageB?.assessment || "Analysis of conceptual influences",
+          intellectualTrajectory: rawResult.epistemicReframing?.passageB?.assessment || "Analysis of intellectual development"
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.coherence.passageA = result.coherence.passageA || {
-        score: 5,
-        assessment: "The coherence of this passage has not been fully evaluated.",
-        strengths: ["Consistent terminology", "Logical structure"],
-        weaknesses: ["Could improve clarity in some sections"]
-      };
+      },
       
-      result.coherence.passageB = result.coherence.passageB || {
-        score: 5,
-        assessment: "This represents an average level of coherence.",
-        strengths: ["Standard logical flow", "Conventional structure"],
-        weaknesses: ["Typical clarity issues found in average texts"]
-      };
-    }
-    
-    // Ensure accuracy data is properly structured
-    if (!result.accuracy) {
-      result.accuracy = {
+      // Map historicalRarity to semanticDistance
+      semanticDistance: {
         passageA: {
-          score: 5,
-          assessment: "The accuracy of this passage has not been fully evaluated.",
-          strengths: ["Standard factual content", "Basic inferential structure"],
-          weaknesses: ["Some claims may require verification"]
+          distance: (rawResult.historicalRarity?.passageA?.score || 5) * 10,
+          label: rawResult.historicalRarity?.passageA?.score >= 7 ? "High Distance" : rawResult.historicalRarity?.passageA?.score >= 4 ? "Moderate Distance" : "Low Distance"
         },
         passageB: {
-          score: 5,
-          assessment: "This represents an average level of accuracy.",
-          strengths: ["Typical factual content", "Conventional logical structure"],
-          weaknesses: ["May contain some unverified assertions"]
-        }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.accuracy.passageA = result.accuracy.passageA || {
-        score: 5,
-        assessment: "The accuracy of this passage has not been fully evaluated.",
-        strengths: ["Standard factual content", "Basic inferential structure"],
-        weaknesses: ["Some claims may require verification"]
-      };
+          distance: (rawResult.historicalRarity?.passageB?.score || 5) * 10,
+          label: rawResult.historicalRarity?.passageB?.score >= 7 ? "High Distance" : rawResult.historicalRarity?.passageB?.score >= 4 ? "Moderate Distance" : "Low Distance"
+        },
+        keyFindings: [
+          rawResult.transformativeSynthesis?.passageA?.strengths?.[0] || "Conceptual synthesis analysis",
+          rawResult.epistemicReframing?.passageA?.strengths?.[0] || "Epistemic reframing evaluation", 
+          rawResult.ontologicalInnovation?.passageA?.strengths?.[0] || "Ontological innovation assessment"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive analysis across 20 originality parameters shows varying degrees of innovation."
+      },
       
-      result.accuracy.passageB = result.accuracy.passageB || {
-        score: 5,
-        assessment: "This represents an average level of accuracy.",
-        strengths: ["Typical factual content", "Conventional logical structure"],
-        weaknesses: ["May contain some unverified assertions"]
-      };
-    }
-    
-    // Ensure depth data is properly structured
-    if (!result.depth) {
-      result.depth = {
+      // Create novelty heatmap from paragraph analysis
+      noveltyHeatmap: {
+        passageA: paragraphsA.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformativeSynthesis?.passageA?.score || 5) + 
+                           (rawResult.recursiveInnovation?.passageA?.score || 5) + 
+                           (rawResult.ontologicalInnovation?.passageA?.score || 5)) / 3 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} demonstrates originality through multiple parameters`
+        })),
+        passageB: paragraphsB.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformativeSynthesis?.passageB?.score || 5) + 
+                           (rawResult.recursiveInnovation?.passageB?.score || 5) + 
+                           (rawResult.ontologicalInnovation?.passageB?.score || 5)) / 3 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} demonstrates originality through multiple parameters`
+        }))
+      },
+      
+      // Calculate aggregate originality score from multiple parameters
+      derivativeIndex: {
         passageA: {
-          score: 5,
-          assessment: "The depth of this passage has not been fully evaluated.",
-          strengths: ["Addresses core concepts", "Provides some analysis"],
-          weaknesses: ["Could explore implications further"]
+          score: Math.round(((rawResult.transformativeSynthesis?.passageA?.score || 5) +
+                           (rawResult.ontologicalInnovation?.passageA?.score || 5) +
+                           (rawResult.generativeAsymmetry?.passageA?.score || 5) +
+                           (rawResult.categoryRupture?.passageA?.score || 5) +
+                           (rawResult.frameViolation?.passageA?.score || 5)) / 5 * 10) / 10,
+          components: [
+            {name: "Transformative Synthesis", score: rawResult.transformativeSynthesis?.passageA?.score || 5},
+            {name: "Ontological Innovation", score: rawResult.ontologicalInnovation?.passageA?.score || 5},
+            {name: "Generative Asymmetry", score: rawResult.generativeAsymmetry?.passageA?.score || 5}
+          ]
         },
         passageB: {
-          score: 5,
-          assessment: "This represents an average level of depth.",
-          strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
-          weaknesses: ["Lacks deeper exploration of underlying structures"]
+          score: Math.round(((rawResult.transformativeSynthesis?.passageB?.score || 5) +
+                           (rawResult.ontologicalInnovation?.passageB?.score || 5) +
+                           (rawResult.generativeAsymmetry?.passageB?.score || 5) +
+                           (rawResult.categoryRupture?.passageB?.score || 5) +
+                           (rawResult.frameViolation?.passageB?.score || 5)) / 5 * 10) / 10,
+          components: [
+            {name: "Transformative Synthesis", score: rawResult.transformativeSynthesis?.passageB?.score || 5},
+            {name: "Ontological Innovation", score: rawResult.ontologicalInnovation?.passageB?.score || 5},
+            {name: "Generative Asymmetry", score: rawResult.generativeAsymmetry?.passageB?.score || 5}
+          ]
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.depth.passageA = result.depth.passageA || {
-        score: 5,
-        assessment: "The depth of this passage has not been fully evaluated.",
-        strengths: ["Addresses core concepts", "Provides some analysis"],
-        weaknesses: ["Could explore implications further"]
-      };
+      },
       
-      result.depth.passageB = result.depth.passageB || {
-        score: 5,
-        assessment: "This represents an average level of depth.",
-        strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
-        weaknesses: ["Lacks deeper exploration of underlying structures"]
-      };
+      // Map unforcedNonconformity to conceptualParasite (inverted)
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.unforcedNonconformity?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.unforcedNonconformity?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.unforcedNonconformity?.passageA?.weaknesses || ["Standard approach", "Conventional methods"],
+          assessment: rawResult.unforcedNonconformity?.passageA?.assessment || "Analysis of conceptual dependence"
+        },
+        passageB: {
+          level: (rawResult.unforcedNonconformity?.passageB?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.unforcedNonconformity?.passageB?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.unforcedNonconformity?.passageB?.weaknesses || ["Standard approach", "Conventional methods"],
+          assessment: rawResult.unforcedNonconformity?.passageB?.assessment || "Analysis of conceptual dependence"
+        }
+      },
+      
+      // Map compressionExpansionTension to coherence
+      coherence: {
+        passageA: {
+          score: rawResult.compressionExpansionTension?.passageA?.score || 5,
+          assessment: rawResult.compressionExpansionTension?.passageA?.assessment || "Analysis of structural coherence",
+          strengths: rawResult.compressionExpansionTension?.passageA?.strengths || ["Logical structure", "Clear progression"],
+          weaknesses: rawResult.compressionExpansionTension?.passageA?.weaknesses || ["Some unclear transitions", "Could improve flow"]
+        },
+        passageB: {
+          score: rawResult.compressionExpansionTension?.passageB?.score || 5,
+          assessment: rawResult.compressionExpansionTension?.passageB?.assessment || "Analysis of structural coherence",
+          strengths: rawResult.compressionExpansionTension?.passageB?.strengths || ["Logical structure", "Clear progression"],
+          weaknesses: rawResult.compressionExpansionTension?.passageB?.weaknesses || ["Some unclear transitions", "Could improve flow"]
+        }
+      },
+      
+      // Map anchorToDriftRatio to accuracy
+      accuracy: {
+        passageA: {
+          score: rawResult.anchorToDriftRatio?.passageA?.score || 5,
+          assessment: rawResult.anchorToDriftRatio?.passageA?.assessment || "Analysis of grounding and originality balance",
+          strengths: rawResult.anchorToDriftRatio?.passageA?.strengths || ["Well-grounded claims", "Logical inferences"],
+          weaknesses: rawResult.anchorToDriftRatio?.passageA?.weaknesses || ["Some unverified claims", "Could strengthen evidence"]
+        },
+        passageB: {
+          score: rawResult.anchorToDriftRatio?.passageB?.score || 5,
+          assessment: rawResult.anchorToDriftRatio?.passageB?.assessment || "Analysis of grounding and originality balance",
+          strengths: rawResult.anchorToDriftRatio?.passageB?.strengths || ["Well-grounded claims", "Logical inferences"],
+          weaknesses: rawResult.anchorToDriftRatio?.passageB?.weaknesses || ["Some unverified claims", "Could strengthen evidence"]
+        }
+      },
+      
+      // Map semanticDiagonalization to depth
+      depth: {
+        passageA: {
+          score: rawResult.semanticDiagonalization?.passageA?.score || 5,
+          assessment: rawResult.semanticDiagonalization?.passageA?.assessment || "Analysis of conceptual depth and cross-layer understanding",
+          strengths: rawResult.semanticDiagonalization?.passageA?.strengths || ["Multi-level analysis", "Conceptual insight"],
+          weaknesses: rawResult.semanticDiagonalization?.passageA?.weaknesses || ["Could explore implications further", "Some surface-level treatment"]
+        },
+        passageB: {
+          score: rawResult.semanticDiagonalization?.passageB?.score || 5,
+          assessment: rawResult.semanticDiagonalization?.passageB?.assessment || "Analysis of conceptual depth and cross-layer understanding",
+          strengths: rawResult.semanticDiagonalization?.passageB?.strengths || ["Multi-level analysis", "Conceptual insight"],
+          weaknesses: rawResult.semanticDiagonalization?.passageB?.weaknesses || ["Could explore implications further", "Some surface-level treatment"]
+        }
+      },
+      
+      // Map semanticReconfiguration to clarity
+      clarity: {
+        passageA: {
+          score: rawResult.semanticReconfiguration?.passageA?.score || 5,
+          assessment: rawResult.semanticReconfiguration?.passageA?.assessment || "Analysis of semantic clarity and term definition",
+          strengths: rawResult.semanticReconfiguration?.passageA?.strengths || ["Clear terminology", "Well-defined concepts"],
+          weaknesses: rawResult.semanticReconfiguration?.passageA?.weaknesses || ["Some unclear terms", "Could improve precision"]
+        },
+        passageB: {
+          score: rawResult.semanticReconfiguration?.passageB?.score || 5,
+          assessment: rawResult.semanticReconfiguration?.passageB?.assessment || "Analysis of semantic clarity and term definition",
+          strengths: rawResult.semanticReconfiguration?.passageB?.strengths || ["Clear terminology", "Well-defined concepts"],
+          weaknesses: rawResult.semanticReconfiguration?.passageB?.weaknesses || ["Some unclear terms", "Could improve precision"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
+      
+      // Store the raw 20-parameter analysis for potential future use
+      rawTwentyParameterAnalysis: rawResult
     }
     
     // Ensure clarity data is properly structured
@@ -522,17 +487,28 @@ IMPORTANT GUIDELINES FOR EVALUATION:
 
 6. Value conceptual innovation even when it challenges mainstream views.
 
-Analyze the given passage against a normalized baseline using these nine metrics:
+Analyze the passage against a normalized baseline using these 20 comprehensive originality parameters:
 
-1. Conceptual Lineage - Where ideas come from, whether they advance beyond existing frameworks
-2. Semantic Distance - How far the passage moves from common norms, prioritizing genuine conceptual shifts
-3. Novelty Heatmap - Where the real conceptual innovation is happening by paragraph
-4. Derivative Index - Score 0-10 where 0 is recycled and 10 is wholly original AND meritorious
-5. Conceptual Parasite Detection - Does the passage add original contributions or merely restate existing debates
-6. Coherence - Whether the passage has internal logical consistency and conceptual clarity
-7. Accuracy - Validity of inference structures and conceptual precision (not just fact-checking)
-8. Depth - Non-triviality, conceptual insight, and theoretical significance
-9. Clarity - Effectiveness in communicating complex ideas (not simplicity for its own sake)
+1. Transformative Synthesis - Does the author combine existing ideas to generate a new framework or insight?
+2. Constraint-Respecting Deformation - Has the author bent or stretched a known theory without breaking internal coherence?
+3. Epistemic Reframing - Does the author recast a known issue in a way that redefines how it's understood?
+4. Historical Rarity - Would the author's moves have been surprising or rare at the time they were written?
+5. Recursive Innovation - Does the concept or argument generate more versions of itself in different settings?
+6. Oblique Solution Path - Is the problem solved in an indirect but successful way?
+7. Meta-Theoretic Awareness - Does the author show insight about the frameworks that govern the discourse?
+8. Semantic Diagonalization - Are multiple conceptual layers crossed to produce novelty?
+9. Tool Reappropriation - Does the author use a method or concept from one field in a powerful new domain?
+10. Analogical Leverage - Are analogies used to generate insight — not just to decorate?
+11. Category Rupture - Does the text challenge or destabilize a settled conceptual category?
+12. Compression-Expansion Tension - Does the author compress prior ideas while opening new ones?
+13. Semantic Reconfiguration - Are the meanings of key terms redefined in powerful ways?
+14. Ontological Innovation - Does the work introduce a new kind of thing, property, or structural level?
+15. Generative Asymmetry - Is a small move leveraged to create large conceptual ripples?
+16. Frame Violation - Does the author knowingly break a disciplinary boundary and get away with it?
+17. Anchor-to-Drift Ratio - Is the text both grounded and original — not just one or the other?
+18. Unforced Nonconformity - Does the originality seem necessary — not performative?
+19. Asymmetric Discourse Positioning - Is the author's voice distinct — not reducible to known positions?
+20. Temporal Calibration - Does the originality make sense for the time of writing?
 
 For Conceptual Innovation (part of derivative index), highly value:
 - Reclassification of common-sense distinctions (e.g., emotions vs. judgments)
@@ -591,148 +567,90 @@ ${userContext ? `Author's Context: ${userContext}
 
 When evaluating this passage, consider the author's context provided above. Adapt your evaluation criteria accordingly. For example, don't penalize excerpts for brevity or rough drafts for minor coherence issues.` : ''}
 
-Return a detailed analysis in the following JSON format, where "passageB" represents the typical norm of average originality writing for comparison:
+Return a detailed analysis in the following JSON format using all 20 originality parameters, where "passageB" represents the typical norm:
 
 {
-  "conceptualLineage": {
-    "passageA": {
-      "primaryInfluences": "string explaining main influences",
-      "intellectualTrajectory": "string explaining how it builds on or diverges from influences"
-    },
-    "passageB": {
-      "primaryInfluences": "string explaining influences for an average text in this domain",
-      "intellectualTrajectory": "string explaining typical trajectories for average texts"
-    }
+  "transformativeSynthesis": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "semanticDistance": {
-    "passageA": {
-      "distance": number from 0-100 representing distance from common norms,
-      "label": "Low/Moderate/High Distance" description
-    },
-    "passageB": {
-      "distance": 50,
-      "label": "Average/Typical Distance (Norm Baseline)"
-    },
-    "keyFindings": ["string1", "string2", "string3"],
-    "semanticInnovation": "string describing how the passage innovates compared to typical writing"
+  "constraintRespectingDeformation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "noveltyHeatmap": {
-    "passageA": [
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      },
-      {
-        "content": "summary of paragraph", 
-        "heat": percentage of novelty 0-100,
-        "quote": "direct illustrative quote from the passage",
-        "explanation": "brief explanation of why this quote shows originality/relevance"
-      }
-    ],
-    "passageB": [
-      {
-        "content": "typical paragraph pattern in this domain", 
-        "heat": 50,
-        "quote": "example of typical phrasing in this domain",
-        "explanation": "explanation of how this represents standard writing in the field"
-      },
-      {
-        "content": "typical paragraph pattern in this domain", 
-        "heat": 50,
-        "quote": "example of typical phrasing in this domain",
-        "explanation": "explanation of how this represents standard writing in the field"
-      }
-    ]
+  "epistemicReframing": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "derivativeIndex": {
-    "passageA": {
-      "score": number from 0-10,
-      "components": [
-        {"name": "Conceptual Innovation", "score": number from 0-10},
-        {"name": "Methodological Novelty", "score": number from 0-10},
-        {"name": "Contextual Application", "score": number from 0-10}
-      ]
-    },
-    "passageB": {
-      "score": 5,
-      "components": [
-        {"name": "Conceptual Innovation", "score": 5},
-        {"name": "Methodological Novelty", "score": 5},
-        {"name": "Contextual Application", "score": 5}
-      ]
-    }
+  "historicalRarity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "conceptualParasite": {
-    "passageA": {
-      "level": "Low"/"Moderate"/"High",
-      "elements": ["string1", "string2"],
-      "assessment": "string summarizing parasite evaluation"
-    },
-    "passageB": {
-      "level": "Moderate",
-      "elements": ["typical parasitic elements in average texts"],
-      "assessment": "baseline assessment of typical texts in this domain"
-    }
+  "recursiveInnovation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "coherence": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the coherence evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": 6,
-      "assessment": "string explaining typical coherence level in this domain",
-      "strengths": ["typical strengths of average texts"],
-      "weaknesses": ["typical weaknesses of average texts"]
-    }
+  "obliqueSolutionPath": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "accuracy": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the accuracy evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": 5,
-      "assessment": "string explaining typical accuracy level in this domain",
-      "strengths": ["typical strengths of average texts"],
-      "weaknesses": ["typical weaknesses of average texts"]
-    }
+  "metaTheoreticAwareness": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "depth": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the depth evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": 5,
-      "assessment": "string explaining typical depth level in this domain",
-      "strengths": ["typical strengths of average texts"],
-      "weaknesses": ["typical weaknesses of average texts"]
-    }
+  "semanticDiagonalization": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "clarity": {
-    "passageA": {
-      "score": number from 0-10,
-      "assessment": "string explaining the clarity evaluation",
-      "strengths": ["string1", "string2"],
-      "weaknesses": ["string1", "string2"]
-    },
-    "passageB": {
-      "score": 5,
-      "assessment": "string explaining typical clarity level in this domain",
-      "strengths": ["typical strengths of average texts"],
-      "weaknesses": ["typical weaknesses of average texts"]
-    }
+  "toolReappropriation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
   },
-  "verdict": "comprehensive one-paragraph judgment on how original the passage is compared to the norm, with specific mentions of strengths and limitations"
+  "analogicalLeverage": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "categoryRupture": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "compressionExpansionTension": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "semanticReconfiguration": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "ontologicalInnovation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "generativeAsymmetry": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "frameViolation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "anchorToDriftRatio": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "unforcedNonconformity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "asymmetricDiscoursePositioning": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "temporalCalibration": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  },
+  "verdict": "comprehensive assessment across all 20 originality parameters"
 }`,
         },
       ],
@@ -740,43 +658,54 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
       max_tokens: 4000,
     });
 
-    // Parse the content into our AnalysisResult type
-    const result = JSON.parse(response.choices[0].message.content ?? "{}") as AnalysisResult;
-
-    // Process and validate all required fields for the response
-    // This ensures the AnalysisResult always matches the expected schema
-
-    // Fix novelty heatmap paragraphs if missing
-    if (!result.noveltyHeatmap?.passageA?.length) {
-      result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageA = paragraphs.map(p => {
-        // Extract a representative quote from the paragraph (max 40 chars)
-        const quote = p.length > 40 ? p.substring(0, 40) + "..." : p;
-        return {
-          content: p.substring(0, 100) + "...",
-          heat: Math.floor(50 + Math.random() * 50), // More positive bias
-          quote: quote,
-          explanation: "This section illustrates key concepts in the passage."
-        };
-      });
-    } else {
-      // Ensure quotes and explanations exist even if partial data was returned
-      result.noveltyHeatmap.passageA = result.noveltyHeatmap.passageA.map((item, index) => {
-        const paragraph = paragraphs[index] || "";
-        return {
-          ...item,
-          quote: item.quote || (paragraph.length > 40 ? paragraph.substring(0, 40) + "..." : paragraph),
-          explanation: item.explanation || "This quote highlights a key conceptual element in the passage."
-        };
-      });
-    }
-
-    // Ensure "Norm" comparison has content
-    if (!result.noveltyHeatmap?.passageB?.length) {
-      result.noveltyHeatmap = result.noveltyHeatmap || {};
-      result.noveltyHeatmap.passageB = [
-        {
-          content: "Typical writing in this domain follows conventional structures and patterns",
+    // Parse the response from the new 20-parameter analysis
+    const rawResult = JSON.parse(response.choices[0].message.content ?? "{}");
+    
+    // Convert new 20-parameter format to our AnalysisResult type for backward compatibility
+    const result: AnalysisResult = {
+      // Map transformativeSynthesis to conceptualLineage
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.transformativeSynthesis?.passageA?.assessment || "Analysis of conceptual influences",
+          intellectualTrajectory: rawResult.epistemicReframing?.passageA?.assessment || "Analysis of intellectual development"
+        },
+        passageB: {
+          primaryInfluences: "Typical writing draws from established academic traditions and common frameworks",
+          intellectualTrajectory: "Standard texts follow conventional intellectual patterns"
+        }
+      },
+      
+      // Map historicalRarity to semanticDistance
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.historicalRarity?.passageA?.score || 5) * 10,
+          label: rawResult.historicalRarity?.passageA?.score >= 7 ? "High Distance" : rawResult.historicalRarity?.passageA?.score >= 4 ? "Moderate Distance" : "Low Distance"
+        },
+        passageB: {
+          distance: 50,
+          label: "Average Distance (Norm Baseline)"
+        },
+        keyFindings: [
+          rawResult.transformativeSynthesis?.passageA?.strengths?.[0] || "Conceptual synthesis analysis",
+          rawResult.epistemicReframing?.passageA?.strengths?.[0] || "Epistemic reframing evaluation", 
+          rawResult.ontologicalInnovation?.passageA?.strengths?.[0] || "Ontological innovation assessment"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying degrees of innovation."
+      },
+      
+      // Create novelty heatmap from paragraph analysis
+      noveltyHeatmap: {
+        passageA: paragraphs.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformativeSynthesis?.passageA?.score || 5) + 
+                           (rawResult.recursiveInnovation?.passageA?.score || 5) + 
+                           (rawResult.ontologicalInnovation?.passageA?.score || 5)) / 3 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} demonstrates originality through multiple parameters`
+        })),
+        passageB: [
+          {
+            content: "Typical writing in this domain follows conventional structures and patterns",
           heat: 50,
           quote: "Standard academic phrasing and terminology",
           explanation: "This represents the conventional approach found in most scholarly writing."
@@ -787,163 +716,117 @@ Return a detailed analysis in the following JSON format, where "passageB" repres
           quote: "As scholars have long established...",
           explanation: "This exemplifies typical references to established authorities without new insight."
         }
-      ];
-    }
-    
-    // Ensure other required fields exist with default values if not provided
-    if (!result.semanticDistance?.keyFindings?.length) {
-      result.semanticDistance = result.semanticDistance || {};
-      result.semanticDistance.keyFindings = ["Innovative use of concepts", "Novel approach to existing ideas", "Creative application of methodology"];
-    }
-    
-    if (!result.semanticDistance?.semanticInnovation) {
-      result.semanticDistance = result.semanticDistance || {};
-      result.semanticDistance.semanticInnovation = "The passage demonstrates originality in its approach to the subject matter, showing innovation compared to typical texts in this domain.";
-    }
-    
-    if (!result.conceptualParasite?.passageA?.elements?.length) {
-      result.conceptualParasite = result.conceptualParasite || {};
-      result.conceptualParasite.passageA = result.conceptualParasite.passageA || {};
-      result.conceptualParasite.passageA.elements = ["Builds on existing frameworks", "Extends current knowledge"];
-    }
-    
-    if (!result.conceptualParasite?.passageB?.elements?.length) {
-      result.conceptualParasite = result.conceptualParasite || {};
-      result.conceptualParasite.passageB = result.conceptualParasite.passageB || {};
-      result.conceptualParasite.passageB.elements = ["Typical patterns of thinking", "Standard conceptual frameworks"];
-    }
-    
-    // Ensure coherence data is properly structured
-    if (!result.coherence) {
-      result.coherence = {
+        ]
+      },
+      
+      // Calculate aggregate originality score from multiple parameters
+      derivativeIndex: {
         passageA: {
+          score: Math.round(((rawResult.transformativeSynthesis?.passageA?.score || 5) +
+                           (rawResult.ontologicalInnovation?.passageA?.score || 5) +
+                           (rawResult.generativeAsymmetry?.passageA?.score || 5) +
+                           (rawResult.categoryRupture?.passageA?.score || 5) +
+                           (rawResult.frameViolation?.passageA?.score || 5)) / 5 * 10) / 10,
+          components: [
+            {name: "Transformative Synthesis", score: rawResult.transformativeSynthesis?.passageA?.score || 5},
+            {name: "Ontological Innovation", score: rawResult.ontologicalInnovation?.passageA?.score || 5},
+            {name: "Generative Asymmetry", score: rawResult.generativeAsymmetry?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
           score: 5,
-          assessment: "The coherence of this passage has not been fully evaluated.",
-          strengths: ["Consistent terminology", "Logical structure"],
-          weaknesses: ["Could improve clarity in some sections"]
+          components: [
+            {name: "Transformative Synthesis", score: 5},
+            {name: "Ontological Innovation", score: 5},
+            {name: "Generative Asymmetry", score: 5}
+          ]
+        }
+      },
+      
+      // Map unforcedNonconformity to conceptualParasite (inverted)
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.unforcedNonconformity?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.unforcedNonconformity?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.unforcedNonconformity?.passageA?.weaknesses || ["Some derivative elements", "Standard patterns"],
+          assessment: rawResult.unforcedNonconformity?.passageA?.assessment || "Analysis of conceptual dependence"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Conventional frameworks", "Standard academic patterns"],
+          assessment: "Typical texts show moderate dependence on established patterns"
+        }
+      },
+      
+      // Map compressionExpansionTension to coherence
+      coherence: {
+        passageA: {
+          score: rawResult.compressionExpansionTension?.passageA?.score || 5,
+          assessment: rawResult.compressionExpansionTension?.passageA?.assessment || "Analysis of structural coherence",
+          strengths: rawResult.compressionExpansionTension?.passageA?.strengths || ["Logical structure", "Clear progression"],
+          weaknesses: rawResult.compressionExpansionTension?.passageA?.weaknesses || ["Some unclear transitions", "Could improve flow"]
         },
         passageB: {
           score: 6,
-          assessment: "This represents an average level of coherence typical for texts in this domain.",
+          assessment: "Typical texts maintain standard coherence levels with conventional logical flow",
           strengths: ["Standard logical flow", "Conventional structure"],
-          weaknesses: ["Typical clarity issues found in average texts"]
+          weaknesses: ["Typical clarity issues", "Standard organizational patterns"]
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.coherence.passageA = result.coherence.passageA || {
-        score: 5,
-        assessment: "The coherence of this passage has not been fully evaluated.",
-        strengths: ["Consistent terminology", "Logical structure"],
-        weaknesses: ["Could improve clarity in some sections"]
-      };
+      },
       
-      result.coherence.passageB = result.coherence.passageB || {
-        score: 6,
-        assessment: "This represents an average level of coherence typical for texts in this domain.",
-        strengths: ["Standard logical flow", "Conventional structure"],
-        weaknesses: ["Typical clarity issues found in average texts"]
-      };
-    }
-    
-    // Ensure accuracy data is properly structured
-    if (!result.accuracy) {
-      result.accuracy = {
+      // Map anchorToDriftRatio to accuracy
+      accuracy: {
         passageA: {
-          score: 5,
-          assessment: "The accuracy of this passage has not been fully evaluated.",
-          strengths: ["Standard factual content", "Basic inferential structure"],
-          weaknesses: ["Some claims may require verification"]
+          score: rawResult.anchorToDriftRatio?.passageA?.score || 5,
+          assessment: rawResult.anchorToDriftRatio?.passageA?.assessment || "Analysis of grounding and originality balance",
+          strengths: rawResult.anchorToDriftRatio?.passageA?.strengths || ["Well-grounded claims", "Logical inferences"],
+          weaknesses: rawResult.anchorToDriftRatio?.passageA?.weaknesses || ["Some unverified claims", "Could strengthen evidence"]
         },
         passageB: {
           score: 5,
-          assessment: "This represents an average level of accuracy in this domain.",
-          strengths: ["Typical factual content", "Conventional logical structure"],
-          weaknesses: ["May contain some unverified assertions"]
+          assessment: "Typical texts maintain average accuracy with standard verification practices",
+          strengths: ["Standard factual content", "Conventional logical structure"],
+          weaknesses: ["Some unverified assertions", "Typical evidentiary gaps"]
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.accuracy.passageA = result.accuracy.passageA || {
-        score: 5,
-        assessment: "The accuracy of this passage has not been fully evaluated.",
-        strengths: ["Standard factual content", "Basic inferential structure"],
-        weaknesses: ["Some claims may require verification"]
-      };
+      },
       
-      result.accuracy.passageB = result.accuracy.passageB || {
-        score: 5,
-        assessment: "This represents an average level of accuracy in this domain.",
-        strengths: ["Typical factual content", "Conventional logical structure"],
-        weaknesses: ["May contain some unverified assertions"]
-      };
-    }
-    
-    // Ensure depth data is properly structured
-    if (!result.depth) {
-      result.depth = {
+      // Map semanticDiagonalization to depth
+      depth: {
         passageA: {
-          score: 5,
-          assessment: "The depth of this passage has not been fully evaluated.",
-          strengths: ["Addresses core concepts", "Provides some analysis"],
-          weaknesses: ["Could explore implications further"]
+          score: rawResult.semanticDiagonalization?.passageA?.score || 5,
+          assessment: rawResult.semanticDiagonalization?.passageA?.assessment || "Analysis of conceptual depth and cross-layer understanding",
+          strengths: rawResult.semanticDiagonalization?.passageA?.strengths || ["Multi-level analysis", "Conceptual insight"],
+          weaknesses: rawResult.semanticDiagonalization?.passageA?.weaknesses || ["Could explore implications further", "Some surface-level treatment"]
         },
         passageB: {
           score: 5,
-          assessment: "This represents an average level of depth in this domain.",
+          assessment: "Typical texts engage with concepts at conventional depths",
           strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
-          weaknesses: ["Lacks deeper exploration of underlying structures"]
+          weaknesses: ["Lacks deeper exploration", "Surface-level treatment common"]
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.depth.passageA = result.depth.passageA || {
-        score: 5,
-        assessment: "The depth of this passage has not been fully evaluated.",
-        strengths: ["Addresses core concepts", "Provides some analysis"],
-        weaknesses: ["Could explore implications further"]
-      };
+      },
       
-      result.depth.passageB = result.depth.passageB || {
-        score: 5,
-        assessment: "This represents an average level of depth in this domain.",
-        strengths: ["Standard level of conceptual engagement", "Conventional analysis"],
-        weaknesses: ["Lacks deeper exploration of underlying structures"]
-      };
-    }
-    
-    // Ensure clarity data is properly structured
-    if (!result.clarity) {
-      result.clarity = {
+      // Map semanticReconfiguration to clarity
+      clarity: {
         passageA: {
-          score: 5,
-          assessment: "The clarity of this passage has not been fully evaluated.",
-          strengths: ["Basic structural organization", "Standard terminology"],
-          weaknesses: ["Some sentences could be more precise"]
+          score: rawResult.semanticReconfiguration?.passageA?.score || 5,
+          assessment: rawResult.semanticReconfiguration?.passageA?.assessment || "Analysis of semantic clarity and term definition",
+          strengths: rawResult.semanticReconfiguration?.passageA?.strengths || ["Clear terminology", "Well-defined concepts"],
+          weaknesses: rawResult.semanticReconfiguration?.passageA?.weaknesses || ["Some unclear terms", "Could improve precision"]
         },
         passageB: {
           score: 5,
-          assessment: "This represents an average level of clarity in this domain.",
+          assessment: "Typical texts maintain standard clarity with conventional terminology",
           strengths: ["Conventional sentence structure", "Standard organization"],
-          weaknesses: ["Typical readability issues found in average texts"]
+          weaknesses: ["Typical readability issues", "Standard precision levels"]
         }
-      };
-    } else {
-      // Ensure all required fields exist
-      result.clarity.passageA = result.clarity.passageA || {
-        score: 5,
-        assessment: "The clarity of this passage has not been fully evaluated.",
-        strengths: ["Basic structural organization", "Standard terminology"],
-        weaknesses: ["Some sentences could be more precise"]
-      };
+      },
       
-      result.clarity.passageB = result.clarity.passageB || {
-        score: 5,
-        assessment: "This represents an average level of clarity in this domain.",
-        strengths: ["Conventional sentence structure", "Standard organization"],
-        weaknesses: ["Typical readability issues found in average texts"]
-      };
-    }
+      verdict: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
+      
+      // Store the raw 20-parameter analysis for potential future use
+      rawTwentyParameterAnalysis: rawResult
+    };
     
     // Store userContext in the result if it was provided
     if (userContext) {
