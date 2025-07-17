@@ -467,11 +467,11 @@ export async function analyzeSinglePassage(
     const userContext = passage.userContext || "";
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: `You are an expert evaluator of originality and quality in intellectual writing. You assess conceptual merit efficiently and accurately.
+          content: `You are an expert evaluator of originality and quality in intellectual writing across all disciplines, including philosophy, mathematics, cognitive science, and theoretical domains. You assess conceptual merit, not plagiarism or surface similarity. Your evaluation must be strict, honest, and focused on substantive conceptual merit.
 
 IMPORTANT GUIDELINES FOR EVALUATION:
 
