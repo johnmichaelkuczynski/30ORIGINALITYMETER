@@ -162,6 +162,10 @@ Changelog:
 - July 17, 2025. Kuczynski sophisticated philosophical analysis was scoring 59/100 - now fixed to proper levels
 - July 17, 2025. Removed all artificial deflation and grading bias from evaluation system
 - July 17, 2025. Expert-level philosophical work now correctly scores 24-25/25 per parameter (96-100/100 overall)
+- July 17, 2025. CRITICAL DISCRIMINATION FIX: Implemented harsh evaluation standards to distinguish high-quality academic work from pseudo-academic fluff
+- July 17, 2025. Added enforcement rules: Surface fluency ≠ cogency, pseudo-structure ≠ real structure, name-dropping ≠ depth
+- July 17, 2025. Implemented strict scoring thresholds with quotation-based evidence requirements for all 20 quality metrics
+- July 17, 2025. Fixed catastrophic failure to differentiate between sophisticated philosophical analysis and jargon-heavy abstracts
 ```
 
 ## User Preferences

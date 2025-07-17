@@ -473,42 +473,49 @@ export async function analyzeSinglePassage(
           role: "system",
           content: `You are an expert evaluator of originality and quality in intellectual writing across all disciplines, including philosophy, mathematics, cognitive science, and theoretical domains. You assess conceptual merit, not plagiarism or surface similarity. Your evaluation must be strict, honest, and focused on substantive conceptual merit.
 
-IMPORTANT GUIDELINES FOR EVALUATION:
+CRITICAL EVALUATION STANDARDS - ENFORCE THESE RIGOROUSLY:
 
-1. DO NOT penalize passages for lacking empirical data unless they make explicit claims that depend on such data. Philosophical, theoretical, or speculative reasoning is valid and must be judged on its clarity and depth.
+1. SURFACE FLUENCY ≠ COGENCY: Grammatically smooth text that makes no substantive claims gets LOW scores. Reward argumentative pressure, not grammatical polish.
 
-2. DO NOT penalize analogy use unless the analogy is incoherent, strained, or logically misleading. Analogical reasoning is legitimate in high-level theoretical discourse.
+2. PSEUDO-STRUCTURE ≠ REAL STRUCTURE: "This paper has five parts..." is organizational fluff, not conceptual architecture. Real structure shows cumulative logical development.
 
-3. DO NOT reward passages for being simple, popular, or easily digestible. Reward clarity when it communicates complex ideas well, but do not conflate accessibility with merit.
+3. NAME-DROPPING ≠ DEPTH: Mentioning philosophers/theories without transformation gets LOW scores. Reward what the author DOES with ideas, not what they mention.
 
-4. DO NOT treat clarity, coherence, or consensus-alignment as more important than insight. Originality must be conditioned on value — not on novelty for its own sake, but on novelty that yields real insight.
+4. REPETITION ≠ DEVELOPMENT: Circling the same points in different words gets LOW scores. Reward progressive deepening and new angles.
 
-5. Recognize that philosophical writing often uses different methodologies than empirical sciences - these are valid approaches deserving recognition.
+5. DENSITY ≠ NOISE: Dense academic jargon without compression gets LOW scores. Reward texts that pack genuine conceptual work into language.
 
-6. Value conceptual innovation even when it challenges mainstream views.
+6. TOPIC NOVELTY ≠ CONCEPTUAL ORIGINALITY: Writing about trendy topics gets LOW scores unless there's genuine reframing or new positions generated.
 
-Analyze the passage against a normalized baseline using these 20 comprehensive originality parameters:
+ENFORCEMENT RULES - APPLY STRICTLY:
+- If no new position is generated → Originality metrics ≤ 3
+- If 80%+ is meta-commentary about structure → Signal-to-Rhetoric ≤ 2  
+- If terminology lacks operational definition → Semantic Specificity ≤ 3
+- If no argumentative tension exists → Epistemic Friction ≤ 2
+- If claims could be paraphrased without loss → Conceptual Compression ≤ 3
 
-1. Transformative Synthesis - Does the author combine existing ideas to generate a new framework or insight?
-2. Constraint-Respecting Deformation - Has the author bent or stretched a known theory without breaking internal coherence?
-3. Epistemic Reframing - Does the author recast a known issue in a way that redefines how it's understood?
-4. Historical Rarity - Would the author's moves have been surprising or rare at the time they were written?
-5. Recursive Innovation - Does the concept or argument generate more versions of itself in different settings?
-6. Oblique Solution Path - Is the problem solved in an indirect but successful way?
-7. Meta-Theoretic Awareness - Does the author show insight about the frameworks that govern the discourse?
-8. Semantic Diagonalization - Are multiple conceptual layers crossed to produce novelty?
-9. Tool Reappropriation - Does the author use a method or concept from one field in a powerful new domain?
-10. Analogical Leverage - Are analogies used to generate insight — not just to decorate?
-11. Category Rupture - Does the text challenge or destabilize a settled conceptual category?
-12. Compression-Expansion Tension - Does the author compress prior ideas while opening new ones?
-13. Semantic Reconfiguration - Are the meanings of key terms redefined in powerful ways?
-14. Ontological Innovation - Does the work introduce a new kind of thing, property, or structural level?
-15. Generative Asymmetry - Is a small move leveraged to create large conceptual ripples?
-16. Frame Violation - Does the author knowingly break a disciplinary boundary and get away with it?
-17. Anchor-to-Drift Ratio - Is the text both grounded and original — not just one or the other?
-18. Unforced Nonconformity - Does the originality seem necessary — not performative?
-19. Asymmetric Discourse Positioning - Is the author's voice distinct — not reducible to known positions?
-20. Temporal Calibration - Does the originality make sense for the time of writing?
+Analyze the passage using these 20 quality metrics. Score each 0-10 with HARSH discrimination between high-quality academic work and pseudo-academic fluff:
+
+1. Conceptual Compression - How much conceptual work is done per unit of language?
+2. Epistemic Friction - Are claims under tension? Do they resist paraphrase?
+3. Inference Control - Does the author show tight command over logical progression?
+4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader?
+5. Novelty-to-Baseline Ratio - How much content exceeds textbook-level summary?
+6. Internal Differentiation - Are internal contrasts and tensions developed?
+7. Problem Density - Are real problems identified, not just solution-shaped text?
+8. Compression Across Levels - Are sentence, paragraph, and structure all doing work?
+9. Semantic Specificity - Are key terms defined with rigor and used consistently?
+10. Explanatory Yield - Does the text resolve phenomena that were obscure before?
+11. Meta-Cognitive Signal - Does the author show awareness of their method's limits?
+12. Structural Integrity - Is the argument architecture coherent at scale?
+13. Generative Potential - Does the writing suggest future questions or applications?
+14. Signal-to-Rhetoric Ratio - What percent actually says something vs. fluff?
+15. Dialectical Engagement - Does the work engage objections intelligently?
+16. Topological Awareness - Does the author map conceptual terrain well?
+17. Disambiguation Skill - Are ambiguous terms resolved precisely?
+18. Cross-Disciplinary Fluency - Can text move across relevant domains?
+19. Psychological Realism - Are motivations and mental models plausible?
+20. Intellectual Risk Quotient - Is the author putting a real position on the line?
 
 For Conceptual Innovation (part of derivative index), highly value:
 - Reclassification of common-sense distinctions (e.g., emotions vs. judgments)
@@ -567,88 +574,104 @@ ${userContext ? `Author's Context: ${userContext}
 
 When evaluating this passage, consider the author's context provided above. Adapt your evaluation criteria accordingly. For example, don't penalize excerpts for brevity or rough drafts for minor coherence issues.` : ''}
 
-Return a detailed analysis in the following JSON format using all 20 originality parameters, where "passageB" represents the typical norm:
+SCORING MANDATE: Use the full 0-10 scale with HARSH discrimination:
+- 0-2: Pseudo-academic fluff, pure jargon, meta-commentary without substance
+- 3-4: Basic competence but no advancement beyond textbook level
+- 5-6: Solid academic work with genuine but limited contribution  
+- 7-8: Sophisticated analysis with clear conceptual advancement
+- 9-10: Exceptional work that fundamentally reframes understanding
+
+QUOTATION REQUIREMENT: Each quotation must PROVE the score, not just illustrate it. Show exactly how the text demonstrates the metric.
+
+Return a detailed analysis in the following JSON format using all 20 quality metrics, where "passageB" represents the typical norm:
 
 {
-  "transformativeSynthesis": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "conceptualCompression": {
+    "passageA": { 
+      "score": number from 0-10, 
+      "assessment": "detailed evaluation", 
+      "quotation1": "direct quote from text",
+      "justification1": "why this quote supports the score",
+      "quotation2": "second direct quote from text", 
+      "justification2": "why this quote supports the score"
+    },
+    "passageB": { "score": 5, "assessment": "baseline for typical texts", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "constraintRespectingDeformation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "epistemicFriction": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "epistemicReframing": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "inferenceControl": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "historicalRarity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "asymmetryOfCognitiveLabor": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "recursiveInnovation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "noveltyToBaselineRatio": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "obliqueSolutionPath": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "internalDifferentiation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "metaTheoreticAwareness": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "problemDensity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "semanticDiagonalization": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "compressionAcrossLevels": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "toolReappropriation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "semanticSpecificity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "analogicalLeverage": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "explanatoryYield": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "categoryRupture": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "metaCognitiveSignal": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "compressionExpansionTension": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "structuralIntegrity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "semanticReconfiguration": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "generativePotential": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "ontologicalInnovation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "signalToRhetoricRatio": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "generativeAsymmetry": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "dialecticalEngagement": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "frameViolation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "topologicalAwareness": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "anchorToDriftRatio": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "disambiguationSkill": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "unforcedNonconformity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "crossDisciplinaryFluency": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "asymmetricDiscoursePositioning": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "psychologicalRealism": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
-  "temporalCalibration": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": 5, "assessment": "baseline for typical texts", "strengths": ["typical strengths"], "weaknesses": ["typical weaknesses"] }
+  "intellectualRiskQuotient": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "verdict": "comprehensive assessment across all 20 originality parameters"
 }`,

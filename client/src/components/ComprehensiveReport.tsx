@@ -179,53 +179,65 @@ export default function ComprehensiveReport({
       reportData.summary = `Analysis generated for "${passageATitle}"${isSinglePassageMode ? '' : ` and "${passageBTitle}"`}. Some metrics may be incomplete due to document complexity or size.`;
     }
     
-    // Extract scores
+    // Extract quality metric scores with quotations and justifications
+    const qualityMetrics: any = {};
+    
+    const metricKeys = [
+      'conceptualCompression', 'epistemicFriction', 'inferenceControl', 'asymmetryOfCognitiveLabor',
+      'noveltyToBaselineRatio', 'internalDifferentiation', 'problemDensity', 'compressionAcrossLevels',
+      'semanticSpecificity', 'explanatoryYield', 'metaCognitiveSignal', 'structuralIntegrity',
+      'generativePotential', 'signalToRhetoricRatio', 'dialecticalEngagement', 'topologicalAwareness',
+      'disambiguationSkill', 'crossDisciplinaryFluency', 'psychologicalRealism', 'intellectualRiskQuotient'
+    ];
+    
+    const metricLabels = {
+      'conceptualCompression': 'Conceptual Compression',
+      'epistemicFriction': 'Epistemic Friction',
+      'inferenceControl': 'Inference Control',
+      'asymmetryOfCognitiveLabor': 'Asymmetry of Cognitive Labor',
+      'noveltyToBaselineRatio': 'Novelty-to-Baseline Ratio',
+      'internalDifferentiation': 'Internal Differentiation',
+      'problemDensity': 'Problem Density',
+      'compressionAcrossLevels': 'Compression Across Levels',
+      'semanticSpecificity': 'Semantic Specificity',
+      'explanatoryYield': 'Explanatory Yield',
+      'metaCognitiveSignal': 'Meta-Cognitive Signal',
+      'structuralIntegrity': 'Structural Integrity',
+      'generativePotential': 'Generative Potential',
+      'signalToRhetoricRatio': 'Signal-to-Rhetoric Ratio',
+      'dialecticalEngagement': 'Dialectical Engagement',
+      'topologicalAwareness': 'Topological Awareness',
+      'disambiguationSkill': 'Disambiguation Skill',
+      'crossDisciplinaryFluency': 'Cross-Disciplinary Fluency',
+      'psychologicalRealism': 'Psychological Realism',
+      'intellectualRiskQuotient': 'Intellectual Risk Quotient'
+    };
+    
+    try {
+      metricKeys.forEach(key => {
+        if (extendedResult[key]?.passageA) {
+          qualityMetrics[key] = {
+            label: metricLabels[key],
+            score: extendedResult[key].passageA.score || "N/A",
+            assessment: extendedResult[key].passageA.assessment || "No assessment available",
+            quotation1: extendedResult[key].passageA.quotation1 || "No quotation provided",
+            justification1: extendedResult[key].passageA.justification1 || "No justification provided",
+            quotation2: extendedResult[key].passageA.quotation2 || "No quotation provided",
+            justification2: extendedResult[key].passageA.justification2 || "No justification provided"
+          };
+        }
+      });
+    } catch (error) {
+      console.error("Error extracting quality metrics:", error);
+    }
+    
+    reportData.qualityMetrics = qualityMetrics;
+    
+    // Extract legacy scores for compatibility
     const scores: any = {};
     
     try {
       if (isSinglePassageMode) {
-        // Single passage scores - check both novelty and derivativeIndex for originality
-        if (extendedResult.novelty?.passageA || extendedResult.derivativeIndex?.passageA) {
-          const originalitySource = extendedResult.novelty?.passageA || extendedResult.derivativeIndex?.passageA;
-          scores.originality = {
-            label: "Originality",
-            score: originalitySource?.score || "N/A",
-            description: originalitySource?.assessment || originalitySource?.description || 
-                        "This metric evaluates how the document introduces new concepts or approaches compared to existing literature."
-          };
-        } else {
-          // Fallback if no originality score is found
-          scores.originality = {
-            label: "Originality",
-            score: "N/A",
-            description: "Originality assessment unavailable for this document. This might be due to the document's length or complexity."
-          };
-        }
-        
-        if (extendedResult.coherence?.passageA) {
-          scores.coherence = {
-            label: "Coherence",
-            score: extendedResult.coherence.passageA.score || "N/A",
-            description: extendedResult.coherence.passageA.assessment || 
-                        "This metric evaluates how well the document maintains logical flow and consistency of argumentation."
-          };
-        } else {
-          // Fallback if no coherence score is found
-          scores.coherence = {
-            label: "Coherence",
-            score: "N/A",
-            description: "Coherence assessment unavailable. This evaluates how well the document maintains logical flow and consistency."
-          };
-        }
-        
-        if (extendedResult.parasiteIndex?.passageA) {
-          scores.parasitism = {
-            label: "Conceptual Parasitism",
-            level: extendedResult.parasiteIndex.passageA.level || "Unknown",
-            description: extendedResult.parasiteIndex.passageA.description || "No description available"
-          };
-        }
-        
         if (extendedResult.aiDetection?.passageA) {
           scores.aiDetection = {
             label: "AI Detection",
@@ -460,7 +472,63 @@ export default function ComprehensiveReport({
         yPosition = 20;
       }
 
-      // Analysis Scores Section
+      // Quality Metrics Section
+      doc.setFontSize(16);
+      doc.text("Quality Metrics Analysis", 15, yPosition += 10);
+      doc.setFontSize(10);
+      
+      // Add quality metrics with quotations
+      if (reportData.qualityMetrics && Object.keys(reportData.qualityMetrics).length > 0) {
+        Object.values(reportData.qualityMetrics).forEach((metric: any) => {
+          // Check if we need a new page
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          // Metric name and score
+          doc.setFontSize(12);
+          doc.text(`${metric.label}: ${metric.score}/10`, 15, yPosition += 8);
+          
+          // Assessment
+          doc.setFontSize(10);
+          const assessmentLines = doc.splitTextToSize(metric.assessment, 180);
+          doc.text(assessmentLines, 15, yPosition += 5);
+          yPosition += assessmentLines.length * 4;
+          
+          // First quotation and justification
+          doc.setFontSize(9);
+          doc.setTextColor(80, 80, 80);
+          doc.text("Supporting Evidence 1:", 15, yPosition += 5);
+          doc.setTextColor(0, 0, 0);
+          
+          const quote1Lines = doc.splitTextToSize(`"${metric.quotation1}"`, 170);
+          doc.text(quote1Lines, 20, yPosition += 4);
+          yPosition += quote1Lines.length * 3;
+          
+          const justification1Lines = doc.splitTextToSize(metric.justification1, 170);
+          doc.text(justification1Lines, 20, yPosition += 3);
+          yPosition += justification1Lines.length * 3;
+          
+          // Second quotation and justification
+          doc.setTextColor(80, 80, 80);
+          doc.text("Supporting Evidence 2:", 15, yPosition += 4);
+          doc.setTextColor(0, 0, 0);
+          
+          const quote2Lines = doc.splitTextToSize(`"${metric.quotation2}"`, 170);
+          doc.text(quote2Lines, 20, yPosition += 4);
+          yPosition += quote2Lines.length * 3;
+          
+          const justification2Lines = doc.splitTextToSize(metric.justification2, 170);
+          doc.text(justification2Lines, 20, yPosition += 3);
+          yPosition += justification2Lines.length * 3 + 5;
+        });
+      } else {
+        doc.text("Quality metrics are being processed. This may take longer for complex documents.", 15, yPosition += 8);
+        yPosition += 10;
+      }
+
+      // Legacy Analysis Scores Section for compatibility
       doc.setFontSize(16);
       doc.text("Analysis Scores & Justifications", 15, yPosition += 10);
       doc.setFontSize(11);
