@@ -259,6 +259,54 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     }
   });
   
+  // Originality analysis mutation
+  const originalityMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Analyzing originality");
+      
+      let endpoint = '/api/analyze/originality';
+      let payload = {
+        passageA,
+        provider
+      };
+      
+      // Check if we have passageB for dual analysis
+      if (passageB.text.trim() !== "") {
+        endpoint = '/api/analyze/originality-dual';
+        payload = {
+          passageA,
+          passageB,
+          provider
+        };
+      }
+      
+      console.log("Originality request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      const result = await response.json();
+      return result as AnalysisResult;
+    },
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowResults(true);
+      
+      // Scroll to the results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Originality analysis error:", error);
+      toast({
+        title: "Originality Analysis Failed",
+        description: "There was an error analyzing originality. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handle analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
@@ -394,6 +442,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     if (analysisMode === "quality") {
       console.log("Starting quality analysis");
       qualityMutation.mutate();
+      return;
+    }
+    
+    // For originality analysis mode, call the API directly  
+    if (analysisType === "originality") {
+      console.log("Starting originality analysis");
+      originalityMutation.mutate();
       return;
     }
     
@@ -771,7 +826,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending) ? (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending) ? (
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
@@ -810,6 +865,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 singleCogencyMutation.isPending ||
                 intelligenceMutation.isPending ||
                 qualityMutation.isPending ||
+                originalityMutation.isPending ||
                 !passageA.text.trim() || 
                 ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())

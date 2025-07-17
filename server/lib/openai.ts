@@ -48,45 +48,45 @@ IMPORTANT GUIDELINES FOR EVALUATION:
 
 Analyze the passages across these 20 comprehensive originality parameters:
 
-1. Transformative Synthesis - Does the author combine existing ideas to generate a new framework or insight? High: Juxtaposes ideas in a way that yields explanatory surplus or resolves a tension. Low: Glues together unrelated points without new structure or insight.
+1. Transformational Synthesis - Does the author transform inherited ideas into something new? High: Combines known concepts in a way that reconfigures the field. Low: Repetition of inherited materials without transformation.
 
-2. Constraint-Respecting Deformation - Has the author bent or stretched a known theory without breaking internal coherence? High: Adjusts a known model creatively while keeping its logic or evidence intact. Low: Mutates concepts randomly, breaking the internal rules of the tradition it draws from.
+2. Generative Power - Does the work open new lines of inquiry or generate conceptual descendants? High: Sparks derivative questions, frameworks, or debates. Low: Closes conceptual space.
 
-3. Epistemic Reframing - Does the author recast a known issue in a way that redefines how it's understood? High: Shifts the angle of approach, producing a reorientation of the debate. Low: Repeats existing framings with cosmetic changes or stale analogies.
+3. Disciplinary Repositioning - Does the text challenge or redraw the field's internal boundaries? High: Pushes or redefines where the discipline starts/stops. Low: Sits squarely within the pre-existing frame.
 
-4. Historical Rarity - Would the author's moves have been surprising or rare at the time they were written? High: Uses moves that are not found in typical archives or literature of the period. Low: Follows predictable or heavily worked-over patterns.
+4. Conceptual Reframing - Are familiar problems recast in novel terms or perspectives? High: Recasting a debate to bypass stale dichotomies. Low: Accepts the standard frame and plays within it.
 
-5. Recursive Innovation - Does the concept or argument generate more versions of itself in different settings? High: Scales across levels or invites reuse and extension. Low: Stays fixed; can't be reapplied without breaking down.
+5. Analytic Re-Alignment - Does the author redirect attention from false problems to better ones? High: Identifies conceptual errors in framing and corrects them. Low: Takes conventional problems at face value.
 
-6. Oblique Solution Path - Is the problem solved in an indirect but successful way? High: The answer comes sideways — surprising but coherent. Low: The answer is direct but trivial — or indirect and incoherent.
+6. Unexpected Cross-Pollination - Does the author import tools or concepts from distant domains? High: Uses ideas from math to rethink ethics. Low: Keeps to home-discipline conceptual stock.
 
-7. Meta-Theoretic Awareness - Does the author show insight about the frameworks that govern the discourse? High: Challenges or revises the foundational assumptions of a field. Low: Accepts disciplinary defaults without question.
+7. Epistemic Reweighting - Are marginal ideas made central (or vice versa) by principled arguments? High: Elevates neglected concepts through rational pressure. Low: Follows disciplinary fashion.
 
-8. Semantic Diagonalization - Are multiple conceptual layers crossed to produce novelty? High: Moves across object/meta, form/content, or logic/ethics in productive ways. Low: Stays at one level; doesn't create new cross-layer understanding.
+8. Constraint Innovation - Are new constraints introduced that improve the quality of reasoning? High: Raises stakes by adding generative limits. Low: Works under same inherited conditions.
 
-9. Tool Reappropriation - Does the author use a method or concept from one field in a powerful new domain? High: Transposes ideas in a way that changes both source and target domains. Low: Imports tools without adapting them or showing why they belong.
+9. Ontology Re-specification - Is the underlying structure of the entities or kinds reconsidered? High: Recasts the ontology (e.g. from substance to relation). Low: Retains flat categories.
 
-10. Analogical Leverage - Are analogies used to generate insight — not just to decorate? High: Core arguments depend on analogies that illuminate deeper structure. Low: Analogy is decorative, shallow, or unnecessary.
+10. Heuristic Leap - Is an intuitive or lateral move introduced that reframes the field? High: Insightful shortcut that bypasses stale terrain. Low: Only linear, incremental development.
 
-11. Category Rupture - Does the text challenge or destabilize a settled conceptual category? High: Redefines what counts as 'mind', 'meaning', 'truth', etc. Low: Accepts traditional categories without challenge.
+11. Problem Re-Indexing - Are known problems recoded into more productive forms? High: Shifts what counts as the 'same' problem. Low: Treats problem space as fixed.
 
-12. Compression-Expansion Tension - Does the author compress prior ideas while opening new ones? High: Minimal setup leads to maximal generativity. Low: Either too compressed (cryptic) or too bloated (inefficient).
+12. Axiomatic Innovation - Does the work posit a new fundamental assumption or shift? High: Introduces a new base axiom or principle. Low: Builds entirely on existing foundations.
 
-13. Semantic Reconfiguration - Are the meanings of key terms redefined in powerful ways? High: Terms are altered to shift the logic of the discussion. Low: Terms retain their conventional definitions.
+13. Moral or Political Recomputation - Are prevailing moral/political frames creatively re-evaluated? High: Shifts what counts as progress or legitimacy. Low: Accepts inherited ideological defaults.
 
-14. Ontological Innovation - Does the work introduce a new kind of thing, property, or structural level? High: Adds new building blocks to the domain (e.g., new kinds of causality, value, or identity). Low: Uses only familiar ontological components.
+14. Subtext Excavation - Does the work uncover previously hidden conceptual background? High: Makes the tacit explicit in a productive way. Low: Operates only with overt content.
 
-15. Generative Asymmetry - Is a small move leveraged to create large conceptual ripples? High: One idea triggers a cascade of consequences. Low: Each move is linear and proportionate — no leverage.
+15. Second-Order Innovation - Is the method itself subject to creative evolution? High: Novel methodology or rethinking of practice. Low: Assumes inherited methods uncritically.
 
-16. Frame Violation - Does the author knowingly break a disciplinary boundary and get away with it? High: Violates norms productively, e.g., importing logic into aesthetics with real effect. Low: Stays in lane, or breaks norms with no gain.
+16. Temporal Inversion - Does the author treat past positions as futures not fully realized? High: Uses historical material as future seed. Low: Treats history as inert background.
 
-17. Anchor-to-Drift Ratio - Is the text both grounded and original — not just one or the other? High: References tradition but moves far beyond it. Low: Either recycles the past or floats unmoored.
+17. Negative Space Manipulation - Does the author point to gaps or absences as fruitful? High: Productively frames the unsaid or unseen. Low: Fills only what's visible.
 
-18. Unforced Nonconformity - Does the originality seem necessary — not performative? High: Divergence emerges naturally from logic or insight. Low: Originality feels like branding or affectation.
+18. Unnatural Pairing - Does the author combine concepts that are rarely or never combined? High: Rethinks epistemology using game theory. Low: Concepts remain siloed.
 
-19. Asymmetric Discourse Positioning - Is the author's voice distinct — not reducible to known positions? High: Not a standard liberal, materialist, idealist, etc. Speaks from a new angle. Low: Slot easily into known schools of thought.
+19. Disciplinary Hijack - Is another field's frame adopted wholesale for a new context? High: Uses engineering logic to rethink metaphysics. Low: Standard field-bound discourse.
 
-20. Temporal Calibration - Does the originality make sense for the time of writing? High: Author anticipates future developments or marks a break with past norms. Low: Move was either already obvious at the time or incoherent for that era.
+20. Onto-Epistemic Fusion - Does the work entangle ontology and epistemology in productive ways? High: Knowledge structure and being-structure co-defined. Low: Kept in separate silos.
 
 For coherence, evaluate:
 - Internal consistency (no contradictions within the passage's own framework)
@@ -159,19 +159,19 @@ ${passageB.text}
 
 Return a detailed analysis in the following JSON format with all 20 originality parameters:
 {
-  "transformativeSynthesis": {
+  "transformationalSynthesis": {
     "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "constraintRespectingDeformation": {
+  "generativePower": {
     "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "epistemicReframing": {
+  "disciplinaryRepositioning": {
     "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
-  "historicalRarity": {
+  "conceptualReframing": {
     "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
@@ -1609,6 +1609,456 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
   } catch (error) {
     console.error("Error in intelligence analysis:", error);
     throw new Error(`Failed to analyze intelligence: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Originality Meter - Single document analysis using 20 originality parameters
+ */
+export async function analyzeOriginality(
+  passage: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Passage";
+    const userContext = passage.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of originality in intellectual writing across all disciplines. Your task is to analyze conceptual originality, not plagiarism or surface similarity. Focus on genuine conceptual innovation and transformation.
+
+CRITICAL ORIGINALITY EVALUATION GUIDELINES:
+
+1. Distinguish between surface novelty (new topics, trendy applications) and conceptual originality (new frameworks, transformed concepts, innovative approaches).
+
+2. Recognize that building on existing ideas can still be highly original if there's genuine transformation, creative synthesis, or novel application.
+
+3. Value conceptual innovation even when it challenges mainstream views or works within established traditions.
+
+4. Do not penalize work for lacking empirical data unless explicit factual claims are made - theoretical and philosophical innovation has its own validity.
+
+5. Judge work on its internal logical consistency and conceptual merit, not adherence to academic conventions.
+
+6. Assess genuine transformative capacity - does the work change how we think about something?
+
+7. Consider the intellectual risk and courage required for the conceptual moves being made.
+
+Analyze the passages across these 20 comprehensive originality parameters:
+
+1. Transformational Synthesis - Does the author transform inherited ideas into something new? High: Combines known concepts in a way that reconfigures the field. Low: Repetition of inherited materials without transformation.
+
+2. Generative Power - Does the work open new lines of inquiry or generate conceptual descendants? High: Sparks derivative questions, frameworks, or debates. Low: Closes conceptual space.
+
+3. Disciplinary Repositioning - Does the text challenge or redraw the field's internal boundaries? High: Pushes or redefines where the discipline starts/stops. Low: Sits squarely within the pre-existing frame.
+
+4. Conceptual Reframing - Are familiar problems recast in novel terms or perspectives? High: Recasting a debate to bypass stale dichotomies. Low: Accepts the standard frame and plays within it.
+
+5. Analytic Re-Alignment - Does the author redirect attention from false problems to better ones? High: Identifies conceptual errors in framing and corrects them. Low: Takes conventional problems at face value.
+
+6. Unexpected Cross-Pollination - Does the author import tools or concepts from distant domains? High: Uses ideas from math to rethink ethics. Low: Keeps to home-discipline conceptual stock.
+
+7. Epistemic Reweighting - Are marginal ideas made central (or vice versa) by principled arguments? High: Elevates neglected concepts through rational pressure. Low: Follows disciplinary fashion.
+
+8. Constraint Innovation - Are new constraints introduced that improve the quality of reasoning? High: Raises stakes by adding generative limits. Low: Works under same inherited conditions.
+
+9. Ontology Re-specification - Is the underlying structure of the entities or kinds reconsidered? High: Recasts the ontology (e.g. from substance to relation). Low: Retains flat categories.
+
+10. Heuristic Leap - Is an intuitive or lateral move introduced that reframes the field? High: Insightful shortcut that bypasses stale terrain. Low: Only linear, incremental development.
+
+11. Problem Re-Indexing - Are known problems recoded into more productive forms? High: Shifts what counts as the 'same' problem. Low: Treats problem space as fixed.
+
+12. Axiomatic Innovation - Does the work posit a new fundamental assumption or shift? High: Introduces a new base axiom or principle. Low: Builds entirely on existing foundations.
+
+13. Moral or Political Recomputation - Are prevailing moral/political frames creatively re-evaluated? High: Shifts what counts as progress or legitimacy. Low: Accepts inherited ideological defaults.
+
+14. Subtext Excavation - Does the work uncover previously hidden conceptual background? High: Makes the tacit explicit in a productive way. Low: Operates only with overt content.
+
+15. Second-Order Innovation - Is the method itself subject to creative evolution? High: Novel methodology or rethinking of practice. Low: Assumes inherited methods uncritically.
+
+16. Temporal Inversion - Does the author treat past positions as futures not fully realized? High: Uses historical material as future seed. Low: Treats history as inert background.
+
+17. Negative Space Manipulation - Does the author point to gaps or absences as fruitful? High: Productively frames the unsaid or unseen. Low: Fills only what's visible.
+
+18. Unnatural Pairing - Does the author combine concepts that are rarely or never combined? High: Rethinks epistemology using game theory. Low: Concepts remain siloed.
+
+19. Disciplinary Hijack - Is another field's frame adopted wholesale for a new context? High: Uses engineering logic to rethink metaphysics. Low: Standard field-bound discourse.
+
+20. Onto-Epistemic Fusion - Does the work entangle ontology and epistemology in productive ways? High: Knowledge structure and being-structure co-defined. Low: Kept in separate silos.
+
+SCORING MANDATE: Use the full 0-10 scale with proper discrimination:
+- 0-2: Purely derivative work with no conceptual transformation
+- 3-4: Minimal transformation, mostly following established patterns  
+- 5-6: Moderate originality with some genuine innovation
+- 7-8: Strong originality with clear conceptual advancement
+- 9-10: Exceptional originality that fundamentally reframes understanding
+
+Return detailed analysis in the following JSON format:
+{
+  "transformationalSynthesis": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical academic work", "strengths": ["conventional synthesis"], "weaknesses": ["limited transformation"] }
+  },
+  [continue for all 20 originality parameters...]
+  "verdict": "comprehensive assessment of originality across all parameters"
+}`,
+        },
+        {
+          role: "user",
+          content: `Please analyze this single passage for originality using the 20 Originality parameters against a baseline of typical academic writing:
+
+Passage (${passageTitle}):
+${passage.text}
+
+${userContext ? `Author's Context: ${userContext}
+
+When evaluating this passage, consider the author's context. Adapt evaluation criteria accordingly - don't penalize excerpts for brevity or drafts for minor issues.` : ''}
+
+Focus ONLY on this single passage. Do NOT compare to any other submitted text. Return analysis in the specified JSON format with all 20 originality parameters.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      if (!responseContent.trim().endsWith('}')) {
+        throw new Error("Response was truncated by OpenAI API");
+      }
+      rawResult = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert to legacy AnalysisResult format
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.transformationalSynthesis?.passageA?.assessment || "Analysis of conceptual transformation",
+          intellectualTrajectory: rawResult.generativePower?.passageA?.assessment || "Analysis of generative potential"
+        },
+        passageB: {
+          primaryInfluences: "Typical academic work draws from established frameworks",
+          intellectualTrajectory: "Standard texts follow conventional patterns"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.disciplinaryRepositioning?.passageA?.score || 5) * 10,
+          label: rawResult.disciplinaryRepositioning?.passageA?.score >= 7 ? "High Originality" : rawResult.disciplinaryRepositioning?.passageA?.score >= 4 ? "Moderate Originality" : "Low Originality"
+        },
+        passageB: {
+          distance: 50,
+          label: "Average Academic Work (Baseline)"
+        },
+        keyFindings: [
+          rawResult.transformationalSynthesis?.passageA?.strengths?.[0] || "Transformational analysis",
+          rawResult.conceptualReframing?.passageA?.strengths?.[0] || "Conceptual reframing evaluation", 
+          rawResult.generativePower?.passageA?.strengths?.[0] || "Generative potential assessment"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive originality analysis across 20 parameters reveals varying degrees of conceptual innovation."
+      },
+      
+      noveltyHeatmap: {
+        passageA: paragraphs.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformationalSynthesis?.passageA?.score || 5) + 
+                           (rawResult.generativePower?.passageA?.score || 5) + 
+                           (rawResult.ontologyRespecification?.passageA?.score || 5)) / 3 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} demonstrates originality through conceptual transformation and innovation`
+        })),
+        passageB: [
+          {
+            content: "Typical academic writing follows conventional structures",
+            heat: 50,
+            quote: "Standard academic phrasing and terminology",
+            explanation: "Represents conventional scholarly approach"
+          }
+        ]
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageA?.score || 5) +
+                           (rawResult.generativePower?.passageA?.score || 5) +
+                           (rawResult.ontologyRespecification?.passageA?.score || 5) +
+                           (rawResult.axiomaticInnovation?.passageA?.score || 5) +
+                           (rawResult.disciplinaryRepositioning?.passageA?.score || 5)) / 5 * 10) / 10,
+          components: [
+            {name: "Transformational Synthesis", score: rawResult.transformationalSynthesis?.passageA?.score || 5},
+            {name: "Generative Power", score: rawResult.generativePower?.passageA?.score || 5},
+            {name: "Disciplinary Repositioning", score: rawResult.disciplinaryRepositioning?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: 5,
+          components: [
+            {name: "Transformational Synthesis", score: 5},
+            {name: "Generative Power", score: 5},
+            {name: "Disciplinary Repositioning", score: 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.subtextExcavation?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.subtextExcavation?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.subtextExcavation?.passageA?.weaknesses || ["Some conventional elements"],
+          assessment: rawResult.subtextExcavation?.passageA?.assessment || "Analysis of conceptual dependence"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Conventional frameworks", "Standard academic patterns"],
+          assessment: "Typical texts show moderate dependence on established patterns"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageA?.score || 5) +
+                           (rawResult.conceptualReframing?.passageA?.score || 5)) / 2),
+          assessment: "Coherence derived from originality analysis",
+          strengths: rawResult.transformationalSynthesis?.passageA?.strengths || ["Conceptual coherence"],
+          weaknesses: rawResult.transformationalSynthesis?.passageA?.weaknesses || ["Minor coherence issues"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Standard coherence level",
+          strengths: ["Conventional structure"],
+          weaknesses: ["Limited innovation"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive originality analysis across 20 parameters reveals varying degrees of conceptual innovation and transformation.",
+      
+      // Store the raw originality analysis
+      rawOriginalityAnalysis: rawResult
+    };
+    
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in originality analysis:", error);
+    throw new Error(`Failed to analyze originality: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Originality Meter - Dual document comparison using 20 originality parameters
+ */
+export async function analyzeOriginalityDual(
+  passageA: PassageData,
+  passageB: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphsA = splitIntoParagraphs(passageA.text);
+    const paragraphsB = splitIntoParagraphs(passageB.text);
+    const passageATitle = passageA.title || "Passage A";
+    const passageBTitle = passageB.title || "Passage B";
+    const userContextA = passageA.userContext || "";
+    const userContextB = passageB.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of originality in intellectual writing. Compare two passages across 20 comprehensive originality parameters to determine which demonstrates greater conceptual innovation and transformation.
+
+CRITICAL ORIGINALITY EVALUATION GUIDELINES:
+
+1. Focus on conceptual originality, not surface novelty or plagiarism detection.
+2. Value genuine transformation of inherited ideas over mere repetition.
+3. Recognize that building on existing work can still be highly original through creative synthesis.
+4. Judge internal logical consistency and conceptual merit over academic conventions.
+5. Assess transformative capacity - does the work change how we think?
+
+Analyze both passages across these 20 originality parameters:
+
+1. Transformational Synthesis - Does the author transform inherited ideas into something new?
+2. Generative Power - Does the work open new lines of inquiry?
+3. Disciplinary Repositioning - Does the text challenge field boundaries?
+4. Conceptual Reframing - Are familiar problems recast in novel terms?
+5. Analytic Re-Alignment - Does the author redirect attention to better problems?
+6. Unexpected Cross-Pollination - Import of tools from distant domains?
+7. Epistemic Reweighting - Are marginal ideas made central through principled arguments?
+8. Constraint Innovation - New constraints that improve reasoning quality?
+9. Ontology Re-specification - Reconsidering underlying entity structures?
+10. Heuristic Leap - Intuitive moves that reframe the field?
+11. Problem Re-Indexing - Recoding known problems into productive forms?
+12. Axiomatic Innovation - New fundamental assumptions or shifts?
+13. Moral or Political Recomputation - Creative re-evaluation of prevailing frames?
+14. Subtext Excavation - Uncovering hidden conceptual background?
+15. Second-Order Innovation - Creative evolution of method itself?
+16. Temporal Inversion - Treating past positions as unrealized futures?
+17. Negative Space Manipulation - Pointing to gaps as fruitful?
+18. Unnatural Pairing - Combining rarely-combined concepts?
+19. Disciplinary Hijack - Adopting another field's frame for new context?
+20. Onto-Epistemic Fusion - Entangling ontology and epistemology productively?
+
+Score each parameter 0-10 for both passages. Higher scores indicate greater originality.
+
+Return detailed comparative analysis in JSON format with all 20 originality parameters.`,
+        },
+        {
+          role: "user",
+          content: `Compare these two passages for originality across all 20 parameters:
+
+Passage A (${passageATitle}):
+${passageA.text}
+
+${userContextA ? `Context A: ${userContextA}` : ''}
+
+Passage B (${passageBTitle}):
+${passageB.text}
+
+${userContextB ? `Context B: ${userContextB}` : ''}
+
+Provide detailed comparative analysis showing which passage demonstrates greater originality in each parameter.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse and process response similar to single analysis
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      if (!responseContent.trim().endsWith('}')) {
+        throw new Error("Response was truncated by OpenAI API");
+      }
+      rawResult = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert to AnalysisResult format (similar to single analysis but with both passages)
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.transformationalSynthesis?.passageA?.assessment || "Analysis of conceptual transformation",
+          intellectualTrajectory: rawResult.generativePower?.passageA?.assessment || "Analysis of generative potential"
+        },
+        passageB: {
+          primaryInfluences: rawResult.transformationalSynthesis?.passageB?.assessment || "Analysis of conceptual transformation",
+          intellectualTrajectory: rawResult.generativePower?.passageB?.assessment || "Analysis of generative potential"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.disciplinaryRepositioning?.passageA?.score || 5) * 10,
+          label: rawResult.disciplinaryRepositioning?.passageA?.score >= 7 ? "High Originality" : rawResult.disciplinaryRepositioning?.passageA?.score >= 4 ? "Moderate Originality" : "Low Originality"
+        },
+        passageB: {
+          distance: (rawResult.disciplinaryRepositioning?.passageB?.score || 5) * 10,
+          label: rawResult.disciplinaryRepositioning?.passageB?.score >= 7 ? "High Originality" : rawResult.disciplinaryRepositioning?.passageB?.score >= 4 ? "Moderate Originality" : "Low Originality"
+        },
+        keyFindings: [
+          rawResult.transformationalSynthesis?.passageA?.strengths?.[0] || "Transformational analysis A",
+          rawResult.transformationalSynthesis?.passageB?.strengths?.[0] || "Transformational analysis B",
+          "Comparative originality analysis"
+        ],
+        semanticInnovation: rawResult.verdict || "Comparative originality analysis reveals varying degrees of conceptual innovation between passages."
+      },
+      
+      // Continue with similar structure for other fields...
+      noveltyHeatmap: {
+        passageA: paragraphsA.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformationalSynthesis?.passageA?.score || 5) + 
+                           (rawResult.generativePower?.passageA?.score || 5)) / 2 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} originality analysis`
+        })),
+        passageB: paragraphsB.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.transformationalSynthesis?.passageB?.score || 5) + 
+                           (rawResult.generativePower?.passageB?.score || 5)) / 2 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} originality analysis`
+        }))
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageA?.score || 5) +
+                           (rawResult.generativePower?.passageA?.score || 5) +
+                           (rawResult.disciplinaryRepositioning?.passageA?.score || 5)) / 3 * 10) / 10,
+          components: [
+            {name: "Transformational Synthesis", score: rawResult.transformationalSynthesis?.passageA?.score || 5},
+            {name: "Generative Power", score: rawResult.generativePower?.passageA?.score || 5},
+            {name: "Disciplinary Repositioning", score: rawResult.disciplinaryRepositioning?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageB?.score || 5) +
+                           (rawResult.generativePower?.passageB?.score || 5) +
+                           (rawResult.disciplinaryRepositioning?.passageB?.score || 5)) / 3 * 10) / 10,
+          components: [
+            {name: "Transformational Synthesis", score: rawResult.transformationalSynthesis?.passageB?.score || 5},
+            {name: "Generative Power", score: rawResult.generativePower?.passageB?.score || 5},
+            {name: "Disciplinary Repositioning", score: rawResult.disciplinaryRepositioning?.passageB?.score || 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.subtextExcavation?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.subtextExcavation?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.subtextExcavation?.passageA?.weaknesses || ["Some conventional elements"],
+          assessment: rawResult.subtextExcavation?.passageA?.assessment || "Analysis of conceptual dependence"
+        },
+        passageB: {
+          level: (rawResult.subtextExcavation?.passageB?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.subtextExcavation?.passageB?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.subtextExcavation?.passageB?.weaknesses || ["Some conventional elements"],
+          assessment: rawResult.subtextExcavation?.passageB?.assessment || "Analysis of conceptual dependence"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageA?.score || 5) +
+                           (rawResult.conceptualReframing?.passageA?.score || 5)) / 2),
+          assessment: "Coherence derived from originality analysis",
+          strengths: rawResult.transformationalSynthesis?.passageA?.strengths || ["Conceptual coherence"],
+          weaknesses: rawResult.transformationalSynthesis?.passageA?.weaknesses || ["Minor issues"]
+        },
+        passageB: {
+          score: Math.round(((rawResult.transformationalSynthesis?.passageB?.score || 5) +
+                           (rawResult.conceptualReframing?.passageB?.score || 5)) / 2),
+          assessment: "Coherence derived from originality analysis",
+          strengths: rawResult.transformationalSynthesis?.passageB?.strengths || ["Conceptual coherence"],
+          weaknesses: rawResult.transformationalSynthesis?.passageB?.weaknesses || ["Minor issues"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comparative originality analysis across 20 parameters reveals differing degrees of conceptual innovation between the passages.",
+      
+      // Store the raw originality analysis
+      rawOriginalityAnalysis: rawResult
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error in dual originality analysis:", error);
+    throw new Error(`Failed to analyze originality: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
