@@ -909,6 +909,386 @@ Return a detailed analysis in the following JSON format using all 20 quality met
 }
 
 /**
+ * Intelligence Meter - Analyzes cognitive sophistication and thinking quality
+ */
+export async function analyzeIntelligence(
+  passage: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Passage";
+    const userContext = passage.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Analyze the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in text across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
+
+INTELLIGENCE EVALUATION CRITERIA:
+
+Assess cognitive capabilities through these 20 intelligence metrics. Score each 0-10 with strict standards:
+
+1. Compression Capacity - Can complex ideas be expressed in compact form without loss? High: Dense formulations yield insight with minimal words. Low: Rambling, bloated expression reveals conceptual weakness.
+
+2. Multi-Level Integration - Can the author operate across multiple levels (abstract/concrete, meta/object)? High: Seamless transitions between layers of analysis. Low: Stuck on one plane.
+
+3. Dynamic Constraint Handling - Does the thinker maintain coherence under complex constraints? High: Manages tradeoffs without collapsing precision. Low: Ignores or oversimplifies conflicting demands.
+
+4. Inference Architecture - Are ideas constructed with deep, layered inferential scaffolding? High: Multi-step reasoning with structural memory. Low: Shallow or linear logic.
+
+5. Epistemic Risk Management - Does the thinker show awareness of the riskiness of their claims? High: Risky claims managed with discipline. Low: Reckless or excessively cautious.
+
+6. Cognitive Friction Tolerance - Can the thinker endure unresolved tensions? High: Holds dissonance productively. Low: Rushes to resolution or avoids it.
+
+7. Strategic Ambiguity Deployment - Can ambiguity be used intentionally and effectively? High: Selective ambiguity to provoke thought. Low: Unintentional or incoherent.
+
+8. Representational Versatility - Can the thinker switch formats as needed? High: Moves between diagrams, prose, math, analogy. Low: Rigidly sticks to one mode.
+
+9. Recursive Self-Monitoring - Does the thinker reflect on their own moves? High: Meta-awareness present. Low: Blind to own method.
+
+10. Conceptual Novelty with Coherence - Are new ideas viable and structured? High: Original and operationalizable. Low: Performative or incoherent.
+
+11. Noise Suppression - Can the thinker focus on signal? High: Ignores distractions. Low: Chases tangents.
+
+12. Abductive Strength - Are best-explanation arguments creatively but plausibly formed? High: Surprising but cogent hypotheses. Low: Appealing but unsupported.
+
+13. Causal Finesse - Are causal relations modeled with nuance? High: Layered causal logic. Low: Simple linear cause-effect.
+
+14. Boundary Perception - Are the limits of scope/method recognized? High: Aware of constraints. Low: Overreach or blind spots.
+
+15. Temporal Layering - Can change over time be tracked structurally? High: Coherent historical/evolutionary logic. Low: Timeless or inert.
+
+16. Intellectual Empathy - Are opposing views reconstructed fairly? High: Strong steelmanning. Low: Straw men.
+
+17. Conceptual Mobility - Can the thinker shift between domains? High: Fluid conceptual transitions. Low: Stuck in one paradigm.
+
+18. Error Assimilation - Can mistakes be integrated into thinking? High: Errors are processed productively. Low: Hidden or denied.
+
+19. Pattern Extraction - Can deep structure be detected across variation? High: Generalizes across difference. Low: Stays at surface.
+
+20. Semantic Topology Awareness - Are dependencies between ideas tracked? High: Conceptual terrain is mapped. Low: Flat or meandering flow.
+
+SCORING STANDARDS (Apply rigorously):
+- 9-10: Exceptional cognitive sophistication, demonstrates advanced reasoning architecture
+- 7-8: Strong thinking quality with clear intellectual capabilities
+- 5-6: Competent reasoning with some limitations
+- 3-4: Basic cognitive function but limited sophistication  
+- 0-2: Weak reasoning, poor cognitive control
+
+For each metric, provide:
+- Score (0-10)
+- Assessment (detailed evaluation)
+- Quotation1 (direct quote demonstrating the score)
+- Justification1 (explanation of why the quote supports the score)
+- Quotation2 (second supporting quote)
+- Justification2 (explanation of the second quote)
+
+Return in this exact JSON format:
+{
+  "compressionCapacity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline cognitive capacity", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "multiLevelIntegration": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "dynamicConstraintHandling": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "inferenceArchitecture": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "epistemicRiskManagement": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "cognitiveFrictionTolerance": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "strategicAmbiguityDeployment": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "representationalVersatility": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "recursiveSelfMonitoring": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "conceptualNoveltyWithCoherence": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "noiseSuppression": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "abductiveStrength": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "causalFinesse": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "boundaryPerception": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "temporalLayering": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "intellectualEmpathy": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "conceptualMobility": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "errorAssimilation": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "patternExtraction": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "semanticTopologyAwareness": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
+  },
+  "verdict": "comprehensive intelligence assessment across all 20 cognitive capabilities"
+}`,
+        },
+        {
+          role: "user",
+          content: `Please analyze the intelligence and cognitive sophistication demonstrated in this passage:
+
+Title: ${passageTitle}
+${userContext ? `Context: ${userContext}` : ""}
+
+Text:
+${passage.text}
+
+Evaluate using all 20 intelligence metrics with quotations and justifications.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response with error handling
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      console.log("Intelligence analysis response length:", responseContent.length);
+      
+      if (!responseContent.trim().endsWith('}')) {
+        console.warn("Intelligence response appears to be truncated");
+        throw new Error("Response was truncated by OpenAI API");
+      } else {
+        rawResult = JSON.parse(responseContent);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error in intelligence analysis:", parseError);
+      throw new Error(`Failed to parse intelligence analysis response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Extract intelligence metrics for storage
+    const intelligenceMetrics = {
+      compressionCapacity: rawResult.compressionCapacity || null,
+      multiLevelIntegration: rawResult.multiLevelIntegration || null,
+      dynamicConstraintHandling: rawResult.dynamicConstraintHandling || null,
+      inferenceArchitecture: rawResult.inferenceArchitecture || null,
+      epistemicRiskManagement: rawResult.epistemicRiskManagement || null,
+      cognitiveFrictionTolerance: rawResult.cognitiveFrictionTolerance || null,
+      strategicAmbiguityDeployment: rawResult.strategicAmbiguityDeployment || null,
+      representationalVersatility: rawResult.representationalVersatility || null,
+      recursiveSelfMonitoring: rawResult.recursiveSelfMonitoring || null,
+      conceptualNoveltyWithCoherence: rawResult.conceptualNoveltyWithCoherence || null,
+      noiseSuppression: rawResult.noiseSuppression || null,
+      abductiveStrength: rawResult.abductiveStrength || null,
+      causalFinesse: rawResult.causalFinesse || null,
+      boundaryPerception: rawResult.boundaryPerception || null,
+      temporalLayering: rawResult.temporalLayering || null,
+      intellectualEmpathy: rawResult.intellectualEmpathy || null,
+      conceptualMobility: rawResult.conceptualMobility || null,
+      errorAssimilation: rawResult.errorAssimilation || null,
+      patternExtraction: rawResult.patternExtraction || null,
+      semanticTopologyAwareness: rawResult.semanticTopologyAwareness || null
+    };
+    
+    // Convert intelligence metrics to legacy AnalysisResult format for compatibility
+    const result: AnalysisResult = {
+      // Map compressionCapacity to conceptualLineage for compatibility
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.compressionCapacity?.passageA?.assessment || "Intelligence analysis of compression capacity",
+          intellectualTrajectory: rawResult.multiLevelIntegration?.passageA?.assessment || "Analysis of multi-level integration"
+        },
+        passageB: {
+          primaryInfluences: "Baseline compression capacity for typical cognitive function",
+          intellectualTrajectory: "Standard multi-level integration patterns"
+        }
+      },
+      
+      // Map dynamicConstraintHandling to semanticDistance
+      semanticDistance: {
+        passageA: {
+          score: rawResult.dynamicConstraintHandling?.passageA?.score || 5,
+          assessment: rawResult.dynamicConstraintHandling?.passageA?.assessment || "Analysis of constraint handling capabilities",
+          departures: rawResult.dynamicConstraintHandling?.passageA?.strengths || ["Complex constraint management", "Coherent under pressure"],
+          connections: rawResult.dynamicConstraintHandling?.passageA?.weaknesses || ["Some constraint conflicts", "Room for improved precision"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline constraint handling in typical cognitive processing",
+          departures: ["Standard constraint management", "Conventional approach"],
+          connections: ["Typical simplification patterns", "Standard cognitive limitations"]
+        }
+      },
+      
+      // Map inferenceArchitecture to noveltyHeatmap
+      noveltyHeatmap: {
+        passageA: paragraphs.map((paragraph, index) => ({
+          paragraph: index + 1,
+          noveltyScore: rawResult.inferenceArchitecture?.passageA?.score || 5,
+          description: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageA?.assessment || "Analysis of reasoning structure"}`
+        })),
+        passageB: paragraphs.map((paragraph, index) => ({
+          paragraph: index + 1,
+          noveltyScore: 5,
+          description: "Baseline inference patterns in typical reasoning"
+        }))
+      },
+      
+      // Map epistemicRiskManagement to derivativeIndex
+      derivativeIndex: {
+        passageA: {
+          score: rawResult.epistemicRiskManagement?.passageA?.score || 5,
+          assessment: rawResult.epistemicRiskManagement?.passageA?.assessment || "Analysis of epistemic risk awareness",
+          originalElements: rawResult.epistemicRiskManagement?.passageA?.strengths || ["Risk-aware reasoning", "Disciplined claims"],
+          derivativeElements: rawResult.epistemicRiskManagement?.passageA?.weaknesses || ["Some uncalibrated risks", "Room for improved caution"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline epistemic risk management in typical reasoning",
+          originalElements: ["Standard caution levels", "Conventional risk assessment"],
+          derivativeElements: ["Typical overconfidence patterns", "Standard epistemic blind spots"]
+        }
+      },
+      
+      // Map cognitiveFrictionTolerance to conceptualParasite
+      conceptualParasite: {
+        passageA: {
+          level: rawResult.cognitiveFrictionTolerance?.passageA?.score >= 7 ? "Low" : 
+                 rawResult.cognitiveFrictionTolerance?.passageA?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.cognitiveFrictionTolerance?.passageA?.weaknesses || ["Some friction avoidance", "Standard resolution pressure"],
+          assessment: rawResult.cognitiveFrictionTolerance?.passageA?.assessment || "Analysis of cognitive friction tolerance"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Typical tension avoidance", "Standard resolution patterns"],
+          assessment: "Baseline cognitive friction tolerance in typical reasoning"
+        }
+      },
+      
+      // Map strategicAmbiguityDeployment to coherence
+      coherence: {
+        passageA: {
+          score: rawResult.strategicAmbiguityDeployment?.passageA?.score || 5,
+          assessment: rawResult.strategicAmbiguityDeployment?.passageA?.assessment || "Analysis of strategic ambiguity use",
+          strengths: rawResult.strategicAmbiguityDeployment?.passageA?.strengths || ["Intentional ambiguity", "Strategic vagueness"],
+          weaknesses: rawResult.strategicAmbiguityDeployment?.passageA?.weaknesses || ["Some unclear intentions", "Could improve precision"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline ambiguity management in typical reasoning",
+          strengths: ["Standard clarity patterns", "Conventional precision"],
+          weaknesses: ["Typical ambiguity issues", "Standard vagueness problems"]
+        }
+      },
+      
+      // Map representationalVersatility to accuracy
+      accuracy: {
+        passageA: {
+          score: rawResult.representationalVersatility?.passageA?.score || 5,
+          assessment: rawResult.representationalVersatility?.passageA?.assessment || "Analysis of representational flexibility",
+          strengths: rawResult.representationalVersatility?.passageA?.strengths || ["Multiple formats", "Flexible representation"],
+          weaknesses: rawResult.representationalVersatility?.passageA?.weaknesses || ["Some format limitations", "Could expand range"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline representational versatility in typical reasoning",
+          strengths: ["Standard format use", "Conventional representation"],
+          weaknesses: ["Limited format range", "Typical rigidity"]
+        }
+      },
+      
+      // Map recursiveSelfMonitoring to depth
+      depth: {
+        passageA: {
+          score: rawResult.recursiveSelfMonitoring?.passageA?.score || 5,
+          assessment: rawResult.recursiveSelfMonitoring?.passageA?.assessment || "Analysis of meta-cognitive awareness",
+          strengths: rawResult.recursiveSelfMonitoring?.passageA?.strengths || ["Self-awareness", "Method reflection"],
+          weaknesses: rawResult.recursiveSelfMonitoring?.passageA?.weaknesses || ["Some blind spots", "Could improve monitoring"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline self-monitoring in typical reasoning",
+          strengths: ["Standard self-awareness", "Conventional reflection"],
+          weaknesses: ["Typical blind spots", "Limited meta-cognition"]
+        }
+      },
+      
+      // Map conceptualNoveltyWithCoherence to clarity
+      clarity: {
+        passageA: {
+          score: rawResult.conceptualNoveltyWithCoherence?.passageA?.score || 5,
+          assessment: rawResult.conceptualNoveltyWithCoherence?.passageA?.assessment || "Analysis of novel yet coherent thinking",
+          strengths: rawResult.conceptualNoveltyWithCoherence?.passageA?.strengths || ["Original ideas", "Structured novelty"],
+          weaknesses: rawResult.conceptualNoveltyWithCoherence?.passageA?.weaknesses || ["Some coherence gaps", "Could strengthen structure"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline novelty-coherence balance in typical reasoning",
+          strengths: ["Standard originality", "Conventional structure"],
+          weaknesses: ["Limited innovation", "Typical coherence issues"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive intelligence analysis across 20 cognitive capabilities reveals varying strengths in reasoning architecture, constraint handling, and conceptual sophistication.",
+      
+      // Store the raw intelligence analysis
+      rawIntelligenceAnalysis: rawResult,
+      
+      // Include the intelligence metrics for the frontend
+      ...intelligenceMetrics
+    };
+    
+    // Store userContext in the result if provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in intelligence analysis:", error);
+    throw new Error(`Failed to analyze intelligence: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
  * Process user feedback on a previously generated analysis and provide a response
  * with possible re-evaluation
  */

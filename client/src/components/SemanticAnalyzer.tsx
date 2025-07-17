@@ -25,13 +25,14 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency";
+  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency" | "intelligence";
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
   const isGenerateMode = analysisMode === "generate";
   const isArgumentativeMode = analysisMode === "argumentative";
   const isSingleCogencyMode = analysisMode === "single-cogency";
+  const isIntelligenceMode = analysisMode === "intelligence";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -159,6 +160,43 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     }
   });
   
+  // Intelligence analysis mutation
+  const intelligenceMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Analyzing intelligence with provider:", provider);
+      const endpoint = '/api/analyze/intelligence';
+      const payload = {
+        passageA,
+        provider
+      };
+      
+      console.log("Intelligence analysis request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      console.log("Intelligence analysis successful:", data);
+      setAnalysisResult(data);
+      setShowResults(true);
+      
+      // Scroll to the results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Intelligence analysis error:", error);
+      toast({
+        title: "Intelligence Analysis Failed",
+        description: "There was an error analyzing cognitive sophistication. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handle analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
@@ -260,6 +298,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     if (analysisMode === "single-cogency") {
       console.log("Starting single document cogency analysis");
       singleCogencyMutation.mutate();
+      return;
+    }
+    
+    // For intelligence analysis mode, call the API directly
+    if (analysisMode === "intelligence") {
+      console.log("Starting intelligence analysis");
+      intelligenceMutation.mutate();
       return;
     }
     
@@ -465,6 +510,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               Cogency Test
             </Label>
           </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "intelligence" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="intelligence" id="intelligence" />
+            <Label htmlFor="intelligence" className="font-medium text-sm">
+              Intelligence Meter
+            </Label>
+          </div>
         </RadioGroup>
         
         <div className="mt-3 text-xs text-slate-500">
@@ -485,6 +537,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           )}
           {analysisMode === "argumentative" && (
             <p>Test how well a document proves what it sets out to prove. Works for single documents or document comparisons using consistent scoring.</p>
+          )}
+          {analysisMode === "intelligence" && (
+            <p>Analyze cognitive sophistication and thinking quality across 20 intelligence metrics: compression capacity, multi-level integration, inference architecture, and more.</p>
           )}
         </div>
       </div>
@@ -528,7 +583,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           disabled={analysisMutation.isPending}
         />
       ) : (
-        <div className={`grid grid-cols-1 ${(analysisMode === "single") ? "" : "lg:grid-cols-2"} gap-6`}>
+        <div className={`grid grid-cols-1 ${(analysisMode === "single" || analysisMode === "single-cogency" || analysisMode === "intelligence") ? "" : "lg:grid-cols-2"} gap-6`}>
           <PassageInput
             passage={passageA}
             onChange={setPassageA}
@@ -554,7 +609,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              {(analysisMutation.isPending || singleCogencyMutation.isPending) ? (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending) ? (
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
@@ -577,6 +632,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                     {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
                     {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
                     {analysisMode === "single-cogency" && "Click the button below to analyze the logical convincingness of your document"}
+                    {analysisMode === "intelligence" && "Click the button below to analyze the cognitive sophistication of your text"}
                   </p>
                 </>
               )}
@@ -588,6 +644,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               disabled={
                 analysisMutation.isPending || 
                 singleCogencyMutation.isPending ||
+                intelligenceMutation.isPending ||
                 !passageA.text.trim() || 
                 ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())

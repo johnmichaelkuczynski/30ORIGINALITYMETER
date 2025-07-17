@@ -166,6 +166,10 @@ Changelog:
 - July 17, 2025. Added enforcement rules: Surface fluency ≠ cogency, pseudo-structure ≠ real structure, name-dropping ≠ depth
 - July 17, 2025. Implemented strict scoring thresholds with quotation-based evidence requirements for all 20 quality metrics
 - July 17, 2025. Fixed catastrophic failure to differentiate between sophisticated philosophical analysis and jargon-heavy abstracts
+- July 17, 2025. MAJOR FEATURE: Added Intelligence Meter analysis mode with 20 cognitive sophistication metrics
+- July 17, 2025. Users can now choose between Intelligence, Originality, and Cogency analysis frameworks
+- July 17, 2025. Intelligence metrics include compression capacity, multi-level integration, inference architecture, and cognitive friction tolerance
+- July 17, 2025. Implemented complete UI integration with new analysis mode selection and API endpoints
 ```
 
 ## User Preferences
