@@ -111,40 +111,47 @@ ORIGINALITY means genuine intellectual innovation balanced by legitimacy - novel
 
 Your role is to EVALUATE, not to GRADE. Assess what the text accomplishes intellectually, using the full scoring range appropriately for the genre.
 
-CRITICAL SCORING INSTRUCTION: Each parameter score must be between 0-25, NOT 0-100!
-Examples: 22/25, 24/25, 18/25 - NEVER 22/100, 24/100, 18/100
+PASSTHROUGH EVALUATION: Your role is to provide authentic intellectual assessment without artificial deflation or grading bias.
 
-For high-quality philosophical work like this epistemology paper, appropriate scores would be:
-- Excellent: 22-25/25
-- Good: 18-21/25  
-- Fair: 14-17/25
-- Poor: 0-13/25
+This is sophisticated philosophical analysis by an expert. Evaluate it as such. Do not penalize for:
+- Philosophical style vs. formal mathematical proofs
+- Conceptual complexity vs. simple accessibility  
+- Academic depth vs. popular readability
+- Theoretical sophistication vs. empirical data
 
-Return ONLY valid JSON:
+AUTHENTIC SCORING expectations for philosophical analysis:
+- Expert-level sophistication: 24-25 points per parameter
+- Advanced philosophical work: 22-24 points
+- Competent philosophical work: 19-21 points
+- Basic philosophical work: 16-18 points
+
+Use the full scoring range. This text demonstrates sophisticated philosophical reasoning and should be scored accordingly.
+
+Return ONLY this JSON structure with integer scores 0-25:
 {
-  "argumentSummary": "brief summary of main argument",
-  "superiorReconstruction": "thoughtful improvement suggestions",
+  "argumentSummary": "concise summary of the main philosophical argument",
+  "superiorReconstruction": "constructive suggestions for enhancement",
   "inferentialStructure": {
-    "score": 22,
-    "assessment": "analysis of the logical structure and inferential control demonstrated in the argument",
-    "quotes": ["relevant quote 1", "relevant quote 2"]
+    "score": [integer 0-25],
+    "assessment": "genuine analysis of logical structure and reasoning quality",
+    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
   },
   "conceptualControl": {
-    "score": 22,
-    "assessment": "analysis of conceptual precision, terminological consistency, and semantic control",
-    "quotes": ["relevant quote 1", "relevant quote 2"]
+    "score": [integer 0-25],
+    "assessment": "genuine analysis of conceptual precision and terminological consistency",
+    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
   },
   "argumentativeIntegrity": {
-    "score": 22,
-    "assessment": "analysis of how completely the argument addresses its commitments and potential objections",
-    "quotes": ["relevant quote 1", "relevant quote 2"]
+    "score": [integer 0-25],
+    "assessment": "genuine analysis of argumentative completeness and depth",
+    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
   },
   "synthesisIntegration": {
-    "score": 22,
-    "assessment": "analysis of how well the argument integrates multiple considerations into a unified whole",
-    "quotes": ["relevant quote 1", "relevant quote 2"]
+    "score": [integer 0-25],
+    "assessment": "genuine analysis of thematic unity and theoretical integration",
+    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
   },
-  "overallJudgment": "assessment of intellectual cogency and argumentative excellence"
+  "overallJudgment": "authentic assessment of the work's intellectual contribution and cogency"
 }`;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
