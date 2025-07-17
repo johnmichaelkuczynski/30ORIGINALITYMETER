@@ -1634,39 +1634,39 @@ OVERALL QUALITY EVALUATION CRITERIA:
 
 Assess writing quality through these 20 metrics. Score each 0-10 with strict standards:
 
-1. Conceptual Compression - How much conceptual work is done per unit of language? High: Dense formulations yield insight. Low: Rambling without compression.
+1. Conceptual Compression - How much conceptual work is done per unit of language? High: "The will is the form of anticipation." Low: "In this chapter, I will explain the ways in which..."
 
-2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs explored. Low: Everything proceeds smoothly.
+2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs, ambiguities, or disjunctions are explored. Low: Everything proceeds linearly and smoothly.
 
-3. Inference Control - Does the author show tight command over logical progression? High: Strong inferential chaining. Low: Juxtapositions mistaken for arguments.
+3. Inference Control - Does the author show tight command over logical or quasi-logical progression? High: Strong inferential chaining, disambiguation of premises. Low: Juxtapositions mistaken for arguments.
 
-4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: Author scaffolds difficult ideas. Low: Jargon dropped without explication.
+4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: The author scaffolds difficult ideas, discharges burdens. Low: Jargon is dropped without explication; the reader must untangle.
 
-5. Novelty-to-Baseline Ratio - How much content exceeds textbook-level summary? High: New distinctions, perspectives. Low: Restating Wikipedia-level doctrine.
+5. Novelty-to-Baseline Ratio - How much of the content exceeds textbook-level summary? High: New distinctions, perspectives, or critiques. Low: Restating Wikipedia-level history or doctrine.
 
-6. Internal Differentiation - Are internal contrasts and tensions developed? High: Competing theses nested, refined. Low: One position stated without pressure.
+6. Internal Differentiation - Are internal contrasts and tensions developed within the work? High: Competing theses are nested, refined, or resolved. Low: One position stated, with no internal pressure.
 
-7. Problem Density - Are real problems identified? High: Clear tension, paradox, conflict. Low: Everything is a "survey" or summary.
+7. Problem Density - Are real problems identified, or is the text solution-shaped without a problem? High: Clear tension, paradox, conflict, or conceptual puzzle. Low: Everything is a "survey" or summary.
 
-8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Structure follows thought. Low: Structure imposed mechanically.
+8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Each scale supports the others — structure follows thought. Low: Structure is imposed mechanically (e.g. "This dissertation has 5 parts..."
 
-9. Semantic Specificity - Are key terms defined with internal rigor? High: Terms don't drift, are operationalized. Low: Terms thrown in without cost.
+9. Semantic Specificity - Are key terms defined with internal rigor and used consistently? High: Key terms don't drift and are operationalized. Low: Terms like "transcendental," "mental content," etc., are thrown in without cost.
 
-10. Explanatory Yield - Does the text resolve phenomena that were obscure? High: Theoretical payoffs evident. Low: Descriptive rhetoric without payoff.
+10. Explanatory Yield - Does the text resolve or clarify phenomena that were obscure before? High: Theoretical payoffs are evident and usable. Low: Descriptive or procedural rhetoric without payoff.
 
-11. Meta-Cognitive Signal - Does the author display awareness of method limits? High: "This may beg the question unless..." Low: Claims exempt from critique.
+11. Meta-Cognitive Signal - Does the author display awareness of the limits, affordances, or tensions of their own method? High: E.g., "This formulation may beg the question unless..." Low: Claims are stated as if exempt from critique.
 
-12. Structural Integrity - Is the argument architecture coherent at scale? High: Early sections scaffold later insights. Low: Arbitrary sequence.
+12. Structural Integrity - Is the argument or content architecture coherent at scale? High: Early sections scaffold later insights; structure reflects logic. Low: Arbitrary sequence; no cumulative logic.
 
-13. Generative Potential - Does writing suggest future questions, applications? High: Opens doors conceptually. Low: Closes loops, reiterates boundaries.
+13. Generative Potential - Does the writing suggest future questions, applications, or generalizations? High: Opens doors conceptually. Low: Closes loops or reiterates fixed boundaries.
 
-14. Signal-to-Rhetoric Ratio - What percent actually says something vs fluff? High: Each sentence matters. Low: Meta-commentary dominates.
+14. Signal-to-Rhetoric Ratio - What percent of the text actually says something, as opposed to procedural or rhetorical fluff? High: High signal. Each sentence matters. Low: Meta-commentary about structure, scope, method dominates.
 
-15. Dialectical Engagement - Does work engage objections intelligently? High: Anticipates critique, responds. Low: Straw men or echo chamber.
+15. Dialectical Engagement - Does the work engage objections or alternative views intelligently? High: Anticipates critique and responds. Low: Straw men or echo chamber.
 
-16. Topological Awareness - Does author map conceptual terrain well? High: Aware of where view sits in larger structures. Low: Flat sequence of points.
+16. Topological Awareness - Does the author map the conceptual terrain well (what's upstream/downstream of what)? High: Awareness of where their view sits within larger structures. Low: Flat sequence of points.
 
-17. Disambiguation Skill - Are ambiguous terms resolved precisely? High: Aware of multiple senses, avoids equivocation. Low: Uses language loosely with slippage.
+17. Disambiguation Skill - Are ambiguous terms or ideas resolved precisely? High: Aware of multiple senses; avoids equivocation. Low: Uses language loosely, with slippage.
 
 18. Cross-Disciplinary Fluency - Can text move fluently across domains? High: Seamless integration of disciplines. Low: Bounded inside single paradigm.
 
@@ -1900,37 +1900,45 @@ OVERALL QUALITY EVALUATION CRITERIA:
 
 Assess writing quality through these 20 metrics for BOTH documents. Score each 0-10 with strict standards:
 
-1. Conceptual Compression - How much conceptual work is done per unit of language? High: Dense formulations yield insight. Low: Rambling without compression.
+1. Conceptual Compression - How much conceptual work is done per unit of language? High: "The will is the form of anticipation." Low: "In this chapter, I will explain the ways in which..."
 
-2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs explored. Low: Everything proceeds smoothly.
+2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs, ambiguities, or disjunctions are explored. Low: Everything proceeds linearly and smoothly.
 
-3. Inference Control - Does the author show tight command over logical progression? High: Strong inferential chaining. Low: Juxtapositions mistaken for arguments.
+3. Inference Control - Does the author show tight command over logical or quasi-logical progression? High: Strong inferential chaining, disambiguation of premises. Low: Juxtapositions mistaken for arguments.
 
-4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: Author scaffolds difficult ideas. Low: Jargon dropped without explication.
+4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: The author scaffolds difficult ideas, discharges burdens. Low: Jargon is dropped without explication; the reader must untangle.
 
-5. Novelty-to-Baseline Ratio - How much content exceeds textbook-level summary? High: New distinctions, perspectives. Low: Restating Wikipedia-level doctrine.
+5. Novelty-to-Baseline Ratio - How much of the content exceeds textbook-level summary? High: New distinctions, perspectives, or critiques. Low: Restating Wikipedia-level history or doctrine.
 
-6. Internal Differentiation - Are internal contrasts and tensions developed? High: Competing theses nested, refined. Low: One position stated without pressure.
+6. Internal Differentiation - Are internal contrasts and tensions developed within the work? High: Competing theses are nested, refined, or resolved. Low: One position stated, with no internal pressure.
 
-7. Problem Density - Are real problems identified? High: Clear tension, paradox, conflict. Low: Everything is a "survey" or summary.
+7. Problem Density - Are real problems identified, or is the text solution-shaped without a problem? High: Clear tension, paradox, conflict, or conceptual puzzle. Low: Everything is a "survey" or summary.
 
-8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Structure follows thought. Low: Structure imposed mechanically.
+8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Each scale supports the others — structure follows thought. Low: Structure is imposed mechanically (e.g. "This dissertation has 5 parts..."
 
-9. Semantic Specificity - Are key terms defined with internal rigor? High: Terms don't drift, are operationalized. Low: Terms thrown in without cost.
+9. Semantic Specificity - Are key terms defined with internal rigor and used consistently? High: Key terms don't drift and are operationalized. Low: Terms like "transcendental," "mental content," etc., are thrown in without cost.
 
-10. Explanatory Yield - Does the text resolve phenomena that were obscure? High: Theoretical payoffs evident. Low: Descriptive rhetoric without payoff.
+10. Explanatory Yield - Does the text resolve or clarify phenomena that were obscure before? High: Theoretical payoffs are evident and usable. Low: Descriptive or procedural rhetoric without payoff.
 
-11. Meta-Cognitive Signal - Does the author display awareness of method limits? High: "This may beg the question unless..." Low: Claims exempt from critique.
+11. Meta-Cognitive Signal - Does the author display awareness of the limits, affordances, or tensions of their own method? High: E.g., "This formulation may beg the question unless..." Low: Claims are stated as if exempt from critique.
 
-12. Structural Integrity - Is the argument architecture coherent at scale? High: Early sections scaffold later insights. Low: Arbitrary sequence.
+12. Structural Integrity - Is the argument or content architecture coherent at scale? High: Early sections scaffold later insights; structure reflects logic. Low: Arbitrary sequence; no cumulative logic.
 
-13. Generative Potential - Does writing suggest future questions, applications? High: Opens doors conceptually. Low: Closes loops, reiterates boundaries.
+13. Generative Potential - Does the writing suggest future questions, applications, or generalizations? High: Opens doors conceptually. Low: Closes loops or reiterates fixed boundaries.
 
-14. Signal-to-Rhetoric Ratio - What percent actually says something vs fluff? High: Each sentence matters. Low: Meta-commentary dominates.
+14. Signal-to-Rhetoric Ratio - What percent of the text actually says something, as opposed to procedural or rhetorical fluff? High: High signal. Each sentence matters. Low: Meta-commentary about structure, scope, method dominates.
 
-15. Dialectical Engagement - Does work engage objections intelligently? High: Anticipates critique, responds. Low: Straw men or echo chamber.
+15. Dialectical Engagement - Does the work engage objections or alternative views intelligently? High: Anticipates critique and responds. Low: Straw men or echo chamber.
 
-16. Topological Awareness - Does author map conceptual terrain well? High: Aware of where view sits in larger structures. Low: Flat sequence of points.
+16. Topological Awareness - Does the author map the conceptual terrain well (what's upstream/downstream of what)? High: Awareness of where their view sits within larger structures. Low: Flat sequence of points.
+
+17. Disambiguation Skill - Are ambiguous terms or ideas resolved precisely? High: Aware of multiple senses; avoids equivocation. Low: Uses language loosely, with slippage.
+
+18. Cross-Disciplinary Fluency - Can the text move fluently across relevant domains (e.g., logic and language; history and theory)? High: Seamless integration of multiple disciplines. Low: Bounded inside a single paradigm with no outreach.
+
+19. Psychological Realism - Are motivations, mental models, or interpretive frames psychologically plausible? High: Explains behavior or beliefs with realism and nuance. Low: Treats philosophical positions as abstract islands.
+
+20. Intellectual Risk Quotient - Is the author actually putting a real intellectual position on the line? High: Willing to stake a claim that could fail or offend. Low: Excessive caution, hedging, or hiding behind citations.
 
 17. Disambiguation Skill - Are ambiguous terms resolved precisely? High: Aware of multiple senses, avoids equivocation. Low: Uses language loosely with slippage.
 
