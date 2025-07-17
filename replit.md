@@ -170,6 +170,11 @@ Changelog:
 - July 17, 2025. Users can now choose between Intelligence, Originality, and Cogency analysis frameworks
 - July 17, 2025. Intelligence metrics include compression capacity, multi-level integration, inference architecture, and cognitive friction tolerance
 - July 17, 2025. Implemented complete UI integration with new analysis mode selection and API endpoints
+- July 17, 2025. CRITICAL FIX: Intelligence Meter now works for BOTH single and dual document analysis
+- July 17, 2025. MAJOR FEATURE: Added Overall Quality analysis mode with 20 precise quality metrics
+- July 17, 2025. Quality metrics include conceptual compression, epistemic friction, inference control, problem density, signal-to-rhetoric ratio
+- July 17, 2025. ALL analysis modes (Intelligence, Originality, Cogency, Overall Quality) now support both single and dual document comparison
+- July 17, 2025. Implemented dual-document intelligence comparison API endpoint and UI integration
 ```
 
 ## User Preferences

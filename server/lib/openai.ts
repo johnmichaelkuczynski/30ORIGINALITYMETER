@@ -909,7 +909,322 @@ Return a detailed analysis in the following JSON format using all 20 quality met
 }
 
 /**
- * Intelligence Meter - Analyzes cognitive sophistication and thinking quality
+ * Intelligence Meter - Analyzes cognitive sophistication and thinking quality (dual document)
+ */
+export async function analyzeIntelligenceDual(
+  passageA: PassageData,
+  passageB: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphsA = splitIntoParagraphs(passageA.text);
+    const paragraphsB = splitIntoParagraphs(passageB.text);
+    const passageATitle = passageA.title || "Document A";
+    const passageBTitle = passageB.title || "Document B";
+    const userContext = passageA.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Compare the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in two texts across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
+
+INTELLIGENCE EVALUATION CRITERIA:
+
+Assess cognitive capabilities through these 20 intelligence metrics for BOTH documents. Score each 0-10 with strict standards:
+
+1. Compression Capacity - Can complex ideas be expressed in compact form without loss? High: Dense formulations yield insight with minimal words. Low: Rambling, bloated expression reveals conceptual weakness.
+
+2. Multi-Level Integration - Can the author operate across multiple levels (abstract/concrete, meta/object)? High: Seamless transitions between layers of analysis. Low: Stuck on one plane.
+
+3. Dynamic Constraint Handling - Does the thinker maintain coherence under complex constraints? High: Manages tradeoffs without collapsing precision. Low: Ignores or oversimplifies conflicting demands.
+
+4. Inference Architecture - Are ideas constructed with deep, layered inferential scaffolding? High: Multi-step reasoning with structural memory. Low: Shallow or linear logic.
+
+5. Epistemic Risk Management - Does the thinker show awareness of the riskiness of their claims? High: Risky claims managed with discipline. Low: Reckless or excessively cautious.
+
+6. Cognitive Friction Tolerance - Can the thinker endure unresolved tensions? High: Holds dissonance productively. Low: Rushes to resolution or avoids it.
+
+7. Strategic Ambiguity Deployment - Can ambiguity be used intentionally and effectively? High: Selective ambiguity to provoke thought. Low: Unintentional or incoherent.
+
+8. Representational Versatility - Can the thinker switch formats as needed? High: Moves between diagrams, prose, math, analogy. Low: Rigidly sticks to one mode.
+
+9. Recursive Self-Monitoring - Does the thinker reflect on their own moves? High: Meta-awareness present. Low: Blind to own method.
+
+10. Conceptual Novelty with Coherence - Are new ideas viable and structured? High: Original and operationalizable. Low: Performative or incoherent.
+
+11. Noise Suppression - Can the thinker focus on signal? High: Ignores distractions. Low: Chases tangents.
+
+12. Abductive Strength - Are best-explanation arguments creatively but plausibly formed? High: Surprising but cogent hypotheses. Low: Appealing but unsupported.
+
+13. Causal Finesse - Are causal relations modeled with nuance? High: Layered causal logic. Low: Simple linear cause-effect.
+
+14. Boundary Perception - Are the limits of scope/method recognized? High: Aware of constraints. Low: Overreach or blind spots.
+
+15. Temporal Layering - Can change over time be tracked structurally? High: Coherent historical/evolutionary logic. Low: Timeless or inert.
+
+16. Intellectual Empathy - Are opposing views reconstructed fairly? High: Strong steelmanning. Low: Straw men.
+
+17. Conceptual Mobility - Can the thinker shift between domains? High: Fluid conceptual transitions. Low: Stuck in one paradigm.
+
+18. Error Assimilation - When wrong, does correction strengthen the system? High: Errors drive improvement. Low: Defensive or brittle.
+
+19. Pattern Extraction - Can subtle regularities be detected? High: Finds meaningful patterns. Low: Misses structure or hallucinates it.
+
+20. Semantic Topology Awareness - Understanding of conceptual space and navigation? High: Knows where they are intellectually. Low: Lost in conceptual space.
+
+MANDATORY OUTPUT FORMAT:
+
+Return valid JSON with this structure:
+{
+  "compressionCapacity": {
+    "passageA": {"score": X, "assessment": "text", "quote1": "exact quote", "quote2": "exact quote"},
+    "passageB": {"score": X, "assessment": "text", "quote1": "exact quote", "quote2": "exact quote"}
+  },
+  [... all 20 metrics with same structure ...],
+  "verdict": "comparative assessment of both documents' cognitive sophistication"
+}
+
+CRITICAL ENFORCEMENT RULES:
+- Score 0-3: Serious cognitive deficiencies evident
+- Score 4-6: Average cognitive function with some limitations  
+- Score 7-8: Above-average cognitive sophistication
+- Score 9-10: Exceptional cognitive capabilities (rare)
+- Include TWO specific quotations as evidence for each score
+- Provide detailed assessment explaining the score with reference to quotes`,
+        },
+        {
+          role: "user",
+          content: `Compare the intelligence and cognitive sophistication demonstrated in these two documents:
+
+Document A - ${passageATitle}:
+${userContext ? `Context: ${userContext}` : ""}
+${passageA.text}
+
+Document B - ${passageBTitle}:
+${passageB.text}
+
+Evaluate both documents using all 20 intelligence metrics with quotations and justifications.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response with error handling
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      console.log("Dual intelligence analysis response length:", responseContent.length);
+      
+      if (!responseContent.trim().endsWith('}')) {
+        console.warn("Dual intelligence response appears to be truncated");
+        throw new Error("Response was truncated by OpenAI API");
+      } else {
+        rawResult = JSON.parse(responseContent);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error in dual intelligence analysis:", parseError);
+      throw new Error(`Failed to parse dual intelligence analysis response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Extract intelligence metrics for storage
+    const intelligenceMetrics = {
+      compressionCapacity: rawResult.compressionCapacity || null,
+      multiLevelIntegration: rawResult.multiLevelIntegration || null,
+      dynamicConstraintHandling: rawResult.dynamicConstraintHandling || null,
+      inferenceArchitecture: rawResult.inferenceArchitecture || null,
+      epistemicRiskManagement: rawResult.epistemicRiskManagement || null,
+      cognitiveFrictionTolerance: rawResult.cognitiveFrictionTolerance || null,
+      strategicAmbiguityDeployment: rawResult.strategicAmbiguityDeployment || null,
+      representationalVersatility: rawResult.representationalVersatility || null,
+      recursiveSelfMonitoring: rawResult.recursiveSelfMonitoring || null,
+      conceptualNoveltyWithCoherence: rawResult.conceptualNoveltyWithCoherence || null,
+      noiseSuppression: rawResult.noiseSuppression || null,
+      abductiveStrength: rawResult.abductiveStrength || null,
+      causalFinesse: rawResult.causalFinesse || null,
+      boundaryPerception: rawResult.boundaryPerception || null,
+      temporalLayering: rawResult.temporalLayering || null,
+      intellectualEmpathy: rawResult.intellectualEmpathy || null,
+      conceptualMobility: rawResult.conceptualMobility || null,
+      errorAssimilation: rawResult.errorAssimilation || null,
+      patternExtraction: rawResult.patternExtraction || null,
+      semanticTopologyAwareness: rawResult.semanticTopologyAwareness || null
+    };
+    
+    // Convert intelligence metrics to legacy AnalysisResult format for compatibility
+    const result: AnalysisResult = {
+      // Map compressionCapacity to conceptualLineage for compatibility
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.compressionCapacity?.passageA?.assessment || "Intelligence analysis of compression capacity",
+          intellectualTrajectory: rawResult.multiLevelIntegration?.passageA?.assessment || "Analysis of multi-level integration"
+        },
+        passageB: {
+          primaryInfluences: rawResult.compressionCapacity?.passageB?.assessment || "Intelligence analysis of compression capacity",
+          intellectualTrajectory: rawResult.multiLevelIntegration?.passageB?.assessment || "Analysis of multi-level integration"
+        }
+      },
+      
+      // Map dynamicConstraintHandling to semanticDistance
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.dynamicConstraintHandling?.passageA?.score || 5) * 10,
+          label: rawResult.dynamicConstraintHandling?.passageA?.score >= 7 ? "High Sophistication" : 
+                 rawResult.dynamicConstraintHandling?.passageA?.score >= 4 ? "Moderate Sophistication" : "Basic Sophistication"
+        },
+        passageB: {
+          distance: (rawResult.dynamicConstraintHandling?.passageB?.score || 5) * 10,
+          label: rawResult.dynamicConstraintHandling?.passageB?.score >= 7 ? "High Sophistication" : 
+                 rawResult.dynamicConstraintHandling?.passageB?.score >= 4 ? "Moderate Sophistication" : "Basic Sophistication"
+        },
+        keyFindings: [
+          rawResult.dynamicConstraintHandling?.passageA?.assessment || "Analysis of constraint handling capabilities",
+          rawResult.inferenceArchitecture?.passageA?.assessment || "Evaluation of reasoning architecture",
+          rawResult.cognitiveFrictionTolerance?.passageA?.assessment || "Assessment of cognitive friction tolerance"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive intelligence comparison across 20 cognitive capabilities reveals varying strengths in reasoning architecture, constraint handling, and conceptual sophistication."
+      },
+      
+      // Map inferenceArchitecture to noveltyHeatmap
+      noveltyHeatmap: {
+        passageA: paragraphsA.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.inferenceArchitecture?.passageA?.score || 5) * 10),
+          quote: rawResult.inferenceArchitecture?.passageA?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageA?.assessment || "Analysis of reasoning structure"}`
+        })),
+        passageB: paragraphsB.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.inferenceArchitecture?.passageB?.score || 5) * 10),
+          quote: rawResult.inferenceArchitecture?.passageB?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageB?.assessment || "Analysis of reasoning structure"}`
+        }))
+      },
+      
+      // Map epistemicRiskManagement to derivativeIndex
+      derivativeIndex: {
+        passageA: {
+          score: rawResult.epistemicRiskManagement?.passageA?.score || 5,
+          components: [
+            {name: "Epistemic Risk Management", score: rawResult.epistemicRiskManagement?.passageA?.score || 5},
+            {name: "Cognitive Friction Tolerance", score: rawResult.cognitiveFrictionTolerance?.passageA?.score || 5},
+            {name: "Inference Architecture", score: rawResult.inferenceArchitecture?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: rawResult.epistemicRiskManagement?.passageB?.score || 5,
+          components: [
+            {name: "Epistemic Risk Management", score: rawResult.epistemicRiskManagement?.passageB?.score || 5},
+            {name: "Cognitive Friction Tolerance", score: rawResult.cognitiveFrictionTolerance?.passageB?.score || 5},
+            {name: "Inference Architecture", score: rawResult.inferenceArchitecture?.passageB?.score || 5}
+          ]
+        }
+      },
+      
+      // Map cognitiveFrictionTolerance to conceptualParasite
+      conceptualParasite: {
+        passageA: {
+          level: rawResult.cognitiveFrictionTolerance?.passageA?.score >= 7 ? "Low" : 
+                 rawResult.cognitiveFrictionTolerance?.passageA?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.cognitiveFrictionTolerance?.passageA?.weaknesses || ["Some friction avoidance", "Standard resolution pressure"],
+          assessment: rawResult.cognitiveFrictionTolerance?.passageA?.assessment || "Analysis of cognitive friction tolerance"
+        },
+        passageB: {
+          level: rawResult.cognitiveFrictionTolerance?.passageB?.score >= 7 ? "Low" : 
+                 rawResult.cognitiveFrictionTolerance?.passageB?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.cognitiveFrictionTolerance?.passageB?.weaknesses || ["Some friction avoidance", "Standard resolution pressure"],
+          assessment: rawResult.cognitiveFrictionTolerance?.passageB?.assessment || "Analysis of cognitive friction tolerance"
+        }
+      },
+      
+      // Map strategicAmbiguityDeployment to coherence
+      coherence: {
+        passageA: {
+          score: rawResult.strategicAmbiguityDeployment?.passageA?.score || 5,
+          assessment: rawResult.strategicAmbiguityDeployment?.passageA?.assessment || "Analysis of strategic ambiguity use",
+          strengths: rawResult.strategicAmbiguityDeployment?.passageA?.strengths || ["Intentional ambiguity", "Strategic vagueness"],
+          weaknesses: rawResult.strategicAmbiguityDeployment?.passageA?.weaknesses || ["Some unclear intentions", "Could improve precision"]
+        },
+        passageB: {
+          score: rawResult.strategicAmbiguityDeployment?.passageB?.score || 5,
+          assessment: rawResult.strategicAmbiguityDeployment?.passageB?.assessment || "Analysis of strategic ambiguity use",
+          strengths: rawResult.strategicAmbiguityDeployment?.passageB?.strengths || ["Intentional ambiguity", "Strategic vagueness"],
+          weaknesses: rawResult.strategicAmbiguityDeployment?.passageB?.weaknesses || ["Some unclear intentions", "Could improve precision"]
+        }
+      },
+      
+      // Map representationalVersatility to accuracy
+      accuracy: {
+        passageA: {
+          score: rawResult.representationalVersatility?.passageA?.score || 5,
+          assessment: rawResult.representationalVersatility?.passageA?.assessment || "Analysis of representational flexibility",
+          strengths: rawResult.representationalVersatility?.passageA?.strengths || ["Multiple formats", "Flexible representation"],
+          weaknesses: rawResult.representationalVersatility?.passageA?.weaknesses || ["Some format limitations", "Could expand range"]
+        },
+        passageB: {
+          score: rawResult.representationalVersatility?.passageB?.score || 5,
+          assessment: rawResult.representationalVersatility?.passageB?.assessment || "Analysis of representational flexibility",
+          strengths: rawResult.representationalVersatility?.passageB?.strengths || ["Multiple formats", "Flexible representation"],
+          weaknesses: rawResult.representationalVersatility?.passageB?.weaknesses || ["Some format limitations", "Could expand range"]
+        }
+      },
+      
+      // Map recursiveSelfMonitoring to depth
+      depth: {
+        passageA: {
+          score: rawResult.recursiveSelfMonitoring?.passageA?.score || 5,
+          assessment: rawResult.recursiveSelfMonitoring?.passageA?.assessment || "Analysis of self-monitoring capability",
+          strengths: rawResult.recursiveSelfMonitoring?.passageA?.strengths || ["Self-awareness", "Method reflection"],
+          weaknesses: rawResult.recursiveSelfMonitoring?.passageA?.weaknesses || ["Some blind spots", "Could improve monitoring"]
+        },
+        passageB: {
+          score: rawResult.recursiveSelfMonitoring?.passageB?.score || 5,
+          assessment: rawResult.recursiveSelfMonitoring?.passageB?.assessment || "Analysis of self-monitoring capability",
+          strengths: rawResult.recursiveSelfMonitoring?.passageB?.strengths || ["Self-awareness", "Method reflection"],
+          weaknesses: rawResult.recursiveSelfMonitoring?.passageB?.weaknesses || ["Some blind spots", "Could improve monitoring"]
+        }
+      },
+      
+      // Map conceptualNoveltyWithCoherence to clarity
+      clarity: {
+        passageA: {
+          score: rawResult.conceptualNoveltyWithCoherence?.passageA?.score || 5,
+          assessment: rawResult.conceptualNoveltyWithCoherence?.passageA?.assessment || "Analysis of novel yet coherent thinking",
+          strengths: rawResult.conceptualNoveltyWithCoherence?.passageA?.strengths || ["Original ideas", "Structured novelty"],
+          weaknesses: rawResult.conceptualNoveltyWithCoherence?.passageA?.weaknesses || ["Some coherence gaps", "Could strengthen structure"]
+        },
+        passageB: {
+          score: rawResult.conceptualNoveltyWithCoherence?.passageB?.score || 5,
+          assessment: rawResult.conceptualNoveltyWithCoherence?.passageB?.assessment || "Analysis of novel yet coherent thinking",
+          strengths: rawResult.conceptualNoveltyWithCoherence?.passageB?.strengths || ["Original ideas", "Structured novelty"],
+          weaknesses: rawResult.conceptualNoveltyWithCoherence?.passageB?.weaknesses || ["Some coherence gaps", "Could strengthen structure"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive intelligence comparison across 20 cognitive capabilities reveals varying strengths in reasoning architecture, constraint handling, and conceptual sophistication.",
+      
+      // Store the raw intelligence analysis
+      rawIntelligenceAnalysis: rawResult,
+      
+      // Include the intelligence metrics for the frontend
+      ...intelligenceMetrics
+    };
+    
+    // Store userContext in the result if provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in dual intelligence analysis:", error);
+    throw new Error(`Failed to analyze intelligence: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Intelligence Meter - Analyzes cognitive sophistication and thinking quality (single document)
  */
 export async function analyzeIntelligence(
   passage: PassageData
@@ -1298,17 +1613,549 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
 }
 
 /**
- * Process user feedback on a previously generated analysis and provide a response
- * with possible re-evaluation
+ * Overall Quality Meter - Single document analysis using 20 quality metrics
  */
-// This function has been removed to fix conflict
+export async function analyzeQuality(
+  passage: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Document";
+    const userContext = passage.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Analyze the overall quality of intellectual writing using these 20 precise quality metrics. Score each 0-10 with harsh standards that distinguish genuine quality from pseudo-academic fluff.
+
+OVERALL QUALITY EVALUATION CRITERIA:
+
+Assess writing quality through these 20 metrics. Score each 0-10 with strict standards:
+
+1. Conceptual Compression - How much conceptual work is done per unit of language? High: Dense formulations yield insight. Low: Rambling without compression.
+
+2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs explored. Low: Everything proceeds smoothly.
+
+3. Inference Control - Does the author show tight command over logical progression? High: Strong inferential chaining. Low: Juxtapositions mistaken for arguments.
+
+4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: Author scaffolds difficult ideas. Low: Jargon dropped without explication.
+
+5. Novelty-to-Baseline Ratio - How much content exceeds textbook-level summary? High: New distinctions, perspectives. Low: Restating Wikipedia-level doctrine.
+
+6. Internal Differentiation - Are internal contrasts and tensions developed? High: Competing theses nested, refined. Low: One position stated without pressure.
+
+7. Problem Density - Are real problems identified? High: Clear tension, paradox, conflict. Low: Everything is a "survey" or summary.
+
+8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Structure follows thought. Low: Structure imposed mechanically.
+
+9. Semantic Specificity - Are key terms defined with internal rigor? High: Terms don't drift, are operationalized. Low: Terms thrown in without cost.
+
+10. Explanatory Yield - Does the text resolve phenomena that were obscure? High: Theoretical payoffs evident. Low: Descriptive rhetoric without payoff.
+
+11. Meta-Cognitive Signal - Does the author display awareness of method limits? High: "This may beg the question unless..." Low: Claims exempt from critique.
+
+12. Structural Integrity - Is the argument architecture coherent at scale? High: Early sections scaffold later insights. Low: Arbitrary sequence.
+
+13. Generative Potential - Does writing suggest future questions, applications? High: Opens doors conceptually. Low: Closes loops, reiterates boundaries.
+
+14. Signal-to-Rhetoric Ratio - What percent actually says something vs fluff? High: Each sentence matters. Low: Meta-commentary dominates.
+
+15. Dialectical Engagement - Does work engage objections intelligently? High: Anticipates critique, responds. Low: Straw men or echo chamber.
+
+16. Topological Awareness - Does author map conceptual terrain well? High: Aware of where view sits in larger structures. Low: Flat sequence of points.
+
+17. Disambiguation Skill - Are ambiguous terms resolved precisely? High: Aware of multiple senses, avoids equivocation. Low: Uses language loosely with slippage.
+
+18. Cross-Disciplinary Fluency - Can text move fluently across domains? High: Seamless integration of disciplines. Low: Bounded inside single paradigm.
+
+19. Psychological Realism - Are motivations, mental models plausible? High: Explains behavior with realism. Low: Treats positions as abstract islands.
+
+20. Intellectual Risk Quotient - Is author putting real position on the line? High: Willing to stake claim that could fail. Low: Excessive caution, hiding behind citations.
+
+MANDATORY OUTPUT FORMAT:
+
+Return valid JSON with this structure:
+{
+  "conceptualCompression": {"score": X, "assessment": "text", "quote1": "exact quote", "quote2": "exact quote"},
+  [... all 20 metrics with same structure ...],
+  "verdict": "comprehensive assessment of document's overall quality"
+}
+
+CRITICAL ENFORCEMENT RULES:
+- Score 0-3: Serious quality deficiencies evident
+- Score 4-6: Average quality with limitations  
+- Score 7-8: Above-average quality
+- Score 9-10: Exceptional quality (rare)
+- Include TWO specific quotations as evidence for each score
+- Provide detailed assessment explaining the score with reference to quotes`,
+        },
+        {
+          role: "user",
+          content: `Evaluate the overall quality of this document using all 20 quality metrics:
+
+Document - ${passageTitle}:
+${userContext ? `Context: ${userContext}` : ""}
+${passage.text}
+
+Provide comprehensive quality analysis with quotations and justifications.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response with error handling
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      console.log("Quality analysis response length:", responseContent.length);
+      
+      if (!responseContent.trim().endsWith('}')) {
+        console.warn("Quality response appears to be truncated");
+        throw new Error("Response was truncated by OpenAI API");
+      } else {
+        rawResult = JSON.parse(responseContent);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error in quality analysis:", parseError);
+      throw new Error(`Failed to parse quality analysis response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert quality metrics to legacy AnalysisResult format for compatibility
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.conceptualCompression?.assessment || "Quality analysis of conceptual compression",
+          intellectualTrajectory: rawResult.epistemicFriction?.assessment || "Analysis of epistemic friction"
+        },
+        passageB: {
+          primaryInfluences: "Baseline conceptual compression for typical academic writing",
+          intellectualTrajectory: "Standard epistemic friction patterns"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.inferenceControl?.score || 5) * 10,
+          label: rawResult.inferenceControl?.score >= 7 ? "High Quality" : 
+                 rawResult.inferenceControl?.score >= 4 ? "Moderate Quality" : "Basic Quality"
+        },
+        passageB: {
+          distance: 50,
+          label: "Baseline Quality"
+        },
+        keyFindings: [
+          rawResult.inferenceControl?.assessment || "Analysis of inference control capabilities",
+          rawResult.asymmetryOfCognitiveLabor?.assessment || "Evaluation of cognitive labor distribution",
+          rawResult.noveltyToBaselineRatio?.assessment || "Assessment of novelty versus baseline content"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive quality analysis across 20 metrics reveals varying strengths in conceptual compression, epistemic friction, and structural integrity."
+      },
+      
+      noveltyHeatmap: {
+        passageA: paragraphs.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.problemDensity?.score || 5) * 10),
+          quote: rawResult.problemDensity?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Problem density evaluation: ${rawResult.problemDensity?.assessment || "Analysis of problem identification and development"}`
+        })),
+        passageB: [] // Single document analysis
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: rawResult.noveltyToBaselineRatio?.score || 5,
+          components: [
+            {name: "Novelty-to-Baseline Ratio", score: rawResult.noveltyToBaselineRatio?.score || 5},
+            {name: "Internal Differentiation", score: rawResult.internalDifferentiation?.score || 5},
+            {name: "Generative Potential", score: rawResult.generativePotential?.score || 5}
+          ]
+        },
+        passageB: {
+          score: 5,
+          components: [
+            {name: "Baseline Novelty", score: 5},
+            {name: "Standard Differentiation", score: 5},
+            {name: "Typical Generative Capacity", score: 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: rawResult.signalToRhetoricRatio?.score >= 7 ? "Low" : 
+                 rawResult.signalToRhetoricRatio?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalToRhetoricRatio?.weaknesses || ["Some rhetorical padding", "Standard signal dilution"],
+          assessment: rawResult.signalToRhetoricRatio?.assessment || "Analysis of signal-to-rhetoric ratio"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Typical rhetorical patterns", "Standard signal distribution"],
+          assessment: "Baseline signal-to-rhetoric ratio in academic writing"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: rawResult.structuralIntegrity?.score || 5,
+          assessment: rawResult.structuralIntegrity?.assessment || "Analysis of structural integrity",
+          strengths: rawResult.structuralIntegrity?.strengths || ["Coherent organization", "Logical progression"],
+          weaknesses: rawResult.structuralIntegrity?.weaknesses || ["Some structural gaps", "Could improve integration"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline structural integrity in typical academic writing",
+          strengths: ["Standard organization", "Conventional progression"],
+          weaknesses: ["Typical structural limitations", "Standard coherence issues"]
+        }
+      },
+      
+      accuracy: {
+        passageA: {
+          score: rawResult.semanticSpecificity?.score || 5,
+          assessment: rawResult.semanticSpecificity?.assessment || "Analysis of semantic precision",
+          strengths: rawResult.semanticSpecificity?.strengths || ["Term precision", "Conceptual clarity"],
+          weaknesses: rawResult.semanticSpecificity?.weaknesses || ["Some term drift", "Could improve specificity"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline semantic specificity in typical academic writing",
+          strengths: ["Standard precision", "Conventional clarity"],
+          weaknesses: ["Typical term issues", "Standard specificity problems"]
+        }
+      },
+      
+      depth: {
+        passageA: {
+          score: rawResult.explanatoryYield?.score || 5,
+          assessment: rawResult.explanatoryYield?.assessment || "Analysis of explanatory depth",
+          strengths: rawResult.explanatoryYield?.strengths || ["Theoretical insights", "Explanatory power"],
+          weaknesses: rawResult.explanatoryYield?.weaknesses || ["Some superficiality", "Could deepen analysis"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline explanatory yield in typical academic writing",
+          strengths: ["Standard insights", "Conventional explanations"],
+          weaknesses: ["Limited depth", "Typical analytical constraints"]
+        }
+      },
+      
+      clarity: {
+        passageA: {
+          score: rawResult.disambiguationSkill?.score || 5,
+          assessment: rawResult.disambiguationSkill?.assessment || "Analysis of disambiguation and clarity",
+          strengths: rawResult.disambiguationSkill?.strengths || ["Clear distinctions", "Precise language"],
+          weaknesses: rawResult.disambiguationSkill?.weaknesses || ["Some ambiguities", "Could improve precision"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Baseline disambiguation skill in typical academic writing",
+          strengths: ["Standard clarity", "Conventional precision"],
+          weaknesses: ["Typical ambiguities", "Standard clarity issues"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive quality analysis across 20 metrics reveals varying strengths in conceptual compression, epistemic friction, and structural integrity.",
+      
+      // Store the raw quality analysis
+      rawQualityAnalysis: rawResult
+    };
+    
+    // Store userContext in the result if provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in quality analysis:", error);
+    throw new Error(`Failed to analyze quality: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Overall Quality Meter - Dual document comparison using 20 quality metrics
+ */
+export async function analyzeQualityDual(
+  passageA: PassageData,
+  passageB: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphsA = splitIntoParagraphs(passageA.text);
+    const paragraphsB = splitIntoParagraphs(passageB.text);
+    const passageATitle = passageA.title || "Document A";
+    const passageBTitle = passageB.title || "Document B";
+    const userContext = passageA.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Compare the overall quality of two intellectual texts using these 20 precise quality metrics. Score each 0-10 for BOTH documents with harsh standards that distinguish genuine quality from pseudo-academic fluff.
+
+OVERALL QUALITY EVALUATION CRITERIA:
+
+Assess writing quality through these 20 metrics for BOTH documents. Score each 0-10 with strict standards:
+
+1. Conceptual Compression - How much conceptual work is done per unit of language? High: Dense formulations yield insight. Low: Rambling without compression.
+
+2. Epistemic Friction - Are claims under tension? Do they resist paraphrase? High: Complicated tradeoffs explored. Low: Everything proceeds smoothly.
+
+3. Inference Control - Does the author show tight command over logical progression? High: Strong inferential chaining. Low: Juxtapositions mistaken for arguments.
+
+4. Asymmetry of Cognitive Labor - Is the writer doing more work than the reader? High: Author scaffolds difficult ideas. Low: Jargon dropped without explication.
+
+5. Novelty-to-Baseline Ratio - How much content exceeds textbook-level summary? High: New distinctions, perspectives. Low: Restating Wikipedia-level doctrine.
+
+6. Internal Differentiation - Are internal contrasts and tensions developed? High: Competing theses nested, refined. Low: One position stated without pressure.
+
+7. Problem Density - Are real problems identified? High: Clear tension, paradox, conflict. Low: Everything is a "survey" or summary.
+
+8. Compression Across Levels - Are sentence, paragraph, and structural layers all doing work? High: Structure follows thought. Low: Structure imposed mechanically.
+
+9. Semantic Specificity - Are key terms defined with internal rigor? High: Terms don't drift, are operationalized. Low: Terms thrown in without cost.
+
+10. Explanatory Yield - Does the text resolve phenomena that were obscure? High: Theoretical payoffs evident. Low: Descriptive rhetoric without payoff.
+
+11. Meta-Cognitive Signal - Does the author display awareness of method limits? High: "This may beg the question unless..." Low: Claims exempt from critique.
+
+12. Structural Integrity - Is the argument architecture coherent at scale? High: Early sections scaffold later insights. Low: Arbitrary sequence.
+
+13. Generative Potential - Does writing suggest future questions, applications? High: Opens doors conceptually. Low: Closes loops, reiterates boundaries.
+
+14. Signal-to-Rhetoric Ratio - What percent actually says something vs fluff? High: Each sentence matters. Low: Meta-commentary dominates.
+
+15. Dialectical Engagement - Does work engage objections intelligently? High: Anticipates critique, responds. Low: Straw men or echo chamber.
+
+16. Topological Awareness - Does author map conceptual terrain well? High: Aware of where view sits in larger structures. Low: Flat sequence of points.
+
+17. Disambiguation Skill - Are ambiguous terms resolved precisely? High: Aware of multiple senses, avoids equivocation. Low: Uses language loosely with slippage.
+
+18. Cross-Disciplinary Fluency - Can text move fluently across domains? High: Seamless integration of disciplines. Low: Bounded inside single paradigm.
+
+19. Psychological Realism - Are motivations, mental models plausible? High: Explains behavior with realism. Low: Treats positions as abstract islands.
+
+20. Intellectual Risk Quotient - Is author putting real position on the line? High: Willing to stake claim that could fail. Low: Excessive caution, hiding behind citations.
+
+MANDATORY OUTPUT FORMAT:
+
+Return valid JSON with this structure:
+{
+  "conceptualCompression": {
+    "passageA": {"score": X, "assessment": "text", "quote1": "exact quote", "quote2": "exact quote"},
+    "passageB": {"score": X, "assessment": "text", "quote1": "exact quote", "quote2": "exact quote"}
+  },
+  [... all 20 metrics with same structure ...],
+  "verdict": "comparative assessment of both documents' overall quality"
+}
+
+CRITICAL ENFORCEMENT RULES:
+- Score 0-3: Serious quality deficiencies evident
+- Score 4-6: Average quality with limitations  
+- Score 7-8: Above-average quality
+- Score 9-10: Exceptional quality (rare)
+- Include TWO specific quotations as evidence for each score
+- Provide detailed assessment explaining the score with reference to quotes`,
+        },
+        {
+          role: "user",
+          content: `Compare the overall quality of these two documents using all 20 quality metrics:
+
+Document A - ${passageATitle}:
+${userContext ? `Context: ${userContext}` : ""}
+${passageA.text}
+
+Document B - ${passageBTitle}:
+${passageB.text}
+
+Evaluate both documents using all 20 quality metrics with quotations and justifications.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response with error handling
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      console.log("Dual quality analysis response length:", responseContent.length);
+      
+      if (!responseContent.trim().endsWith('}')) {
+        console.warn("Dual quality response appears to be truncated");
+        throw new Error("Response was truncated by OpenAI API");
+      } else {
+        rawResult = JSON.parse(responseContent);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error in dual quality analysis:", parseError);
+      throw new Error(`Failed to parse dual quality analysis response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert quality metrics to legacy AnalysisResult format for compatibility
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.conceptualCompression?.passageA?.assessment || "Quality analysis of conceptual compression",
+          intellectualTrajectory: rawResult.epistemicFriction?.passageA?.assessment || "Analysis of epistemic friction"
+        },
+        passageB: {
+          primaryInfluences: rawResult.conceptualCompression?.passageB?.assessment || "Quality analysis of conceptual compression",
+          intellectualTrajectory: rawResult.epistemicFriction?.passageB?.assessment || "Analysis of epistemic friction"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.inferenceControl?.passageA?.score || 5) * 10,
+          label: rawResult.inferenceControl?.passageA?.score >= 7 ? "High Quality" : 
+                 rawResult.inferenceControl?.passageA?.score >= 4 ? "Moderate Quality" : "Basic Quality"
+        },
+        passageB: {
+          distance: (rawResult.inferenceControl?.passageB?.score || 5) * 10,
+          label: rawResult.inferenceControl?.passageB?.score >= 7 ? "High Quality" : 
+                 rawResult.inferenceControl?.passageB?.score >= 4 ? "Moderate Quality" : "Basic Quality"
+        },
+        keyFindings: [
+          rawResult.inferenceControl?.passageA?.assessment || "Analysis of inference control capabilities",
+          rawResult.asymmetryOfCognitiveLabor?.passageA?.assessment || "Evaluation of cognitive labor distribution",
+          rawResult.noveltyToBaselineRatio?.passageA?.assessment || "Assessment of novelty versus baseline content"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive quality comparison across 20 metrics reveals varying strengths in conceptual compression, epistemic friction, and structural integrity."
+      },
+      
+      noveltyHeatmap: {
+        passageA: paragraphsA.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.problemDensity?.passageA?.score || 5) * 10),
+          quote: rawResult.problemDensity?.passageA?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Problem density evaluation: ${rawResult.problemDensity?.passageA?.assessment || "Analysis of problem identification and development"}`
+        })),
+        passageB: paragraphsB.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round((rawResult.problemDensity?.passageB?.score || 5) * 10),
+          quote: rawResult.problemDensity?.passageB?.quote1 || paragraph.substring(0, 50) + "...",
+          explanation: `Problem density evaluation: ${rawResult.problemDensity?.passageB?.assessment || "Analysis of problem identification and development"}`
+        }))
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: rawResult.noveltyToBaselineRatio?.passageA?.score || 5,
+          components: [
+            {name: "Novelty-to-Baseline Ratio", score: rawResult.noveltyToBaselineRatio?.passageA?.score || 5},
+            {name: "Internal Differentiation", score: rawResult.internalDifferentiation?.passageA?.score || 5},
+            {name: "Generative Potential", score: rawResult.generativePotential?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: rawResult.noveltyToBaselineRatio?.passageB?.score || 5,
+          components: [
+            {name: "Novelty-to-Baseline Ratio", score: rawResult.noveltyToBaselineRatio?.passageB?.score || 5},
+            {name: "Internal Differentiation", score: rawResult.internalDifferentiation?.passageB?.score || 5},
+            {name: "Generative Potential", score: rawResult.generativePotential?.passageB?.score || 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: rawResult.signalToRhetoricRatio?.passageA?.score >= 7 ? "Low" : 
+                 rawResult.signalToRhetoricRatio?.passageA?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalToRhetoricRatio?.passageA?.weaknesses || ["Some rhetorical padding", "Signal dilution"],
+          assessment: rawResult.signalToRhetoricRatio?.passageA?.assessment || "Analysis of signal-to-rhetoric ratio"
+        },
+        passageB: {
+          level: rawResult.signalToRhetoricRatio?.passageB?.score >= 7 ? "Low" : 
+                 rawResult.signalToRhetoricRatio?.passageB?.score >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalToRhetoricRatio?.passageB?.weaknesses || ["Some rhetorical padding", "Signal dilution"],
+          assessment: rawResult.signalToRhetoricRatio?.passageB?.assessment || "Analysis of signal-to-rhetoric ratio"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: rawResult.structuralIntegrity?.passageA?.score || 5,
+          assessment: rawResult.structuralIntegrity?.passageA?.assessment || "Analysis of structural integrity",
+          strengths: rawResult.structuralIntegrity?.passageA?.strengths || ["Coherent organization", "Logical progression"],
+          weaknesses: rawResult.structuralIntegrity?.passageA?.weaknesses || ["Some structural gaps", "Could improve integration"]
+        },
+        passageB: {
+          score: rawResult.structuralIntegrity?.passageB?.score || 5,
+          assessment: rawResult.structuralIntegrity?.passageB?.assessment || "Analysis of structural integrity",
+          strengths: rawResult.structuralIntegrity?.passageB?.strengths || ["Coherent organization", "Logical progression"],
+          weaknesses: rawResult.structuralIntegrity?.passageB?.weaknesses || ["Some structural gaps", "Could improve integration"]
+        }
+      },
+      
+      accuracy: {
+        passageA: {
+          score: rawResult.semanticSpecificity?.passageA?.score || 5,
+          assessment: rawResult.semanticSpecificity?.passageA?.assessment || "Analysis of semantic precision",
+          strengths: rawResult.semanticSpecificity?.passageA?.strengths || ["Term precision", "Conceptual clarity"],
+          weaknesses: rawResult.semanticSpecificity?.passageA?.weaknesses || ["Some term drift", "Could improve specificity"]
+        },
+        passageB: {
+          score: rawResult.semanticSpecificity?.passageB?.score || 5,
+          assessment: rawResult.semanticSpecificity?.passageB?.assessment || "Analysis of semantic precision",
+          strengths: rawResult.semanticSpecificity?.passageB?.strengths || ["Term precision", "Conceptual clarity"],
+          weaknesses: rawResult.semanticSpecificity?.passageB?.weaknesses || ["Some term drift", "Could improve specificity"]
+        }
+      },
+      
+      depth: {
+        passageA: {
+          score: rawResult.explanatoryYield?.passageA?.score || 5,
+          assessment: rawResult.explanatoryYield?.passageA?.assessment || "Analysis of explanatory depth",
+          strengths: rawResult.explanatoryYield?.passageA?.strengths || ["Theoretical insights", "Explanatory power"],
+          weaknesses: rawResult.explanatoryYield?.passageA?.weaknesses || ["Some superficiality", "Could deepen analysis"]
+        },
+        passageB: {
+          score: rawResult.explanatoryYield?.passageB?.score || 5,
+          assessment: rawResult.explanatoryYield?.passageB?.assessment || "Analysis of explanatory depth",
+          strengths: rawResult.explanatoryYield?.passageB?.strengths || ["Theoretical insights", "Explanatory power"],
+          weaknesses: rawResult.explanatoryYield?.passageB?.weaknesses || ["Some superficiality", "Could deepen analysis"]
+        }
+      },
+      
+      clarity: {
+        passageA: {
+          score: rawResult.disambiguationSkill?.passageA?.score || 5,
+          assessment: rawResult.disambiguationSkill?.passageA?.assessment || "Analysis of disambiguation and clarity",
+          strengths: rawResult.disambiguationSkill?.passageA?.strengths || ["Clear distinctions", "Precise language"],
+          weaknesses: rawResult.disambiguationSkill?.passageA?.weaknesses || ["Some ambiguities", "Could improve precision"]
+        },
+        passageB: {
+          score: rawResult.disambiguationSkill?.passageB?.score || 5,
+          assessment: rawResult.disambiguationSkill?.passageB?.assessment || "Analysis of disambiguation and clarity",
+          strengths: rawResult.disambiguationSkill?.passageB?.strengths || ["Clear distinctions", "Precise language"],
+          weaknesses: rawResult.disambiguationSkill?.passageB?.weaknesses || ["Some ambiguities", "Could improve precision"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive quality comparison across 20 metrics reveals varying strengths in conceptual compression, epistemic friction, and structural integrity.",
+      
+      // Store the raw quality analysis
+      rawQualityAnalysis: rawResult
+    };
+    
+    // Store userContext in the result if provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in dual quality analysis:", error);
+    throw new Error(`Failed to analyze quality: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
 
 /**
  * Analyzes a passage against a larger corpus of text
- * @param passage The passage to analyze
- * @param corpus The larger corpus or reference text
- * @param corpusTitle Optional title of the corpus
- * @returns Analysis result comparing the passage against the corpus
  */
 export async function analyzePassageAgainstCorpus(
   passage: PassageData,

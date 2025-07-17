@@ -25,7 +25,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency" | "intelligence";
+  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency" | "intelligence" | "quality";
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
   const isSinglePassageMode = analysisMode === "single";
   const isCorpusMode = analysisMode === "corpus";
@@ -33,6 +33,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const isArgumentativeMode = analysisMode === "argumentative";
   const isSingleCogencyMode = analysisMode === "single-cogency";
   const isIntelligenceMode = analysisMode === "intelligence";
+  const isQualityMode = analysisMode === "quality";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -197,6 +198,53 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     }
   });
   
+  // Quality analysis mutation
+  const qualityMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Analyzing quality");
+      
+      let endpoint = '/api/analyze/quality';
+      let payload = {
+        passageA,
+        provider
+      };
+      
+      // Check if we have passageB for dual analysis
+      if (passageB.text.trim() !== "") {
+        payload = {
+          passageA,
+          passageB,
+          provider
+        };
+      }
+      
+      console.log("Quality request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      const result = await response.json();
+      return result as AnalysisResult;
+    },
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowResults(true);
+      
+      // Scroll to the results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Quality analysis error:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your document quality. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handle analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
@@ -215,6 +263,20 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         endpoint = '/api/analyze/single';
         payload = {
           passageA,
+          provider
+        };
+      } else if (analysisMode === "intelligence" && passageB.text.trim() !== "") {
+        endpoint = '/api/analyze/intelligence-dual';
+        payload = {
+          passageA,
+          passageB,
+          provider
+        };
+      } else if (analysisMode === "quality" && passageB.text.trim() !== "") {
+        endpoint = '/api/analyze/quality';
+        payload = {
+          passageA,
+          passageB,
           provider
         };
       } else {
@@ -304,7 +366,20 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     // For intelligence analysis mode, call the API directly
     if (analysisMode === "intelligence") {
       console.log("Starting intelligence analysis");
-      intelligenceMutation.mutate();
+      if (passageB.text.trim() === "") {
+        // Single document intelligence analysis
+        intelligenceMutation.mutate();
+      } else {
+        // Dual document intelligence analysis
+        analysisMutation.mutate();
+      }
+      return;
+    }
+    
+    // For quality analysis mode, call the API directly
+    if (analysisMode === "quality") {
+      console.log("Starting quality analysis");
+      qualityMutation.mutate();
       return;
     }
     
@@ -517,6 +592,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               Intelligence Meter
             </Label>
           </div>
+          
+          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "quality" ? "bg-purple-50 border-purple-200" : "bg-white border-gray-200"}`}>
+            <RadioGroupItem value="quality" id="quality" />
+            <Label htmlFor="quality" className="font-medium text-sm">
+              Overall Quality
+            </Label>
+          </div>
         </RadioGroup>
         
         <div className="mt-3 text-xs text-slate-500">
@@ -540,6 +622,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           )}
           {analysisMode === "intelligence" && (
             <p>Analyze cognitive sophistication and thinking quality across 20 intelligence metrics: compression capacity, multi-level integration, inference architecture, and more.</p>
+          )}
+          {analysisMode === "quality" && (
+            <p>Comprehensive quality analysis using 20 precise metrics: conceptual compression, epistemic friction, inference control, problem density, and more scholarly writing indicators.</p>
           )}
         </div>
       </div>
@@ -583,7 +668,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           disabled={analysisMutation.isPending}
         />
       ) : (
-        <div className={`grid grid-cols-1 ${(analysisMode === "single" || analysisMode === "single-cogency" || analysisMode === "intelligence") ? "" : "lg:grid-cols-2"} gap-6`}>
+        <div className={`grid grid-cols-1 ${(analysisMode === "single" || analysisMode === "single-cogency") ? "" : "lg:grid-cols-2"} gap-6`}>
           <PassageInput
             passage={passageA}
             onChange={setPassageA}
@@ -592,7 +677,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             showUserContext={true}
           />
           
-          {(analysisMode === "comparison" || analysisMode === "argumentative") && (
+          {(analysisMode === "comparison" || analysisMode === "argumentative" || analysisMode === "intelligence") && (
             <PassageInput
               passage={passageB}
               onChange={setPassageB}
@@ -632,7 +717,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                     {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
                     {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
                     {analysisMode === "single-cogency" && "Click the button below to analyze the logical convincingness of your document"}
-                    {analysisMode === "intelligence" && "Click the button below to analyze the cognitive sophistication of your text"}
+                    {analysisMode === "intelligence" && passageB.text.trim() === "" && "Click the button below to analyze the cognitive sophistication of your text"}
+                    {analysisMode === "intelligence" && passageB.text.trim() !== "" && "Click the button below to compare the cognitive sophistication of both texts"}
+                    {analysisMode === "quality" && passageB.text.trim() === "" && "Click the button below to analyze the overall quality of your text"}
+                    {analysisMode === "quality" && passageB.text.trim() !== "" && "Click the button below to compare the overall quality of both texts"}
                   </p>
                 </>
               )}
@@ -645,6 +733,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 analysisMutation.isPending || 
                 singleCogencyMutation.isPending ||
                 intelligenceMutation.isPending ||
+                qualityMutation.isPending ||
                 !passageA.text.trim() || 
                 ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())
@@ -674,8 +763,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   </>
                 )}
               </svg>
-              {(analysisMutation.isPending || singleCogencyMutation.isPending) ? "ANALYZING..." : "ANALYZE PASSAGE"}
-              {(analysisMutation.isPending || singleCogencyMutation.isPending) && (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending) ? "ANALYZING..." : "ANALYZE PASSAGE"}
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending) && (
                 <span className="ml-3 inline-block animate-spin">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
