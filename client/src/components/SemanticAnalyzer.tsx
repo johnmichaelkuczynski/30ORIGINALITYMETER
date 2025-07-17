@@ -307,6 +307,54 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     }
   });
   
+  // Cogency analysis mutation
+  const cogencyMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Analyzing cogency");
+      
+      let endpoint = '/api/analyze/cogency';
+      let payload = {
+        passageA,
+        provider
+      };
+      
+      // Check if we have passageB for dual analysis
+      if (passageB.text.trim() !== "") {
+        endpoint = '/api/analyze/cogency-dual';
+        payload = {
+          passageA,
+          passageB,
+          provider
+        };
+      }
+      
+      console.log("Cogency request payload:", payload);
+      const response = await apiRequest('POST', endpoint, payload);
+      const result = await response.json();
+      return result as AnalysisResult;
+    },
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowResults(true);
+      
+      // Scroll to the results
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Cogency analysis error:", error);
+      toast({
+        title: "Cogency Analysis Failed",
+        description: "There was an error analyzing cogency. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handle analysis mutation
   const analysisMutation = useMutation({
     mutationFn: async () => {
@@ -449,6 +497,13 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     if (analysisType === "originality") {
       console.log("Starting originality analysis");
       originalityMutation.mutate();
+      return;
+    }
+    
+    // For cogency analysis mode, call the API directly
+    if (analysisType === "cogency") {
+      console.log("Starting cogency analysis");
+      cogencyMutation.mutate();
       return;
     }
     
@@ -826,7 +881,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending) ? (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending || cogencyMutation.isPending) ? (
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
@@ -866,6 +921,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 intelligenceMutation.isPending ||
                 qualityMutation.isPending ||
                 originalityMutation.isPending ||
+                cogencyMutation.isPending ||
                 !passageA.text.trim() || 
                 ((analysisMode === "comparison" || analysisMode === "argumentative") && !passageB.text.trim()) ||
                 (analysisMode === "corpus" && !corpus.text.trim())

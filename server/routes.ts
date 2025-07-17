@@ -998,6 +998,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cogency Meter - Single document cogency analysis
+  app.post("/api/analyze/cogency", async (req: Request, res: Response) => {
+    try {
+      const requestSchema = z.object({
+        passageA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+      });
+
+      const { passageA, provider } = requestSchema.parse(req.body);
+      
+      console.log("Cogency analysis request:", {
+        title: passageA.title,
+        textLength: passageA.text.length,
+        provider
+      });
+
+      // Use OpenAI service for cogency analysis
+      const result = await openaiService.analyzeCogency(passageA);
+      
+      // Validate the result
+      const validatedResult = analysisResultSchema.parse(result);
+      res.json(validatedResult);
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error in cogency analysis:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze cogency", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
+  // Cogency Meter - Dual document cogency comparison
+  app.post("/api/analyze/cogency-dual", async (req: Request, res: Response) => {
+    try {
+      const requestSchema = z.object({
+        passageA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage A text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        passageB: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage B text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+      });
+
+      const { passageA, passageB, provider } = requestSchema.parse(req.body);
+      
+      console.log("Dual cogency analysis request:", {
+        titleA: passageA.title,
+        textLengthA: passageA.text.length,
+        titleB: passageB.title,
+        textLengthB: passageB.text.length,
+        provider
+      });
+
+      // Use OpenAI service for dual cogency analysis
+      const result = await openaiService.analyzeCogencyDual(passageA, passageB);
+      
+      // Validate the result
+      const validatedResult = analysisResultSchema.parse(result);
+      res.json(validatedResult);
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error in dual cogency analysis:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze cogency", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
   // Intelligence Meter - Analyze cognitive sophistication
   app.post("/api/analyze/intelligence", async (req: Request, res: Response) => {
     try {

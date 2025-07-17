@@ -2063,6 +2063,450 @@ Provide detailed comparative analysis showing which passage demonstrates greater
 }
 
 /**
+ * Cogency Meter - Single document analysis using 20 cogency metrics
+ */
+export async function analyzeCogency(
+  passage: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Document";
+    const userContext = passage.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of argumentative cogency across all disciplines. Your task is to assess how well a document proves what it sets out to prove using logical rigor and argumentative strength.
+
+CRITICAL COGENCY EVALUATION GUIDELINES:
+
+1. Cogency = Logical convincingness within the work's own framework and discipline
+2. Focus on argumentative structure, not accessibility or writing style
+3. Evaluate how well claims are supported by evidence and reasoning
+4. Consider domain-appropriate standards (mathematical proofs differ from philosophical arguments)
+5. Assess resilience to counterarguments and logical objections
+6. Value precision, clarity, and inferential strength
+
+Analyze the passage across these 20 comprehensive cogency metrics:
+
+1. Argumentative Continuity - Is each claim supported by those before it? High: Smooth inferential buildup. Low: Jump-cuts between ideas.
+
+2. Error-Resistance - Can the argument absorb counterpoints without collapse? High: Multiple lines of support or modular robustness. Low: Collapses when one premise is challenged.
+
+3. Specificity of Commitment - Are claims stated precisely and clearly? High: Exact positions and definitions. Low: Vagueness or hedging.
+
+4. Provisionality Control - Does the author know when to hedge and when to commit? High: Balanced modulation between certainty and openness. Low: Blanket certainty or endless disclaimer.
+
+5. Load Distribution - Are inferential loads distributed efficiently? High: No premise bears too much unexplained weight. Low: One hidden assumption props up the whole.
+
+6. Error Anticipation - Are potential objections built into the argument? High: Preempts or fortifies against known critiques. Low: Blind to plausible challenges.
+
+7. Epistemic Parsimony - Does the argument avoid unnecessary complexity? High: Simplicity without loss. Low: Bloated reasoning.
+
+8. Scope Clarity - Is the domain of applicability clear? High: Knows its boundaries. Low: Overreach.
+
+9. Evidence Calibration - Are claims weighted relative to their support? High: Modulates confidence to evidence strength. Low: Overclaims.
+
+10. Redundancy Avoidance - Are points repeated without need? High: No duplication. Low: Filler or rhetorical looping.
+
+11. Conceptual Interlock - Do definitions and theses cohere together? High: Network of meaning is internally consistent. Low: Fraying or contradictory concepts.
+
+12. Temporal Stability - Does the argument hold over time or over revisions? High: Durable logic. Low: Sensitive to small tweaks.
+
+13. Distinction Awareness - Are relevant distinctions tracked and preserved? High: Makes and respects useful cuts. Low: Collapses categories.
+
+14. Layered Persuasiveness - Does the argument work for multiple levels of reader? High: Intuitive and formal appeals present. Low: Only works at one level.
+
+15. Signal Discipline - Is the signal-to-rhetoric ratio high? High: Content-rich claims dominate. Low: Filler prose.
+
+16. Causal Alignment - Do causal claims line up with evidence and theory? High: Mechanistic or probabilistic fit is clear. Low: Post hoc reasoning.
+
+17. Counterexample Immunity - Is the argument resilient to typical counterexamples? High: Survives standard tests. Low: Easily broken.
+
+18. Intelligibility of Objection - Would a smart opponent know what to attack? High: Clear, bold claims. Low: Foggy or elusive.
+
+19. Dependence Hierarchy Awareness - Are structural dependencies tracked? High: Author knows which claims are load-bearing. Low: Flat argument map.
+
+20. Context-Bounded Inference - Are inferences valid only under clear assumptions? High: Arguments specify conditions of validity. Low: Hidden contextual slippage.
+
+SCORING MANDATE: Use the full 0-10 scale with proper discrimination:
+- 0-2: Poor argumentative structure, weak logical foundation
+- 3-4: Basic competence but significant logical gaps
+- 5-6: Solid argumentation with some weaknesses
+- 7-8: Strong cogency with clear logical progression
+- 9-10: Exceptional argumentative rigor and convincingness
+
+Return detailed analysis in the following JSON format:
+{
+  "argumentativeContinuity": {
+    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": 5, "assessment": "baseline for typical academic arguments", "strengths": ["conventional continuity"], "weaknesses": ["some gaps"] }
+  },
+  [continue for all 20 cogency metrics...]
+  "verdict": "comprehensive assessment of cogency across all parameters"
+}`,
+        },
+        {
+          role: "user",
+          content: `Please analyze this single passage for cogency using the 20 Cogency metrics against a baseline of typical academic argumentation:
+
+Passage (${passageTitle}):
+${passage.text}
+
+${userContext ? `Author's Context: ${userContext}
+
+When evaluating this passage, consider the author's context. Adapt evaluation criteria accordingly - don't penalize excerpts for brevity or drafts for minor issues.` : ''}
+
+Focus ONLY on this single passage. Do NOT compare to any other submitted text. Return analysis in the specified JSON format with all 20 cogency metrics.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse the response
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      if (!responseContent.trim().endsWith('}')) {
+        throw new Error("Response was truncated by OpenAI API");
+      }
+      rawResult = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert to legacy AnalysisResult format
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.argumentativeContinuity?.passageA?.assessment || "Analysis of argumentative continuity",
+          intellectualTrajectory: rawResult.errorResistance?.passageA?.assessment || "Analysis of error resistance"
+        },
+        passageB: {
+          primaryInfluences: "Typical academic work follows conventional argumentative patterns",
+          intellectualTrajectory: "Standard texts show moderate logical progression"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.specificityOfCommitment?.passageA?.score || 5) * 10,
+          label: rawResult.specificityOfCommitment?.passageA?.score >= 7 ? "High Cogency" : rawResult.specificityOfCommitment?.passageA?.score >= 4 ? "Moderate Cogency" : "Low Cogency"
+        },
+        passageB: {
+          distance: 50,
+          label: "Average Academic Argumentation (Baseline)"
+        },
+        keyFindings: [
+          rawResult.argumentativeContinuity?.passageA?.strengths?.[0] || "Argumentative continuity analysis",
+          rawResult.errorResistance?.passageA?.strengths?.[0] || "Error resistance evaluation", 
+          rawResult.specificityOfCommitment?.passageA?.strengths?.[0] || "Specificity assessment"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive cogency analysis across 20 parameters reveals varying degrees of argumentative strength."
+      },
+      
+      noveltyHeatmap: {
+        passageA: paragraphs.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.argumentativeContinuity?.passageA?.score || 5) + 
+                           (rawResult.errorResistance?.passageA?.score || 5) + 
+                           (rawResult.specificityOfCommitment?.passageA?.score || 5)) / 3 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} demonstrates cogency through logical structure and argumentative strength`
+        })),
+        passageB: [
+          {
+            content: "Typical academic argumentation follows conventional logical patterns",
+            heat: 50,
+            quote: "Standard academic reasoning and evidence",
+            explanation: "Represents conventional argumentative approach"
+          }
+        ]
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageA?.score || 5) +
+                           (rawResult.errorResistance?.passageA?.score || 5) +
+                           (rawResult.specificityOfCommitment?.passageA?.score || 5) +
+                           (rawResult.provisionality?.passageA?.score || 5) +
+                           (rawResult.loadDistribution?.passageA?.score || 5)) / 5 * 10) / 10,
+          components: [
+            {name: "Argumentative Continuity", score: rawResult.argumentativeContinuity?.passageA?.score || 5},
+            {name: "Error Resistance", score: rawResult.errorResistance?.passageA?.score || 5},
+            {name: "Specificity of Commitment", score: rawResult.specificityOfCommitment?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: 5,
+          components: [
+            {name: "Argumentative Continuity", score: 5},
+            {name: "Error Resistance", score: 5},
+            {name: "Specificity of Commitment", score: 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.signalDiscipline?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.signalDiscipline?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalDiscipline?.passageA?.weaknesses || ["Some rhetorical elements"],
+          assessment: rawResult.signalDiscipline?.passageA?.assessment || "Analysis of signal-to-rhetoric ratio"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Conventional rhetoric", "Standard academic patterns"],
+          assessment: "Typical texts show moderate signal-to-rhetoric ratio"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageA?.score || 5) +
+                           (rawResult.conceptualInterlock?.passageA?.score || 5)) / 2),
+          assessment: "Coherence derived from cogency analysis",
+          strengths: rawResult.argumentativeContinuity?.passageA?.strengths || ["Logical coherence"],
+          weaknesses: rawResult.argumentativeContinuity?.passageA?.weaknesses || ["Minor logical gaps"]
+        },
+        passageB: {
+          score: 5,
+          assessment: "Standard coherence level",
+          strengths: ["Conventional logical structure"],
+          weaknesses: ["Limited argumentative innovation"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive cogency analysis across 20 parameters reveals varying degrees of argumentative strength and logical convincingness.",
+      
+      // Store the raw cogency analysis
+      rawCogencyAnalysis: rawResult
+    };
+    
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error in cogency analysis:", error);
+    throw new Error(`Failed to analyze cogency: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Cogency Meter - Dual document comparison using 20 cogency metrics
+ */
+export async function analyzeCogencyDual(
+  passageA: PassageData,
+  passageB: PassageData
+): Promise<AnalysisResult> {
+  try {
+    const paragraphsA = splitIntoParagraphs(passageA.text);
+    const paragraphsB = splitIntoParagraphs(passageB.text);
+    const passageATitle = passageA.title || "Document A";
+    const passageBTitle = passageB.title || "Document B";
+    const userContextA = passageA.userContext || "";
+    const userContextB = passageB.userContext || "";
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert evaluator of argumentative cogency. Compare two documents across 20 comprehensive cogency metrics to determine which demonstrates greater logical convincingness and argumentative strength.
+
+CRITICAL COGENCY EVALUATION GUIDELINES:
+
+1. Cogency = Logical convincingness within each work's own framework
+2. Focus on argumentative structure, not accessibility or writing style
+3. Evaluate how well claims are supported by evidence and reasoning
+4. Consider domain-appropriate standards for each document
+5. Assess resilience to counterarguments and logical objections
+6. Value precision, clarity, and inferential strength
+
+Analyze both documents across these 20 cogency metrics:
+
+1. Argumentative Continuity - Is each claim supported by those before it?
+2. Error-Resistance - Can the argument absorb counterpoints without collapse?
+3. Specificity of Commitment - Are claims stated precisely and clearly?
+4. Provisionality Control - Does the author know when to hedge and when to commit?
+5. Load Distribution - Are inferential loads distributed efficiently?
+6. Error Anticipation - Are potential objections built into the argument?
+7. Epistemic Parsimony - Does the argument avoid unnecessary complexity?
+8. Scope Clarity - Is the domain of applicability clear?
+9. Evidence Calibration - Are claims weighted relative to their support?
+10. Redundancy Avoidance - Are points repeated without need?
+11. Conceptual Interlock - Do definitions and theses cohere together?
+12. Temporal Stability - Does the argument hold over time or over revisions?
+13. Distinction Awareness - Are relevant distinctions tracked and preserved?
+14. Layered Persuasiveness - Does the argument work for multiple levels of reader?
+15. Signal Discipline - Is the signal-to-rhetoric ratio high?
+16. Causal Alignment - Do causal claims line up with evidence and theory?
+17. Counterexample Immunity - Is the argument resilient to typical counterexamples?
+18. Intelligibility of Objection - Would a smart opponent know what to attack?
+19. Dependence Hierarchy Awareness - Are structural dependencies tracked?
+20. Context-Bounded Inference - Are inferences valid only under clear assumptions?
+
+Score each metric 0-10 for both documents. Higher scores indicate greater cogency.
+
+Return detailed comparative analysis in JSON format with all 20 cogency metrics.`,
+        },
+        {
+          role: "user",
+          content: `Compare these two documents for cogency across all 20 metrics:
+
+Document A (${passageATitle}):
+${passageA.text}
+
+${userContextA ? `Context A: ${userContextA}` : ''}
+
+Document B (${passageBTitle}):
+${passageB.text}
+
+${userContextB ? `Context B: ${userContextB}` : ''}
+
+Provide detailed comparative analysis showing which document demonstrates greater cogency in each parameter.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    // Parse and process response similar to single analysis
+    let rawResult: any = {};
+    try {
+      const responseContent = response.choices[0].message.content ?? "{}";
+      if (!responseContent.trim().endsWith('}')) {
+        throw new Error("Response was truncated by OpenAI API");
+      }
+      rawResult = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      throw new Error(`Failed to parse OpenAI response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Convert to AnalysisResult format for dual comparison
+    const result: AnalysisResult = {
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.argumentativeContinuity?.passageA?.assessment || "Analysis of argumentative continuity",
+          intellectualTrajectory: rawResult.errorResistance?.passageA?.assessment || "Analysis of error resistance"
+        },
+        passageB: {
+          primaryInfluences: rawResult.argumentativeContinuity?.passageB?.assessment || "Analysis of argumentative continuity",
+          intellectualTrajectory: rawResult.errorResistance?.passageB?.assessment || "Analysis of error resistance"
+        }
+      },
+      
+      semanticDistance: {
+        passageA: {
+          distance: (rawResult.specificityOfCommitment?.passageA?.score || 5) * 10,
+          label: rawResult.specificityOfCommitment?.passageA?.score >= 7 ? "High Cogency" : rawResult.specificityOfCommitment?.passageA?.score >= 4 ? "Moderate Cogency" : "Low Cogency"
+        },
+        passageB: {
+          distance: (rawResult.specificityOfCommitment?.passageB?.score || 5) * 10,
+          label: rawResult.specificityOfCommitment?.passageB?.score >= 7 ? "High Cogency" : rawResult.specificityOfCommitment?.passageB?.score >= 4 ? "Moderate Cogency" : "Low Cogency"
+        },
+        keyFindings: [
+          rawResult.argumentativeContinuity?.passageA?.strengths?.[0] || "Argumentative continuity analysis A",
+          rawResult.argumentativeContinuity?.passageB?.strengths?.[0] || "Argumentative continuity analysis B",
+          "Comparative cogency analysis"
+        ],
+        semanticInnovation: rawResult.verdict || "Comparative cogency analysis reveals differing degrees of argumentative strength between documents."
+      },
+      
+      // Continue with similar structure for other fields...
+      noveltyHeatmap: {
+        passageA: paragraphsA.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.argumentativeContinuity?.passageA?.score || 5) + 
+                           (rawResult.errorResistance?.passageA?.score || 5)) / 2 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} cogency analysis`
+        })),
+        passageB: paragraphsB.map((p, index) => ({
+          content: p.substring(0, 100) + (p.length > 100 ? "..." : ""),
+          heat: Math.floor(((rawResult.argumentativeContinuity?.passageB?.score || 5) + 
+                           (rawResult.errorResistance?.passageB?.score || 5)) / 2 * 10),
+          quote: p.length > 40 ? p.substring(0, 40) + "..." : p,
+          explanation: `Paragraph ${index + 1} cogency analysis`
+        }))
+      },
+      
+      derivativeIndex: {
+        passageA: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageA?.score || 5) +
+                           (rawResult.errorResistance?.passageA?.score || 5) +
+                           (rawResult.specificityOfCommitment?.passageA?.score || 5)) / 3 * 10) / 10,
+          components: [
+            {name: "Argumentative Continuity", score: rawResult.argumentativeContinuity?.passageA?.score || 5},
+            {name: "Error Resistance", score: rawResult.errorResistance?.passageA?.score || 5},
+            {name: "Specificity of Commitment", score: rawResult.specificityOfCommitment?.passageA?.score || 5}
+          ]
+        },
+        passageB: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageB?.score || 5) +
+                           (rawResult.errorResistance?.passageB?.score || 5) +
+                           (rawResult.specificityOfCommitment?.passageB?.score || 5)) / 3 * 10) / 10,
+          components: [
+            {name: "Argumentative Continuity", score: rawResult.argumentativeContinuity?.passageB?.score || 5},
+            {name: "Error Resistance", score: rawResult.errorResistance?.passageB?.score || 5},
+            {name: "Specificity of Commitment", score: rawResult.specificityOfCommitment?.passageB?.score || 5}
+          ]
+        }
+      },
+      
+      conceptualParasite: {
+        passageA: {
+          level: (rawResult.signalDiscipline?.passageA?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.signalDiscipline?.passageA?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalDiscipline?.passageA?.weaknesses || ["Some rhetorical elements"],
+          assessment: rawResult.signalDiscipline?.passageA?.assessment || "Analysis of signal-to-rhetoric ratio"
+        },
+        passageB: {
+          level: (rawResult.signalDiscipline?.passageB?.score || 5) >= 7 ? "Low" : 
+                 (rawResult.signalDiscipline?.passageB?.score || 5) >= 4 ? "Moderate" : "High",
+          elements: rawResult.signalDiscipline?.passageB?.weaknesses || ["Some rhetorical elements"],
+          assessment: rawResult.signalDiscipline?.passageB?.assessment || "Analysis of signal-to-rhetoric ratio"
+        }
+      },
+      
+      coherence: {
+        passageA: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageA?.score || 5) +
+                           (rawResult.conceptualInterlock?.passageA?.score || 5)) / 2),
+          assessment: "Coherence derived from cogency analysis",
+          strengths: rawResult.argumentativeContinuity?.passageA?.strengths || ["Logical coherence"],
+          weaknesses: rawResult.argumentativeContinuity?.passageA?.weaknesses || ["Minor logical gaps"]
+        },
+        passageB: {
+          score: Math.round(((rawResult.argumentativeContinuity?.passageB?.score || 5) +
+                           (rawResult.conceptualInterlock?.passageB?.score || 5)) / 2),
+          assessment: "Coherence derived from cogency analysis",
+          strengths: rawResult.argumentativeContinuity?.passageB?.strengths || ["Logical coherence"],
+          weaknesses: rawResult.argumentativeContinuity?.passageB?.weaknesses || ["Minor logical gaps"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comparative cogency analysis across 20 parameters reveals differing degrees of argumentative strength between the documents.",
+      
+      // Store the raw cogency analysis
+      rawCogencyAnalysis: rawResult
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error in dual cogency analysis:", error);
+    throw new Error(`Failed to analyze cogency: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
  * Overall Quality Meter - Single document analysis using 20 quality metrics
  */
 export async function analyzeQuality(
