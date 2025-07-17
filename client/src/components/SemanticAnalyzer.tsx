@@ -25,15 +25,29 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisMode = "comparison" | "single" | "corpus" | "generate" | "argumentative" | "single-cogency" | "intelligence" | "quality";
-  const [analysisMode, setAnalysisMode] = useState<AnalysisMode>("comparison");
-  const isSinglePassageMode = analysisMode === "single";
-  const isCorpusMode = analysisMode === "corpus";
-  const isGenerateMode = analysisMode === "generate";
-  const isArgumentativeMode = analysisMode === "argumentative";
-  const isSingleCogencyMode = analysisMode === "single-cogency";
-  const isIntelligenceMode = analysisMode === "intelligence";
-  const isQualityMode = analysisMode === "quality";
+  type AnalysisType = "originality" | "cogency" | "intelligence" | "quality";
+  type DocumentMode = "single" | "comparison";
+  
+  const [documentMode, setDocumentMode] = useState<DocumentMode>("single");
+  const [analysisType, setAnalysisType] = useState<AnalysisType>("originality");
+  
+  // Legacy compatibility
+  const analysisMode = documentMode === "single" ? 
+    (analysisType === "originality" ? "single" : 
+     analysisType === "cogency" ? "single-cogency" :
+     analysisType === "intelligence" ? "intelligence" :
+     "quality") :
+    (analysisType === "originality" ? "comparison" :
+     analysisType === "cogency" ? "argumentative" :
+     analysisType === "intelligence" ? "intelligence" :
+     "quality");
+  const isSinglePassageMode = documentMode === "single";
+  const isCorpusMode = false; // Removed
+  const isGenerateMode = false; // Removed  
+  const isArgumentativeMode = documentMode === "comparison" && analysisType === "cogency";
+  const isSingleCogencyMode = documentMode === "single" && analysisType === "cogency";
+  const isIntelligenceMode = analysisType === "intelligence";
+  const isQualityMode = analysisType === "quality";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -100,14 +114,14 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   
   // Reset passageB when switching to single mode
   useEffect(() => {
-    if (analysisMode === "single") {
+    if (documentMode === "single") {
       setPassageB({
         title: "",
         text: "",
         userContext: ""
       });
     }
-  }, [analysisMode]);
+  }, [documentMode]);
   
   // State for corpus comparison
   const [corpus, setCorpus] = useState<PassageData>({
@@ -532,105 +546,168 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </RadioGroup>
         </div>
         
-        <RadioGroup
-          value={analysisMode}
-          onValueChange={(value) => {
-            setAnalysisMode(value as AnalysisMode);
-            // Reset results when switching modes
-            if (showResults) {
-              setAnalysisResult(null);
-              setShowResults(false);
-            }
-          }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
-        >
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "comparison" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="comparison" id="comparison" />
-            <Label htmlFor="comparison" className="font-medium">
-              Compare Two Passages
-            </Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Single Passage Column */}
+          <div className="space-y-4">
+            <div className="text-center pb-2 border-b border-gray-200">
+              <h4 className="text-lg font-semibold text-gray-800">Single Passage</h4>
+              <p className="text-sm text-gray-600">Analyze one document</p>
+            </div>
+            
+            <RadioGroup
+              value={documentMode === "single" ? analysisType : ""}
+              onValueChange={(value) => {
+                setDocumentMode("single");
+                setAnalysisType(value as AnalysisType);
+                if (showResults) {
+                  setAnalysisResult(null);
+                  setShowResults(false);
+                }
+              }}
+              className="space-y-3"
+            >
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "single" && analysisType === "originality" 
+                  ? "bg-green-50 border-green-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="originality" id="single-originality" />
+                <Label htmlFor="single-originality" className="font-medium cursor-pointer">
+                  Originality
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "single" && analysisType === "cogency" 
+                  ? "bg-blue-50 border-blue-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="cogency" id="single-cogency" />
+                <Label htmlFor="single-cogency" className="font-medium cursor-pointer">
+                  Cogency
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "single" && analysisType === "intelligence" 
+                  ? "bg-purple-50 border-purple-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="intelligence" id="single-intelligence" />
+                <Label htmlFor="single-intelligence" className="font-medium cursor-pointer">
+                  Intelligence
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "single" && analysisType === "quality" 
+                  ? "bg-orange-50 border-orange-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="quality" id="single-quality" />
+                <Label htmlFor="single-quality" className="font-medium cursor-pointer">
+                  Overall Quality
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "single" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="single" id="single" />
-            <Label htmlFor="single" className="font-medium">
-              Analyze Single Passage
-            </Label>
+
+          {/* Compare Passages Column */}
+          <div className="space-y-4">
+            <div className="text-center pb-2 border-b border-gray-200">
+              <h4 className="text-lg font-semibold text-gray-800">Compare Passages</h4>
+              <p className="text-sm text-gray-600">Compare two documents</p>
+            </div>
+            
+            <RadioGroup
+              value={documentMode === "comparison" ? analysisType : ""}
+              onValueChange={(value) => {
+                setDocumentMode("comparison");
+                setAnalysisType(value as AnalysisType);
+                if (showResults) {
+                  setAnalysisResult(null);
+                  setShowResults(false);
+                }
+              }}
+              className="space-y-3"
+            >
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "comparison" && analysisType === "originality" 
+                  ? "bg-green-50 border-green-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="originality" id="compare-originality" />
+                <Label htmlFor="compare-originality" className="font-medium cursor-pointer">
+                  Originality
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "comparison" && analysisType === "cogency" 
+                  ? "bg-blue-50 border-blue-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="cogency" id="compare-cogency" />
+                <Label htmlFor="compare-cogency" className="font-medium cursor-pointer">
+                  Cogency
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "comparison" && analysisType === "intelligence" 
+                  ? "bg-purple-50 border-purple-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="intelligence" id="compare-intelligence" />
+                <Label htmlFor="compare-intelligence" className="font-medium cursor-pointer">
+                  Intelligence
+                </Label>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "comparison" && analysisType === "quality" 
+                  ? "bg-orange-50 border-orange-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="quality" id="compare-quality" />
+                <Label htmlFor="compare-quality" className="font-medium cursor-pointer">
+                  Overall Quality
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "corpus" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="corpus" id="corpus" />
-            <Label htmlFor="corpus" className="font-medium">
-              Compare to Corpus
-            </Label>
-          </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "generate" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="generate" id="generate" />
-            <Label htmlFor="generate" className="font-medium">
-              Generate Original Text
-            </Label>
-          </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "single-cogency" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="single-cogency" id="single-cogency" />
-            <Label htmlFor="single-cogency" className="font-medium text-sm">
-              Single Document Cogency
-            </Label>
-          </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "argumentative" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="argumentative" id="argumentative" />
-            <Label htmlFor="argumentative" className="font-medium text-sm">
-              Cogency Test
-            </Label>
-          </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "intelligence" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="intelligence" id="intelligence" />
-            <Label htmlFor="intelligence" className="font-medium text-sm">
-              Intelligence Meter
-            </Label>
-          </div>
-          
-          <div className={`flex items-center space-x-2 rounded-md border p-3 ${analysisMode === "quality" ? "bg-purple-50 border-purple-200" : "bg-white border-gray-200"}`}>
-            <RadioGroupItem value="quality" id="quality" />
-            <Label htmlFor="quality" className="font-medium text-sm">
-              Overall Quality
-            </Label>
-          </div>
-        </RadioGroup>
+        </div>
         
-        <div className="mt-3 text-xs text-slate-500">
-          {analysisMode === "comparison" && (
-            <p>Compare two passages to see which one is more original and how they relate conceptually.</p>
+        <div className="mt-4 text-sm text-slate-600 bg-slate-50 p-4 rounded-lg">
+          {documentMode === "single" && analysisType === "originality" && (
+            <p><strong>Single Originality:</strong> Analyze one document's semantic innovation and conceptual novelty against general intellectual norms.</p>
           )}
-          {analysisMode === "single" && (
-            <p>Analyze a single passage against general intellectual norms to measure its originality.</p>
+          {documentMode === "comparison" && analysisType === "originality" && (
+            <p><strong>Compare Originality:</strong> Compare two documents to see which is more original and how they relate conceptually.</p>
           )}
-          {analysisMode === "corpus" && (
-            <p>Compare your passage against a larger body of work to see how it aligns with a specific style or theorist.</p>
+          {documentMode === "single" && analysisType === "cogency" && (
+            <p><strong>Single Cogency:</strong> Test how well one document proves what it sets out to prove using 7 core logical parameters.</p>
           )}
-          {analysisMode === "generate" && (
-            <p>Generate highly original text using natural language instructions that specify topic, length, authors, conceptual density, and other parameters.</p>
+          {documentMode === "comparison" && analysisType === "cogency" && (
+            <p><strong>Compare Cogency:</strong> Test which document makes a more convincing case using consistent logical scoring.</p>
           )}
-          {analysisMode === "single-cogency" && (
-            <p>Test how well a single document proves what it sets out to prove using 7 core parameters: clarity of argument, inferential cohesion, conceptual precision, evidential support, counterargument handling, cognitive risk, and epistemic control.</p>
+          {documentMode === "single" && analysisType === "intelligence" && (
+            <p><strong>Single Intelligence:</strong> Analyze cognitive sophistication across 20 metrics: compression capacity, inference architecture, friction tolerance.</p>
           )}
-          {analysisMode === "argumentative" && (
-            <p>Test how well a document proves what it sets out to prove. Works for single documents or document comparisons using consistent scoring.</p>
+          {documentMode === "comparison" && analysisType === "intelligence" && (
+            <p><strong>Compare Intelligence:</strong> Compare cognitive sophistication between two documents across 20 intelligence metrics.</p>
           )}
-          {analysisMode === "intelligence" && (
-            <p>Analyze cognitive sophistication and thinking quality across 20 intelligence metrics: compression capacity, multi-level integration, inference architecture, and more.</p>
+          {documentMode === "single" && analysisType === "quality" && (
+            <p><strong>Single Quality:</strong> Comprehensive quality analysis using 20 metrics: conceptual compression, epistemic friction, problem density.</p>
           )}
-          {analysisMode === "quality" && (
-            <p>Comprehensive quality analysis using 20 precise metrics: conceptual compression, epistemic friction, inference control, problem density, and more scholarly writing indicators.</p>
+          {documentMode === "comparison" && analysisType === "quality" && (
+            <p><strong>Compare Quality:</strong> Compare overall scholarly writing quality between two documents using 20 precise metrics.</p>
           )}
         </div>
       </div>
       
       {/* Input Section */}
-      {analysisMode === "generate" ? (
+      {false ? (
         <NaturalLanguageGenerator 
           onTextGenerated={(text, title) => {
             // Create a passage data object from the generated text
@@ -712,15 +789,14 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <>
                   <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
                   <p className="text-base text-slate-600 mt-2">
-                    {analysisMode === "single" && "Click the button below to analyze the semantic originality of your passage"}
-                    {analysisMode === "comparison" && "Click the button below to compare the semantic originality of both passages"}
-                    {analysisMode === "corpus" && "Click the button below to compare your passage against the reference corpus"}
-                    {analysisMode === "argumentative" && "Click the button below to determine which paper makes its case better"}
-                    {analysisMode === "single-cogency" && "Click the button below to analyze the logical convincingness of your document"}
-                    {analysisMode === "intelligence" && passageB.text.trim() === "" && "Click the button below to analyze the cognitive sophistication of your text"}
-                    {analysisMode === "intelligence" && passageB.text.trim() !== "" && "Click the button below to compare the cognitive sophistication of both texts"}
-                    {analysisMode === "quality" && passageB.text.trim() === "" && "Click the button below to analyze the overall quality of your text"}
-                    {analysisMode === "quality" && passageB.text.trim() !== "" && "Click the button below to compare the overall quality of both texts"}
+                    {documentMode === "single" && analysisType === "originality" && "Click the button below to analyze the semantic originality of your passage"}
+                    {documentMode === "comparison" && analysisType === "originality" && "Click the button below to compare the semantic originality of both passages"}
+                    {documentMode === "single" && analysisType === "cogency" && "Click the button below to analyze the logical convincingness of your document"}
+                    {documentMode === "comparison" && analysisType === "cogency" && "Click the button below to determine which paper makes its case better"}
+                    {documentMode === "single" && analysisType === "intelligence" && "Click the button below to analyze the cognitive sophistication of your text"}
+                    {documentMode === "comparison" && analysisType === "intelligence" && "Click the button below to compare the cognitive sophistication of both texts"}
+                    {documentMode === "single" && analysisType === "quality" && "Click the button below to analyze the overall quality of your text"}
+                    {documentMode === "comparison" && analysisType === "quality" && "Click the button below to compare the overall quality of both texts"}
                   </p>
                 </>
               )}
