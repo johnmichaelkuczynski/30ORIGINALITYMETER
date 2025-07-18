@@ -181,6 +181,10 @@ Changelog:
 - July 17, 2025. Created dedicated endpoints for all analysis modes: /api/analyze/originality, /api/analyze/cogency, etc.
 - July 17, 2025. All four frameworks (Intelligence, Originality, Cogency, Quality) working for both single and dual document analysis
 - July 17, 2025. Frontend fully integrated with proper mutations and error handling for all analysis modes
+- July 17, 2025. MAJOR FEATURE: Added TXT download functionality for all four analysis frameworks
+- July 17, 2025. Users can now download framework-specific TXT reports for Intelligence, Originality, Cogency, and Quality analysis
+- July 17, 2025. Created dedicated download endpoints: /api/download-intelligence, /api/download-originality, /api/download-cogency, /api/download-quality
+- July 17, 2025. Each TXT download includes all 20 metrics with scores, assessments, strengths, weaknesses, and overall verdict
 ```
 
 ## User Preferences

@@ -2291,6 +2291,234 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Download Intelligence analysis as TXT
+  app.post("/api/download-intelligence", async (req: Request, res: Response) => {
+    try {
+      const { analysisResult, passageTitle } = req.body;
+      
+      if (!analysisResult || !analysisResult.rawIntelligenceAnalysis) {
+        return res.status(400).json({ message: "Intelligence analysis data is required" });
+      }
+      
+      const title = passageTitle || "Intelligence Analysis Report";
+      const rawAnalysis = analysisResult.rawIntelligenceAnalysis;
+      
+      // Format the intelligence analysis for TXT output
+      let content = `INTELLIGENCE METER ANALYSIS\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      
+      // Add each intelligence metric
+      const metrics = [
+        'compressionCapacity', 'multiLevelIntegration', 'dynamicConstraintHandling', 'inferenceArchitecture',
+        'epistemicRiskManagement', 'cognitiveFrictionTolerance', 'strategicAmbiguityDeployment', 'representationalVersatility',
+        'recursiveSelfMonitoring', 'conceptualNoveltyWithCoherence', 'noiseSuppression', 'abductiveStrength',
+        'causalFinesse', 'boundaryPerception', 'temporalLayering', 'intellectualEmpathy',
+        'conceptualMobility', 'errorAssimilation', 'patternExtraction', 'semanticTopologyAwareness'
+      ];
+      
+      metrics.forEach(metric => {
+        if (rawAnalysis[metric]) {
+          const metricData = rawAnalysis[metric].passageA;
+          content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
+          content += `Score: ${metricData.score}/10\n`;
+          content += `Assessment: ${metricData.assessment}\n`;
+          if (metricData.strengths && metricData.strengths.length > 0) {
+            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+          }
+          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
+            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          }
+          content += `\n`;
+        }
+      });
+      
+      if (rawAnalysis.verdict) {
+        content += `OVERALL VERDICT\n`;
+        content += `${'-'.repeat(20)}\n`;
+        content += `${rawAnalysis.verdict}\n`;
+      }
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${title}.txt"`);
+      res.send(content);
+      
+    } catch (error) {
+      console.error("Error generating intelligence TXT:", error);
+      res.status(500).json({ message: "Failed to generate intelligence analysis TXT" });
+    }
+  });
+
+  // Download Originality analysis as TXT
+  app.post("/api/download-originality", async (req: Request, res: Response) => {
+    try {
+      const { analysisResult, passageTitle } = req.body;
+      
+      if (!analysisResult || !analysisResult.rawOriginalityAnalysis) {
+        return res.status(400).json({ message: "Originality analysis data is required" });
+      }
+      
+      const title = passageTitle || "Originality Analysis Report";
+      const rawAnalysis = analysisResult.rawOriginalityAnalysis;
+      
+      // Format the originality analysis for TXT output
+      let content = `ORIGINALITY METER ANALYSIS\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      
+      // Add each originality metric
+      const metrics = [
+        'transformationalSynthesis', 'generativePower', 'disciplinaryRepositioning', 'conceptualArchitecture',
+        'semanticDensity', 'inferentialNovelty', 'paradigmShift', 'crossDomainFertilization',
+        'emergentComplexity', 'abstractionControl', 'theoreticalAudacity', 'methodologicalInnovation',
+        'epistemicBoundaryViolation', 'conceptualMetabolism', 'cognitiveEconomics', 'intellectualRisk',
+        'frameworkGeneration', 'semanticCartography', 'ideationalVelocity', 'cognitiveTopology'
+      ];
+      
+      metrics.forEach(metric => {
+        if (rawAnalysis[metric]) {
+          const metricData = rawAnalysis[metric].passageA;
+          content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
+          content += `Score: ${metricData.score}/10\n`;
+          content += `Assessment: ${metricData.assessment}\n`;
+          if (metricData.strengths && metricData.strengths.length > 0) {
+            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+          }
+          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
+            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          }
+          content += `\n`;
+        }
+      });
+      
+      if (rawAnalysis.verdict) {
+        content += `OVERALL VERDICT\n`;
+        content += `${'-'.repeat(20)}\n`;
+        content += `${rawAnalysis.verdict}\n`;
+      }
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${title}.txt"`);
+      res.send(content);
+      
+    } catch (error) {
+      console.error("Error generating originality TXT:", error);
+      res.status(500).json({ message: "Failed to generate originality analysis TXT" });
+    }
+  });
+
+  // Download Cogency analysis as TXT
+  app.post("/api/download-cogency", async (req: Request, res: Response) => {
+    try {
+      const { analysisResult, passageTitle } = req.body;
+      
+      if (!analysisResult || !analysisResult.rawCogencyAnalysis) {
+        return res.status(400).json({ message: "Cogency analysis data is required" });
+      }
+      
+      const title = passageTitle || "Cogency Analysis Report";
+      const rawAnalysis = analysisResult.rawCogencyAnalysis;
+      
+      // Format the cogency analysis for TXT output
+      let content = `COGENCY METER ANALYSIS\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      
+      // Add each cogency metric
+      const metrics = [
+        'argumentativeContinuity', 'errorResistance', 'specificityOfCommitment', 'provisionalityControl',
+        'loadDistribution', 'errorAnticipation', 'epistemicParsimony', 'scopeClarity',
+        'evidenceCalibration', 'redundancyAvoidance', 'conceptualInterlock', 'temporalStability',
+        'distinctionAwareness', 'layeredPersuasiveness', 'signalDiscipline', 'causalAlignment',
+        'counterexampleImmunity', 'intelligibilityOfObjection', 'dependenceHierarchyAwareness', 'contextBoundedInference'
+      ];
+      
+      metrics.forEach(metric => {
+        if (rawAnalysis[metric]) {
+          const metricData = rawAnalysis[metric].passageA;
+          content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
+          content += `Score: ${metricData.score}/10\n`;
+          content += `Assessment: ${metricData.assessment}\n`;
+          if (metricData.strengths && metricData.strengths.length > 0) {
+            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+          }
+          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
+            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          }
+          content += `\n`;
+        }
+      });
+      
+      if (rawAnalysis.verdict) {
+        content += `OVERALL VERDICT\n`;
+        content += `${'-'.repeat(20)}\n`;
+        content += `${rawAnalysis.verdict}\n`;
+      }
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${title}.txt"`);
+      res.send(content);
+      
+    } catch (error) {
+      console.error("Error generating cogency TXT:", error);
+      res.status(500).json({ message: "Failed to generate cogency analysis TXT" });
+    }
+  });
+
+  // Download Quality analysis as TXT
+  app.post("/api/download-quality", async (req: Request, res: Response) => {
+    try {
+      const { analysisResult, passageTitle } = req.body;
+      
+      if (!analysisResult || !analysisResult.rawQualityAnalysis) {
+        return res.status(400).json({ message: "Quality analysis data is required" });
+      }
+      
+      const title = passageTitle || "Quality Analysis Report";
+      const rawAnalysis = analysisResult.rawQualityAnalysis;
+      
+      // Format the quality analysis for TXT output
+      let content = `OVERALL QUALITY METER ANALYSIS\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      
+      // Add each quality metric
+      const metrics = [
+        'conceptualCompression', 'epistemicFriction', 'inferenceControl', 'problemDensity',
+        'signalToRhetoricRatio', 'cognitiveLoad', 'semanticPrecision', 'argumentativeTension',
+        'intellectualHonesty', 'conceptualIntegrity', 'analyticalDepth', 'synthesisQuality',
+        'evidenceWeighting', 'logicalCoherence', 'creativeTension', 'intellectualRigor',
+        'conceptualClarity', 'argumentativeForce', 'insightDensity', 'overallSophistication'
+      ];
+      
+      metrics.forEach(metric => {
+        if (rawAnalysis[metric]) {
+          const metricData = rawAnalysis[metric].passageA;
+          content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
+          content += `Score: ${metricData.score}/10\n`;
+          content += `Assessment: ${metricData.assessment}\n`;
+          if (metricData.strengths && metricData.strengths.length > 0) {
+            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+          }
+          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
+            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          }
+          content += `\n`;
+        }
+      });
+      
+      if (rawAnalysis.verdict) {
+        content += `OVERALL VERDICT\n`;
+        content += `${'-'.repeat(20)}\n`;
+        content += `${rawAnalysis.verdict}\n`;
+      }
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${title}.txt"`);
+      res.send(content);
+      
+    } catch (error) {
+      console.error("Error generating quality TXT:", error);
+      res.status(500).json({ message: "Failed to generate quality analysis TXT" });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);

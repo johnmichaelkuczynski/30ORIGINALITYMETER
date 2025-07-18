@@ -40,10 +40,228 @@ export default function ComprehensiveReport({
 }: ComprehensiveReportProps) {
   const [open, setOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [downloadingType, setDownloadingType] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Cast result to extended type for accessing various properties safely
   const extendedResult = result as ExtendedResult;
+
+  // Download functions for each analysis type
+  const downloadIntelligenceAnalysis = async () => {
+    if (!result.rawIntelligenceAnalysis) {
+      toast({
+        title: "No Intelligence Analysis",
+        description: "No intelligence analysis data available for download",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setDownloadingType("intelligence");
+      
+      const response = await fetch('/api/download-intelligence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisResult: result,
+          passageTitle: passageA.title || "Intelligence Analysis Report"
+        }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `intelligence-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download Complete",
+          description: "Intelligence analysis downloaded successfully",
+        });
+      } else {
+        throw new Error('Download failed');
+      }
+    } catch (error) {
+      console.error("Error downloading intelligence analysis:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not download intelligence analysis",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingType(null);
+    }
+  };
+
+  const downloadOriginalityAnalysis = async () => {
+    if (!result.rawOriginalityAnalysis) {
+      toast({
+        title: "No Originality Analysis",
+        description: "No originality analysis data available for download",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setDownloadingType("originality");
+      
+      const response = await fetch('/api/download-originality', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisResult: result,
+          passageTitle: passageA.title || "Originality Analysis Report"
+        }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `originality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download Complete",
+          description: "Originality analysis downloaded successfully",
+        });
+      } else {
+        throw new Error('Download failed');
+      }
+    } catch (error) {
+      console.error("Error downloading originality analysis:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not download originality analysis",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingType(null);
+    }
+  };
+
+  const downloadCogencyAnalysis = async () => {
+    if (!result.rawCogencyAnalysis) {
+      toast({
+        title: "No Cogency Analysis",
+        description: "No cogency analysis data available for download",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setDownloadingType("cogency");
+      
+      const response = await fetch('/api/download-cogency', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisResult: result,
+          passageTitle: passageA.title || "Cogency Analysis Report"
+        }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cogency-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download Complete",
+          description: "Cogency analysis downloaded successfully",
+        });
+      } else {
+        throw new Error('Download failed');
+      }
+    } catch (error) {
+      console.error("Error downloading cogency analysis:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not download cogency analysis",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingType(null);
+    }
+  };
+
+  const downloadQualityAnalysis = async () => {
+    if (!result.rawQualityAnalysis) {
+      toast({
+        title: "No Quality Analysis",
+        description: "No quality analysis data available for download",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setDownloadingType("quality");
+      
+      const response = await fetch('/api/download-quality', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisResult: result,
+          passageTitle: passageA.title || "Quality Analysis Report"
+        }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `quality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Download Complete",
+          description: "Quality analysis downloaded successfully",
+        });
+      } else {
+        throw new Error('Download failed');
+      }
+    } catch (error) {
+      console.error("Error downloading quality analysis:", error);
+      toast({
+        title: "Download Failed",
+        description: "Could not download quality analysis",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingType(null);
+    }
+  };
 
   const generateReport = () => {
     let reportData: any = {};
@@ -1051,6 +1269,51 @@ export default function ComprehensiveReport({
               }
               analysisType={isSinglePassageMode ? 'single' : 'comparison'}
             />
+            
+            {/* Framework-specific TXT download buttons */}
+            <div className="flex flex-wrap gap-2">
+              {result.rawIntelligenceAnalysis && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={downloadIntelligenceAnalysis}
+                  disabled={downloadingType === "intelligence"}
+                >
+                  {downloadingType === "intelligence" ? "Downloading..." : "Intelligence TXT"}
+                </Button>
+              )}
+              {result.rawOriginalityAnalysis && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={downloadOriginalityAnalysis}
+                  disabled={downloadingType === "originality"}
+                >
+                  {downloadingType === "originality" ? "Downloading..." : "Originality TXT"}
+                </Button>
+              )}
+              {result.rawCogencyAnalysis && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={downloadCogencyAnalysis}
+                  disabled={downloadingType === "cogency"}
+                >
+                  {downloadingType === "cogency" ? "Downloading..." : "Cogency TXT"}
+                </Button>
+              )}
+              {result.rawQualityAnalysis && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={downloadQualityAnalysis}
+                  disabled={downloadingType === "quality"}
+                >
+                  {downloadingType === "quality" ? "Downloading..." : "Quality TXT"}
+                </Button>
+              )}
+            </div>
+            
             <Button 
               variant="secondary" 
               onClick={handleDownloadWord}
