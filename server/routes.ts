@@ -829,9 +829,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for dual intelligence analysis
       const result = await openaiService.analyzeIntelligenceDual(passageA, passageB);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -885,9 +884,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         result = await openaiService.analyzeQuality(passageA);
       }
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -928,9 +926,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for originality analysis
       const result = await openaiService.analyzeOriginality(passageA);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -978,9 +975,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for dual originality analysis
       const result = await openaiService.analyzeOriginalityDual(passageA, passageB);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -1021,9 +1017,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for cogency analysis
       const result = await openaiService.analyzeCogency(passageA);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -1071,9 +1066,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for dual cogency analysis
       const result = await openaiService.analyzeCogencyDual(passageA, passageB);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {
@@ -1114,9 +1108,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use OpenAI service for intelligence analysis (most suitable for cognitive evaluation)
       const result = await openaiService.analyzeIntelligence(passageA);
       
-      // Validate the result
-      const validatedResult = analysisResultSchema.parse(result);
-      res.json(validatedResult);
+      // Return the result without schema validation to preserve raw analysis data
+      res.json(result);
       
     } catch (error) {
       if (error instanceof ZodError) {

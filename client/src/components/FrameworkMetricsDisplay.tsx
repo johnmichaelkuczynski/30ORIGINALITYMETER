@@ -74,7 +74,14 @@ export default function FrameworkMetricsDisplay({
   const rawData = result[`raw${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}Analysis`];
   const metrics = getMetricsForFramework(analysisType);
 
-  console.log("FrameworkMetricsDisplay debug:", { analysisType, rawData, metrics });
+  console.log("FrameworkMetricsDisplay debug:", { 
+    analysisType, 
+    rawData, 
+    metrics,
+    resultKeys: Object.keys(result),
+    rawDataExists: !!rawData,
+    rawDataType: typeof rawData
+  });
 
   if (!rawData) {
     return (

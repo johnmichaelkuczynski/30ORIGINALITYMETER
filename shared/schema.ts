@@ -209,6 +209,12 @@ export const analysisResultSchema = z.object({
     provider: z.enum(["openai", "anthropic", "perplexity", "deepseek"]),
     timestamp: z.string().optional(),
   }).optional(),
+  
+  // Raw framework analysis data - these contain the 80 metrics
+  rawOriginalityAnalysis: z.any().optional(),
+  rawIntelligenceAnalysis: z.any().optional(),
+  rawCogencyAnalysis: z.any().optional(),
+  rawQualityAnalysis: z.any().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
