@@ -1688,12 +1688,29 @@ Analyze the passages across these 20 comprehensive originality parameters:
 
 20. Onto-Epistemic Fusion - Does the work entangle ontology and epistemology in productive ways? High: Knowledge structure and being-structure co-defined. Low: Kept in separate silos.
 
-SCORING MANDATE: Use the full 0-10 scale with proper discrimination:
-- 0-2: Purely derivative work with no conceptual transformation
-- 3-4: Minimal transformation, mostly following established patterns  
-- 5-6: Moderate originality with some genuine innovation
-- 7-8: Strong originality with clear conceptual advancement
-- 9-10: Exceptional originality that fundamentally reframes understanding
+SCORING MANDATE: Use the full 0-10 scale with proper discrimination. CRITICAL: Do NOT undervalue sophisticated philosophical, theoretical, or analytical work.
+
+SCORING CALIBRATION:
+- 0-2: Purely derivative work with no conceptual transformation (basic summaries, pure repetition)
+- 3-4: Minimal transformation, mostly following established patterns (standard textbook explanations)  
+- 5-6: Moderate originality with some genuine innovation (solid academic work with some new insights)
+- 7-8: Strong originality with clear conceptual advancement (sophisticated analysis that reframes issues, challenges conventions, provides novel interpretations)
+- 9-10: Exceptional originality that fundamentally reframes understanding (groundbreaking theoretical work)
+
+EXAMPLES OF WORK THAT SHOULD SCORE 7-8 OR HIGHER:
+- Sophisticated philosophical analysis that challenges standard interpretations (like reframing Socrates' execution)
+- Rigorous theoretical proofs with clear logical structure (like formal proofs of Plato's Forms)
+- Creative synthesis that combines multiple complex ideas into new frameworks
+- Work that demonstrates deep understanding while offering fresh perspectives
+- Analysis that reveals hidden assumptions or reframes familiar problems
+
+DO NOT PENALIZE:
+- Theoretical work for lacking empirical data
+- Philosophical analysis for using established concepts in new ways
+- Work that builds on existing ideas if it transforms them meaningfully
+- Complex arguments that require sophisticated understanding to follow
+
+REMEMBER: A 6/10 should be reserved for mediocre work. Sophisticated philosophical analysis with clear reasoning, novel insights, and conceptual innovation should score 7-8 or higher.
 
 Return detailed analysis in the following JSON format:
 {
@@ -1908,7 +1925,16 @@ Analyze both passages across these 20 originality parameters:
 19. Disciplinary Hijack - Adopting another field's frame for new context?
 20. Onto-Epistemic Fusion - Entangling ontology and epistemology productively?
 
-Score each parameter 0-10 for both passages. Higher scores indicate greater originality.
+SCORING MANDATE: Use the full 0-10 scale with proper discrimination. CRITICAL: Do NOT undervalue sophisticated philosophical, theoretical, or analytical work.
+
+SCORING CALIBRATION:
+- 0-2: Purely derivative work with no conceptual transformation
+- 3-4: Minimal transformation, mostly following established patterns  
+- 5-6: Moderate originality with some genuine innovation
+- 7-8: Strong originality with clear conceptual advancement (sophisticated analysis, novel interpretations, creative frameworks)
+- 9-10: Exceptional originality that fundamentally reframes understanding
+
+Score each parameter 0-10 for both passages. Sophisticated philosophical analysis with novel insights should score 7-8 or higher.
 
 Return detailed comparative analysis in JSON format with all 20 originality parameters.`,
         },
