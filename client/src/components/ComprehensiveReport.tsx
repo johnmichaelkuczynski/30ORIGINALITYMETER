@@ -48,47 +48,66 @@ export default function ComprehensiveReport({
 
   // Download functions for each analysis type
   const downloadIntelligenceAnalysis = async () => {
-    if (!result.rawIntelligenceAnalysis) {
-      toast({
-        title: "No Intelligence Analysis",
-        description: "No intelligence analysis data available for download",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setDownloadingType("intelligence");
       
-      const response = await fetch('/api/download-intelligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          analysisResult: result,
-          passageTitle: passageA.title || "Intelligence Analysis Report"
-        }),
+      const reportData = generateReport();
+      let content = '';
+      
+      content += `INTELLIGENCE ANALYSIS REPORT\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      content += `Document: ${passageA.title || "Untitled Document"}\n`;
+      content += `Generated: ${new Date().toLocaleDateString()}\n`;
+      content += `Analysis Type: Cognitive Intelligence Assessment\n\n`;
+      
+      content += `EXECUTIVE SUMMARY\n`;
+      content += `${'-'.repeat(20)}\n`;
+      content += `${reportData.summary}\n\n`;
+      
+      content += `INTELLIGENCE METRICS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+        content += `${data.label}: ${data.score || data.value || 'N/A'}\n`;
+        if (data.description) {
+          content += `  Analysis: ${data.description}\n`;
+        }
+        content += `\n`;
       });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `intelligence-analysis-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast({
-          title: "Download Complete",
-          description: "Intelligence analysis downloaded successfully",
-        });
-      } else {
-        throw new Error('Download failed');
-      }
+      
+      content += `COGNITIVE STRENGTHS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.strengths.forEach((strength: string, index: number) => {
+        content += `${index + 1}. ${strength}\n`;
+      });
+      content += `\n`;
+      
+      content += `AREAS FOR DEVELOPMENT\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.weaknesses.forEach((weakness: string, index: number) => {
+        content += `${index + 1}. ${weakness}\n`;
+      });
+      content += `\n`;
+      
+      content += `INTELLIGENCE ENHANCEMENT RECOMMENDATIONS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.improvements.forEach((improvement: string, index: number) => {
+        content += `${index + 1}. ${improvement}\n`;
+      });
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `intelligence-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Complete",
+        description: "Intelligence analysis downloaded successfully",
+      });
     } catch (error) {
       console.error("Error downloading intelligence analysis:", error);
       toast({
@@ -102,47 +121,68 @@ export default function ComprehensiveReport({
   };
 
   const downloadOriginalityAnalysis = async () => {
-    if (!result.rawOriginalityAnalysis) {
-      toast({
-        title: "No Originality Analysis",
-        description: "No originality analysis data available for download",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setDownloadingType("originality");
       
-      const response = await fetch('/api/download-originality', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          analysisResult: result,
-          passageTitle: passageA.title || "Originality Analysis Report"
-        }),
+      // Create a detailed TXT report based on current analysis
+      const reportData = generateReport();
+      let content = '';
+      
+      content += `ORIGINALITY ANALYSIS REPORT\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      content += `Document: ${passageA.title || "Untitled Document"}\n`;
+      content += `Generated: ${new Date().toLocaleDateString()}\n`;
+      content += `Analysis Type: ${isSinglePassageMode ? 'Single Passage' : 'Comparative'}\n\n`;
+      
+      content += `EXECUTIVE SUMMARY\n`;
+      content += `${'-'.repeat(20)}\n`;
+      content += `${reportData.summary}\n\n`;
+      
+      content += `DETAILED METRICS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+        content += `${data.label}: ${data.score || data.value || 'N/A'}\n`;
+        if (data.description) {
+          content += `  Description: ${data.description}\n`;
+        }
+        content += `\n`;
       });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `originality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast({
-          title: "Download Complete",
-          description: "Originality analysis downloaded successfully",
-        });
-      } else {
-        throw new Error('Download failed');
-      }
+      
+      content += `STRENGTHS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.strengths.forEach((strength: string, index: number) => {
+        content += `${index + 1}. ${strength}\n`;
+      });
+      content += `\n`;
+      
+      content += `AREAS FOR IMPROVEMENT\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.weaknesses.forEach((weakness: string, index: number) => {
+        content += `${index + 1}. ${weakness}\n`;
+      });
+      content += `\n`;
+      
+      content += `RECOMMENDATIONS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.improvements.forEach((improvement: string, index: number) => {
+        content += `${index + 1}. ${improvement}\n`;
+      });
+      
+      // Create and download the file
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `originality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Complete",
+        description: "Originality analysis downloaded successfully",
+      });
     } catch (error) {
       console.error("Error downloading originality analysis:", error);
       toast({
@@ -156,47 +196,66 @@ export default function ComprehensiveReport({
   };
 
   const downloadCogencyAnalysis = async () => {
-    if (!result.rawCogencyAnalysis) {
-      toast({
-        title: "No Cogency Analysis",
-        description: "No cogency analysis data available for download",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setDownloadingType("cogency");
       
-      const response = await fetch('/api/download-cogency', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          analysisResult: result,
-          passageTitle: passageA.title || "Cogency Analysis Report"
-        }),
+      const reportData = generateReport();
+      let content = '';
+      
+      content += `COGENCY ANALYSIS REPORT\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      content += `Document: ${passageA.title || "Untitled Document"}\n`;
+      content += `Generated: ${new Date().toLocaleDateString()}\n`;
+      content += `Analysis Type: Argumentative Cogency Assessment\n\n`;
+      
+      content += `EXECUTIVE SUMMARY\n`;
+      content += `${'-'.repeat(20)}\n`;
+      content += `${reportData.summary}\n\n`;
+      
+      content += `COGENCY METRICS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+        content += `${data.label}: ${data.score || data.value || 'N/A'}\n`;
+        if (data.description) {
+          content += `  Assessment: ${data.description}\n`;
+        }
+        content += `\n`;
       });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cogency-analysis-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast({
-          title: "Download Complete",
-          description: "Cogency analysis downloaded successfully",
-        });
-      } else {
-        throw new Error('Download failed');
-      }
+      
+      content += `ARGUMENTATIVE STRENGTHS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.strengths.forEach((strength: string, index: number) => {
+        content += `${index + 1}. ${strength}\n`;
+      });
+      content += `\n`;
+      
+      content += `LOGICAL WEAKNESSES\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.weaknesses.forEach((weakness: string, index: number) => {
+        content += `${index + 1}. ${weakness}\n`;
+      });
+      content += `\n`;
+      
+      content += `COGENCY IMPROVEMENT RECOMMENDATIONS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.improvements.forEach((improvement: string, index: number) => {
+        content += `${index + 1}. ${improvement}\n`;
+      });
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cogency-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Complete",
+        description: "Cogency analysis downloaded successfully",
+      });
     } catch (error) {
       console.error("Error downloading cogency analysis:", error);
       toast({
@@ -210,47 +269,66 @@ export default function ComprehensiveReport({
   };
 
   const downloadQualityAnalysis = async () => {
-    if (!result.rawQualityAnalysis) {
-      toast({
-        title: "No Quality Analysis",
-        description: "No quality analysis data available for download",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setDownloadingType("quality");
       
-      const response = await fetch('/api/download-quality', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          analysisResult: result,
-          passageTitle: passageA.title || "Quality Analysis Report"
-        }),
+      const reportData = generateReport();
+      let content = '';
+      
+      content += `OVERALL QUALITY ANALYSIS REPORT\n`;
+      content += `${'='.repeat(50)}\n\n`;
+      content += `Document: ${passageA.title || "Untitled Document"}\n`;
+      content += `Generated: ${new Date().toLocaleDateString()}\n`;
+      content += `Analysis Type: Comprehensive Quality Assessment\n\n`;
+      
+      content += `EXECUTIVE SUMMARY\n`;
+      content += `${'-'.repeat(20)}\n`;
+      content += `${reportData.summary}\n\n`;
+      
+      content += `QUALITY METRICS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      Object.entries(reportData.scores).forEach(([key, data]: [string, any]) => {
+        content += `${data.label}: ${data.score || data.value || 'N/A'}\n`;
+        if (data.description) {
+          content += `  Evaluation: ${data.description}\n`;
+        }
+        content += `\n`;
       });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `quality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        toast({
-          title: "Download Complete",
-          description: "Quality analysis downloaded successfully",
-        });
-      } else {
-        throw new Error('Download failed');
-      }
+      
+      content += `QUALITY STRENGTHS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.strengths.forEach((strength: string, index: number) => {
+        content += `${index + 1}. ${strength}\n`;
+      });
+      content += `\n`;
+      
+      content += `QUALITY DEFICIENCIES\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.weaknesses.forEach((weakness: string, index: number) => {
+        content += `${index + 1}. ${weakness}\n`;
+      });
+      content += `\n`;
+      
+      content += `QUALITY ENHANCEMENT RECOMMENDATIONS\n`;
+      content += `${'-'.repeat(20)}\n`;
+      reportData.improvements.forEach((improvement: string, index: number) => {
+        content += `${index + 1}. ${improvement}\n`;
+      });
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quality-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Complete",
+        description: "Quality analysis downloaded successfully",
+      });
     } catch (error) {
       console.error("Error downloading quality analysis:", error);
       toast({
@@ -1271,47 +1349,43 @@ export default function ComprehensiveReport({
             />
             
             {/* Framework-specific TXT download buttons */}
-            <div className="flex flex-wrap gap-2">
-              {result.rawIntelligenceAnalysis && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={downloadIntelligenceAnalysis}
-                  disabled={downloadingType === "intelligence"}
-                >
-                  {downloadingType === "intelligence" ? "Downloading..." : "Intelligence TXT"}
-                </Button>
-              )}
-              {result.rawOriginalityAnalysis && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={downloadOriginalityAnalysis}
-                  disabled={downloadingType === "originality"}
-                >
-                  {downloadingType === "originality" ? "Downloading..." : "Originality TXT"}
-                </Button>
-              )}
-              {result.rawCogencyAnalysis && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={downloadCogencyAnalysis}
-                  disabled={downloadingType === "cogency"}
-                >
-                  {downloadingType === "cogency" ? "Downloading..." : "Cogency TXT"}
-                </Button>
-              )}
-              {result.rawQualityAnalysis && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={downloadQualityAnalysis}
-                  disabled={downloadingType === "quality"}
-                >
-                  {downloadingType === "quality" ? "Downloading..." : "Quality TXT"}
-                </Button>
-              )}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {/* Always show TXT download buttons for current analysis */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={downloadOriginalityAnalysis}
+                disabled={downloadingType === "originality"}
+              >
+                {downloadingType === "originality" ? "Downloading..." : "Originality TXT"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={downloadIntelligenceAnalysis}
+                disabled={downloadingType === "intelligence"}
+              >
+                {downloadingType === "intelligence" ? "Downloading..." : "Intelligence TXT"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={downloadCogencyAnalysis}
+                disabled={downloadingType === "cogency"}
+              >
+                {downloadingType === "cogency" ? "Downloading..." : "Cogency TXT"}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={downloadQualityAnalysis}
+                disabled={downloadingType === "quality"}
+              >
+                {downloadingType === "quality" ? "Downloading..." : "Quality TXT"}
+              </Button>
             </div>
             
             <Button 
