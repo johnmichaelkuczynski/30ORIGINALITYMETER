@@ -2300,7 +2300,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       let content = `INTELLIGENCE METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
       
-      // Add each intelligence metric
+      // Add each intelligence metric - using the exact keys from the API response
       const metrics = [
         'compressionCapacity', 'multiLevelIntegration', 'dynamicConstraintHandling', 'inferenceArchitecture',
         'epistemicRiskManagement', 'cognitiveFrictionTolerance', 'strategicAmbiguityDeployment', 'representationalVersatility',
@@ -2354,20 +2354,20 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       const rawAnalysis = analysisResult.rawOriginalityAnalysis;
       
       // Debug logging
-      console.log("TXT Download Debug - Available metrics in rawAnalysis:");
+      console.log("Originality TXT Download Debug - Available metrics in rawAnalysis:");
       console.log(Object.keys(rawAnalysis));
       
       // Format the originality analysis for TXT output
       let content = `ORIGINALITY METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
       
-      // Add each originality metric
+      // Add each originality metric - using the exact keys from the API response
       const metrics = [
-        'transformationalSynthesis', 'generativePower', 'disciplinaryRepositioning', 'conceptualArchitecture',
-        'semanticDensity', 'inferentialNovelty', 'paradigmShift', 'crossDomainFertilization',
-        'emergentComplexity', 'abstractionControl', 'theoreticalAudacity', 'methodologicalInnovation',
-        'epistemicBoundaryViolation', 'conceptualMetabolism', 'cognitiveEconomics', 'intellectualRisk',
-        'frameworkGeneration', 'semanticCartography', 'ideationalVelocity', 'cognitiveTopology'
+        'transformationalSynthesis', 'generativePower', 'disciplinaryRepositioning', 'conceptualReframing',
+        'analyticReAlignment', 'unexpectedCrossPollination', 'epistemicReweighting', 'constraintInnovation',
+        'ontologyReSpecification', 'heuristicLeap', 'problemReIndexing', 'axiomaticInnovation',
+        'moralOrPoliticalRecomputation', 'subtextExcavation', 'secondOrderInnovation', 'temporalInversion',
+        'negativeSpaceManipulation', 'unnaturalPairing', 'disciplinaryHijack', 'ontoEpistemicFusion'
       ];
       
       metrics.forEach(metric => {
@@ -2413,6 +2413,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       
       const title = passageTitle || "Cogency Analysis Report";
       const rawAnalysis = analysisResult.rawCogencyAnalysis;
+      
+      // Debug logging
+      console.log("Cogency TXT Download Debug - Available metrics in rawAnalysis:");
+      console.log(Object.keys(rawAnalysis));
       
       // Format the cogency analysis for TXT output
       let content = `COGENCY METER ANALYSIS\n`;
@@ -2470,6 +2474,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       
       const title = passageTitle || "Quality Analysis Report";
       const rawAnalysis = analysisResult.rawQualityAnalysis;
+      
+      // Debug logging
+      console.log("Quality TXT Download Debug - Available metrics in rawAnalysis:");
+      console.log(Object.keys(rawAnalysis));
       
       // Format the quality analysis for TXT output
       let content = `OVERALL QUALITY METER ANALYSIS\n`;
