@@ -1008,6 +1008,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             isSinglePassageMode={analysisMode === "single"}
             onSendToRewriter={onSendToRewriter}
             onSendToHomework={onSendToHomework}
+            analysisType={analysisType}
           />
         )}
       </div>

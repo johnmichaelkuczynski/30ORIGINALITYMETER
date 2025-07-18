@@ -197,6 +197,12 @@ export interface AnalysisResult {
   verdict: string;
   supportingDocuments?: SupportingDocument[];
   reportContent?: string;
+  
+  // Raw framework analysis data
+  rawOriginalityAnalysis?: any;
+  rawIntelligenceAnalysis?: any;
+  rawCogencyAnalysis?: any;
+  rawQualityAnalysis?: any;
 }
 
 export interface AnalyzePassagesRequest {

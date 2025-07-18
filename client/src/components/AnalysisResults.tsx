@@ -1,14 +1,9 @@
-import { useState, useId } from "react";
+import { useState } from "react";
 import { AnalysisResult, PassageData } from "@/lib/types";
-import SummarySection from "./SummarySection";
-import AnalysisTabs from "./AnalysisTabs";
-import DownloadReportButton from "./DownloadReportButton";
-import PassageGenerator from "./PassageGenerator";
-import EnhancedComprehensiveReport from "./EnhancedComprehensiveReport";
-import AdvancedComparison from "./AdvancedComparison";
-import EnhancedComparisonSimple from "./EnhancedComparisonSimple";
-import ArgumentativeAnalysis from "./ArgumentativeAnalysis";
+import FrameworkMetricsDisplay from "./FrameworkMetricsDisplay";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
@@ -21,6 +16,7 @@ interface AnalysisResultsProps {
   isSinglePassageMode?: boolean;
   onSendToRewriter?: (text: string, title?: string) => void;
   onSendToHomework?: (text: string) => void;
+  analysisType?: "originality" | "cogency" | "intelligence" | "quality";
 }
 
 export default function AnalysisResults({
@@ -34,179 +30,134 @@ export default function AnalysisResults({
   isSinglePassageMode = false,
   onSendToRewriter,
   onSendToHomework,
+  analysisType = "originality",
 }: AnalysisResultsProps) {
 
-  const [activeTab, setActiveTab] = useState("conceptual-lineage");
-  const resultsContainerId = useId().replace(/:/g, '') + "-results";
+  // TXT Download functionality
+  const downloadTxtReport = async () => {
+    try {
+      const endpoint = `/api/download-${analysisType}`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisResult: result,
+          passageTitle: passageATitle,
+          isSinglePassageMode,
+        }),
+      });
 
-  // Make a deep copy of the result to prevent modifying the original
-  // and ensure passageB data is properly removed in single passage mode
-  const processedResult = JSON.parse(JSON.stringify(result));
-  
-  // Force clean up passageB data in single passage mode
-  if (isSinglePassageMode) {
-    // For each property in the result object that has passageB
-    Object.keys(processedResult).forEach(key => {
-      if (processedResult[key] && typeof processedResult[key] === 'object' && 'passageB' in processedResult[key]) {
-        // Remove passageB from the structure
-        processedResult[key].passageB = null;
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${analysisType}-analysis-report.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
       }
-    });
-    
-    // Special handling for noveltyHeatmap array
-    if (processedResult.noveltyHeatmap && processedResult.noveltyHeatmap.passageB) {
-      processedResult.noveltyHeatmap.passageB = [];
+    } catch (error) {
+      console.error('Error downloading report:', error);
     }
-  }
+  };
+
+  const getFrameworkTitle = (type: string) => {
+    switch (type) {
+      case "originality": return "Originality Meter";
+      case "cogency": return "Cogency Meter";
+      case "intelligence": return "Intelligence Meter";
+      case "quality": return "Overall Quality Meter";
+      default: return "Analysis Results";
+    }
+  };
+
+  const getFrameworkDescription = (type: string) => {
+    switch (type) {
+      case "originality": return "20 parameters measuring transformational synthesis, generative power, and conceptual innovation";
+      case "cogency": return "20 parameters measuring argumentative continuity, error resistance, and logical convincingness";
+      case "intelligence": return "20 parameters measuring compression capacity, inference architecture, and cognitive sophistication";
+      case "quality": return "20 parameters measuring conceptual compression, epistemic friction, and overall scholarly merit";
+      default: return "Comprehensive analysis results";
+    }
+  };
 
   return (
-    <div className="space-y-6" id={resultsContainerId}>
-      <div className="flex justify-between items-center flex-wrap gap-3">
-        <div className="flex gap-3">
-          <DownloadReportButton 
-            result={processedResult}
-            passageATitle={passageATitle}
-            passageBTitle={isSinglePassageMode ? "" : passageBTitle}
-            resultsContainerId={resultsContainerId}
-            isSinglePassageMode={isSinglePassageMode}
-          />
-          
-          <EnhancedComprehensiveReport
-            result={processedResult}
-            passageA={passageA}
-            passageB={isSinglePassageMode ? undefined : passageB}
-            isSinglePassageMode={isSinglePassageMode}
-          />
-        </div>
-        
-        <Button 
-          variant="outline" 
-          onClick={onNewComparison}
-          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-secondary-700 hover:bg-gray-50 transition"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-          </svg>
-          New {isSinglePassageMode ? "Analysis" : "Comparison"}
-        </Button>
-      </div>
-
-      <SummarySection 
-        result={processedResult}
-        passageATitle={passageATitle}
-        passageBTitle={isSinglePassageMode ? "" : passageBTitle}
-        isSinglePassageMode={isSinglePassageMode}
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-2xl font-bold">
+                {getFrameworkTitle(analysisType)}
+              </CardTitle>
+              <p className="text-muted-foreground mt-2">
+                {getFrameworkDescription(analysisType)}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={downloadTxtReport}
+                variant="outline"
+                className="px-4 py-2"
+              >
+                Download TXT Report
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={onNewComparison}
+                className="px-4 py-2"
+              >
+                New {isSinglePassageMode ? "Analysis" : "Comparison"}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Action Buttons for Improvement */}
       {(onSendToRewriter || onSendToHomework) && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-blue-800 mb-3">
-            Improve Your Content
-          </h3>
-          <p className="text-sm text-blue-700 mb-4">
-            Based on the analysis, you can enhance originality and quality by using our improvement tools:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {onSendToRewriter && (
-              <Button 
-                onClick={() => onSendToRewriter(passageA.text, passageA.title || passageATitle)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14 2z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <polyline points="10,9 9,9 8,9"/>
-                </svg>
-                Send to Document Rewriter
-              </Button>
-            )}
-            {onSendToHomework && (
-              <Button 
-                onClick={() => onSendToHomework(passageA.text)}
-                variant="outline"
-                className="border-blue-300 text-blue-700 hover:bg-blue-100"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-                Send to Homework Helper
-              </Button>
-            )}
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-3">
+              Improve Your Content
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Based on the analysis, you can enhance your content using our improvement tools:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {onSendToRewriter && (
+                <Button 
+                  onClick={() => onSendToRewriter(passageA.text, passageA.title || passageATitle)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Send to Document Rewriter
+                </Button>
+              )}
+              {onSendToHomework && (
+                <Button 
+                  onClick={() => onSendToHomework(passageA.text)}
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  Send to Homework Helper
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      <AnalysisTabs
-        result={processedResult}
-        setResult={setResult}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        passageA={passageA}
-        passageB={isSinglePassageMode ? {
-    title: "",
-    text: "",
-    userContext: ""
-  } : passageB}
-        passageATitle={passageATitle}
-        passageBTitle={isSinglePassageMode ? "" : passageBTitle}
+      {/* Framework Metrics Display - Shows all 80 metrics with scores, quotes, and justifications */}
+      <FrameworkMetricsDisplay
+        result={result}
+        analysisType={analysisType}
         isSinglePassageMode={isSinglePassageMode}
       />
-
-      {isSinglePassageMode && (
-        <div className="space-y-6">
-          <ArgumentativeAnalysis
-            passageA={passageA}
-            passageATitle={passageATitle}
-            isSingleMode={true}
-          />
-          
-          <PassageGenerator
-            analysisResult={result}
-            passage={passageA}
-            onReanalyze={(improvedPassage) => {
-              // When user wants to re-analyze the improved passage
-              onNewComparison();
-              setTimeout(() => {
-                // Wait a moment to ensure the form is reset then programmatically trigger analysis
-                const analyzeEvent = new CustomEvent('analyze-improved-passage', {
-                  detail: { passage: improvedPassage }
-                });
-                document.dispatchEvent(analyzeEvent);
-              }, 100);
-            }}
-          />
-        </div>
-      )}
-
-      {!isSinglePassageMode && (
-        <>
-          <AdvancedComparison
-            passageA={passageA}
-            passageB={passageB}
-            passageATitle={passageATitle}
-            passageBTitle={passageBTitle}
-          />
-          <EnhancedComparisonSimple
-            passageA={passageA}
-            passageB={passageB}
-            passageATitle={passageATitle}
-            passageBTitle={passageBTitle}
-          />
-          
-          <ArgumentativeAnalysis
-            passageA={passageA}
-            passageB={passageB}
-            passageATitle={passageATitle}
-            passageBTitle={passageBTitle}
-            isSingleMode={false}
-          />
-        </>
-      )}
     </div>
   );
 }
