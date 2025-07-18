@@ -2353,6 +2353,10 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       const title = passageTitle || "Originality Analysis Report";
       const rawAnalysis = analysisResult.rawOriginalityAnalysis;
       
+      // Debug logging
+      console.log("TXT Download Debug - Available metrics in rawAnalysis:");
+      console.log(Object.keys(rawAnalysis));
+      
       // Format the originality analysis for TXT output
       let content = `ORIGINALITY METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
