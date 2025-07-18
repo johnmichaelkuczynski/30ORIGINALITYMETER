@@ -2422,7 +2422,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       let content = `COGENCY METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
       
-      // Add each cogency metric
+      // Add each cogency metric - using the exact keys from the API response  
       const metrics = [
         'argumentativeContinuity', 'errorResistance', 'specificityOfCommitment', 'provisionalityControl',
         'loadDistribution', 'errorAnticipation', 'epistemicParsimony', 'scopeClarity',
@@ -2483,13 +2483,13 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       let content = `OVERALL QUALITY METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
       
-      // Add each quality metric
+      // Add each quality metric - using the exact keys from the API response
       const metrics = [
-        'conceptualCompression', 'epistemicFriction', 'inferenceControl', 'problemDensity',
-        'signalToRhetoricRatio', 'cognitiveLoad', 'semanticPrecision', 'argumentativeTension',
-        'intellectualHonesty', 'conceptualIntegrity', 'analyticalDepth', 'synthesisQuality',
-        'evidenceWeighting', 'logicalCoherence', 'creativeTension', 'intellectualRigor',
-        'conceptualClarity', 'argumentativeForce', 'insightDensity', 'overallSophistication'
+        'conceptualCompression', 'epistemicFriction', 'inferenceControl', 'asymmetryOfCognitiveLabor',
+        'noveltyToBaselineRatio', 'internalDifferentiation', 'problemDensity', 'compressionAcrossLevels',
+        'semanticSpecificity', 'explanatoryYield', 'metaCognitiveSignal', 'structuralIntegrity',
+        'generativePotential', 'signalToRhetoricRatio', 'dialecticalEngagement', 'topologicalAwareness',
+        'disambiguationSkill', 'crossDisciplinaryFluency', 'psychologicalRealism', 'intellectualRiskQuotient'
       ];
       
       metrics.forEach(metric => {
