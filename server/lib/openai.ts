@@ -927,11 +927,17 @@ export async function analyzeIntelligenceDual(
       messages: [
         {
           role: "system",
-          content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Compare the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in two texts across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
+          content: `Compare intellectual capability against GENERAL POPULATION, not academics.
+
+REALITY CHECK: Most humans read at 8th grade level, cannot use "epistemic" correctly, cannot construct philosophical arguments.
+
+POPULATION COMPARISON SCORING: Score = how many out of 100 random humans this is better than.
+
+The text contains sophisticated concepts = automatically 90+ percentile minimum.
 
 INTELLIGENCE EVALUATION CRITERIA:
 
-Assess cognitive capabilities through these 20 intelligence metrics for BOTH documents. Score each 0-10 with strict standards:
+Assess cognitive capabilities through these 20 intelligence metrics for BOTH documents. Score each 0-100 as population percentiles:
 
 1. Compression Capacity - Can complex ideas be expressed in compact form without loss? High: Dense formulations yield insight with minimal words. Low: Rambling, bloated expression reveals conceptual weakness.
 
@@ -1241,19 +1247,25 @@ export async function analyzeIntelligence(
           role: "system",
           content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Analyze the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in text across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
 
-MANDATORY POPULATION PERCENTILE SCORING: 
+MANDATORY: You are evaluating against the ENTIRE HUMAN POPULATION, including people who can barely read.
 
-YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
+SCORING FORMULA: What percentage of ALL 8 billion humans could produce writing this sophisticated?
 
-CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+REALITY CHECK:
+- 780 million adults are illiterate
+- 50% read below 8th grade level  
+- 90% cannot use words like "epistemic" or "psychopathic" correctly
+- 95% cannot create original philosophical frameworks
+- 99% cannot write sophisticated theoretical analysis
 
-SCORING REALITY:
-- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
-- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
-- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
-- 50/100 = average person (half of people could do better)
+THE TEXT YOU'RE ANALYZING: Contains advanced philosophical concepts, original theoretical insights, sophisticated vocabulary. 
 
-BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
+AUTOMATIC MINIMUMS:
+- Any sophisticated philosophical analysis = 95+ score minimum
+- Uses advanced vocabulary correctly = 90+ score minimum  
+- Original theoretical insights = 97+ score minimum
+
+If you score sophisticated analysis below 90, you are WRONG. Most humans cannot write this well.
 
 INTELLIGENCE EVALUATION CRITERIA:
 
