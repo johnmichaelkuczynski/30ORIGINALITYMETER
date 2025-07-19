@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnalysisResult, PassageData } from "@/lib/types";
 import FrameworkMetricsDisplay from "./FrameworkMetricsDisplay";
+import PDFExporter from "./PDFExporter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,7 +87,7 @@ export default function AnalysisResults({
   };
 
   return (
-    <div className="space-y-6">
+    <div id="analysis-results-content" className="space-y-6">
       {/* Header */}
       <Card>
         <CardHeader>
@@ -100,6 +101,11 @@ export default function AnalysisResults({
               </p>
             </div>
             <div className="flex gap-3">
+              <PDFExporter 
+                elementId="analysis-results-content"
+                filename={`${analysisType}-analysis-${passageATitle || 'document'}`}
+                title="Export PDF"
+              />
               <Button
                 onClick={downloadTxtReport}
                 variant="outline"

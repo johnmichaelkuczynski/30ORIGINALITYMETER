@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnalysisResult } from "@/lib/types";
+import MathRenderer from "./MathRenderer";
 
 interface FrameworkMetricsDisplayProps {
   result: AnalysisResult;
@@ -134,18 +135,20 @@ export default function FrameworkMetricsDisplay({
                   {passageAData?.assessment && (
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <p className="text-sm font-medium mb-1">Assessment:</p>
-                      <p className="text-sm">{passageAData.assessment}</p>
+                      <MathRenderer text={passageAData.assessment} className="text-sm" />
                     </div>
                   )}
 
                   {(passageAData?.quotation1 || passageAData?.quote1) && (
                     <div className="bg-blue-50 p-3 rounded-lg">
                       <p className="text-sm font-medium mb-1">Supporting Quote 1:</p>
-                      <p className="text-sm italic">"{passageAData.quotation1 || passageAData.quote1}"</p>
+                      <div className="text-sm italic">
+                        "<MathRenderer text={passageAData.quotation1 || passageAData.quote1} />"
+                      </div>
                       {(passageAData.justification1 || passageAData.justification) && (
-                        <p className="text-sm mt-1 text-muted-foreground">
-                          <strong>Justification:</strong> {passageAData.justification1 || passageAData.justification}
-                        </p>
+                        <div className="text-sm mt-1 text-muted-foreground">
+                          <strong>Justification:</strong> <MathRenderer text={passageAData.justification1 || passageAData.justification} />
+                        </div>
                       )}
                     </div>
                   )}
@@ -153,11 +156,13 @@ export default function FrameworkMetricsDisplay({
                   {(passageAData?.quotation2 || passageAData?.quote2) && (
                     <div className="bg-green-50 p-3 rounded-lg">
                       <p className="text-sm font-medium mb-1">Supporting Quote 2:</p>
-                      <p className="text-sm italic">"{passageAData.quotation2 || passageAData.quote2}"</p>
+                      <div className="text-sm italic">
+                        "<MathRenderer text={passageAData.quotation2 || passageAData.quote2} />"
+                      </div>
                       {passageAData.justification2 && (
-                        <p className="text-sm mt-1 text-muted-foreground">
-                          <strong>Justification:</strong> {passageAData.justification2}
-                        </p>
+                        <div className="text-sm mt-1 text-muted-foreground">
+                          <strong>Justification:</strong> <MathRenderer text={passageAData.justification2} />
+                        </div>
                       )}
                     </div>
                   )}
