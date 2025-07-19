@@ -16,6 +16,15 @@ export interface GraphResult {
   svg: string;
   title: string;
   description: string;
+  specifications?: {
+    equation?: string;
+    domain?: string;
+    amplitude?: string;
+    frequency?: string;
+    decayRate?: string;
+    dataPoints?: string;
+    keyFeatures?: string[];
+  };
 }
 
 // Helper function declarations
@@ -46,17 +55,25 @@ You are a mathematical function plotter. Analyze this request and generate preci
 Request: "${request.description}"
 
 CRITICAL REQUIREMENTS:
-1. For ANY mathematical function described (exponential decay, sine wave, parabola, etc.), YOU MUST:
-   - Identify the exact mathematical equation (e.g., y = e^(-x), y = sin(x)*e^(-x), y = -2(x-3)² + 18)
+1. For ANY mathematical function described, YOU MUST:
+   - Identify the exact mathematical equation from the description
    - Calculate y-values using the actual mathematical formula, not approximations
-   - Generate AT LEAST 50-300 data points for smooth curves
+   - Generate AT LEAST 100-300 data points for smooth curves
    - Cover the complete specified range (e.g., x=0 to x=10)
    - Include ALL critical points (intercepts, peaks, valleys, asymptotes)
 
-2. For verbal descriptions like "exponential decay starting at y=1":
-   - Convert to precise equation: y = e^(-ax) where a determines decay rate
-   - For "sine wave with decaying amplitude": y = e^(-bx) * sin(cx)
-   - Calculate exact mathematical values, not preset patterns
+2. SPECIFIC FUNCTION TRANSLATIONS:
+   - "exponential decay starting at y=1": y = e^(-ax) where a > 0
+   - "sine wave with decaying/fading amplitude": y = A * e^(-bx) * sin(cx) where A=amplitude, b=decay rate, c=frequency
+   - "bell curve/normal distribution": y = (1/sqrt(2π)) * e^(-(x²)/2)
+   - "parabola opening downward": y = -a(x-h)² + k
+
+3. FOR DECAYING SINE WAVE SPECIFICALLY:
+   - Must use formula: y = amplitude * exp(-decay_rate * x) * sin(frequency * x)
+   - Example: y = 1.0 * exp(-0.3 * x) * sin(2 * x)
+   - The amplitude MUST decrease as x increases
+   - Early peaks are tall, later peaks are short
+   - Calculate exact values, not uniform sine waves
 
 3. Data format: [{"x": number, "y": number}, ...]
 
@@ -67,10 +84,26 @@ Return JSON structure:
   "xLabel": "x",
   "yLabel": "y", 
   "data": [{"x": 0, "y": calculatedValue}, {"x": 0.033, "y": calculatedValue}, ...],
-  "description": "Mathematical function plotted"
+  "description": "Mathematical function plotted",
+  "specifications": {
+    "equation": "The exact mathematical equation used (e.g., y = sin(x) * e^(-0.3x))",
+    "domain": "Range of x values (e.g., x ∈ [0, 10])",
+    "amplitude": "Initial amplitude value",
+    "frequency": "Oscillation frequency (for periodic functions)",
+    "decayRate": "Decay rate constant (for exponential decay)",
+    "dataPoints": "Number of calculated points",
+    "keyFeatures": ["List of important mathematical features", "e.g., intercepts, peaks, asymptotes"]
+  }
 }
 
 MATHEMATICAL PRECISION REQUIRED: No approximations, no presets, calculate actual function values.
+
+VALIDATION CHECKS:
+- For decaying sine: amplitude must decrease over time (peaks get smaller)
+- For normal distribution: must have single peak at center, symmetric decay
+- For exponential decay: must approach zero asymptotically
+- Generate dense points (x increments of 0.03-0.1) for smooth curves
+
 CRITICAL: Only return valid JSON without markdown formatting, comments, or explanatory text. Start directly with { and end with }.`;
 
     let response;
@@ -174,7 +207,8 @@ CRITICAL: Only return valid JSON without markdown formatting, comments, or expla
     return {
       svg,
       title,
-      description: analysis.description || 'Generated graph'
+      description: analysis.description || 'Generated graph',
+      specifications: analysis.specifications || undefined
     };
 
   } catch (error) {

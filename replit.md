@@ -213,6 +213,10 @@ Changelog:
 - July 19, 2025. MAJOR FEATURE: Added user-selectable LLM providers for graph generation (GPT-4o Mini, GPT-4o, GPT-4, Claude Sonnet 4)
 - July 19, 2025. Users can now choose between fast (GPT-4o Mini), balanced (GPT-4o), precise (GPT-4), or advanced (Claude) for graph creation
 - July 19, 2025. Graph generation speed dramatically improved by defaulting to GPT-4o Mini instead of slow GPT-4
+- July 19, 2025. MAJOR ENHANCEMENT: Added mathematical specifications display underneath each graph
+- July 19, 2025. Graphs now show exact equation, domain, amplitude, frequency, decay rate, data points, and key features
+- July 19, 2025. Enhanced LLM prompts with specific function translations (exponential decay, decaying sine, normal distribution)
+- July 19, 2025. Added validation checks to ensure mathematical precision in generated functions
 ```
 
 ## User Preferences

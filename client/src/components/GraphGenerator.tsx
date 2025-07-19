@@ -12,6 +12,15 @@ interface GraphResult {
   svg: string;
   title: string;
   description: string;
+  specifications?: {
+    equation?: string;
+    domain?: string;
+    amplitude?: string;
+    frequency?: string;
+    decayRate?: string;
+    dataPoints?: string;
+    keyFeatures?: string[];
+  };
 }
 
 export default function GraphGenerator() {
@@ -279,6 +288,62 @@ export default function GraphGenerator() {
             />
             
             <p className="text-sm text-gray-600">{generatedGraph.description}</p>
+            
+            {generatedGraph.specifications && (
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-semibold text-sm mb-3">Mathematical Specifications</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  {generatedGraph.specifications.equation && (
+                    <div>
+                      <span className="font-medium">Equation:</span>
+                      <div className="bg-gray-50 p-2 rounded font-mono text-xs mt-1">
+                        {generatedGraph.specifications.equation}
+                      </div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.domain && (
+                    <div>
+                      <span className="font-medium">Domain:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.domain}</div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.amplitude && (
+                    <div>
+                      <span className="font-medium">Amplitude:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.amplitude}</div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.frequency && (
+                    <div>
+                      <span className="font-medium">Frequency:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.frequency}</div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.decayRate && (
+                    <div>
+                      <span className="font-medium">Decay Rate:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.decayRate}</div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.dataPoints && (
+                    <div>
+                      <span className="font-medium">Data Points:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.dataPoints}</div>
+                    </div>
+                  )}
+                </div>
+                {generatedGraph.specifications.keyFeatures && generatedGraph.specifications.keyFeatures.length > 0 && (
+                  <div className="mt-3">
+                    <span className="font-medium text-sm">Key Features:</span>
+                    <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
+                      {generatedGraph.specifications.keyFeatures.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
             
             <div className="flex gap-2">
               <Button
