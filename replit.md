@@ -223,6 +223,9 @@ Changelog:
 - July 19, 2025. System supports complex prompts like "model rumor spread with emotional salience + write explanation"
 - July 19, 2025. Added PDF export functionality for complete graph analysis reports
 - July 19, 2025. Graph generator now supports context-sensitive modeling with theoretical connections
+- July 19, 2025. CRITICAL FIX: Replaced problematic PDF generation with reliable TXT report download
+- July 19, 2025. Graph analysis reports now download as TXT files with full explanations and specifications
+- July 19, 2025. Simplified download functionality eliminates ES module import conflicts
 ```
 
 ## User Preferences

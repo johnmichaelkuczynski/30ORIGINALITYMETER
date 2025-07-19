@@ -102,20 +102,19 @@ export default function GraphGenerator() {
     }
   };
 
-  const downloadGraphPDF = async () => {
+  const downloadGraphReport = async () => {
     if (!generatedGraph) return;
     
     try {
-      // Create PDF content combining graph and analysis
+      // Create report content combining graph and analysis
       const content = {
         title: generatedGraph.title,
-        graph: generatedGraph.svg,
         description: generatedGraph.description,
         explanation: generatedGraph.explanation || '',
         specifications: generatedGraph.specifications
       };
       
-      const response = await fetch('/api/download-graph-pdf', {
+      const response = await fetch('/api/download-graph-txt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,26 +123,26 @@ export default function GraphGenerator() {
       });
       
       if (!response.ok) {
-        throw new Error('PDF generation failed');
+        throw new Error('Report generation failed');
       }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${generatedGraph.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      a.download = `${generatedGraph.title.replace(/[^a-zA-Z0-9]/g, '_')}_analysis.txt`;
       a.click();
       window.URL.revokeObjectURL(url);
       
       toast({
-        title: "PDF downloaded",
-        description: "Graph analysis PDF has been downloaded",
+        title: "Report downloaded",
+        description: "Graph analysis report has been downloaded",
       });
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error('Error downloading report:', error);
       toast({
         title: "Download failed",
-        description: "Failed to generate PDF. Please try again.",
+        description: "Failed to generate report. Please try again.",
         variant: "destructive",
       });
     }
@@ -426,10 +425,10 @@ export default function GraphGenerator() {
               </Button>
               <Button
                 variant="outline"
-                onClick={downloadGraphPDF}
+                onClick={downloadGraphReport}
                 className="flex-1"
               >
-                Download PDF
+                Download Report
               </Button>
             </div>
           </CardContent>
