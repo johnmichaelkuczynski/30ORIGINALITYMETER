@@ -2494,15 +2494,16 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       
       metrics.forEach(metric => {
         if (rawAnalysis[metric]) {
-          const metricData = rawAnalysis[metric].passageA;
+          // Quality analysis has a different structure - no passageA/passageB nesting
+          const metricData = rawAnalysis[metric];
           content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
           content += `Score: ${metricData.score}/10\n`;
           content += `Assessment: ${metricData.assessment}\n`;
-          if (metricData.strengths && metricData.strengths.length > 0) {
-            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+          if (metricData.quote1) {
+            content += `Quote 1: "${metricData.quote1}"\n`;
           }
-          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
-            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          if (metricData.quote2) {
+            content += `Quote 2: "${metricData.quote2}"\n`;
           }
           content += `\n`;
         }
