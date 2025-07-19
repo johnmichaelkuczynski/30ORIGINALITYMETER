@@ -1118,9 +1118,93 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
 
 export async function analyzeQuality(passage: PassageData): Promise<any> {
   try {
-    console.log("Perplexity quality analysis not implemented, falling back to OpenAI");
-    const openaiService = await import('./openai');
-    return openaiService.analyzeQuality(passage);
+    console.log("Starting Perplexity quality analysis for passage");
+    
+    const prompt = `You are an expert evaluator of intellectual writing quality across all disciplines. Analyze the following text using 20 precise quality metrics. Score each parameter from 0-100 as a population percentile (e.g., 85 = better than 85% of people).
+
+CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
+
+Text to analyze:
+"${passage.text}"
+
+Evaluate using these 20 Quality Metrics:
+
+1. **Conceptual Compression** - How much conceptual work per unit of text?
+2. **Epistemic Friction** - Resistance to easy/shallow reading requiring genuine engagement?
+3. **Inference Control** - Precision and reliability of logical steps?
+4. **Problem Density** - Concentration of non-trivial intellectual challenges?
+5. **Semantic Precision** - Exactness of word choice and meaning?
+6. **Argumentative Scaffolding** - Quality of logical structure and support?
+7. **Cognitive Load Management** - Optimal complexity without confusion?
+8. **Signal-to-Rhetoric Ratio** - Content substance vs. stylistic decoration?
+9. **Causal Alignment** - Accuracy of cause-effect relationships?
+10. **Counter-example Immunity** - Resistance to obvious refutations?
+11. **Intelligibility of Objection** - Clarity of potential criticisms?
+12. **Dependence Hierarchy Awareness** - Recognition of logical dependencies?
+13. **Context-Bounded Inference** - Validity within stated scope?
+14. **Distinction Awareness** - Recognition of important differences?
+15. **Layered Persuasiveness** - Multiple levels of convincing argument?
+16. **Predictive Specificity** - Precise, testable implications?
+17. **Error Localization** - Ability to identify specific weaknesses?
+18. **Conceptual Novelty** - Original ideas vs. recycled content?
+19. **Integration Capability** - Connection with broader knowledge?
+20. **Overall Assessment** - Holistic quality judgment?
+
+Format your response as:
+{
+  "conceptualCompression": {
+    "score": [0-100],
+    "assessment": "[detailed evaluation]",
+    "quote1": "[supporting quote from text]",
+    "quote2": "[second supporting quote]"
+  },
+  "epistemicFriction": {
+    "score": [0-100],
+    "assessment": "[detailed evaluation]", 
+    "quote1": "[supporting quote from text]",
+    "quote2": "[second supporting quote]"
+  },
+  [continue for all 20 metrics],
+  "overallJudgment": "[comprehensive summary assessment]"
+}`;
+
+    const response = await axios.post(
+      'https://api.perplexity.ai/chat/completions',
+      {
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert evaluator of intellectual writing quality. Respond only with valid JSON.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 4000
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const content = response.data.choices[0].message.content;
+    console.log("Perplexity quality analysis response length:", content.length);
+    
+    // Parse and validate JSON response
+    try {
+      const parsedResult = JSON.parse(content);
+      return parsedResult;
+    } catch (parseError) {
+      console.error("Failed to parse Perplexity quality analysis JSON:", parseError);
+      throw new Error("Invalid JSON response from Perplexity");
+    }
+    
   } catch (error) {
     console.error("Error in Perplexity quality analysis:", error);
     throw error;
@@ -1129,9 +1213,95 @@ export async function analyzeQuality(passage: PassageData): Promise<any> {
 
 export async function analyzeQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
   try {
-    console.log("Perplexity dual quality analysis not implemented, falling back to OpenAI");
-    const openaiService = await import('./openai');
-    return openaiService.analyzeQualityDual(passageA, passageB);
+    console.log("Starting Perplexity dual quality analysis");
+    
+    const prompt = `You are an expert evaluator of intellectual writing quality. Compare these two texts using 20 quality metrics. Score each parameter from 0-100 as a population percentile.
+
+CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
+
+Text A: "${passageA.text}"
+
+Text B: "${passageB.text}"
+
+Evaluate both texts using these 20 Quality Metrics:
+
+1. **Conceptual Compression** - How much conceptual work per unit of text?
+2. **Epistemic Friction** - Resistance to easy/shallow reading?
+3. **Inference Control** - Precision of logical steps?
+4. **Problem Density** - Concentration of intellectual challenges?
+5. **Semantic Precision** - Exactness of word choice?
+6. **Argumentative Scaffolding** - Quality of logical structure?
+7. **Cognitive Load Management** - Optimal complexity?
+8. **Signal-to-Rhetoric Ratio** - Content vs. style?
+9. **Causal Alignment** - Accuracy of cause-effect relationships?
+10. **Counter-example Immunity** - Resistance to refutations?
+11. **Intelligibility of Objection** - Clarity of criticisms?
+12. **Dependence Hierarchy Awareness** - Recognition of dependencies?
+13. **Context-Bounded Inference** - Validity within scope?
+14. **Distinction Awareness** - Recognition of differences?
+15. **Layered Persuasiveness** - Multiple argument levels?
+16. **Predictive Specificity** - Precise implications?
+17. **Error Localization** - Identifying weaknesses?
+18. **Conceptual Novelty** - Original vs. recycled ideas?
+19. **Integration Capability** - Connection with broader knowledge?
+20. **Overall Assessment** - Holistic quality judgment?
+
+Format your response as:
+{
+  "conceptualCompression": {
+    "passageA": {
+      "score": [0-100],
+      "assessment": "[evaluation]",
+      "quote1": "[quote from A]",
+      "quote2": "[second quote from A]"
+    },
+    "passageB": {
+      "score": [0-100], 
+      "assessment": "[evaluation]",
+      "quote1": "[quote from B]",
+      "quote2": "[second quote from B]"
+    }
+  },
+  [continue for all 20 metrics],
+  "overallComparison": "[detailed comparison summary]"
+}`;
+
+    const response = await axios.post(
+      'https://api.perplexity.ai/chat/completions',
+      {
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert evaluator of intellectual writing quality. Respond only with valid JSON.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 6000
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const content = response.data.choices[0].message.content;
+    console.log("Perplexity dual quality analysis response length:", content.length);
+    
+    try {
+      const parsedResult = JSON.parse(content);
+      return parsedResult;
+    } catch (parseError) {
+      console.error("Failed to parse Perplexity dual quality analysis JSON:", parseError);
+      throw new Error("Invalid JSON response from Perplexity");
+    }
+    
   } catch (error) {
     console.error("Error in Perplexity dual quality analysis:", error);
     throw error;
