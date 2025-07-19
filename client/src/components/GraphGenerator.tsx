@@ -20,6 +20,7 @@ export default function GraphGenerator() {
   const [title, setTitle] = useState('');
   const [xLabel, setXLabel] = useState('');
   const [yLabel, setYLabel] = useState('');
+  const [llmProvider, setLlmProvider] = useState<string>('gpt-4o-mini');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGraph, setGeneratedGraph] = useState<GraphResult | null>(null);
   
@@ -49,6 +50,7 @@ export default function GraphGenerator() {
           title: title.trim() || undefined,
           xLabel: xLabel.trim() || undefined,
           yLabel: yLabel.trim() || undefined,
+          llmProvider: llmProvider,
           width: 600,
           height: 400
         }),
@@ -179,7 +181,7 @@ export default function GraphGenerator() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="x-label">X-Axis Label (Optional)</Label>
               <Input
@@ -200,6 +202,41 @@ export default function GraphGenerator() {
                 onChange={(e) => setYLabel(e.target.value)}
                 disabled={isGenerating}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="llm-provider">AI Model</Label>
+              <Select value={llmProvider} onValueChange={setLlmProvider} disabled={isGenerating}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gpt-4o-mini">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4" />
+                      GPT-4o Mini (Fast)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="gpt-4o">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4" />
+                      GPT-4o (Balanced)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="gpt-4">
+                    <div className="flex items-center gap-2">
+                      <LineChart className="h-4 w-4" />
+                      GPT-4 (Precise)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="claude-sonnet-4">
+                    <div className="flex items-center gap-2">
+                      <PieChart className="h-4 w-4" />
+                      Claude Sonnet 4 (Advanced)
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

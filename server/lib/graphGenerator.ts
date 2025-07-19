@@ -7,6 +7,7 @@ export interface GraphRequest {
   title?: string;
   xLabel?: string;
   yLabel?: string;
+  llmProvider?: string;
   width?: number;
   height?: number;
 }
@@ -31,16 +32,14 @@ function generateTicks(min: number, max: number, count: number): number[] {
  * @returns Promise containing SVG graph and metadata
  */
 export async function generateGraph(request: GraphRequest): Promise<GraphResult> {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
   const width = request.width || 600;
   const height = request.height || 400;
   const margin = { top: 40, right: 40, bottom: 60, left: 80 };
+  
+  const llmProvider = request.llmProvider || 'gpt-4o-mini';
 
   try {
-    // Use AI to generate all graphs, including mathematical functions
+    // Prepare the analysis prompt
     const analysisPrompt = `
 Analyze this graph request and provide a JSON response with the following structure:
 {
@@ -70,16 +69,41 @@ Example: For y = -2(x-3)² + 18, calculate points from x=-1 to x=7 to show inter
 
 Only return valid JSON without markdown formatting.`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "user",
-          content: analysisPrompt
-        }
-      ],
-      temperature: 0.3,
-    });
+    let response;
+    
+    // Route to different LLM providers based on selection
+    if (llmProvider === 'claude-sonnet-4') {
+      // Use Anthropic Claude
+      const { Anthropic } = await import('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+      
+      const claudeResponse = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: analysisPrompt }],
+        temperature: 0.3,
+      });
+      
+      response = { choices: [{ message: { content: claudeResponse.content[0].text } }] };
+    } else {
+      // Use OpenAI models (gpt-4o-mini, gpt-4o, gpt-4)
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+      
+      response = await openai.chat.completions.create({
+        model: llmProvider,
+        messages: [
+          {
+            role: "user",
+            content: analysisPrompt
+          }
+        ],
+        temperature: 0.3,
+      });
+    }
 
     let responseContent = response.choices[0].message.content || '{}';
     

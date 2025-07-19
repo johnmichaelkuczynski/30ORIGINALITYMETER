@@ -208,6 +208,11 @@ Changelog:
 - July 19, 2025. New evaluation criteria: Conceptual Brutality, Linguistic Lethality, Strategic Dominance, Emotional Engineering
 - July 19, 2025. Explicitly banned all academic norms: balance, counterarguments, tone policing, social responsibility, fairness
 - July 19, 2025. LLMs now forced to evaluate pure cognitive firepower instead of academic compliance
+- July 19, 2025. GRAPH GENERATION FIX: Completely removed hardcoded mathematical function generators that were producing clipped graphs
+- July 19, 2025. All graph generation now handled by AI with explicit instructions for mathematical precision and complete range coverage
+- July 19, 2025. MAJOR FEATURE: Added user-selectable LLM providers for graph generation (GPT-4o Mini, GPT-4o, GPT-4, Claude Sonnet 4)
+- July 19, 2025. Users can now choose between fast (GPT-4o Mini), balanced (GPT-4o), precise (GPT-4), or advanced (Claude) for graph creation
+- July 19, 2025. Graph generation speed dramatically improved by defaulting to GPT-4o Mini instead of slow GPT-4
 ```
 
 ## User Preferences
