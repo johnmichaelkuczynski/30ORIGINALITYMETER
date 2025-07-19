@@ -23,149 +23,7 @@ function generateTicks(min: number, max: number, count: number): number[] {
   return Array.from({ length: count }, (_, i) => min + i * step);
 }
 
-function generateMathFunctionSVG(description: string, width: number, height: number, margin: any, title: string, xLabel: string, yLabel: string): string {
-  const innerWidth = width - margin.left - margin.right;
-  const innerHeight = height - margin.top - margin.bottom;
-  
-  // Default range for mathematical functions
-  let xMin = -10, xMax = 10;
-  let points: {x: number, y: number}[] = [];
-  
-  // Generate function based on description
-  if (description.toLowerCase().includes('exponential')) {
-    title = title || 'Exponential Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = e^x';
-    xMin = -3;
-    xMax = 3;
-    
-    // Generate exponential function points
-    for (let x = xMin; x <= xMax; x += 0.1) {
-      const y = Math.exp(x);
-      points.push({x, y});
-    }
-  } else if (description.toLowerCase().includes('quadratic')) {
-    title = title || 'Quadratic Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = x²';
-    xMin = -5;
-    xMax = 5;
-    
-    for (let x = xMin; x <= xMax; x += 0.2) {
-      const y = x * x;
-      points.push({x, y});
-    }
-  } else if (description.toLowerCase().includes('sine')) {
-    title = title || 'Sine Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = sin(x)';
-    xMin = -2 * Math.PI;
-    xMax = 2 * Math.PI;
-    
-    for (let x = xMin; x <= xMax; x += 0.1) {
-      const y = Math.sin(x);
-      points.push({x, y});
-    }
-  } else if (description.toLowerCase().includes('cosine')) {
-    title = title || 'Cosine Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = cos(x)';
-    xMin = -2 * Math.PI;
-    xMax = 2 * Math.PI;
-    
-    for (let x = xMin; x <= xMax; x += 0.1) {
-      const y = Math.cos(x);
-      points.push({x, y});
-    }
-  } else if (description.toLowerCase().includes('logarithmic')) {
-    title = title || 'Logarithmic Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = ln(x)';
-    xMin = 0.1;
-    xMax = 10;
-    
-    for (let x = xMin; x <= xMax; x += 0.1) {
-      const y = Math.log(x);
-      points.push({x, y});
-    }
-  } else {
-    // Default to a simple linear function
-    title = title || 'Linear Function';
-    xLabel = xLabel || 'x';
-    yLabel = yLabel || 'y = x';
-    
-    for (let x = xMin; x <= xMax; x += 0.5) {
-      const y = x;
-      points.push({x, y});
-    }
-  }
-  
-  const yValues = points.map(p => p.y);
-  const yMin = Math.min(...yValues);
-  const yMax = Math.max(...yValues);
-  
-  // Create scales
-  const xScale = (x: number) => ((x - xMin) / (xMax - xMin)) * innerWidth;
-  const yScale = (y: number) => innerHeight - ((y - yMin) / (yMax - yMin)) * innerHeight;
-  
-  // Generate path data
-  const pathData = points.map((point, i) => {
-    const command = i === 0 ? 'M' : 'L';
-    return `${command} ${xScale(point.x)} ${yScale(point.y)}`;
-  }).join(' ');
-  
-  // Generate tick marks
-  const xTicks = generateTicks(xMin, xMax, 6);
-  const yTicks = generateTicks(yMin, yMax, 6);
-  
-  return `
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      .graph-title { font: bold 16px sans-serif; text-anchor: middle; fill: #1f2937; }
-      .axis-label { font: 12px sans-serif; text-anchor: middle; fill: #374151; }
-      .tick-label { font: 10px sans-serif; text-anchor: middle; fill: #6b7280; }
-      .grid-line { stroke: #e5e7eb; stroke-width: 1; }
-      .axis { stroke: #374151; stroke-width: 2; }
-      .data-line { fill: none; stroke: #2563eb; stroke-width: 3; }
-      .zero-line { stroke: #9ca3af; stroke-width: 1; stroke-dasharray: 3,3; }
-    </style>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="${width}" height="${height}" fill="white"/>
-  
-  <!-- Title -->
-  <text x="${width/2}" y="25" class="graph-title">${title}</text>
-  
-  <!-- Grid lines -->
-  ${xTicks.map(tick => `<line x1="${margin.left + xScale(tick)}" y1="${margin.top}" x2="${margin.left + xScale(tick)}" y2="${height - margin.bottom}" class="grid-line"/>`).join('')}
-  ${yTicks.map(tick => `<line x1="${margin.left}" y1="${margin.top + yScale(tick)}" x2="${width - margin.right}" y2="${margin.top + yScale(tick)}" class="grid-line"/>`).join('')}
-  
-  <!-- Zero lines if they're visible -->
-  ${xMin <= 0 && xMax >= 0 ? `<line x1="${margin.left + xScale(0)}" y1="${margin.top}" x2="${margin.left + xScale(0)}" y2="${height - margin.bottom}" class="zero-line"/>` : ''}
-  ${yMin <= 0 && yMax >= 0 ? `<line x1="${margin.left}" y1="${margin.top + yScale(0)}" x2="${width - margin.right}" y2="${margin.top + yScale(0)}" class="zero-line"/>` : ''}
-  
-  <!-- Axes -->
-  <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}" class="axis"/>
-  <line x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}" class="axis"/>
-  
-  <!-- Function curve -->
-  <g transform="translate(${margin.left}, ${margin.top})">
-    <path d="${pathData}" class="data-line"/>
-  </g>
-  
-  <!-- X-axis labels -->
-  ${xTicks.map(tick => `<text x="${margin.left + xScale(tick)}" y="${height - margin.bottom + 20}" class="tick-label">${tick.toFixed(1)}</text>`).join('')}
-  
-  <!-- Y-axis labels -->
-  ${yTicks.map(tick => `<text x="${margin.left - 10}" y="${margin.top + yScale(tick) + 4}" class="tick-label" text-anchor="end">${tick.toFixed(1)}</text>`).join('')}
-  
-  <!-- Axis labels -->
-  <text x="${width/2}" y="${height - 10}" class="axis-label">${xLabel}</text>
-  <text x="15" y="${height/2}" class="axis-label" transform="rotate(-90, 15, ${height/2})">${yLabel}</text>
-</svg>`;
-}
+
 
 /**
  * Generates SVG graphs from natural language descriptions or mathematical expressions
@@ -182,34 +40,7 @@ export async function generateGraph(request: GraphRequest): Promise<GraphResult>
   const margin = { top: 40, right: 40, bottom: 60, left: 80 };
 
   try {
-    // Check if this is a mathematical function request
-    if (request.description && (
-      request.description.toLowerCase().includes('exponential') ||
-      request.description.toLowerCase().includes('quadratic') ||
-      request.description.toLowerCase().includes('cubic') ||
-      request.description.toLowerCase().includes('logarithmic') ||
-      request.description.toLowerCase().includes('sine') ||
-      request.description.toLowerCase().includes('cosine') ||
-      request.description.toLowerCase().includes('function')
-    )) {
-      const svg = generateMathFunctionSVG(
-        request.description, 
-        width, 
-        height, 
-        margin, 
-        request.title || '', 
-        request.xLabel || '', 
-        request.yLabel || ''
-      );
-      
-      return {
-        svg,
-        title: request.title || 'Mathematical Function',
-        description: request.description
-      };
-    }
-
-    // For non-mathematical graphs, use AI to generate data
+    // Use AI to generate all graphs, including mathematical functions
     const analysisPrompt = `
 Analyze this graph request and provide a JSON response with the following structure:
 {
@@ -223,11 +54,20 @@ Analyze this graph request and provide a JSON response with the following struct
 
 Request: "${request.description}"
 
+IMPORTANT: For mathematical functions (like y = -2(x-3)² + 18), calculate precise data points that show ALL key features:
+- Include x-intercepts (where y=0)
+- Include y-intercept (where x=0)
+- Include vertex/maximum/minimum points
+- Use appropriate x-range to capture the full curve
+- Generate enough points (20-50) for smooth curves
+
 For line/scatter graphs, use format: [{"x": number, "y": number}, ...]
 For bar graphs, use format: [{"label": "Category", "value": number}, ...]
 For pie charts, use format: [{"label": "Category", "value": number}, ...]
 
-Provide realistic sample data (5-10 points) that matches the request.
+For mathematical functions, calculate actual y-values using the given equation.
+Example: For y = -2(x-3)² + 18, calculate points from x=-1 to x=7 to show intercepts at (0,0) and (6,0).
+
 Only return valid JSON without markdown formatting.`;
 
     const response = await openai.chat.completions.create({
