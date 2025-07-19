@@ -140,7 +140,7 @@ For clarity, evaluate:
 - NOTE: Philosophical writing often requires technical language and complex sentence structures - judge clarity based on how effectively it communicates given its theoretical complexity, not on how "easy" it is to read
 
 IMPORTANT FORMATTING INSTRUCTIONS FOR SCORE-BASED METRICS:
-- Provide a score from 0-10 for each metric (where 10 is perfect)
+- Provide a score from 0-100 for each metric representing population percentile (where 96+ means top 4% of population)
 - List clear strengths and weaknesses for each metric
 - Provide a detailed assessment for each metric
 - Focus on aspects specific to each metric
@@ -160,84 +160,84 @@ ${passageB.text}
 Return a detailed analysis in the following JSON format with all 20 originality parameters:
 {
   "transformationalSynthesis": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "generativePower": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "disciplinaryRepositioning": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "conceptualReframing": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "recursiveInnovation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "obliqueSolutionPath": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "metaTheoreticAwareness": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "semanticDiagonalization": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "toolReappropriation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "analogicalLeverage": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "categoryRupture": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "compressionExpansionTension": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "semanticReconfiguration": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "ontologicalInnovation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "generativeAsymmetry": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "frameViolation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "anchorToDriftRatio": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "unforcedNonconformity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "asymmetricDiscoursePositioning": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "temporalCalibration": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
-    "passageB": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageB": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] }
   },
   "verdict": "comprehensive assessment comparing the passages across all 20 originality parameters"
 }`,
@@ -556,7 +556,7 @@ IMPORTANT WEIGHTING:
 - Coherence should be weighted at 20%
 - Accuracy and Clarity should be weighted at 15% each
 - DO NOT overvalue surface-level clarity at the expense of genuine theoretical depth
-- Provide a score from 0-10 for each metric (where 10 is perfect)
+- Provide a score from 0-100 for each metric representing population percentile (where 96+ means top 4% of population)
 - List clear strengths and weaknesses for each metric
 - Provide a detailed assessment for each metric
 - Focus on aspects specific to each metric
@@ -588,7 +588,7 @@ Return a detailed analysis in the following JSON format using all 20 quality met
 {
   "conceptualCompression": {
     "passageA": { 
-      "score": number from 0-10, 
+      "score": number from 0-100, 
       "assessment": "detailed evaluation", 
       "quotation1": "direct quote from text",
       "justification1": "why this quote supports the score",
@@ -598,79 +598,79 @@ Return a detailed analysis in the following JSON format using all 20 quality met
     "passageB": { "score": 5, "assessment": "baseline for typical texts", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "epistemicFriction": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "inferenceControl": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "asymmetryOfCognitiveLabor": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "noveltyToBaselineRatio": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "internalDifferentiation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "problemDensity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "compressionAcrossLevels": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "semanticSpecificity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "explanatoryYield": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "metaCognitiveSignal": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "structuralIntegrity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "generativePotential": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "signalToRhetoricRatio": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "dialecticalEngagement": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "topologicalAwareness": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "disambiguationSkill": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "crossDisciplinaryFluency": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "psychologicalRealism": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "intellectualRiskQuotient": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "verdict": "comprehensive assessment across all 20 quality metrics"
@@ -1303,83 +1303,83 @@ For each metric, provide:
 Return in this exact JSON format:
 {
   "compressionCapacity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline cognitive capacity", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "multiLevelIntegration": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "dynamicConstraintHandling": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "inferenceArchitecture": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "epistemicRiskManagement": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "cognitiveFrictionTolerance": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "strategicAmbiguityDeployment": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "representationalVersatility": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "recursiveSelfMonitoring": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "conceptualNoveltyWithCoherence": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "noiseSuppression": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "abductiveStrength": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "causalFinesse": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "boundaryPerception": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "temporalLayering": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "intellectualEmpathy": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "conceptualMobility": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "errorAssimilation": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "patternExtraction": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "semanticTopologyAwareness": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
     "passageB": { "score": 5, "assessment": "baseline", "quotation1": "typical example", "justification1": "standard reasoning", "quotation2": "another example", "justification2": "typical justification" }
   },
   "verdict": "comprehensive intelligence assessment across all 20 cognitive capabilities"
@@ -1715,7 +1715,7 @@ REMEMBER: A 6/10 should be reserved for mediocre work. Sophisticated philosophic
 Return detailed analysis in the following JSON format:
 {
   "transformationalSynthesis": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": 5, "assessment": "baseline for typical academic work", "strengths": ["conventional synthesis"], "weaknesses": ["limited transformation"] }
   },
   [continue for all 20 originality parameters...]
@@ -2106,6 +2106,8 @@ export async function analyzeCogency(
           role: "system",
           content: `You are an expert evaluator of argumentative cogency across all disciplines. Your task is to assess how well a document proves what it sets out to prove using logical rigor and argumentative strength.
 
+CRITICAL: Score each parameter 0-100 representing population percentile (96/100 means only 4% of population scores higher).
+
 CRITICAL COGENCY EVALUATION GUIDELINES:
 
 1. Cogency = Logical convincingness within the work's own framework and discipline
@@ -2114,6 +2116,7 @@ CRITICAL COGENCY EVALUATION GUIDELINES:
 4. Consider domain-appropriate standards (mathematical proofs differ from philosophical arguments)
 5. Assess resilience to counterarguments and logical objections
 6. Value precision, clarity, and inferential strength
+7. High-quality academic work should score 85-96/100, not 50-70/100
 
 Analyze the passage across these 20 comprehensive cogency metrics:
 
@@ -2167,7 +2170,7 @@ SCORING MANDATE: Use the full 0-10 scale with proper discrimination:
 Return detailed analysis in the following JSON format:
 {
   "argumentativeContinuity": {
-    "passageA": { "score": number from 0-10, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "strengths": ["string1", "string2"], "weaknesses": ["string1", "string2"] },
     "passageB": { "score": 5, "assessment": "baseline for typical academic arguments", "strengths": ["conventional continuity"], "weaknesses": ["some gaps"] }
   },
   [continue for all 20 cogency metrics...]

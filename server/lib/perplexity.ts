@@ -1048,3 +1048,92 @@ Follow the user's instructions precisely regarding topic, length, style, and any
     throw new Error(`Failed to generate text with Perplexity: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
+
+// RADICAL FIX: Add all missing analysis functions for the 20-parameter frameworks
+export async function analyzeOriginality(passage: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity originality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeOriginality(passage);
+  } catch (error) {
+    console.error("Error in Perplexity originality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity dual originality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeOriginalityDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Perplexity dual originality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeCogency(passage: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity cogency analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeCogency(passage);
+  } catch (error) {
+    console.error("Error in Perplexity cogency analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeCogencyDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity dual cogency analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeCogencyDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Perplexity dual cogency analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeIntelligence(passage: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity intelligence analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeIntelligence(passage);
+  } catch (error) {
+    console.error("Error in Perplexity intelligence analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity dual intelligence analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeIntelligenceDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Perplexity dual intelligence analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeQuality(passage: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity quality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeQuality(passage);
+  } catch (error) {
+    console.error("Error in Perplexity quality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Perplexity dual quality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeQualityDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Perplexity dual quality analysis:", error);
+    throw error;
+  }
+}

@@ -65,9 +65,12 @@ export default function FrameworkMetricsDisplay({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return "bg-green-500";
-    if (score >= 6) return "bg-yellow-500";
-    if (score >= 4) return "bg-orange-500";
+    // Convert 0-10 scale to 0-100 if needed
+    const normalizedScore = score > 10 ? score : score * 10;
+    
+    if (normalizedScore >= 85) return "bg-green-500";
+    if (normalizedScore >= 70) return "bg-yellow-500";
+    if (normalizedScore >= 50) return "bg-orange-500";
     return "bg-red-500";
   };
 
@@ -120,7 +123,7 @@ export default function FrameworkMetricsDisplay({
                     <h4 className="font-medium">Your Document</h4>
                     {passageAData?.score && (
                       <Badge className={`${getScoreColor(passageAData.score)} text-white`}>
-                        {passageAData.score}/10
+                        {passageAData.score > 10 ? passageAData.score : passageAData.score * 10}/100
                       </Badge>
                     )}
                   </div>
@@ -186,7 +189,7 @@ export default function FrameworkMetricsDisplay({
                       <h4 className="font-medium">Comparison Document</h4>
                       {passageBData?.score && (
                         <Badge className={`${getScoreColor(passageBData.score)} text-white`}>
-                          {passageBData.score}/10
+                          {passageBData.score > 10 ? passageBData.score : passageBData.score * 10}/100
                         </Badge>
                       )}
                     </div>

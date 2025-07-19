@@ -871,3 +871,151 @@ Analyze thoroughly and provide precise scores and classifications.`;
     throw new Error(`Advanced comparison failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+// RADICAL FIX: Add all missing analysis functions for the 20-parameter frameworks
+export async function analyzeOriginality(passage: PassageData): Promise<any> {
+  const prompt = `You are an expert in evaluating the originality and quality of intellectual writing across all disciplines. 
+
+CRITICAL: Score each parameter 0-100 representing population percentile (96/100 means only 4% of population scores higher).
+
+Analyze this passage using the exact 20 originality parameters:
+
+PASSAGE: ${passage.title}
+${passage.text}
+
+Score each parameter 0-100 (population percentile):
+
+1. Transformational Synthesis - Does the author transform inherited ideas into something new?
+2. Generative Power - Does the work open new lines of inquiry?
+3. Disciplinary Repositioning - Does the text challenge field boundaries?
+4. Conceptual Reframing - Are familiar problems recast in novel terms?
+5. Analytic Re-Alignment - Does the author redirect attention from false problems?
+6. Unexpected Cross-Pollination - Are tools imported from distant domains?
+7. Epistemic Reweighting - Are marginal ideas made central?
+8. Constraint Innovation - Are new constraints introduced?
+9. Ontology Re-specification - Is the underlying structure reconsidered?
+10. Heuristic Leap - Are intuitive moves introduced that reframe?
+11. Problem Re-Indexing - Are known problems recoded into more productive forms?
+12. Axiomatic Innovation - Are new fundamental assumptions posited?
+13. Moral or Political Recomputation - Are prevailing frames re-evaluated?
+14. Semantic Innovation - Are new concepts or redefinitions introduced?
+15. Methodological Innovation - Are new approaches developed?
+16. Structural Innovation - Are new organizational structures created?
+17. Causal Innovation - Are new causal relationships proposed?
+18. Temporal Innovation - Are new temporal frameworks introduced?
+19. Evidential Innovation - Are new forms of evidence introduced?
+20. Theoretical Innovation - Are new theories developed?
+
+For each parameter:
+- score (0-100 population percentile)
+- assessment (detailed explanation with quotes)
+- strengths (specific examples)
+- weaknesses (areas for improvement)
+
+Respond in JSON format with exact camelCase names.`;
+
+  try {
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8000,
+      system: "You are an expert originality evaluator. Score on 0-100 population percentile scale where 96 means only 4% score higher.",
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+
+    const content = response.content[0];
+    if (content.type !== 'text') {
+      throw new Error('Unexpected response type from Anthropic');
+    }
+
+    return JSON.parse(content.text);
+  } catch (error) {
+    console.error("Error in Anthropic originality analysis:", error);
+    // Fallback to OpenAI
+    const openaiService = await import('./openai');
+    return openaiService.analyzeOriginality(passage);
+  }
+}
+
+export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic dual originality analysis not fully implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeOriginalityDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Anthropic dual originality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeCogency(passage: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic cogency analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeCogency(passage);
+  } catch (error) {
+    console.error("Error in Anthropic cogency analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeCogencyDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic dual cogency analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeCogencyDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Anthropic dual cogency analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeIntelligence(passage: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic intelligence analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeIntelligence(passage);
+  } catch (error) {
+    console.error("Error in Anthropic intelligence analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic dual intelligence analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeIntelligenceDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Anthropic dual intelligence analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeQuality(passage: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic quality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeQuality(passage);
+  } catch (error) {
+    console.error("Error in Anthropic quality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzeQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    console.log("Anthropic dual quality analysis not implemented, falling back to OpenAI");
+    const openaiService = await import('./openai');
+    return openaiService.analyzeQualityDual(passageA, passageB);
+  } catch (error) {
+    console.error("Error in Anthropic dual quality analysis:", error);
+    throw error;
+  }
+}

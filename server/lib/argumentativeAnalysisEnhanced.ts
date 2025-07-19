@@ -472,29 +472,29 @@ ${analysis.superiorReconstruction}
 
 ### Core Parameters Analysis
 
-#### 1. Inferential Structure (${analysis.inferentialStructure.score}/25)
-${analysis.inferentialStructure.assessment}
+#### 1. Inferential Structure (${analysis.inferentialStructure?.score || 0}/25)
+${analysis.inferentialStructure?.assessment || "Assessment not available"}
 
 **Supporting Quotes:**
-${analysis.inferentialStructure.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.inferentialStructure?.quotes?.map((q: string) => `> "${q}"`).join('\n') || "No quotes available"}
 
-#### 2. Conceptual Control (${analysis.conceptualControl.score}/25)
-${analysis.conceptualControl.assessment}
-
-**Supporting Quotes:**
-${analysis.conceptualControl.quotes.map((q: string) => `> "${q}"`).join('\n')}
-
-#### 3. Argumentative Integrity (${analysis.argumentativeIntegrity.score}/25)
-${analysis.argumentativeIntegrity.assessment}
+#### 2. Conceptual Control (${analysis.conceptualControl?.score || 0}/25)
+${analysis.conceptualControl?.assessment || "Assessment not available"}
 
 **Supporting Quotes:**
-${analysis.argumentativeIntegrity.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.conceptualControl?.quotes?.map((q: string) => `> "${q}"`).join('\n') || "No quotes available"}
 
-#### 4. Synthesis & Integration (${analysis.synthesisIntegration.score}/25)
-${analysis.synthesisIntegration.assessment}
+#### 3. Argumentative Integrity (${analysis.argumentativeIntegrity?.score || 0}/25)
+${analysis.argumentativeIntegrity?.assessment || "Assessment not available"}
 
 **Supporting Quotes:**
-${analysis.synthesisIntegration.quotes.map((q: string) => `> "${q}"`).join('\n')}
+${analysis.argumentativeIntegrity?.quotes?.map((q: string) => `> "${q}"`).join('\n') || "No quotes available"}
+
+#### 4. Synthesis & Integration (${analysis.synthesisIntegration?.score || 0}/25)
+${analysis.synthesisIntegration?.assessment || "Assessment not available"}
+
+**Supporting Quotes:**
+${analysis.synthesisIntegration?.quotes?.map((q: string) => `> "${q}"`).join('\n') || "No quotes available"}
 
 
 ### Overall Judgment
