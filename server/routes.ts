@@ -883,18 +883,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (provider === "openai" || provider === "deepseek") {
           result = await openaiService.analyzeQualityDual(passageA, passageB);
         } else if (provider === "anthropic") {
-          result = await openaiService.analyzeQualityDual(passageA, passageB); // For now, use OpenAI as fallback
+          result = await anthropicService.analyzeQualityDual(passageA, passageB);
+        } else if (provider === "perplexity") {
+          result = await perplexityService.analyzeQualityDual(passageA, passageB);
         } else {
-          result = await openaiService.analyzeQualityDual(passageA, passageB); // Default to OpenAI
+          result = await openaiService.analyzeQualityDual(passageA, passageB);
         }
       } else {
         // Single analysis
         if (provider === "openai" || provider === "deepseek") {
           result = await openaiService.analyzeQuality(passageA);
         } else if (provider === "anthropic") {
-          result = await openaiService.analyzeQuality(passageA); // For now, use OpenAI as fallback
+          result = await anthropicService.analyzeQuality(passageA);
+        } else if (provider === "perplexity") {
+          result = await perplexityService.analyzeQuality(passageA);
         } else {
-          result = await openaiService.analyzeQuality(passageA); // Default to OpenAI
+          result = await openaiService.analyzeQuality(passageA);
         }
       }
       

@@ -1127,28 +1127,45 @@ CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text
 Text to analyze:
 "${passage.text}"
 
-Evaluate using these 20 Quality Metrics:
+CRITICAL: You are evaluating ACTUAL INTELLECTUAL SUBSTANCE, not surface academic formatting. Recognize genuine intelligence, originality, and cogency even when presented in unconventional ways.
 
-1. **Conceptual Compression** - How much conceptual work per unit of text?
-2. **Epistemic Friction** - Resistance to easy/shallow reading requiring genuine engagement?
-3. **Inference Control** - Precision and reliability of logical steps?
-4. **Problem Density** - Concentration of non-trivial intellectual challenges?
-5. **Semantic Precision** - Exactness of word choice and meaning?
-6. **Argumentative Scaffolding** - Quality of logical structure and support?
-7. **Cognitive Load Management** - Optimal complexity without confusion?
-8. **Signal-to-Rhetoric Ratio** - Content substance vs. stylistic decoration?
-9. **Causal Alignment** - Accuracy of cause-effect relationships?
-10. **Counter-example Immunity** - Resistance to obvious refutations?
-11. **Intelligibility of Objection** - Clarity of potential criticisms?
-12. **Dependence Hierarchy Awareness** - Recognition of logical dependencies?
-13. **Context-Bounded Inference** - Validity within stated scope?
-14. **Distinction Awareness** - Recognition of important differences?
-15. **Layered Persuasiveness** - Multiple levels of convincing argument?
-16. **Predictive Specificity** - Precise, testable implications?
-17. **Error Localization** - Ability to identify specific weaknesses?
-18. **Conceptual Novelty** - Original ideas vs. recycled content?
-19. **Integration Capability** - Connection with broader knowledge?
-20. **Overall Assessment** - Holistic quality judgment?
+DO NOT penalize:
+- Lack of hedging in confident, well-supported arguments  
+- Absence of traditional essay structure when logic flows coherently
+- Complex analogies or reframing (e.g., "philosophy is OCD" as structural insight)
+- High-density reasoning that challenges readers
+- Recursive or embedded counterargument strategies
+
+DO reward:
+- Conceptual compression and cognitive efficiency
+- Strategic asymmetry and purposeful structural choices  
+- Psychological realism about institutional/disciplinary behavior
+- Reframing as genuine epistemic innovation
+- Sequential demolition of counterexamples
+- Recursive self-monitoring and meta-cognitive awareness
+
+Evaluate using these 20 Quality Metrics (0-100 population percentile):
+
+1. **Conceptual Compression** - Cognitive work density per unit text
+2. **Epistemic Friction** - Resistance requiring genuine intellectual engagement  
+3. **Inference Control** - Precision and reliability of logical architecture
+4. **Asymmetry Of Cognitive Labor** - Strategic deployment of complexity
+5. **Novelty To Baseline Ratio** - Innovation beyond conventional frameworks
+6. **Internal Differentiation** - Sophisticated distinctions within argument
+7. **Problem Density** - Concentration of non-trivial intellectual challenges
+8. **Compression Across Levels** - Multi-scale integration efficiency
+9. **Semantic Specificity** - Precision of conceptual targeting
+10. **Explanatory Yield** - Insight generation per argumentative move
+11. **Meta Cognitive Signal** - Awareness of own reasoning architecture
+12. **Structural Integrity** - Coherence of overall argumentative design
+13. **Generative Potential** - Capacity to spawn further insights
+14. **Signal To Rhetoric Ratio** - Substance vs decorative language
+15. **Dialectical Engagement** - Sophisticated handling of counterarguments
+16. **Topological Awareness** - Recognition of conceptual landscape structure
+17. **Disambiguation Skill** - Clarity in complex conceptual terrain
+18. **Cross Disciplinary Fluency** - Integration across knowledge domains
+19. **Psychological Realism** - Accurate modeling of cognitive/institutional behavior
+20. **Intellectual Risk Quotient** - Willingness to pursue difficult insights
 
 Format your response as:
 {
@@ -1223,28 +1240,45 @@ Text A: "${passageA.text}"
 
 Text B: "${passageB.text}"
 
-Evaluate both texts using these 20 Quality Metrics:
+CRITICAL: You are evaluating ACTUAL INTELLECTUAL SUBSTANCE, not surface academic formatting. Recognize genuine intelligence, originality, and cogency even when presented in unconventional ways.
 
-1. **Conceptual Compression** - How much conceptual work per unit of text?
-2. **Epistemic Friction** - Resistance to easy/shallow reading?
-3. **Inference Control** - Precision of logical steps?
-4. **Problem Density** - Concentration of intellectual challenges?
-5. **Semantic Precision** - Exactness of word choice?
-6. **Argumentative Scaffolding** - Quality of logical structure?
-7. **Cognitive Load Management** - Optimal complexity?
-8. **Signal-to-Rhetoric Ratio** - Content vs. style?
-9. **Causal Alignment** - Accuracy of cause-effect relationships?
-10. **Counter-example Immunity** - Resistance to refutations?
-11. **Intelligibility of Objection** - Clarity of criticisms?
-12. **Dependence Hierarchy Awareness** - Recognition of dependencies?
-13. **Context-Bounded Inference** - Validity within scope?
-14. **Distinction Awareness** - Recognition of differences?
-15. **Layered Persuasiveness** - Multiple argument levels?
-16. **Predictive Specificity** - Precise implications?
-17. **Error Localization** - Identifying weaknesses?
-18. **Conceptual Novelty** - Original vs. recycled ideas?
-19. **Integration Capability** - Connection with broader knowledge?
-20. **Overall Assessment** - Holistic quality judgment?
+DO NOT penalize:
+- Lack of hedging in confident, well-supported arguments  
+- Absence of traditional essay structure when logic flows coherently
+- Complex analogies or reframing as structural insights
+- High-density reasoning that challenges readers
+- Recursive or embedded counterargument strategies
+
+DO reward:
+- Conceptual compression and cognitive efficiency
+- Strategic asymmetry and purposeful structural choices  
+- Psychological realism about institutional/disciplinary behavior
+- Reframing as genuine epistemic innovation
+- Sequential demolition of counterexamples
+- Recursive self-monitoring and meta-cognitive awareness
+
+Evaluate both texts using these 20 Quality Metrics (0-100 population percentile):
+
+1. **Conceptual Compression** - Cognitive work density per unit text
+2. **Epistemic Friction** - Resistance requiring genuine intellectual engagement  
+3. **Inference Control** - Precision and reliability of logical architecture
+4. **Asymmetry Of Cognitive Labor** - Strategic deployment of complexity
+5. **Novelty To Baseline Ratio** - Innovation beyond conventional frameworks
+6. **Internal Differentiation** - Sophisticated distinctions within argument
+7. **Problem Density** - Concentration of non-trivial intellectual challenges
+8. **Compression Across Levels** - Multi-scale integration efficiency
+9. **Semantic Specificity** - Precision of conceptual targeting
+10. **Explanatory Yield** - Insight generation per argumentative move
+11. **Meta Cognitive Signal** - Awareness of own reasoning architecture
+12. **Structural Integrity** - Coherence of overall argumentative design
+13. **Generative Potential** - Capacity to spawn further insights
+14. **Signal To Rhetoric Ratio** - Substance vs decorative language
+15. **Dialectical Engagement** - Sophisticated handling of counterarguments
+16. **Topological Awareness** - Recognition of conceptual landscape structure
+17. **Disambiguation Skill** - Clarity in complex conceptual terrain
+18. **Cross Disciplinary Fluency** - Integration across knowledge domains
+19. **Psychological Realism** - Accurate modeling of cognitive/institutional behavior
+20. **Intellectual Risk Quotient** - Willingness to pursue difficult insights
 
 Format your response as:
 {

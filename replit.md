@@ -191,6 +191,11 @@ Changelog:
 - July 19, 2025. INTEGRATION FEATURE: Implemented seamless cross-component communication between Document Rewriter, Homework Helper, and Analysis modules
 - July 19, 2025. Users can now send outputs between all tools: Analysis→Rewriter→Homework Helper and any other workflow combination
 - July 19, 2025. CRITICAL FIX: Implemented missing Perplexity Quality analysis functionality (previously was falling back to OpenAI)
+- July 19, 2025. EMERGENCY FIX: Completely rewrote Quality analysis evaluation logic to focus on ACTUAL INTELLECTUAL SUBSTANCE
+- July 19, 2025. Fixed catastrophic evaluation bias - app was judging surface academic formatting instead of genuine cognitive merit
+- July 19, 2025. Implemented proper 20 Quality metrics that reward conceptual compression, epistemic friction, and intellectual risk
+- July 19, 2025. Updated all Quality analysis prompts to recognize genuine intelligence even in unconventional presentation
+- July 19, 2025. Fixed route logic to properly use Perplexity/Anthropic services instead of defaulting to OpenAI fallback
 ```
 
 ## User Preferences
