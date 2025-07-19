@@ -16,6 +16,7 @@ export interface GraphResult {
   svg: string;
   title: string;
   description: string;
+  explanation?: string;
   specifications?: {
     equation?: string;
     domain?: string;
@@ -24,6 +25,8 @@ export interface GraphResult {
     decayRate?: string;
     dataPoints?: string;
     keyFeatures?: string[];
+    modelingAssumptions?: string;
+    theoreticalBasis?: string;
   };
 }
 
@@ -48,63 +51,70 @@ export async function generateGraph(request: GraphRequest): Promise<GraphResult>
   const llmProvider = request.llmProvider || 'gpt-4o-mini';
 
   try {
-    // Prepare the analysis prompt
+    // Prepare the intelligent analysis prompt
     const analysisPrompt = `
-You are a mathematical function plotter. Analyze this request and generate precise data points.
+You are an intelligent modeling system that analyzes real-world scenarios and creates mathematical models from them.
 
-Request: "${request.description}"
+User Request: "${request.description}"
 
-CRITICAL REQUIREMENTS:
-1. For ANY mathematical function described, YOU MUST:
-   - Identify the exact mathematical equation from the description
-   - Calculate y-values using the actual mathematical formula, not approximations
-   - Generate AT LEAST 100-300 data points for smooth curves
-   - Cover the complete specified range (e.g., x=0 to x=10)
-   - Include ALL critical points (intercepts, peaks, valleys, asymptotes)
+INTELLIGENT MODELING REQUIREMENTS:
 
-2. SPECIFIC FUNCTION TRANSLATIONS:
-   - "exponential decay starting at y=1": y = e^(-ax) where a > 0
-   - "sine wave with decaying/fading amplitude": y = A * e^(-bx) * sin(cx) where A=amplitude, b=decay rate, c=frequency
-   - "bell curve/normal distribution": y = (1/sqrt(2π)) * e^(-(x²)/2)
-   - "parabola opening downward": y = -a(x-h)² + k
+1. SCENARIO ANALYSIS:
+   - Read the entire prompt carefully, including any theoretical principles or constraints
+   - Identify the underlying dynamics, relationships, and variables described
+   - Understand abstract concepts like "social saturation," "emotional salience," "attention limits," etc.
+   - Do NOT default to simple mathematical functions like sine waves or parabolas
 
-3. FOR DECAYING SINE WAVE SPECIFICALLY:
-   - Must use formula: y = amplitude * exp(-decay_rate * x) * sin(frequency * x)
-   - Example: y = 1.0 * exp(-0.3 * x) * sin(2 * x)
-   - The amplitude MUST decrease as x increases
-   - Early peaks are tall, later peaks are short
-   - Calculate exact values, not uniform sine waves
+2. MATHEMATICAL MODELING:
+   - Derive a composite function that captures the described scenario
+   - Consider multiple factors and how they interact (e.g., growth + decay, network effects + limits)
+   - Create realistic functions that reflect the logical behavior described
+   - Examples:
+     * Information spread: f(t) = A * (1 - e^(-bt)) * e^(-ct) (growth then decay)
+     * Viral content: f(t) = k * t^α * e^(-βt) * (emotional_factor)
+     * Social adoption: f(t) = L / (1 + e^(-k(t-t0))) * saturation_factor
 
-3. Data format: [{"x": number, "y": number}, ...]
+3. GRAPH GENERATION:
+   - Generate 100-300 data points for smooth visualization
+   - Choose appropriate time/variable ranges that show the complete behavior
+   - Calculate exact mathematical values based on your derived model
+
+4. EXPLANATION CAPABILITY:
+   If the user requests explanation, analysis, or discussion alongside the graph:
+   - Provide comprehensive explanation of what the graph shows
+   - Connect curve features to the underlying theory/principles
+   - Interpret peaks, valleys, inflection points in context
+   - Apply insights to broader domains when requested
 
 Return JSON structure:
 {
   "graphType": "line",
-  "title": "Title from description",
-  "xLabel": "x",
-  "yLabel": "y", 
-  "data": [{"x": 0, "y": calculatedValue}, {"x": 0.033, "y": calculatedValue}, ...],
-  "description": "Mathematical function plotted",
+  "title": "Contextual title based on scenario",
+  "xLabel": "Appropriate x-axis label",
+  "yLabel": "Appropriate y-axis label",
+  "data": [{"x": 0, "y": calculatedValue}, ...],
+  "description": "Brief description of what the graph models",
+  "explanation": "If requested: detailed explanation of the graph, its features, theoretical connections, and broader applications",
   "specifications": {
-    "equation": "The exact mathematical equation used (e.g., y = sin(x) * e^(-0.3x))",
-    "domain": "Range of x values (e.g., x ∈ [0, 10])",
-    "amplitude": "Initial amplitude value",
-    "frequency": "Oscillation frequency (for periodic functions)",
-    "decayRate": "Decay rate constant (for exponential decay)",
-    "dataPoints": "Number of calculated points",
-    "keyFeatures": ["List of important mathematical features", "e.g., intercepts, peaks, asymptotes"]
+    "equation": "The derived mathematical model (e.g., f(t) = A*(1-e^(-bt))*e^(-ct))",
+    "domain": "Range of variables",
+    "modelingAssumptions": "Key assumptions made in the model",
+    "keyFeatures": ["Critical points and their real-world meaning"],
+    "theoreticalBasis": "Connection to stated principles or theories"
   }
 }
 
-MATHEMATICAL PRECISION REQUIRED: No approximations, no presets, calculate actual function values.
+CRITICAL JSON FORMATTING:
+- DO NOT use preset functions or canned responses
+- Model the ACTUAL scenario described, not a generic mathematical function
+- If explanation is requested, provide it in the "explanation" field
+- Be context-sensitive and intelligent in your modeling
+- NEVER use "..." or abbreviations in the data array - provide ALL data points explicitly
+- Generate COMPLETE data arrays with 50-200 actual data points, not shortcuts
+- Only return valid JSON without markdown formatting. Start with { and end with }.
 
-VALIDATION CHECKS:
-- For decaying sine: amplitude must decrease over time (peaks get smaller)
-- For normal distribution: must have single peak at center, symmetric decay
-- For exponential decay: must approach zero asymptotically
-- Generate dense points (x increments of 0.03-0.1) for smooth curves
-
-CRITICAL: Only return valid JSON without markdown formatting, comments, or explanatory text. Start directly with { and end with }.`;
+EXAMPLE VALID DATA FORMAT:
+"data": [{"x": 0, "y": 0}, {"x": 0.1, "y": 0.05}, {"x": 0.2, "y": 0.12}, ...]`;
 
     let response;
     
@@ -208,6 +218,7 @@ CRITICAL: Only return valid JSON without markdown formatting, comments, or expla
       svg,
       title,
       description: analysis.description || 'Generated graph',
+      explanation: analysis.explanation || undefined,
       specifications: analysis.specifications || undefined
     };
 

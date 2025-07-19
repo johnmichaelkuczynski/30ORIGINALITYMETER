@@ -2106,6 +2106,75 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Graph PDF download endpoint
+  app.post("/api/download-graph-pdf", async (req: Request, res: Response) => {
+    try {
+      const { title, graph, description, explanation, specifications } = req.body;
+      
+      const PDFDocument = require('pdfkit');
+      const doc = new PDFDocument();
+      
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
+      
+      // Pipe PDF to response
+      doc.pipe(res);
+      
+      // Add title
+      doc.fontSize(20).text(title, 50, 50);
+      doc.moveDown();
+      
+      // Add description
+      if (description) {
+        doc.fontSize(12).text(description, 50, doc.y);
+        doc.moveDown();
+      }
+      
+      // Add SVG placeholder (note: PDFKit doesn't support SVG directly)
+      doc.fontSize(10).text('[Graph visualization - see original application for interactive view]', 50, doc.y);
+      doc.moveDown(2);
+      
+      // Add explanation if available
+      if (explanation) {
+        doc.fontSize(14).text('Analysis & Explanation:', 50, doc.y);
+        doc.moveDown();
+        doc.fontSize(11).text(explanation, 50, doc.y, { width: 500 });
+        doc.moveDown();
+      }
+      
+      // Add specifications
+      if (specifications) {
+        doc.fontSize(14).text('Mathematical Specifications:', 50, doc.y);
+        doc.moveDown();
+        
+        Object.entries(specifications).forEach(([key, value]) => {
+          if (value) {
+            const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+            if (Array.isArray(value)) {
+              doc.fontSize(10).text(`${label}:`, 50, doc.y);
+              value.forEach(item => {
+                doc.text(`• ${item}`, 70, doc.y);
+              });
+            } else {
+              doc.fontSize(10).text(`${label}: ${value}`, 50, doc.y);
+            }
+            doc.moveDown(0.5);
+          }
+        });
+      }
+      
+      doc.end();
+      
+    } catch (error) {
+      console.error("Error generating graph PDF:", error);
+      res.status(500).json({ 
+        error: "PDF generation failed", 
+        message: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Graph generation endpoint
   app.post("/api/generate-graph", async (req: Request, res: Response) => {
     try {

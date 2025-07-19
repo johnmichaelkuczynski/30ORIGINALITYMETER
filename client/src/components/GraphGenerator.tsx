@@ -12,6 +12,7 @@ interface GraphResult {
   svg: string;
   title: string;
   description: string;
+  explanation?: string;
   specifications?: {
     equation?: string;
     domain?: string;
@@ -20,6 +21,8 @@ interface GraphResult {
     decayRate?: string;
     dataPoints?: string;
     keyFeatures?: string[];
+    modelingAssumptions?: string;
+    theoreticalBasis?: string;
   };
 }
 
@@ -99,6 +102,53 @@ export default function GraphGenerator() {
     }
   };
 
+  const downloadGraphPDF = async () => {
+    if (!generatedGraph) return;
+    
+    try {
+      // Create PDF content combining graph and analysis
+      const content = {
+        title: generatedGraph.title,
+        graph: generatedGraph.svg,
+        description: generatedGraph.description,
+        explanation: generatedGraph.explanation || '',
+        specifications: generatedGraph.specifications
+      };
+      
+      const response = await fetch('/api/download-graph-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(content),
+      });
+      
+      if (!response.ok) {
+        throw new Error('PDF generation failed');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${generatedGraph.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "PDF downloaded",
+        description: "Graph analysis PDF has been downloaded",
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast({
+        title: "Download failed",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const clearAll = () => {
     setDescription('');
     setGraphType('auto');
@@ -122,7 +172,7 @@ export default function GraphGenerator() {
             <Label htmlFor="description">Graph Description*</Label>
             <Textarea
               id="description"
-              placeholder="Describe the graph you want to create. Examples:&#10;• Line chart showing inflation rates from 2010-2024&#10;• Bar chart comparing GDP across economic sectors&#10;• Scatter plot of y=x^2 function from x=-5 to x=5&#10;• Pie chart showing market share distribution"
+              placeholder="Describe a real-world scenario to model, or request both a graph and explanation. Examples:&#10;• Assume information spreads based on network effects but tapers due to attention limits. Graph spread velocity over time.&#10;• Model how viral content popularity changes based on emotional salience and social saturation. Include analysis.&#10;• Create a graph showing technology adoption rates with network effects, then explain the implications.&#10;• Model disease transmission considering behavior changes and public health measures."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -289,6 +339,15 @@ export default function GraphGenerator() {
             
             <p className="text-sm text-gray-600">{generatedGraph.description}</p>
             
+            {generatedGraph.explanation && (
+              <div className="border-t pt-4 mt-4">
+                <h4 className="font-semibold text-sm mb-3">Analysis & Explanation</h4>
+                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+                  {generatedGraph.explanation}
+                </div>
+              </div>
+            )}
+            
             {generatedGraph.specifications && (
               <div className="border-t pt-4 mt-4">
                 <h4 className="font-semibold text-sm mb-3">Mathematical Specifications</h4>
@@ -331,6 +390,18 @@ export default function GraphGenerator() {
                       <div className="text-gray-600">{generatedGraph.specifications.dataPoints}</div>
                     </div>
                   )}
+                  {generatedGraph.specifications.modelingAssumptions && (
+                    <div className="md:col-span-2">
+                      <span className="font-medium">Modeling Assumptions:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.modelingAssumptions}</div>
+                    </div>
+                  )}
+                  {generatedGraph.specifications.theoreticalBasis && (
+                    <div className="md:col-span-2">
+                      <span className="font-medium">Theoretical Basis:</span>
+                      <div className="text-gray-600">{generatedGraph.specifications.theoreticalBasis}</div>
+                    </div>
+                  )}
                 </div>
                 {generatedGraph.specifications.keyFeatures && generatedGraph.specifications.keyFeatures.length > 0 && (
                   <div className="mt-3">
@@ -352,6 +423,13 @@ export default function GraphGenerator() {
                 className="flex-1"
               >
                 Copy SVG Code
+              </Button>
+              <Button
+                variant="outline"
+                onClick={downloadGraphPDF}
+                className="flex-1"
+              >
+                Download PDF
               </Button>
             </div>
           </CardContent>

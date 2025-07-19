@@ -217,6 +217,12 @@ Changelog:
 - July 19, 2025. Graphs now show exact equation, domain, amplitude, frequency, decay rate, data points, and key features
 - July 19, 2025. Enhanced LLM prompts with specific function translations (exponential decay, decaying sine, normal distribution)
 - July 19, 2025. Added validation checks to ensure mathematical precision in generated functions
+- July 19, 2025. REVOLUTIONARY UPGRADE: Transformed graph generation into intelligent scenario modeling system
+- July 19, 2025. LLMs now analyze real-world scenarios and derive appropriate mathematical models (not preset functions)
+- July 19, 2025. Added comprehensive explanation capability for combined graph + analysis tasks
+- July 19, 2025. System supports complex prompts like "model rumor spread with emotional salience + write explanation"
+- July 19, 2025. Added PDF export functionality for complete graph analysis reports
+- July 19, 2025. Graph generator now supports context-sensitive modeling with theoretical connections
 ```
 
 ## User Preferences
