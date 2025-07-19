@@ -196,6 +196,10 @@ Changelog:
 - July 19, 2025. Implemented proper 20 Quality metrics that reward conceptual compression, epistemic friction, and intellectual risk
 - July 19, 2025. Updated all Quality analysis prompts to recognize genuine intelligence even in unconventional presentation
 - July 19, 2025. Fixed route logic to properly use Perplexity/Anthropic services instead of defaulting to OpenAI fallback
+- July 19, 2025. CRITICAL SCORING FIX: Updated all analysis prompts to use population percentile scoring (0-100 where score = how many people out of 100 this text is better than)
+- July 19, 2025. Fixed conversion logic to stop multiplying scores by 10 - now uses direct 0-100 population percentile scores
+- July 19, 2025. Added explicit instructions: "If you went up to 100 people on the street, how many could write this sophisticatedly?" 
+- July 19, 2025. Sophisticated philosophical analysis should score 95-99/100 (only 1-5% of people could write better), not 80/100 (B-minus level)
 ```
 
 ## User Preferences

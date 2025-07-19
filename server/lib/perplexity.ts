@@ -1120,7 +1120,16 @@ export async function analyzeQuality(passage: PassageData): Promise<any> {
   try {
     console.log("Starting Perplexity quality analysis for passage");
     
-    const prompt = `You are an expert evaluator of intellectual writing quality across all disciplines. Analyze the following text using 20 precise quality metrics. Score each parameter from 0-100 as a population percentile (e.g., 85 = better than 85% of people).
+    const prompt = `You are an expert evaluator of intellectual writing quality across all disciplines. Analyze the following text using 20 precise quality metrics. 
+
+CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
+- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
+- 85/100 = better than 85% of people (only 15% of people are smarter/better)
+- 50/100 = better than 50% of people (average, 50% are smarter)
+
+BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+
+For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 
@@ -1232,7 +1241,16 @@ export async function analyzeQualityDual(passageA: PassageData, passageB: Passag
   try {
     console.log("Starting Perplexity dual quality analysis");
     
-    const prompt = `You are an expert evaluator of intellectual writing quality. Compare these two texts using 20 quality metrics. Score each parameter from 0-100 as a population percentile.
+    const prompt = `You are an expert evaluator of intellectual writing quality. Compare these two texts using 20 quality metrics.
+
+CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
+- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
+- 85/100 = better than 85% of people (only 15% of people are smarter/better)
+- 50/100 = better than 50% of people (average, 50% are smarter)
+
+BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+
+For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 

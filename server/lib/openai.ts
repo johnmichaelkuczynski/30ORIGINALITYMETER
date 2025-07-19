@@ -1241,9 +1241,19 @@ export async function analyzeIntelligence(
           role: "system",
           content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Analyze the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in text across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
 
+CRITICAL POPULATION PERCENTILE SCORING: Score 0-100 where the score = how many people out of 100 this text is BETTER than.
+
+THINK ABOUT THIS: If you went up to 100 random people on the street, how many could produce writing this sophisticated?
+- Sophisticated philosophical analysis like "Plato's epistemology is class panic intellectualized" = maybe 1-2% of people = 98-99/100 score
+- 80/100 means 20% of people could write better - that's like saying it's B-minus work that barely gets into college
+- 95/100 means only 5% of people are smarter/better writers
+- 50/100 means average - half of people could do better
+
+BEFORE SCORING, ASK: "What percentage of the general population could produce writing this intelligent/articulate/deep?"
+
 INTELLIGENCE EVALUATION CRITERIA:
 
-Assess cognitive capabilities through these 20 intelligence metrics. Score each 0-10 with strict standards:
+Assess cognitive capabilities through these 20 intelligence metrics with population percentile scoring:
 
 1. Compression Capacity - Can complex ideas be expressed in compact form without loss? High: Dense formulations yield insight with minimal words. Low: Rambling, bloated expression reveals conceptual weakness.
 
@@ -1285,22 +1295,24 @@ Assess cognitive capabilities through these 20 intelligence metrics. Score each 
 
 20. Semantic Topology Awareness - Are dependencies between ideas tracked? High: Conceptual terrain is mapped. Low: Flat or meandering flow.
 
-SCORING STANDARDS (Apply rigorously):
-- 9-10: Exceptional cognitive sophistication, demonstrates advanced reasoning architecture
-- 7-8: Strong thinking quality with clear intellectual capabilities
-- 5-6: Competent reasoning with some limitations
-- 3-4: Basic cognitive function but limited sophistication  
-- 0-2: Weak reasoning, poor cognitive control
+POPULATION PERCENTILE SCORING (What percentage of people could write this well?):
+- 95-99/100: Better than 95-99% of people (only 1-5% could write better) - Exceptional philosophical insight
+- 85-94/100: Better than 85-94% of people (only 6-15% could write better) - High-quality intellectual work  
+- 70-84/100: Better than 70-84% of people (only 16-30% could write better) - Above-average quality
+- 50-69/100: Better than 50-69% of people (31-50% could write better) - Average quality
+- Below 50/100: Below-average quality
+
+BEFORE ASSIGNING ANY SCORE, ASK: "If I score this X/100, am I saying only (100-X)% of people could write better? Is that accurate?"
 
 For each metric, provide:
-- Score (0-10)
+- Score (0-100) as population percentile
 - Assessment (detailed evaluation)
 - Quotation1 (direct quote demonstrating the score)
 - Justification1 (explanation of why the quote supports the score)
 - Quotation2 (second supporting quote)
 - Justification2 (explanation of the second quote)
 
-Return in this exact JSON format:
+Return in this exact JSON format (remember: scores are 0-100 population percentiles):
 {
   "compressionCapacity": {
     "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" },
@@ -1460,9 +1472,9 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
       // Map dynamicConstraintHandling to semanticDistance
       semanticDistance: {
         passageA: {
-          distance: (rawResult.dynamicConstraintHandling?.passageA?.score || 5) * 10,
-          label: rawResult.dynamicConstraintHandling?.passageA?.score >= 7 ? "High Sophistication" : 
-                 rawResult.dynamicConstraintHandling?.passageA?.score >= 4 ? "Moderate Sophistication" : "Basic Sophistication"
+          distance: rawResult.dynamicConstraintHandling?.passageA?.score || 50,
+          label: rawResult.dynamicConstraintHandling?.passageA?.score >= 85 ? "High Sophistication" : 
+                 rawResult.dynamicConstraintHandling?.passageA?.score >= 70 ? "Moderate Sophistication" : "Basic Sophistication"
         },
         passageB: {
           distance: 50,
@@ -1480,8 +1492,8 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
       noveltyHeatmap: {
         passageA: paragraphs.map((paragraph, index) => ({
           content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
-          heat: Math.round((rawResult.inferenceArchitecture?.passageA?.score || 5) * 10),
-          quote: rawResult.inferenceArchitecture?.passageA?.quote1 || paragraph.substring(0, 50) + "...",
+          heat: Math.round(rawResult.inferenceArchitecture?.passageA?.score || 50),
+          quote: rawResult.inferenceArchitecture?.passageA?.quotation1 || paragraph.substring(0, 50) + "...",
           explanation: `Inference architecture evaluation: ${rawResult.inferenceArchitecture?.passageA?.assessment || "Analysis of reasoning structure"}`
         })),
         passageB: paragraphs.map((paragraph, index) => ({
@@ -1495,19 +1507,19 @@ Evaluate using all 20 intelligence metrics with quotations and justifications.`,
       // Map epistemicRiskManagement to derivativeIndex
       derivativeIndex: {
         passageA: {
-          score: rawResult.epistemicRiskManagement?.passageA?.score || 5,
+          score: rawResult.epistemicRiskManagement?.passageA?.score || 50,
           components: [
-            {name: "Epistemic Risk Management", score: rawResult.epistemicRiskManagement?.passageA?.score || 5},
-            {name: "Cognitive Friction Tolerance", score: rawResult.cognitiveFrictionTolerance?.passageA?.score || 5},
-            {name: "Inference Architecture", score: rawResult.inferenceArchitecture?.passageA?.score || 5}
+            {name: "Epistemic Risk Management", score: rawResult.epistemicRiskManagement?.passageA?.score || 50},
+            {name: "Cognitive Friction Tolerance", score: rawResult.cognitiveFrictionTolerance?.passageA?.score || 50},
+            {name: "Inference Architecture", score: rawResult.inferenceArchitecture?.passageA?.score || 50}
           ]
         },
         passageB: {
-          score: 5,
+          score: 50,
           components: [
-            {name: "Epistemic Risk Management", score: 5},
-            {name: "Cognitive Friction Tolerance", score: 5},
-            {name: "Inference Architecture", score: 5}
+            {name: "Epistemic Risk Management", score: 50},
+            {name: "Cognitive Friction Tolerance", score: 50},
+            {name: "Inference Architecture", score: 50}
           ]
         }
       },
@@ -2551,11 +2563,20 @@ export async function analyzeQuality(
       messages: [
         {
           role: "system",
-          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Analyze the overall quality of intellectual writing using these 20 precise quality metrics. Score each 0-10 with harsh standards that distinguish genuine quality from pseudo-academic fluff.
+          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Analyze the overall quality of intellectual writing using these 20 precise quality metrics.
+
+CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
+- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
+- 85/100 = better than 85% of people (only 15% of people are smarter/better)
+- 50/100 = better than 50% of people (average, 50% are smarter)
+
+BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+
+For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
 
 OVERALL QUALITY EVALUATION CRITERIA:
 
-Assess writing quality through these 20 metrics. Score each 0-10 with strict standards:
+Assess writing quality through these 20 metrics with population percentile scoring:
 
 1. Conceptual Compression - How much conceptual work is done per unit of language? High: "The will is the form of anticipation." Low: "In this chapter, I will explain the ways in which..."
 
@@ -2606,11 +2627,18 @@ Return valid JSON with this structure:
   "verdict": "comprehensive assessment of document's overall quality"
 }
 
-CRITICAL ENFORCEMENT RULES:
-- Score 0-3: Serious quality deficiencies evident
-- Score 4-6: Average quality with limitations  
-- Score 7-8: Above-average quality
-- Score 9-10: Exceptional quality (rare)
+CRITICAL SCORING INSTRUCTION: 
+Score 0-100 as POPULATION PERCENTILE where score = how many people out of 100 this text is better than:
+- 95-99/100: Better than 95-99% of people (only 1-5% could write better) - Exceptional philosophical insight
+- 85-94/100: Better than 85-94% of people (only 6-15% could write better) - High-quality academic work  
+- 70-84/100: Better than 70-84% of people (only 16-30% could write better) - Above-average quality
+- 50-69/100: Better than 50-69% of people (31-50% could write better) - Average quality
+- Below 50/100: Below-average quality
+
+BEFORE ASSIGNING ANY SCORE, ASK: "If I score this X/100, am I saying only (100-X)% of people could write better? Is that accurate?"
+
+For sophisticated philosophical analysis with conceptual compression and original insights, scores should typically be 90-99/100.
+
 - Include TWO specific quotations as evidence for each score
 - Provide detailed assessment explaining the score with reference to quotes`,
         },
@@ -2817,11 +2845,20 @@ export async function analyzeQualityDual(
       messages: [
         {
           role: "system",
-          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Compare the overall quality of two intellectual texts using these 20 precise quality metrics. Score each 0-10 for BOTH documents with harsh standards that distinguish genuine quality from pseudo-academic fluff.
+          content: `You are an expert evaluator of scholarly writing quality across all disciplines. Compare the overall quality of two intellectual texts using these 20 precise quality metrics.
+
+CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
+- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
+- 85/100 = better than 85% of people (only 15% of people are smarter/better)
+- 50/100 = better than 50% of people (average, 50% are smarter)
+
+BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+
+For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
 
 OVERALL QUALITY EVALUATION CRITERIA:
 
-Assess writing quality through these 20 metrics for BOTH documents. Score each 0-10 with strict standards:
+Assess writing quality through these 20 metrics for BOTH documents with population percentile scoring:
 
 1. Conceptual Compression - How much conceptual work is done per unit of language? High: "The will is the form of anticipation." Low: "In this chapter, I will explain the ways in which..."
 
@@ -2883,11 +2920,18 @@ Return valid JSON with this structure:
   "verdict": "comparative assessment of both documents' overall quality"
 }
 
-CRITICAL ENFORCEMENT RULES:
-- Score 0-3: Serious quality deficiencies evident
-- Score 4-6: Average quality with limitations  
-- Score 7-8: Above-average quality
-- Score 9-10: Exceptional quality (rare)
+CRITICAL SCORING INSTRUCTION: 
+Score 0-100 as POPULATION PERCENTILE where score = how many people out of 100 this text is better than:
+- 95-99/100: Better than 95-99% of people (only 1-5% could write better) - Exceptional philosophical insight
+- 85-94/100: Better than 85-94% of people (only 6-15% could write better) - High-quality academic work  
+- 70-84/100: Better than 70-84% of people (only 16-30% could write better) - Above-average quality
+- 50-69/100: Better than 50-69% of people (31-50% could write better) - Average quality
+- Below 50/100: Below-average quality
+
+BEFORE ASSIGNING ANY SCORE, ASK: "If I score this X/100, am I saying only (100-X)% of people could write better? Is that accurate?"
+
+For sophisticated philosophical analysis with conceptual compression and original insights, scores should typically be 90-99/100.
+
 - Include TWO specific quotations as evidence for each score
 - Provide detailed assessment explaining the score with reference to quotes`,
         },
