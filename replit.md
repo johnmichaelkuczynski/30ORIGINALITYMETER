@@ -200,6 +200,10 @@ Changelog:
 - July 19, 2025. Fixed conversion logic to stop multiplying scores by 10 - now uses direct 0-100 population percentile scores
 - July 19, 2025. Added explicit instructions: "If you went up to 100 people on the street, how many could write this sophisticatedly?" 
 - July 19, 2025. Sophisticated philosophical analysis should score 95-99/100 (only 1-5% of people could write better), not 80/100 (B-minus level)
+- July 19, 2025. URGENT FIX: Enhanced all scoring prompts with explicit reality check - most people cannot write sophisticated philosophical analysis
+- July 19, 2025. Added mandatory scoring instruction: "Out of 100 random people, how many could actually write analysis this sophisticated?"
+- July 19, 2025. Fixed frontend conversion logic that was incorrectly multiplying scores - now shows pure AI-returned scores
+- July 19, 2025. Updated TXT downloads to show correct /100 format instead of /10
 ```
 
 ## User Preferences

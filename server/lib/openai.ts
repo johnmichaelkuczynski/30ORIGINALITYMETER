@@ -1241,15 +1241,19 @@ export async function analyzeIntelligence(
           role: "system",
           content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Analyze the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in text across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
 
-CRITICAL POPULATION PERCENTILE SCORING: Score 0-100 where the score = how many people out of 100 this text is BETTER than.
+MANDATORY POPULATION PERCENTILE SCORING: 
 
-THINK ABOUT THIS: If you went up to 100 random people on the street, how many could produce writing this sophisticated?
-- Sophisticated philosophical analysis like "Plato's epistemology is class panic intellectualized" = maybe 1-2% of people = 98-99/100 score
-- 80/100 means 20% of people could write better - that's like saying it's B-minus work that barely gets into college
-- 95/100 means only 5% of people are smarter/better writers
-- 50/100 means average - half of people could do better
+YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
 
-BEFORE SCORING, ASK: "What percentage of the general population could produce writing this intelligent/articulate/deep?"
+CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+
+SCORING REALITY:
+- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
+- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
+- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
+- 50/100 = average person (half of people could do better)
+
+BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
 
 INTELLIGENCE EVALUATION CRITERIA:
 

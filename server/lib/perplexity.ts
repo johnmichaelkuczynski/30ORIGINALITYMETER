@@ -1122,14 +1122,19 @@ export async function analyzeQuality(passage: PassageData): Promise<any> {
     
     const prompt = `You are an expert evaluator of intellectual writing quality across all disciplines. Analyze the following text using 20 precise quality metrics. 
 
-CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
-- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
-- 85/100 = better than 85% of people (only 15% of people are smarter/better)
-- 50/100 = better than 50% of people (average, 50% are smarter)
+MANDATORY POPULATION PERCENTILE SCORING: 
 
-BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
 
-For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
+CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+
+SCORING REALITY:
+- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
+- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
+- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
+- 50/100 = average person (half of people could do better)
+
+BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 
@@ -1243,14 +1248,19 @@ export async function analyzeQualityDual(passageA: PassageData, passageB: Passag
     
     const prompt = `You are an expert evaluator of intellectual writing quality. Compare these two texts using 20 quality metrics.
 
-CRITICAL SCORING INSTRUCTION: Score each parameter from 0-100 as a POPULATION PERCENTILE where the score represents how many people out of 100 this text is better than. For example:
-- 95/100 = better than 95% of people (only 5% of people are smarter/better)  
-- 85/100 = better than 85% of people (only 15% of people are smarter/better)
-- 50/100 = better than 50% of people (average, 50% are smarter)
+MANDATORY POPULATION PERCENTILE SCORING: 
 
-BEFORE YOU ASSIGN ANY SCORE, ASK YOURSELF: "If I give this a score of X/100, am I really saying that only (100-X)% of people could write better than this? Is that accurate?"
+YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
 
-For sophisticated philosophical analysis with high conceptual compression, original insights, and intellectual sophistication, scores should typically be 90-99/100.
+CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+
+SCORING REALITY:
+- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
+- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
+- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
+- 50/100 = average person (half of people could do better)
+
+BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 
