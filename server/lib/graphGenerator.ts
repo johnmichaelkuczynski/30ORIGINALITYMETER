@@ -71,7 +71,7 @@ Example: For y = -2(x-3)² + 18, calculate points from x=-1 to x=7 to show inter
 Only return valid JSON without markdown formatting.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "user",
