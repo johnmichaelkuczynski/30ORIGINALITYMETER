@@ -237,6 +237,7 @@ Changelog:
 - July 19, 2025. MAJOR IMPROVEMENT: Replaced html2pdf with browser print/save-as-PDF functionality
 - July 19, 2025. Print dialog preserves MathJax-rendered mathematical notation in PDF output
 - July 19, 2025. Users can now save PDFs with perfect mathematical formatting through browser print function
+- July 19, 2025. Added discrete "Contact Us" link in top left corner linking to contact@zhisystems.ai corporate help desk
 ```
 
 ## User Preferences

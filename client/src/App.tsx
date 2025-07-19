@@ -75,20 +75,33 @@ function Navigation() {
 
 function Router() {
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Originality Meter</h1>
-        <p className="text-xl text-gray-600">Advanced AI-powered platform for scholarly writing analysis and enhancement</p>
+    <div className="relative min-h-screen">
+      {/* Contact Us link in top left corner */}
+      <div className="absolute top-4 left-4 z-10">
+        <a 
+          href="mailto:contact@zhisystems.ai"
+          className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          style={{ fontSize: '11px' }}
+        >
+          Contact Us
+        </a>
       </div>
-      
-      <Navigation />
-      
-      <Switch>
-        <Route path="/" component={Home}/>
-        <Route path="/rewriter" component={DocumentRewriterPage}/>
-        <Route path="/homework" component={HomeworkHelperPage}/>
-        <Route component={NotFound} />
-      </Switch>
+
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Originality Meter</h1>
+          <p className="text-xl text-gray-600">Advanced AI-powered platform for scholarly writing analysis and enhancement</p>
+        </div>
+        
+        <Navigation />
+        
+        <Switch>
+          <Route path="/" component={Home}/>
+          <Route path="/rewriter" component={DocumentRewriterPage}/>
+          <Route path="/homework" component={HomeworkHelperPage}/>
+          <Route component={NotFound} />
+        </Switch>
+      </div>
     </div>
   );
 }
