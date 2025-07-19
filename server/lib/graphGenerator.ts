@@ -41,32 +41,36 @@ export async function generateGraph(request: GraphRequest): Promise<GraphResult>
   try {
     // Prepare the analysis prompt
     const analysisPrompt = `
-Analyze this graph request and provide a JSON response with the following structure:
-{
-  "graphType": "line|bar|scatter|pie|area",
-  "title": "Graph title",
-  "xLabel": "X-axis label",
-  "yLabel": "Y-axis label",
-  "data": [array of data points],
-  "description": "Brief description of what the graph shows"
-}
+You are a mathematical function plotter. Analyze this request and generate precise data points.
 
 Request: "${request.description}"
 
-IMPORTANT: For mathematical functions (like y = -2(x-3)² + 18), calculate precise data points that show ALL key features:
-- Include x-intercepts (where y=0)
-- Include y-intercept (where x=0)
-- Include vertex/maximum/minimum points
-- Use appropriate x-range to capture the full curve
-- Generate enough points (20-50) for smooth curves
+CRITICAL REQUIREMENTS:
+1. For ANY mathematical function described (exponential decay, sine wave, parabola, etc.), YOU MUST:
+   - Identify the exact mathematical equation (e.g., y = e^(-x), y = sin(x)*e^(-x), y = -2(x-3)² + 18)
+   - Calculate y-values using the actual mathematical formula, not approximations
+   - Generate AT LEAST 50-300 data points for smooth curves
+   - Cover the complete specified range (e.g., x=0 to x=10)
+   - Include ALL critical points (intercepts, peaks, valleys, asymptotes)
 
-For line/scatter graphs, use format: [{"x": number, "y": number}, ...]
-For bar graphs, use format: [{"label": "Category", "value": number}, ...]
-For pie charts, use format: [{"label": "Category", "value": number}, ...]
+2. For verbal descriptions like "exponential decay starting at y=1":
+   - Convert to precise equation: y = e^(-ax) where a determines decay rate
+   - For "sine wave with decaying amplitude": y = e^(-bx) * sin(cx)
+   - Calculate exact mathematical values, not preset patterns
 
-For mathematical functions, calculate actual y-values using the given equation.
-Example: For y = -2(x-3)² + 18, calculate points from x=-1 to x=7 to show intercepts at (0,0) and (6,0).
+3. Data format: [{"x": number, "y": number}, ...]
 
+Return JSON structure:
+{
+  "graphType": "line",
+  "title": "Title from description",
+  "xLabel": "x",
+  "yLabel": "y", 
+  "data": [{"x": 0, "y": calculatedValue}, {"x": 0.033, "y": calculatedValue}, ...],
+  "description": "Mathematical function plotted"
+}
+
+MATHEMATICAL PRECISION REQUIRED: No approximations, no presets, calculate actual function values.
 CRITICAL: Only return valid JSON without markdown formatting, comments, or explanatory text. Start directly with { and end with }.`;
 
     let response;
