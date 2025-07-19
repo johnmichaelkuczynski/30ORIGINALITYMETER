@@ -28,10 +28,7 @@ interface EnhancedArgumentativeResult {
       evaluationExplanation: string;
     };
     coreParameters: {
-      inferentialStructure: CoreParameter;
-      conceptualControl: CoreParameter;
-      argumentativeIntegrity: CoreParameter;
-      synthesisIntegration: CoreParameter;
+      [key: string]: CoreParameter;
     };
     overallJudgment: string;
   };
@@ -82,23 +79,28 @@ export async function analyzeSinglePaperEnhanced(
 DOCUMENT GENRE: ${genreInfo.genre}
 EVALUATION APPROACH: Assess actual cogency, not formal compliance
 
-EVALUATION PARAMETERS (Use full 0-25 range for genre-appropriate assessment):
+EVALUATE USING ALL 20 COGENCY PARAMETERS (Score each 0-25 for sophisticated philosophical work):
 
-1. INFERENTIAL STRUCTURE: Quality of logical reasoning and argumentative development
-- Assess: logical coherence, inferential control, handling of complexities
-- Genre-specific: formal proofs vs. philosophical argumentation vs. empirical reasoning
-
-2. CONCEPTUAL CONTROL: Precision and consistency of conceptual framework
-- Assess: terminological clarity, conceptual distinctions, theoretical coherence  
-- Genre-specific: technical precision vs. philosophical subtlety vs. empirical operationalization
-
-3. ARGUMENTATIVE INTEGRITY: Completeness and thoroughness of the argument
-- Assess: scope coverage, objection handling, inferential completeness
-- Genre-specific: proof rigor vs. philosophical depth vs. empirical comprehensiveness
-
-4. SYNTHESIS & INTEGRATION: Unified coherence across the work's components
-- Assess: organizational coherence, thematic integration, multi-level consistency
-- Genre-specific: formal systematicity vs. philosophical unity vs. empirical synthesis
+1. Argumentative Continuity - Is each claim supported by those before it?
+2. Error-Resistance - Can the argument absorb counterpoints without collapse?
+3. Specificity of Commitment - Are claims stated precisely and clearly?
+4. Provisionality Control - Does the author know when to hedge and when to commit?
+5. Load Distribution - Are inferential loads distributed efficiently?
+6. Error Anticipation - Are potential objections built into the argument?
+7. Epistemic Parsimony - Does the argument avoid unnecessary complexity?
+8. Scope Clarity - Is the domain of applicability clear?
+9. Evidence Calibration - Are claims weighted relative to their support?
+10. Redundancy Avoidance - Are points repeated without need?
+11. Conceptual Interlock - Do definitions and theses cohere together?
+12. Temporal Stability - Does the argument hold over time or over revisions?
+13. Distinction Awareness - Are relevant distinctions tracked and preserved?
+14. Layered Persuasiveness - Does the argument work for multiple levels of reader?
+15. Signal Discipline - Is the signal-to-rhetoric ratio high?
+16. Causal Alignment - Do causal claims line up with evidence and theory?
+17. Counterexample Immunity - Is the argument resilient to typical counterexamples?
+18. Intelligibility of Objection - Would a smart opponent know what to attack?
+19. Dependence Hierarchy Awareness - Are structural dependencies tracked?
+20. Context-Bounded Inference - Are inferences valid only under clear assumptions?
 
 TEXT TO EVALUATE: ${passage.text.substring(0, 6000)}
 
@@ -119,37 +121,117 @@ This is sophisticated philosophical analysis by an expert. Evaluate it as such. 
 - Academic depth vs. popular readability
 - Theoretical sophistication vs. empirical data
 
-AUTHENTIC SCORING expectations for philosophical analysis:
-- Expert-level sophistication: 24-25 points per parameter
+AUTHENTIC SCORING expectations for sophisticated philosophical analysis:
+- Expert-level sophistication: 24-25 points per parameter  
 - Advanced philosophical work: 22-24 points
 - Competent philosophical work: 19-21 points
 - Basic philosophical work: 16-18 points
 
-Use the full scoring range. This text demonstrates sophisticated philosophical reasoning and should be scored accordingly.
+This text demonstrates sophisticated philosophical reasoning and should be scored accordingly.
 
-Return ONLY this JSON structure with integer scores 0-25:
+Return ONLY this JSON structure with integer scores 0-25 for ALL 20 parameters:
 {
   "argumentSummary": "concise summary of the main philosophical argument",
   "superiorReconstruction": "constructive suggestions for enhancement",
-  "inferentialStructure": {
+  "argumentativeContinuity": {
     "score": [integer 0-25],
-    "assessment": "genuine analysis of logical structure and reasoning quality",
-    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
-  "conceptualControl": {
+  "errorResistance": {
     "score": [integer 0-25],
-    "assessment": "genuine analysis of conceptual precision and terminological consistency",
-    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
+    "assessment": "detailed evaluation", 
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
-  "argumentativeIntegrity": {
+  "specificityOfCommitment": {
     "score": [integer 0-25],
-    "assessment": "genuine analysis of argumentative completeness and depth",
-    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
-  "synthesisIntegration": {
+  "provisionalityControl": {
     "score": [integer 0-25],
-    "assessment": "genuine analysis of thematic unity and theoretical integration",
-    "quotes": ["relevant supporting quote 1", "relevant supporting quote 2"]
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "loadDistribution": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "errorAnticipation": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "epistemicParsimony": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "scopeClarity": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "evidenceCalibration": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "redundancyAvoidance": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "conceptualInterlock": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "temporalStability": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "distinctionAwareness": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "layeredPersuasiveness": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "signalDiscipline": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "causalAlignment": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "counterexampleImmunity": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "intelligibilityOfObjection": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "dependenceHierarchyAwareness": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
+  },
+  "contextBoundedInference": {
+    "score": [integer 0-25],
+    "assessment": "detailed evaluation",
+    "quotes": ["relevant quote 1", "relevant quote 2"]
   },
   "overallJudgment": "authentic assessment of the work's intellectual contribution and cogency"
 }`;
@@ -174,23 +256,28 @@ Return ONLY this JSON structure with integer scores 0-25:
     // Debug logging to see what we actually received
     console.log("Parsed AI response structure:", JSON.stringify(parsed, null, 2));
     
-    // Validate that we have the expected structure
-    if (!parsed.inferentialStructure || !parsed.conceptualControl || 
-        !parsed.argumentativeIntegrity || !parsed.synthesisIntegration) {
-      console.error("Missing required parameters in AI response:", parsed);
-      throw new Error("AI response missing required parameter structure");
+    // Validate that we have all 20 cogency parameters
+    const requiredParams = [
+      'argumentativeContinuity', 'errorResistance', 'specificityOfCommitment', 'provisionalityControl',
+      'loadDistribution', 'errorAnticipation', 'epistemicParsimony', 'scopeClarity',
+      'evidenceCalibration', 'redundancyAvoidance', 'conceptualInterlock', 'temporalStability',
+      'distinctionAwareness', 'layeredPersuasiveness', 'signalDiscipline', 'causalAlignment',
+      'counterexampleImmunity', 'intelligibilityOfObjection', 'dependenceHierarchyAwareness', 'contextBoundedInference'
+    ];
+    
+    const missingParams = requiredParams.filter(param => !parsed[param]);
+    if (missingParams.length > 0) {
+      console.error("Missing required parameters in AI response:", missingParams);
+      throw new Error(`AI response missing required parameters: ${missingParams.join(', ')}`);
     }
 
-    // Calculate weighted overall score based on genre importance
-    // Each score is out of 25, weights sum to 100, final score out of 100
-    const weightedScore = (
-      (parsed.inferentialStructure.score * genreInfo.evaluationWeights.inferentialStructure / 25) +
-      (parsed.conceptualControl.score * genreInfo.evaluationWeights.conceptualControl / 25) +
-      (parsed.argumentativeIntegrity.score * genreInfo.evaluationWeights.argumentativeIntegrity / 25) +
-      (parsed.synthesisIntegration.score * genreInfo.evaluationWeights.synthesisIntegration / 25)
-    );
+    // Calculate average overall score - AI returns scores out of 25, convert to 100 scale
+    // Average all 20 parameter scores and convert to percentage
+    const totalScore = requiredParams.reduce((sum, param) => sum + parsed[param].score, 0);
+    const averageScore = totalScore / 20;
 
-    const overallScore = Math.round(weightedScore);
+    // Convert from 0-25 scale to 0-100 scale
+    const overallScore = Math.round((averageScore / 25) * 100);
     
     // Determine cogency label
     let cogencyLabel: string;
@@ -213,12 +300,10 @@ Return ONLY this JSON structure with integer scores 0-25:
           reasoning: genreInfo.reasoning,
           evaluationExplanation: `This ${genreInfo.genre} was evaluated using weighted criteria: Inferential Structure (${genreInfo.evaluationWeights.inferentialStructure}%), Conceptual Control (${genreInfo.evaluationWeights.conceptualControl}%), Argumentative Integrity (${genreInfo.evaluationWeights.argumentativeIntegrity}%), Synthesis & Integration (${genreInfo.evaluationWeights.synthesisIntegration}%). These weights reflect the intellectual priorities appropriate to this genre.`
         },
-        coreParameters: {
-          inferentialStructure: parsed.inferentialStructure,
-          conceptualControl: parsed.conceptualControl,
-          argumentativeIntegrity: parsed.argumentativeIntegrity,
-          synthesisIntegration: parsed.synthesisIntegration
-        },
+        coreParameters: requiredParams.reduce((params, paramName) => {
+          params[paramName] = parsed[paramName];
+          return params;
+        }, {} as { [key: string]: CoreParameter }),
         overallJudgment: parsed.overallJudgment
       },
       reportContent: await generateEnhancedSingleReport(parsed, passage.title, overallScore, cogencyLabel)
