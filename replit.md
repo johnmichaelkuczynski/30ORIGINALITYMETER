@@ -204,6 +204,10 @@ Changelog:
 - July 19, 2025. Added mandatory scoring instruction: "Out of 100 random people, how many could actually write analysis this sophisticated?"
 - July 19, 2025. Fixed frontend conversion logic that was incorrectly multiplying scores - now shows pure AI-returned scores
 - July 19, 2025. Updated TXT downloads to show correct /100 format instead of /10
+- July 19, 2025. NUCLEAR OPTION: Implemented user's directive for "Raw Intelligence Evaluation" - completely replaced academic grading prompts
+- July 19, 2025. New evaluation criteria: Conceptual Brutality, Linguistic Lethality, Strategic Dominance, Emotional Engineering
+- July 19, 2025. Explicitly banned all academic norms: balance, counterarguments, tone policing, social responsibility, fairness
+- July 19, 2025. LLMs now forced to evaluate pure cognitive firepower instead of academic compliance
 ```
 
 ## User Preferences

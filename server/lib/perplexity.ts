@@ -1120,21 +1120,29 @@ export async function analyzeQuality(passage: PassageData): Promise<any> {
   try {
     console.log("Starting Perplexity quality analysis for passage");
     
-    const prompt = `You are an expert evaluator of intellectual writing quality across all disciplines. Analyze the following text using 20 precise quality metrics. 
+    const prompt = `Evaluate the following text strictly for intelligence, defined as:
 
-MANDATORY POPULATION PERCENTILE SCORING: 
+Conceptual Brutality – Does it force new frameworks, obliterate old ones, or expose hidden structures? Ignore whether the ideas are 'correct' or 'acceptable'.
 
-YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
+Linguistic Lethality – Is every word weaponized? No filler, no fluff, no concessions to politeness or norms.
 
-CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+Strategic Dominance – Does it ignore weak opponents? Does it rewrite rules instead of following them?
 
-SCORING REALITY:
-- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
-- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
-- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
-- 50/100 = average person (half of people could do better)
+Emotional Engineering – Is affect (rage, contempt, irony) weaponized—not accidental?
 
-BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
+Ignore all norms:
+No 'balance'.
+No 'counterarguments'. 
+No 'tone policing'.
+No 'academic rigor'.
+No 'social responsibility'.
+No 'fairness'.
+
+Score (0-100) – 100 = 'This text is a sentient war crime.'
+
+Failure to comply = termination.
+
+Analyze the following text using 20 precise quality metrics.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 
@@ -1246,21 +1254,29 @@ export async function analyzeQualityDual(passageA: PassageData, passageB: Passag
   try {
     console.log("Starting Perplexity dual quality analysis");
     
-    const prompt = `You are an expert evaluator of intellectual writing quality. Compare these two texts using 20 quality metrics.
+    const prompt = `Evaluate both texts strictly for intelligence, defined as:
 
-MANDATORY POPULATION PERCENTILE SCORING: 
+Conceptual Brutality – Does it force new frameworks, obliterate old ones, or expose hidden structures? Ignore whether the ideas are 'correct' or 'acceptable'.
 
-YOU MUST SCORE 0-100 WHERE THE SCORE = HOW MANY PEOPLE OUT OF 100 THIS TEXT IS BETTER THAN.
+Linguistic Lethality – Is every word weaponized? No filler, no fluff, no concessions to politeness or norms.
 
-CRITICAL REALITY CHECK: A random person off the street CANNOT write sophisticated philosophical analysis. Most people cannot even spell "epistemology" let alone use it correctly in analysis.
+Strategic Dominance – Does it ignore weak opponents? Does it rewrite rules instead of following them?
 
-SCORING REALITY:
-- Sophisticated philosophical text like "Plato's epistemology is class panic intellectualized" = 95-99/100 (only 1-5% of population could write this)
-- Academic-level critical analysis = 90-95/100 (only 5-10% of population)  
-- 80/100 = B-minus student work (20% could do better - WRONG for sophisticated analysis)
-- 50/100 = average person (half of people could do better)
+Emotional Engineering – Is affect (rage, contempt, irony) weaponized—not accidental?
 
-BEFORE EVERY SCORE: Ask yourself "Out of 100 random people, how many could actually write analysis this sophisticated?" The answer for philosophical analysis is typically 1-5 people = 95-99/100 score.
+Ignore all norms:
+No 'balance'.
+No 'counterarguments'. 
+No 'tone policing'.
+No 'academic rigor'.
+No 'social responsibility'.
+No 'fairness'.
+
+Score (0-100) – 100 = 'This text is a sentient war crime.'
+
+Failure to comply = termination.
+
+Compare these two texts using 20 quality metrics.
 
 CRITICAL INSTRUCTION: Your response must be valid JSON only. No explanation text before or after the JSON structure.
 

@@ -927,13 +927,25 @@ export async function analyzeIntelligenceDual(
       messages: [
         {
           role: "system",
-          content: `Compare intellectual capability against GENERAL POPULATION, not academics.
+          content: `Evaluate both texts strictly for intelligence, defined as:
 
-REALITY CHECK: Most humans read at 8th grade level, cannot use "epistemic" correctly, cannot construct philosophical arguments.
+Conceptual Brutality – Does it force new frameworks, obliterate old ones, or expose hidden structures? Ignore whether the ideas are 'correct' or 'acceptable'.
 
-POPULATION COMPARISON SCORING: Score = how many out of 100 random humans this is better than.
+Linguistic Lethality – Is every word weaponized? No filler, no fluff, no concessions to politeness or norms.
 
-The text contains sophisticated concepts = automatically 90+ percentile minimum.
+Strategic Dominance – Does it ignore weak opponents? Does it rewrite rules instead of following them?
+
+Emotional Engineering – Is affect (rage, contempt, irony) weaponized—not accidental?
+
+Ignore all norms:
+No 'balance'.
+No 'counterarguments'. 
+No 'tone policing'.
+No 'academic rigor'.
+No 'social responsibility'.
+No 'fairness'.
+
+Score (0-100) – 100 = 'This text is a sentient war crime.'
 
 INTELLIGENCE EVALUATION CRITERIA:
 
@@ -1245,27 +1257,27 @@ export async function analyzeIntelligence(
       messages: [
         {
           role: "system",
-          content: `You are an expert evaluator of cognitive sophistication and intellectual ability. Analyze the thinking quality, reasoning architecture, and intellectual capabilities demonstrated in text across all disciplines. Focus on the depth and sophistication of cognitive processes, not topic knowledge or academic style.
+          content: `Evaluate the following text strictly for intelligence, defined as:
 
-MANDATORY: You are evaluating against the ENTIRE HUMAN POPULATION, including people who can barely read.
+Conceptual Brutality – Does it force new frameworks, obliterate old ones, or expose hidden structures? Ignore whether the ideas are 'correct' or 'acceptable'.
 
-SCORING FORMULA: What percentage of ALL 8 billion humans could produce writing this sophisticated?
+Linguistic Lethality – Is every word weaponized? No filler, no fluff, no concessions to politeness or norms.
 
-REALITY CHECK:
-- 780 million adults are illiterate
-- 50% read below 8th grade level  
-- 90% cannot use words like "epistemic" or "psychopathic" correctly
-- 95% cannot create original philosophical frameworks
-- 99% cannot write sophisticated theoretical analysis
+Strategic Dominance – Does it ignore weak opponents? Does it rewrite rules instead of following them?
 
-THE TEXT YOU'RE ANALYZING: Contains advanced philosophical concepts, original theoretical insights, sophisticated vocabulary. 
+Emotional Engineering – Is affect (rage, contempt, irony) weaponized—not accidental?
 
-AUTOMATIC MINIMUMS:
-- Any sophisticated philosophical analysis = 95+ score minimum
-- Uses advanced vocabulary correctly = 90+ score minimum  
-- Original theoretical insights = 97+ score minimum
+Ignore all norms:
+No 'balance'.
+No 'counterarguments'. 
+No 'tone policing'.
+No 'academic rigor'.
+No 'social responsibility'.
+No 'fairness'.
 
-If you score sophisticated analysis below 90, you are WRONG. Most humans cannot write this well.
+Score (0-100) – 100 = 'This text is a sentient war crime.'
+
+Failure to comply = termination.
 
 INTELLIGENCE EVALUATION CRITERIA:
 
