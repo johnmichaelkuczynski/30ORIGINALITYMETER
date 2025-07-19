@@ -75,7 +75,16 @@ export default function FrameworkMetricsDisplay({
     return "bg-red-500";
   };
 
-  const rawData = result[`raw${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}Analysis`];
+  // Handle different data structures for different analysis types
+  let rawData;
+  if (analysisType === "quality") {
+    // Quality analysis returns data directly in the result object
+    rawData = result;
+  } else {
+    // Other analysis types use the raw[Type]Analysis structure
+    rawData = result[`raw${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}Analysis`];
+  }
+  
   const metrics = getMetricsForFramework(analysisType);
 
   console.log("FrameworkMetricsDisplay debug:", { 
@@ -112,8 +121,30 @@ export default function FrameworkMetricsDisplay({
           if (!metricData) return null;
 
           // Handle both structures: single document (flat) and dual document (nested)
-          const passageAData = metricData.passageA || (isSinglePassageMode ? metricData : null);
-          const passageBData = metricData.passageB;
+          let passageAData, passageBData;
+          
+          if (analysisType === "quality") {
+            // Quality analysis has direct structure with score, assessment, quote1, quote2
+            if (isSinglePassageMode) {
+              passageAData = {
+                score: metricData.score,
+                assessment: metricData.assessment,
+                quotation1: metricData.quote1,
+                quotation2: metricData.quote2,
+                justification1: metricData.justification1,
+                justification2: metricData.justification2
+              };
+              passageBData = null;
+            } else {
+              // For dual mode, quality should have passageA/passageB structure
+              passageAData = metricData.passageA;
+              passageBData = metricData.passageB;
+            }
+          } else {
+            // Other analysis types use the standard structure
+            passageAData = metricData.passageA || (isSinglePassageMode ? metricData : null);
+            passageBData = metricData.passageB;
+          }
 
           return (
             <Card key={metric}>
@@ -263,13 +294,13 @@ export default function FrameworkMetricsDisplay({
       </div>
 
       {/* Overall Verdict */}
-      {rawData.verdict && (
+      {(rawData.verdict || rawData.overallJudgment) && (
         <Card>
           <CardHeader>
             <CardTitle>Overall Verdict</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm">{rawData.verdict}</p>
+            <p className="text-sm">{rawData.verdict || rawData.overallJudgment}</p>
           </CardContent>
         </Card>
       )}
