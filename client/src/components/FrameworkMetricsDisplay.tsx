@@ -83,7 +83,9 @@ export default function FrameworkMetricsDisplay({
     metrics,
     resultKeys: Object.keys(result),
     rawDataExists: !!rawData,
-    rawDataType: typeof rawData
+    rawDataType: typeof rawData,
+    firstMetricData: metrics.length > 0 ? rawData?.[metrics[0]] : null,
+    dataStructure: rawData ? Object.keys(rawData) : []
   });
 
   if (!rawData) {
@@ -108,7 +110,8 @@ export default function FrameworkMetricsDisplay({
           const metricData = rawData[metric];
           if (!metricData) return null;
 
-          const passageAData = metricData.passageA;
+          // Handle both structures: single document (flat) and dual document (nested)
+          const passageAData = metricData.passageA || (isSinglePassageMode ? metricData : null);
           const passageBData = metricData.passageB;
 
           return (
@@ -135,22 +138,22 @@ export default function FrameworkMetricsDisplay({
                     </div>
                   )}
 
-                  {passageAData?.quotation1 && (
+                  {(passageAData?.quotation1 || passageAData?.quote1) && (
                     <div className="bg-blue-50 p-3 rounded-lg">
                       <p className="text-sm font-medium mb-1">Supporting Quote 1:</p>
-                      <p className="text-sm italic">"{passageAData.quotation1}"</p>
-                      {passageAData.justification1 && (
+                      <p className="text-sm italic">"{passageAData.quotation1 || passageAData.quote1}"</p>
+                      {(passageAData.justification1 || passageAData.justification) && (
                         <p className="text-sm mt-1 text-muted-foreground">
-                          <strong>Justification:</strong> {passageAData.justification1}
+                          <strong>Justification:</strong> {passageAData.justification1 || passageAData.justification}
                         </p>
                       )}
                     </div>
                   )}
 
-                  {passageAData?.quotation2 && (
+                  {(passageAData?.quotation2 || passageAData?.quote2) && (
                     <div className="bg-green-50 p-3 rounded-lg">
                       <p className="text-sm font-medium mb-1">Supporting Quote 2:</p>
-                      <p className="text-sm italic">"{passageAData.quotation2}"</p>
+                      <p className="text-sm italic">"{passageAData.quotation2 || passageAData.quote2}"</p>
                       {passageAData.justification2 && (
                         <p className="text-sm mt-1 text-muted-foreground">
                           <strong>Justification:</strong> {passageAData.justification2}
