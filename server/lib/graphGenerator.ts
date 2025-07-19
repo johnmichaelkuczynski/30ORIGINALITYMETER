@@ -67,7 +67,7 @@ For pie charts, use format: [{"label": "Category", "value": number}, ...]
 For mathematical functions, calculate actual y-values using the given equation.
 Example: For y = -2(x-3)² + 18, calculate points from x=-1 to x=7 to show intercepts at (0,0) and (6,0).
 
-Only return valid JSON without markdown formatting.`;
+CRITICAL: Only return valid JSON without markdown formatting, comments, or explanatory text. Start directly with { and end with }.`;
 
     let response;
     
@@ -107,10 +107,35 @@ Only return valid JSON without markdown formatting.`;
 
     let responseContent = response.choices[0].message.content || '{}';
     
-    // Clean up response - remove markdown code blocks if present
-    responseContent = responseContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    // Clean up response - remove markdown code blocks and comments
+    responseContent = responseContent
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*/g, '')
+      .replace(/\/\/.*$/gm, '') // Remove single-line comments
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
+      .replace(/,\s*}/g, '}') // Remove trailing commas before closing braces
+      .replace(/,\s*]/g, ']') // Remove trailing commas before closing brackets
+      .trim();
     
-    const analysis = JSON.parse(responseContent);
+    let analysis;
+    try {
+      analysis = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error('JSON parsing failed. Raw response:', responseContent);
+      console.error('Parse error:', parseError);
+      
+      // Try to extract JSON from response if it's wrapped in text
+      const jsonMatch = responseContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          analysis = JSON.parse(jsonMatch[0]);
+        } catch (retryError) {
+          throw new Error(`Failed to parse LLM response as JSON: ${parseError.message}`);
+        }
+      } else {
+        throw new Error(`No valid JSON found in LLM response: ${responseContent.substring(0, 200)}...`);
+      }
+    }
     
     // Override with user-provided values if available
     const graphType = request.type || analysis.graphType;
