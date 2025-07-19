@@ -226,6 +226,10 @@ Changelog:
 - July 19, 2025. CRITICAL FIX: Replaced problematic PDF generation with reliable TXT report download
 - July 19, 2025. Graph analysis reports now download as TXT files with full explanations and specifications
 - July 19, 2025. Simplified download functionality eliminates ES module import conflicts
+- July 19, 2025. MAJOR FEATURE: Added browser-based PDF generation with html2pdf.js for complete graph visualization
+- July 19, 2025. Users can now download both TXT reports (text only) and PDF reports (includes actual SVG graph)
+- July 19, 2025. PDF downloads include complete graph visualization, mathematical notation, and full analysis
+- July 19, 2025. Split download options: TXT Report (text only) and PDF + Graph (complete with visual)
 ```
 
 ## User Preferences

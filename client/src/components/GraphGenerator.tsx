@@ -5,8 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, LineChart, PieChart, AreaChart, Zap } from 'lucide-react';
+import { BarChart3, LineChart, PieChart, AreaChart, Zap, Download, FileText, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import html2pdf from 'html2pdf.js';
 
 interface GraphResult {
   svg: string;
@@ -135,14 +136,130 @@ export default function GraphGenerator() {
       window.URL.revokeObjectURL(url);
       
       toast({
-        title: "Report downloaded",
-        description: "Graph analysis report has been downloaded",
+        title: "Text report downloaded",
+        description: "Graph analysis report has been downloaded as TXT",
       });
     } catch (error) {
       console.error('Error downloading report:', error);
       toast({
         title: "Download failed",
         description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadGraphPDF = async () => {
+    if (!generatedGraph) return;
+    
+    try {
+      // Create a temporary container for PDF generation
+      const element = document.createElement('div');
+      element.style.padding = '20px';
+      element.style.fontFamily = 'Arial, sans-serif';
+      element.style.backgroundColor = 'white';
+      element.style.width = '800px';
+      
+      // Add title
+      const titleEl = document.createElement('h1');
+      titleEl.textContent = generatedGraph.title;
+      titleEl.style.marginBottom = '20px';
+      titleEl.style.fontSize = '24px';
+      titleEl.style.color = '#333';
+      element.appendChild(titleEl);
+      
+      // Add description
+      if (generatedGraph.description) {
+        const descEl = document.createElement('p');
+        descEl.textContent = generatedGraph.description;
+        descEl.style.marginBottom = '20px';
+        descEl.style.fontSize = '14px';
+        element.appendChild(descEl);
+      }
+      
+      // Add the SVG graph
+      const graphContainer = document.createElement('div');
+      graphContainer.style.textAlign = 'center';
+      graphContainer.style.marginBottom = '30px';
+      graphContainer.innerHTML = generatedGraph.svg;
+      element.appendChild(graphContainer);
+      
+      // Add explanation
+      if (generatedGraph.explanation) {
+        const explainTitle = document.createElement('h2');
+        explainTitle.textContent = 'Analysis & Explanation';
+        explainTitle.style.fontSize = '18px';
+        explainTitle.style.marginBottom = '10px';
+        explainTitle.style.borderBottom = '2px solid #333';
+        explainTitle.style.paddingBottom = '5px';
+        element.appendChild(explainTitle);
+        
+        const explainEl = document.createElement('p');
+        explainEl.textContent = generatedGraph.explanation;
+        explainEl.style.marginBottom = '20px';
+        explainEl.style.fontSize = '12px';
+        explainEl.style.lineHeight = '1.5';
+        element.appendChild(explainEl);
+      }
+      
+      // Add specifications
+      if (generatedGraph.specifications) {
+        const specTitle = document.createElement('h2');
+        specTitle.textContent = 'Mathematical Specifications';
+        specTitle.style.fontSize = '18px';
+        specTitle.style.marginBottom = '10px';
+        specTitle.style.borderBottom = '2px solid #333';
+        specTitle.style.paddingBottom = '5px';
+        element.appendChild(specTitle);
+        
+        Object.entries(generatedGraph.specifications).forEach(([key, value]) => {
+          if (value) {
+            const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+            const specEl = document.createElement('p');
+            
+            if (Array.isArray(value)) {
+              specEl.innerHTML = `<strong>${label}:</strong><br/>`;
+              value.forEach((item: string) => {
+                specEl.innerHTML += `• ${item}<br/>`;
+              });
+            } else {
+              specEl.innerHTML = `<strong>${label}:</strong> ${value}`;
+            }
+            
+            specEl.style.marginBottom = '10px';
+            specEl.style.fontSize = '11px';
+            element.appendChild(specEl);
+          }
+        });
+      }
+      
+      // Configure html2pdf options
+      const options = {
+        margin: 1,
+        filename: `${generatedGraph.title.replace(/[^a-zA-Z0-9]/g, '_')}_complete.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      // Generate and download PDF
+      await html2pdf().set(options).from(element).save();
+      
+      toast({
+        title: "PDF downloaded",
+        description: "Complete graph analysis with visualization has been saved as PDF",
+      });
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "PDF generation failed",
+        description: "Failed to generate PDF. Please try again.",
         variant: "destructive",
       });
     }
@@ -421,6 +538,7 @@ export default function GraphGenerator() {
                 onClick={copyGraphCode}
                 className="flex-1"
               >
+                <FileText className="h-4 w-4 mr-2" />
                 Copy SVG Code
               </Button>
               <Button
@@ -428,7 +546,16 @@ export default function GraphGenerator() {
                 onClick={downloadGraphReport}
                 className="flex-1"
               >
-                Download Report
+                <Download className="h-4 w-4 mr-2" />
+                TXT Report
+              </Button>
+              <Button
+                variant="outline"
+                onClick={downloadGraphPDF}
+                className="flex-1"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                PDF + Graph
               </Button>
             </div>
           </CardContent>
