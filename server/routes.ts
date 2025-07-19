@@ -1829,7 +1829,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     // 3. Derivative Index Assessment
     report += '3. DERIVATIVE INDEX ASSESSMENT\n';
     report += '==============================\n\n';
-    report += `Originality Score: ${derivativeIndex.score || 'N/A'}/10\n`;
+    report += `Originality Score: ${derivativeIndex.score || 'N/A'}/100\n`;
     report += `Assessment: ${derivativeIndex.assessment || 'Evaluation demonstrates clear engagement with original thinking'}\n\n`;
     
     if (derivativeIndex.strengths) {
@@ -1858,14 +1858,14 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     report += '===========================\n\n';
     
     report += 'Coherence Assessment:\n';
-    report += `Score: ${coherence.score || 9}/10\n`;
+    report += `Score: ${coherence.score || 9}/100\n`;
     report += `Analysis: ${coherence.assessment || 'The passage demonstrates strong logical consistency and clear articulation of concepts, maintaining internal coherence throughout.'}\n\n`;
     const coherenceEvidence = passages[Math.floor(passages.length/2)]?.substring(0, 150) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 150);
     report += 'Coherence Evidence:\n';
     report += `"${coherenceEvidence}${coherenceEvidence.length >= 150 ? '...' : ''}"\n\n`;
     
     report += 'Conceptual Depth:\n';
-    report += `Score: ${depth.score || 8}/10\n`;
+    report += `Score: ${depth.score || 8}/100\n`;
     report += `Analysis: ${depth.assessment || 'The work demonstrates significant intellectual depth by introducing frameworks that potentially impact multiple areas of discourse.'}\n\n`;
     const depthIndicators = passages[passages.length - 1]?.substring(0, 150) || passageText.substring(passageText.length - 150);
     report += 'Depth Indicators:\n';
@@ -2345,7 +2345,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         if (rawAnalysis[metric]) {
           const metricData = rawAnalysis[metric].passageA;
           content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
-          content += `Score: ${metricData.score}/10\n`;
+          content += `Score: ${metricData.score}/100\n`;
           content += `Assessment: ${metricData.assessment}\n`;
           if (metricData.strengths && metricData.strengths.length > 0) {
             content += `Strengths: ${metricData.strengths.join(', ')}\n`;
@@ -2406,7 +2406,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         if (rawAnalysis[metric]) {
           const metricData = rawAnalysis[metric].passageA;
           content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
-          content += `Score: ${metricData.score}/10\n`;
+          content += `Score: ${metricData.score}/100\n`;
           content += `Assessment: ${metricData.assessment}\n`;
           if (metricData.strengths && metricData.strengths.length > 0) {
             content += `Strengths: ${metricData.strengths.join(', ')}\n`;
@@ -2467,7 +2467,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         if (rawAnalysis[metric]) {
           const metricData = rawAnalysis[metric].passageA;
           content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
-          content += `Score: ${metricData.score}/10\n`;
+          content += `Score: ${metricData.score}/100\n`;
           content += `Assessment: ${metricData.assessment}\n`;
           if (metricData.strengths && metricData.strengths.length > 0) {
             content += `Strengths: ${metricData.strengths.join(', ')}\n`;
@@ -2529,7 +2529,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
           // Quality analysis has a different structure - no passageA/passageB nesting
           const metricData = rawAnalysis[metric];
           content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
-          content += `Score: ${metricData.score}/10\n`;
+          content += `Score: ${metricData.score}/100\n`;
           content += `Assessment: ${metricData.assessment}\n`;
           if (metricData.quote1) {
             content += `Quote 1: "${metricData.quote1}"\n`;
