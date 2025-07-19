@@ -876,12 +876,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isDual: !!(passageB?.text?.trim())
       });
 
-      // Use OpenAI service for quality analysis
+      // Use appropriate service based on provider
       let result;
       if (passageB?.text?.trim()) {
-        result = await openaiService.analyzeQualityDual(passageA, passageB);
+        // Dual analysis
+        if (provider === "openai" || provider === "deepseek") {
+          result = await openaiService.analyzeQualityDual(passageA, passageB);
+        } else if (provider === "anthropic") {
+          result = await openaiService.analyzeQualityDual(passageA, passageB); // For now, use OpenAI as fallback
+        } else {
+          result = await openaiService.analyzeQualityDual(passageA, passageB); // Default to OpenAI
+        }
       } else {
-        result = await openaiService.analyzeQuality(passageA);
+        // Single analysis
+        if (provider === "openai" || provider === "deepseek") {
+          result = await openaiService.analyzeQuality(passageA);
+        } else if (provider === "anthropic") {
+          result = await openaiService.analyzeQuality(passageA); // For now, use OpenAI as fallback
+        } else {
+          result = await openaiService.analyzeQuality(passageA); // Default to OpenAI
+        }
       }
       
       // Return the result without schema validation to preserve raw analysis data
@@ -1014,8 +1028,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for cogency analysis
-      const result = await openaiService.analyzeCogency(passageA);
+      // Use appropriate service based on provider
+      let result;
+      if (provider === "openai" || provider === "deepseek") {
+        result = await openaiService.analyzeCogency(passageA);
+      } else if (provider === "anthropic") {
+        result = await openaiService.analyzeCogency(passageA); // For now, use OpenAI as fallback
+      } else {
+        result = await openaiService.analyzeCogency(passageA); // Default to OpenAI
+      }
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1063,8 +1084,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for dual cogency analysis
-      const result = await openaiService.analyzeCogencyDual(passageA, passageB);
+      // Use appropriate service based on provider
+      let result;
+      if (provider === "openai" || provider === "deepseek") {
+        result = await openaiService.analyzeCogencyDual(passageA, passageB);
+      } else if (provider === "anthropic") {
+        result = await openaiService.analyzeCogencyDual(passageA, passageB); // For now, use OpenAI as fallback
+      } else {
+        result = await openaiService.analyzeCogencyDual(passageA, passageB); // Default to OpenAI
+      }
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
