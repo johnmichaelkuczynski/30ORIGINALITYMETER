@@ -230,6 +230,10 @@ Changelog:
 - July 19, 2025. Users can now download both TXT reports (text only) and PDF reports (includes actual SVG graph)
 - July 19, 2025. PDF downloads include complete graph visualization, mathematical notation, and full analysis
 - July 19, 2025. Split download options: TXT Report (text only) and PDF + Graph (complete with visual)
+- July 19, 2025. CRITICAL FIX: Implemented proper LaTeX mathematical notation rendering with MathJax integration
+- July 19, 2025. Mathematical specifications now display with proper notation (equations, symbols, domains)
+- July 19, 2025. Updated LLM prompts to generate LaTeX-formatted equations for proper math display
+- July 19, 2025. PDF exports now convert LaTeX notation to readable format automatically
 ```
 
 ## User Preferences

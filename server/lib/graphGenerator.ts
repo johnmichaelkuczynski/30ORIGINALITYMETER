@@ -96,8 +96,8 @@ Return JSON structure:
   "description": "Brief description of what the graph models",
   "explanation": "If requested: detailed explanation of the graph, its features, theoretical connections, and broader applications",
   "specifications": {
-    "equation": "The derived mathematical model (e.g., f(t) = A*(1-e^(-bt))*e^(-ct))",
-    "domain": "Range of variables",
+    "equation": "The derived mathematical model in LaTeX format (e.g., $f(t) = A \\cdot (1-e^{-bt}) \\cdot e^{-ct}$)",
+    "domain": "Range of variables in LaTeX format (e.g., $t \\in [0, \\infty)$)",
     "modelingAssumptions": "Key assumptions made in the model",
     "keyFeatures": ["Critical points and their real-world meaning"],
     "theoreticalBasis": "Connection to stated principles or theories"
@@ -112,6 +112,12 @@ CRITICAL JSON FORMATTING:
 - NEVER use "..." or abbreviations in the data array - provide ALL data points explicitly
 - Generate COMPLETE data arrays with 50-200 actual data points, not shortcuts
 - Only return valid JSON without markdown formatting. Start with { and end with }.
+
+MATHEMATICAL NOTATION:
+- Use LaTeX notation for equations: $f(t) = A \\cdot e^{-kt}$ not f(t) = A * e^(-kt)
+- Use LaTeX for domains: $t \\in [0, 24]$ not t ∈ [0, 24]
+- Use proper mathematical symbols: $\\alpha$, $\\beta$, $\\infty$, $\\leq$, $\\geq$
+- Enclose ALL math expressions in $ delimiters
 
 EXAMPLE VALID DATA FORMAT:
 "data": [{"x": 0, "y": 0}, {"x": 0.1, "y": 0.05}, {"x": 0.2, "y": 0.12}, ...]`;

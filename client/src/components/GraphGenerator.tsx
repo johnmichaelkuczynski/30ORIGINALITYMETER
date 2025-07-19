@@ -39,6 +39,16 @@ export default function GraphGenerator() {
   
   const { toast } = useToast();
 
+  // Trigger MathJax reprocessing when graph is updated
+  const triggerMathJax = () => {
+    if (typeof window !== 'undefined' && (window as any).MathJax) {
+      setTimeout(() => {
+        (window as any).MathJax.typesetPromise()
+          .catch((err: any) => console.log('MathJax typeset error:', err));
+      }, 100);
+    }
+  };
+
   const generateGraph = async () => {
     if (!description.trim()) {
       toast({
@@ -75,6 +85,9 @@ export default function GraphGenerator() {
 
       const result = await response.json();
       setGeneratedGraph(result);
+      
+      // Trigger MathJax reprocessing for new math content
+      triggerMathJax();
       
       toast({
         title: "Graph generated successfully",
@@ -223,7 +236,17 @@ export default function GraphGenerator() {
                 specEl.innerHTML += `• ${item}<br/>`;
               });
             } else {
-              specEl.innerHTML = `<strong>${label}:</strong> ${value}`;
+              // Convert LaTeX notation to readable format for PDF
+              let displayValue = value.toString();
+              if (displayValue.includes('$')) {
+                displayValue = displayValue
+                  .replace(/\$\$(.*?)\$\$/g, '$1')  // Remove display math delimiters
+                  .replace(/\$(.*?)\$/g, '$1')      // Remove inline math delimiters
+                  .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')  // Convert fractions
+                  .replace(/\^(\w+)/g, '^($1)')    // Add parentheses to exponents
+                  .replace(/\\([a-zA-Z]+)/g, '$1'); // Remove backslashes from commands
+              }
+              specEl.innerHTML = `<strong>${label}:</strong> ${displayValue}`;
             }
             
             specEl.style.marginBottom = '10px';
@@ -469,17 +492,35 @@ export default function GraphGenerator() {
                 <h4 className="font-semibold text-sm mb-3">Mathematical Specifications</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                   {generatedGraph.specifications.equation && (
-                    <div>
+                    <div className="md:col-span-2">
                       <span className="font-medium">Equation:</span>
-                      <div className="bg-gray-50 p-2 rounded font-mono text-xs mt-1">
-                        {generatedGraph.specifications.equation}
+                      <div className="bg-gray-50 p-2 rounded text-xs mt-1 math-container">
+                        {generatedGraph.specifications.equation.includes('$') ? (
+                          <span dangerouslySetInnerHTML={{
+                            __html: generatedGraph.specifications.equation
+                              .replace(/\$\$(.*?)\$\$/g, '<span class="math-display">$$$$1$$</span>')
+                              .replace(/\$(.*?)\$/g, '<span class="math-inline">$$$1$$</span>')
+                          }} />
+                        ) : (
+                          <code className="font-mono">{generatedGraph.specifications.equation}</code>
+                        )}
                       </div>
                     </div>
                   )}
                   {generatedGraph.specifications.domain && (
                     <div>
                       <span className="font-medium">Domain:</span>
-                      <div className="text-gray-600">{generatedGraph.specifications.domain}</div>
+                      <div className="text-gray-600 math-container">
+                        {generatedGraph.specifications.domain.includes('$') ? (
+                          <span dangerouslySetInnerHTML={{
+                            __html: generatedGraph.specifications.domain
+                              .replace(/\$\$(.*?)\$\$/g, '<span class="math-display">$$$$1$$</span>')
+                              .replace(/\$(.*?)\$/g, '<span class="math-inline">$$$1$$</span>')
+                          }} />
+                        ) : (
+                          generatedGraph.specifications.domain
+                        )}
+                      </div>
                     </div>
                   )}
                   {generatedGraph.specifications.amplitude && (
