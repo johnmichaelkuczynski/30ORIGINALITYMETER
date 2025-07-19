@@ -2109,13 +2109,13 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
   // Graph generation endpoint
   app.post("/api/generate-graph", async (req: Request, res: Response) => {
     try {
-      const { description, type, data, title, xLabel, yLabel, width, height } = req.body;
+      const { description, type, data, title, xLabel, yLabel, llmProvider, width, height } = req.body;
 
       if (!description) {
         return res.status(400).json({ error: "Graph description is required" });
       }
 
-      console.log(`Generating graph for: "${description}"`);
+      console.log(`Generating graph for: "${description}" using ${llmProvider || 'gpt-4o-mini'}`);
 
       const result = await generateGraph({
         description,
@@ -2124,6 +2124,7 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
         title,
         xLabel,
         yLabel,
+        llmProvider,
         width,
         height
       });
