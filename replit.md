@@ -234,6 +234,9 @@ Changelog:
 - July 19, 2025. Mathematical specifications now display with proper notation (equations, symbols, domains)
 - July 19, 2025. Updated LLM prompts to generate LaTeX-formatted equations for proper math display
 - July 19, 2025. PDF exports now convert LaTeX notation to readable format automatically
+- July 19, 2025. MAJOR IMPROVEMENT: Replaced html2pdf with browser print/save-as-PDF functionality
+- July 19, 2025. Print dialog preserves MathJax-rendered mathematical notation in PDF output
+- July 19, 2025. Users can now save PDFs with perfect mathematical formatting through browser print function
 ```
 
 ## User Preferences

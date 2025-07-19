@@ -162,130 +162,189 @@ export default function GraphGenerator() {
     }
   };
 
-  const downloadGraphPDF = async () => {
+  const printSaveAsPDF = () => {
     if (!generatedGraph) return;
-    
-    try {
-      // Create a temporary container for PDF generation
-      const element = document.createElement('div');
-      element.style.padding = '20px';
-      element.style.fontFamily = 'Arial, sans-serif';
-      element.style.backgroundColor = 'white';
-      element.style.width = '800px';
-      
-      // Add title
-      const titleEl = document.createElement('h1');
-      titleEl.textContent = generatedGraph.title;
-      titleEl.style.marginBottom = '20px';
-      titleEl.style.fontSize = '24px';
-      titleEl.style.color = '#333';
-      element.appendChild(titleEl);
-      
-      // Add description
-      if (generatedGraph.description) {
-        const descEl = document.createElement('p');
-        descEl.textContent = generatedGraph.description;
-        descEl.style.marginBottom = '20px';
-        descEl.style.fontSize = '14px';
-        element.appendChild(descEl);
-      }
-      
-      // Add the SVG graph
-      const graphContainer = document.createElement('div');
-      graphContainer.style.textAlign = 'center';
-      graphContainer.style.marginBottom = '30px';
-      graphContainer.innerHTML = generatedGraph.svg;
-      element.appendChild(graphContainer);
-      
-      // Add explanation
-      if (generatedGraph.explanation) {
-        const explainTitle = document.createElement('h2');
-        explainTitle.textContent = 'Analysis & Explanation';
-        explainTitle.style.fontSize = '18px';
-        explainTitle.style.marginBottom = '10px';
-        explainTitle.style.borderBottom = '2px solid #333';
-        explainTitle.style.paddingBottom = '5px';
-        element.appendChild(explainTitle);
-        
-        const explainEl = document.createElement('p');
-        explainEl.textContent = generatedGraph.explanation;
-        explainEl.style.marginBottom = '20px';
-        explainEl.style.fontSize = '12px';
-        explainEl.style.lineHeight = '1.5';
-        element.appendChild(explainEl);
-      }
-      
-      // Add specifications
-      if (generatedGraph.specifications) {
-        const specTitle = document.createElement('h2');
-        specTitle.textContent = 'Mathematical Specifications';
-        specTitle.style.fontSize = '18px';
-        specTitle.style.marginBottom = '10px';
-        specTitle.style.borderBottom = '2px solid #333';
-        specTitle.style.paddingBottom = '5px';
-        element.appendChild(specTitle);
-        
-        Object.entries(generatedGraph.specifications).forEach(([key, value]) => {
-          if (value) {
-            const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-            const specEl = document.createElement('p');
-            
-            if (Array.isArray(value)) {
-              specEl.innerHTML = `<strong>${label}:</strong><br/>`;
-              value.forEach((item: string) => {
-                specEl.innerHTML += `• ${item}<br/>`;
-              });
-            } else {
-              // Convert LaTeX notation to readable format for PDF
-              let displayValue = value.toString();
-              if (displayValue.includes('$')) {
-                displayValue = displayValue
-                  .replace(/\$\$(.*?)\$\$/g, '$1')  // Remove display math delimiters
-                  .replace(/\$(.*?)\$/g, '$1')      // Remove inline math delimiters
-                  .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1)/($2)')  // Convert fractions
-                  .replace(/\^(\w+)/g, '^($1)')    // Add parentheses to exponents
-                  .replace(/\\([a-zA-Z]+)/g, '$1'); // Remove backslashes from commands
-              }
-              specEl.innerHTML = `<strong>${label}:</strong> ${displayValue}`;
-            }
-            
-            specEl.style.marginBottom = '10px';
-            specEl.style.fontSize = '11px';
-            element.appendChild(specEl);
-          }
-        });
-      }
-      
-      // Configure html2pdf options
-      const options = {
-        margin: 1,
-        filename: `${generatedGraph.title.replace(/[^a-zA-Z0-9]/g, '_')}_complete.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff'
-        },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      
-      // Generate and download PDF
-      await html2pdf().set(options).from(element).save();
-      
+
+    // Create a new window for printing with the graph content
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
       toast({
-        title: "PDF downloaded",
-        description: "Complete graph analysis with visualization has been saved as PDF",
-      });
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast({
-        title: "PDF generation failed",
-        description: "Failed to generate PDF. Please try again.",
+        title: "Popup blocked",
+        description: "Please allow popups to use the print/save function",
         variant: "destructive",
       });
+      return;
     }
+
+    // Build the complete HTML with proper MathJax support
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${generatedGraph.title}</title>
+        <meta charset="utf-8">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>
+          window.MathJax = {
+            tex: {
+              inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+              displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+            },
+            chtml: {
+              scale: 1,
+              minScale: 0.5,
+              matchFontHeight: false
+            }
+          };
+        </script>
+        <style>
+          @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+          }
+          @media screen {
+            body { padding: 20px; }
+          }
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            background: white;
+            color: #333;
+          }
+          h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+          }
+          h2 {
+            font-size: 18px;
+            margin: 30px 0 15px 0;
+            border-bottom: 1px solid #666;
+            padding-bottom: 5px;
+          }
+          .graph-container {
+            text-align: center;
+            margin: 30px 0;
+            page-break-inside: avoid;
+          }
+          .description {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
+          }
+          .explanation {
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 15px 0;
+            white-space: pre-wrap;
+          }
+          .spec-item {
+            margin-bottom: 12px;
+            font-size: 11px;
+          }
+          .spec-label {
+            font-weight: bold;
+            color: #333;
+          }
+          .spec-value {
+            margin-left: 10px;
+            color: #555;
+          }
+          .equation-container {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-family: 'Times New Roman', serif;
+          }
+          .print-button {
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+          }
+          .print-button:hover {
+            background: #0056b3;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="no-print">
+          <button class="print-button" onclick="window.print()">🖨️ Print / Save as PDF</button>
+          <p style="font-size: 12px; color: #666;">Use your browser's print dialog to save as PDF. Mathematical notation will be preserved.</p>
+        </div>
+        
+        <h1>${generatedGraph.title}</h1>
+        
+        ${generatedGraph.description ? `<p class="description">${generatedGraph.description}</p>` : ''}
+        
+        <div class="graph-container">
+          ${generatedGraph.svg}
+        </div>
+        
+        ${generatedGraph.explanation ? `
+          <h2>Analysis & Explanation</h2>
+          <div class="explanation">${generatedGraph.explanation}</div>
+        ` : ''}
+        
+        ${generatedGraph.specifications ? `
+          <h2>Mathematical Specifications</h2>
+          ${Object.entries(generatedGraph.specifications).map(([key, value]) => {
+            if (!value) return '';
+            const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+            
+            if (Array.isArray(value)) {
+              return `
+                <div class="spec-item">
+                  <span class="spec-label">${label}:</span>
+                  <ul style="margin: 5px 0 0 20px;">
+                    ${value.map(item => `<li style="margin: 3px 0;">${item}</li>`).join('')}
+                  </ul>
+                </div>
+              `;
+            } else {
+              // Keep LaTeX notation for MathJax rendering
+              const displayValue = value.toString();
+              return `
+                <div class="spec-item">
+                  <span class="spec-label">${label}:</span>
+                  <div class="spec-value ${displayValue.includes('$') ? 'equation-container' : ''}">${displayValue}</div>
+                </div>
+              `;
+            }
+          }).join('')}
+        ` : ''}
+        
+        <script>
+          // Auto-print after MathJax loads (optional)
+          document.addEventListener('DOMContentLoaded', function() {
+            if (window.MathJax) {
+              MathJax.startup.promise.then(() => {
+                console.log('MathJax loaded and ready for printing');
+              });
+            }
+          });
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Focus the new window
+    printWindow.focus();
+
+    toast({
+      title: "Print window opened",
+      description: "Use the print dialog to save as PDF with proper math formatting",
+    });
   };
 
   const clearAll = () => {
@@ -592,11 +651,11 @@ export default function GraphGenerator() {
               </Button>
               <Button
                 variant="outline"
-                onClick={downloadGraphPDF}
+                onClick={printSaveAsPDF}
                 className="flex-1"
               >
                 <Printer className="h-4 w-4 mr-2" />
-                PDF + Graph
+                Print/Save PDF
               </Button>
             </div>
           </CardContent>
