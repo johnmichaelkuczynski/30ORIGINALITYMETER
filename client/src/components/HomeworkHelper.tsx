@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { GraduationCap, Download, FileText, Image as ImageIcon, Brain, Eye } from 'lucide-react';
+import { GraduationCap, Download, FileText, Image as ImageIcon, Brain, Eye, BarChart3, FileEdit } from 'lucide-react';
 import DocumentUpload from './DocumentUpload';
 import { VoiceDictation } from '@/components/ui/voice-dictation';
 import { useToast } from '@/hooks/use-toast';
@@ -29,10 +29,11 @@ import { convertMarkdownWithMath, renderMathInElement } from '@/lib/mathUtils';
 
 interface HomeworkHelperProps {
   onSendToAnalysis?: (text: string, title?: string) => void;
+  onSendToRewriter?: (text: string, title?: string) => void;
   initialContent?: string;
 }
 
-export default function HomeworkHelper({ onSendToAnalysis, initialContent }: HomeworkHelperProps) {
+export default function HomeworkHelper({ onSendToAnalysis, onSendToRewriter, initialContent }: HomeworkHelperProps) {
   const [assignmentText, setAssignmentText] = useState(initialContent || '');
   const [assignmentTitle, setAssignmentTitle] = useState('');
 
@@ -349,6 +350,26 @@ export default function HomeworkHelper({ onSendToAnalysis, initialContent }: Hom
                 <Download className="h-4 w-4" />
                 Download Solution
               </Button>
+              {onSendToAnalysis && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => onSendToAnalysis(solution, assignmentTitle || 'Homework Solution')}
+                  className="flex items-center gap-2"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Send to Analysis
+                </Button>
+              )}
+              {onSendToRewriter && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => onSendToRewriter(solution, assignmentTitle || 'Homework Solution')}
+                  className="flex items-center gap-2"
+                >
+                  <FileEdit className="h-4 w-4" />
+                  Send to Rewriter
+                </Button>
+              )}
             </div>
           </div>
         )}

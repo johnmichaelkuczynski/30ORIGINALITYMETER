@@ -77,6 +77,7 @@ export default function Home() {
       <div id="homework-helper">
         <HomeworkHelper 
           onSendToAnalysis={handleSendToAnalysis}
+          onSendToRewriter={handleSendToRewriter}
           initialContent={homeworkContent}
         />
       </div>
