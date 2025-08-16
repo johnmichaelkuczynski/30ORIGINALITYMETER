@@ -226,8 +226,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       // Check if we have passageB for dual analysis
       if (passageB.text.trim() !== "") {
         payload = {
-          ...payload,
-          passageB
+          passageA,
+          passageB,
+          provider
         };
       }
       
@@ -273,8 +274,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       if (passageB.text.trim() !== "") {
         endpoint = '/api/analyze/originality-dual';
         payload = {
-          ...payload,
-          passageB
+          passageA,
+          passageB,
+          provider
         };
       }
       
@@ -320,7 +322,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       if (passageB.text.trim() !== "") {
         endpoint = '/api/analyze/cogency-dual';
         payload = {
-          ...payload,
+          passageA,
           passageB,
           provider
         };
@@ -360,7 +362,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       let endpoint = '';
       let payload = {};
       
-      if (false) { // Removed corpus mode
+      if (analysisMode === "corpus") {
         endpoint = '/api/analyze/corpus';
         payload = {
           passage: passageA,
@@ -555,7 +557,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         }
         
         // Set the passage data and enable single passage mode
-        setDocumentMode("single");
+        setAnalysisMode("single");
         setPassageA({
           ...customEvent.detail.passage,
           // Ensure we have a title even if empty

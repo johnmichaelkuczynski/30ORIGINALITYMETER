@@ -31,7 +31,7 @@ Preferred communication style: Simple, everyday language.
     - **Core Originality**: Conceptual lineage, semantic distance, novelty heatmap, derivative index, conceptual parasite detection.
     - **Quality Metrics**: Coherence, accuracy, depth, clarity.
     - **Advanced Features**: Argumentative analysis, comparative analysis, AI detection, document chunking.
-    - **Comprehensive 160-Metric Analysis System** (Implemented Jan 2025): Intelligence Meter, Originality Meter, Cogency Meter, Overall Quality - each dimension uses exactly 40 specific metrics, supporting both single and dual document comparison. Each metric provides: metric name, text quote, analysis explanation, and numerical score (X/100 format) replicating the exact format from user's uploaded analysis examples.
+    - **Specialized Analysis Modes**: Intelligence Meter, Originality Meter, Cogency Meter, Overall Quality (each with 20 specific metrics, supporting single and dual document comparison).
 - **Document Processing Pipeline**: Handles text extraction (Mammoth for DOCX, pdf-parse for PDF), audio transcription (AssemblyAI), image OCR (OpenAI Vision), and LaTeX preservation. Supports export to PDF, Word, HTML, and TXT.
 - **Data Flow**: Includes input processing, AI provider selection, multi-dimensional evaluation, result compilation, storage in PostgreSQL, and various export options.
 - **Real-time Features**: Chat interface for AI interaction, feedback system for disputing AI assessments, dynamic graph generation, and Google Custom Search integration.

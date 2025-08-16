@@ -773,9 +773,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate more original version endpoint
   app.post("/api/generate-original", async (req: Request, res: Response) => {
     try {
-      res.status(501).json({ 
-        message: "Text generation feature is temporarily unavailable" 
-      });
+      const { passage, analysisResult, styleOption, customInstructions } = req.body;
+      
+      if (!passage || !analysisResult) {
+        return res.status(400).json({ 
+          message: "Missing required fields: passage and analysisResult" 
+        });
+      }
+
+      // Use OpenAI service for generating improved passages
+      const openaiService = await import('./lib/openai.js');
+      const result = await openaiService.generateMoreOriginalVersion(
+        passage,
+        analysisResult,
+        styleOption,
+        customInstructions
+      );
+
+      res.json(result);
     } catch (error) {
       console.error("Error generating original version:", error);
       res.status(500).json({ 
@@ -867,24 +882,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (passageB?.text?.trim()) {
         // Dual analysis
         if (provider === "openai" || provider === "deepseek") {
-          result = await openaiService.analyzeOverallQualityDual(passageA, passageB);
+          result = await openaiService.analyzeQualityDual(passageA, passageB);
         } else if (provider === "anthropic") {
-          result = await anthropicService.analyzeOverallQualityDual(passageA, passageB);
+          result = await anthropicService.analyzeQualityDual(passageA, passageB);
         } else if (provider === "perplexity") {
-          result = await perplexityService.analyzeOverallQualityDual(passageA, passageB);
+          result = await perplexityService.analyzeQualityDual(passageA, passageB);
         } else {
-          result = await openaiService.analyzeOverallQualityDual(passageA, passageB);
+          result = await openaiService.analyzeQualityDual(passageA, passageB);
         }
       } else {
         // Single analysis
         if (provider === "openai" || provider === "deepseek") {
-          result = await openaiService.analyzeOverallQuality(passageA);
+          result = await openaiService.analyzeQuality(passageA);
         } else if (provider === "anthropic") {
-          result = await anthropicService.analyzeOverallQuality(passageA);
+          result = await anthropicService.analyzeQuality(passageA);
         } else if (provider === "perplexity") {
-          result = await perplexityService.analyzeOverallQuality(passageA);
+          result = await perplexityService.analyzeQuality(passageA);
         } else {
-          result = await openaiService.analyzeOverallQuality(passageA);
+          result = await openaiService.analyzeQuality(passageA);
         }
       }
       
@@ -1223,9 +1238,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Generate from selected chunks endpoint
   app.post("/api/generate-from-chunks", async (req: Request, res: Response) => {
     try {
-      res.status(501).json({ 
-        message: "Text generation from chunks feature is temporarily unavailable" 
-      });
+      const { selectedChunks, analysisResult, styleOption, customInstructions } = req.body;
+      
+      if (!selectedChunks || !Array.isArray(selectedChunks) || selectedChunks.length === 0) {
+        return res.status(400).json({ 
+          message: "Missing or invalid selectedChunks array" 
+        });
+      }
+
+      // Reconstruct text from selected chunks
+      const chunkingService = await import('./lib/textChunking.js');
+      const reconstructedText = chunkingService.reconstructTextFromChunks(selectedChunks);
+      
+      // Create passage data from reconstructed text
+      const passage = {
+        title: `Selected Chunks (${selectedChunks.length} chunks)`,
+        text: reconstructedText
+      };
+
+      // Use OpenAI service for generating improved passages
+      const openaiService = await import('./lib/openai.js');
+      const result = await openaiService.generateMoreOriginalVersion(
+        passage,
+        analysisResult,
+        styleOption,
+        customInstructions
+      );
+
+      res.json(result);
     } catch (error) {
       console.error("Error generating from chunks:", error);
       res.status(500).json({ 

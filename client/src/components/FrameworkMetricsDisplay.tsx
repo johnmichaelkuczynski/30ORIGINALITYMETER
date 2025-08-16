@@ -17,52 +17,40 @@ export default function FrameworkMetricsDisplay({
   isSinglePassageMode = false
 }: FrameworkMetricsDisplayProps) {
   
-  // Get the appropriate metrics based on analysis type - EXACT 40 metrics per dimension from user specification
+  // Get the appropriate metrics based on analysis type - EXACT 80 metrics from the user's specification
   const getMetricsForFramework = (type: string) => {
     switch (type) {
+      case "originality":
+        return [
+          'transformationalSynthesis', 'generativePower', 'disciplinaryRepositioning', 'conceptualReframing',
+          'recursiveInnovation', 'unexpectedCrossPollination', 'epistemicReweighting', 'constraintInnovation',
+          'ontologyRespecification', 'heuristicLeap', 'problemReIndexing', 'axiomaticInnovation',
+          'moralPoliticalRecomputation', 'subtextExcavation', 'secondOrderInnovation', 'temporalInversion',
+          'negativeSpaceManipulation', 'unnaturalPairing', 'disciplinaryHijack', 'ontoEpistemicFusion'
+        ];
       case "intelligence":
         return [
-          'compression', 'abstraction', 'inferenceDepth', 'epistemicFriction', 'cognitiveDistancing',
-          'counterfactualReasoning', 'analogicalDepth', 'semanticTopology', 'asymmetry', 'conceptualLayering',
-          'originalDefinitionMaking', 'precisionOfTerms', 'distinctionTracking', 'avoidanceOfTautology', 'avoidanceOfEmptyGenerality',
-          'compressionOfExamplesIntoPrinciple', 'abilityToInvertPerspective', 'anticipationOfObjections', 'integrationOfDisparateDomains', 'selfReflexivity',
-          'eliminationOfRedundancy', 'conceptualEconomy', 'epistemicRiskTaking', 'generativity', 'abilityToReviseAssumptions',
-          'distinguishingSignalVsNoise', 'recognizingHiddenAssumptions', 'trackingCausalChains', 'separatingCorrelationFromCausation', 'managingComplexityWithoutCollapse',
-          'detectingParadoxOrTension', 'aptCompressionIntoAphorism', 'clarityUnderPressure', 'distinguishingLevels', 'relatingConcreteToAbstract',
-          'controlOfScope', 'detectingPseudoIntelligence', 'balancingSimplicityWithDepth', 'strategicOmission', 'transferability'
+          'compressionCapacity', 'multiLevelIntegration', 'inferenceArchitecture', 'constraintSatisfaction',
+          'patternRecognition', 'abstractionControl', 'analogicalReasoning', 'causalModeling',
+          'probabilisticReasoning', 'systemicThinking', 'metacognition', 'attentionalControl',
+          'workingMemoryManagement', 'cognitiveFlexibility', 'executiveControl', 'strategicPlanning',
+          'problemDecomposition', 'solutionSpace', 'cognitiveEfficiency', 'cognitiveProcessingSpeed'
         ];
       case "cogency":
         return [
-          'logicalValidity', 'absenceOfContradictions', 'strengthOfEvidence', 'proportionality', 'avoidingNonSequiturs',
-          'explicitStructure', 'distinctionBetweenPremisesAndConclusion', 'consistentTerminology', 'focus', 'avoidingCircularity',
-          'handlingCounterexamples', 'responsivenessToObjections', 'causalAdequacy', 'inferentialTightness', 'avoidingOvergeneralization',
-          'avoidingStrawManReasoning', 'recognizingScopeLimits', 'avoidingEquivocation', 'hierarchyOfReasons', 'consistencyWithBackgroundKnowledge',
-          'recognizingExceptions', 'correctUseOfExamples', 'avoidanceOfLoadedLanguage', 'clearPriorityOfClaims', 'avoidingCategoryMistakes',
-          'explicitnessOfAssumptions', 'nonRedundancyInSupport', 'alignmentBetweenThesisAndSupport', 'avoidanceOfSpuriousPrecision', 'adequateDifferentiation',
-          'soundnessOfAnalogies', 'progressiveBuildup', 'avoidanceOfDoubleStandards', 'balanceOfConcessionAndAssertion', 'clarityOfLogicalConnectives',
-          'preservationOfDistinctions', 'avoidingIrrelevantMaterial', 'correctHandlingOfProbability', 'strengthOfCausalExplanation', 'stabilityUnderReformulation'
-        ];
-      case "originality":
-        return [
-          'novelPerspective', 'uncommonConnections', 'surprisingButAptAnalogies', 'inventionOfNewDistinctions', 'reframingOfCommonProblem',
-          'newConceptualSynthesis', 'freshMetaphors', 'generatingNewQuestions', 'counterintuitiveInsight', 'unusualCompression',
-          'distillingClicheIntoClarity', 'reinterpretingTradition', 'productiveParadox', 'idiosyncraticVoice', 'unusualButPrecisePhrasing',
-          'structuralInventiveness', 'surprisingYetValidInference', 'nonStandardAngle', 'repurposingKnownConcept', 'avoidingMimicry',
-          'shunningJargonCliches', 'generatingConceptualFriction', 'independentPatternRecognition', 'unexpectedCausalExplanation', 'tensionBetweenDomains',
-          'provocativeButDefensibleClaim', 'lateralConnections', 'subversionOfDefaultFraming', 'detectionOfNeglectedDetail', 'reverseEngineeringAssumptions',
-          'productiveMisfitWithGenre', 'intellectuallyPlayfulButRigorous', 'constructiveViolationOfExpectations', 'voiceNotReducibleToFormula', 'revaluingTheObvious',
-          'absenceOfDerivativeCadence', 'independentSynthesisOfSources', 'discoveryOfHiddenSymmetry', 'generatingTermsOthersAdopt', 'stayingPower'
+          'argumentativeContinuity', 'errorResistance', 'specificityOfCommitment', 'provisionalityControl',
+          'loadDistribution', 'errorAnticipation', 'epistemicParsimony', 'scopeClarity',
+          'evidenceCalibration', 'redundancyAvoidance', 'conceptualInterlock', 'temporalStability',
+          'distinctionAwareness', 'layeredPersuasiveness', 'signalDiscipline', 'causalAlignment',
+          'counterexampleImmunity', 'intelligibilityOfObjection', 'dependenceHierarchyAwareness', 'contextBoundedInference'
         ];
       case "quality":
         return [
-          'clarityOfExpression', 'flowAndReadability', 'stylisticControl', 'grammarAndSyntaxPrecision', 'appropriateTone',
-          'balanceOfBrevityAndElaboration', 'coherenceAcrossSections', 'engagement', 'rhythmOfSentences', 'absenceOfFiller',
-          'clearIntroductionOfThemes', 'effectiveClosure', 'varietyOfSentenceStructure', 'aptVocabulary', 'avoidingCliches',
-          'consistencyOfStyle', 'accessibility', 'respectForAudienceIntelligence', 'memorabilityOfPhrasing', 'avoidanceOfRedundancy',
-          'naturalTransitions', 'balancedParagraphing', 'pacing', 'smoothHandlingOfComplexity', 'aptUseOfExamples',
-          'abilityToHoldReaderAttention', 'economyOfLanguage', 'emphasisWhereNeeded', 'voiceConsistency', 'avoidanceOfAwkwardness',
-          'seamlessIntegrationOfQuotes', 'goodProportionOfAbstractVsConcrete', 'nonMechanicalStyle', 'absenceOfDistractingErrors', 'balanceOfAnalysisAndNarrative',
-          'cadence', 'avoidanceOfPedantry', 'polish', 'unifyingTheme', 'overallReaderImpact'
+          'conceptualCompression', 'epistemicFriction', 'inferenceControl', 'asymmetryOfCognitiveLabor',
+          'noveltyToBaselineRatio', 'internalDifferentiation', 'problemDensity', 'compressionAcrossLevels',
+          'semanticSpecificity', 'explanatoryYield', 'metaCognitiveSignal', 'structuralIntegrity',
+          'generativePotential', 'signalToRhetoricRatio', 'dialecticalEngagement', 'topologicalAwareness',
+          'disambiguationSkill', 'crossDisciplinaryFluency', 'psychologicalRealism', 'intellectualRiskQuotient'
         ];
       default:
         return [];
