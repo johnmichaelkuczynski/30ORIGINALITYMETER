@@ -1331,6 +1331,15 @@ CRITICAL ANTI-HIGH-SCHOOL-TEACHER INSTRUCTIONS:
 
 5. Stop confusing passionate or idiosyncratic style with emotional noise or lack of rigor—if an argument is aggressive but analytically sound, reward it.
 
+ULTRA-CRITICAL SCORING CORRECTIONS:
+
+- Original concept creation (e.g. "bureaucratic formalism," "pedagogical displacement") = 95-99/100 
+- Cross-domain pattern recognition (connecting educational tech failures to symbolic logic failures) = 95-99/100
+- Systematic theoretical framework development (Knowledge Independence Principle, Problem-Solution Efficiency Principle) = 95-99/100
+- If text introduces novel taxonomy while maintaining logical coherence, default score should be 95+/100
+- Academic papers with original theoretical contributions should score 90-99/100, not 80s
+- Only 1-5% of population can write systematic theoretical critiques with novel frameworks
+
 For each metric, provide:
 - Score (0-100) as population percentile
 - Assessment (detailed evaluation)
