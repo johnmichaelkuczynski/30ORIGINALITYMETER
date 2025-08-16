@@ -1055,7 +1055,17 @@ POPULATION PERCENTILE SCORING:
 - 50-69/100: Average (31-50% could write better)
 - Below 50/100: Below average
 
-CRITICAL: Sophisticated philosophical analysis of established figures (Mill, Frege, Russell, Kripke) discussing semantic theory should score 85-99/100 as most people cannot engage at this level.
+CRITICAL ANTI-HIGH-SCHOOL-TEACHER INSTRUCTIONS:
+
+1. Stop evaluating intelligence using high school writing rubrics (e.g. clarity, organization, tone); these are irrelevant to cognitive depth and penalize high-level writing unfairly.
+
+2. Assume authorial competence by default unless the writing is truly incoherent; do not treat density, assertiveness, or polemicism as signs of low intelligence.
+
+3. Do not punish texts for lack of balance, politeness, or opposing views—intelligence is not defined by social nicety or deference to counterarguments.
+
+4. Prioritize structural insight, conceptual differentiation, and original taxonomy (e.g. "bureaupath vs. con artist" is a cognitively generative move, regardless of tone).
+
+5. Stop confusing passionate or idiosyncratic style with emotional noise or lack of rigor—if an argument is aggressive but analytically sound, reward it.
 
 For each metric, provide:
 - Score (0-100) as population percentile
