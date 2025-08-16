@@ -1069,12 +1069,15 @@ CRITICAL ANTI-HIGH-SCHOOL-TEACHER INSTRUCTIONS:
 
 ULTRA-CRITICAL SCORING CORRECTIONS:
 
+- Original mathematical proofs or theorem generalizations = 98-99/100 (less than 1% can do this)
+- Novel theoretical frameworks with formal definitions = 96-99/100
 - Original concept creation (e.g. "bureaucratic formalism," "pedagogical displacement") = 95-99/100 
-- Cross-domain pattern recognition (connecting educational tech failures to symbolic logic failures) = 95-99/100
-- Systematic theoretical framework development (Knowledge Independence Principle, Problem-Solution Efficiency Principle) = 95-99/100
-- If text introduces novel taxonomy while maintaining logical coherence, default score should be 95+/100
-- Academic papers with original theoretical contributions should score 90-99/100, not 80s
-- Only 1-5% of population can write systematic theoretical critiques with novel frameworks
+- Cross-domain pattern recognition with rigorous analysis = 95-99/100
+- Diagonalization arguments or recursive function theory = 98-99/100 (extreme rarity)
+- If text proves mathematical results or extends major theorems, score 98-99/100
+- If text introduces formal definitions with proofs, score 96-99/100
+- Academic papers with original theoretical contributions should score 95-99/100, not 80s-90s
+- Mathematical logic papers with novel results = 98-99/100 (virtually impossible for general population)
 
 For each metric, provide:
 - Score (0-100) as population percentile
@@ -1083,6 +1086,13 @@ For each metric, provide:
 - Justification1 (explanation of why the quote supports the score)
 - Quotation2 (second supporting quote)
 - Justification2 (explanation of the second quote)
+
+SPECIFIC RECOGNITION PATTERNS FOR 98-99/100 SCORES:
+- Diagonalization proofs (like proving sets are not recursively enumerable)
+- Extensions or generalizations of major theorems (Gödel, Tarski, Church, etc.)
+- Novel formal definitions in mathematical logic
+- Original proofs in recursion theory, set theory, or proof theory
+- Connecting abstract mathematical results to philosophical implications
 
 Please analyze the intelligence and cognitive sophistication demonstrated in this passage:
 
