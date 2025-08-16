@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { performComprehensiveAnalysis } from "./lib/newAnalysisEngine";
+import { detectAIContent } from "./lib/aiDetection";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -138,6 +139,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Analysis failed",
         details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // AI DETECTION ENDPOINT
+  app.post("/api/detect-ai", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({
+          isAIGenerated: false,
+          score: 0,
+          confidence: "Low",
+          details: "Invalid text provided"
+        });
+      }
+
+      // Check if GPTZero API key is configured
+      if (!process.env.GPTZERO_API_KEY) {
+        return res.status(400).json({
+          isAIGenerated: false,
+          score: 0,
+          confidence: "Low",
+          details: "GPTZero API key not configured"
+        });
+      }
+      
+      // Call the detection service
+      const result = await detectAIContent(text);
+      
+      // Return the result
+      res.json(result);
+    } catch (error) {
+      console.error("Error in AI detection endpoint:", error);
+      res.status(500).json({
+        isAIGenerated: false,
+        score: 0,
+        confidence: "Low",
+        details: "AI detection service error: " + (error instanceof Error ? error.message : "Unknown error")
+      });
+    }
+  });
+
+  // LEGACY ENDPOINTS FOR UI COMPATIBILITY
+  app.post("/api/analyze/originality", async (req, res) => {
+    try {
+      const { passageA } = req.body;
+      if (!passageA?.text) {
+        return res.status(400).json({ error: "Invalid passage data" });
+      }
+      
+      // Redirect to comprehensive analysis
+      const analysisResult = await performComprehensiveAnalysis(passageA.text, "openai");
+      
+      // Return legacy format
+      res.json({
+        originality: analysisResult.summary.originalityScore,
+        details: "See comprehensive analysis for full results",
+        comprehensiveAnalysis: analysisResult
+      });
+    } catch (error) {
+      console.error("Error in originality analysis:", error);
+      res.status(500).json({ error: "Analysis failed" });
+    }
+  });
+
+  app.post("/api/provider-status", async (req, res) => {
+    try {
+      const openaiKey = process.env.OPENAI_API_KEY;
+      const anthropicKey = process.env.ANTHROPIC_API_KEY;
+      const perplexityKey = process.env.PERPLEXITY_API_KEY;
+      const gptZeroKey = process.env.GPTZERO_API_KEY;
+
+      res.json({
+        openai: !!openaiKey,
+        anthropic: !!anthropicKey,
+        perplexity: !!perplexityKey,
+        gptzero: !!gptZeroKey
+      });
+    } catch (error) {
+      console.error("Error checking provider status:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Unknown error" 
       });
     }
   });
