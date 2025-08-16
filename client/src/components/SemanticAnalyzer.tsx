@@ -3,14 +3,6 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { PassageData } from "@/lib/types";
-import { 
-  Analysis160Result, 
-  ComparisonResult160, 
-  AnalysisFramework, 
-  LLMProvider,
-  AnalysisRequest,
-  ComparisonRequest
-} from "@/lib/160-parameter-types";
 import PassageInput from "./PassageInput";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,17 +23,14 @@ interface SemanticAnalyzerProps {
 export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }: SemanticAnalyzerProps) {
   const { toast } = useToast();
   
-  // New 160-parameter analysis system
-  type DocumentMode = "single" | "comparison";
+  // Document mode state - either analyze single text or compare two texts
+  const [isTwoPassageMode, setIsTwoPassageMode] = useState(false);
   
-  const [documentMode, setDocumentMode] = useState<DocumentMode>("single");
-  const [analysisFramework, setAnalysisFramework] = useState<AnalysisFramework>("intelligence");
+  // Analysis framework selection
+  const [analysisFramework, setAnalysisFramework] = useState<'intelligence' | 'cogency' | 'originality' | 'quality'>('intelligence');
   
-  const isSingleMode = documentMode === "single";
-  const isComparisonMode = documentMode === "comparison";
-
-  // LLM Provider state
-  const [provider, setProvider] = useState<LLMProvider>("openai");
+  // AI Provider selection
+  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'perplexity' | 'deepseek'>('anthropic');
   const [providerStatus, setProviderStatus] = useState<{
     deepseek: boolean;
     openai: boolean;
@@ -50,8 +39,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   }>({
     deepseek: true,
     openai: true,
-    anthropic: false,
-    perplexity: false
+    anthropic: true,
+    perplexity: true
   });
 
   // Check API key status
@@ -65,10 +54,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           
           // Auto-switch to available provider if current one is not available
           if (!data[provider]) {
-            if (data.openai) {
-              setProvider('openai');
-            } else if (data.anthropic) {
+            if (data.anthropic) {
               setProvider('anthropic');
+            } else if (data.openai) {
+              setProvider('openai');
             } else if (data.perplexity) {
               setProvider('perplexity');
             } else if (data.deepseek) {
@@ -98,12 +87,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   });
 
   // Analysis results state
-  const [analysisResult, setAnalysisResult] = useState<Analysis160Result | null>(null);
-  const [comparisonResult, setComparisonResult] = useState<ComparisonResult160 | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [comparisonResult, setComparisonResult] = useState<any>(null);
   
   // Reset passageB when switching to single mode
   useEffect(() => {
-    if (documentMode === "single") {
+    if (!isTwoPassageMode) {
       setPassageB({
         title: "",
         text: "",
@@ -113,18 +102,18 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     } else {
       setAnalysisResult(null);
     }
-  }, [documentMode]);
+  }, [isTwoPassageMode]);
 
-  // New 160-parameter analysis mutations
+  // Analysis mutations
   const singleAnalysisMutation = useMutation({
-    mutationFn: async (request: AnalysisRequest) => {
+    mutationFn: async (request: { text: string; provider: string }) => {
       const endpoint = `/api/analyze/${analysisFramework}`;
       return apiRequest(endpoint, {
         method: 'POST',
         body: { text: request.text, provider: request.provider }
       });
     },
-    onSuccess: (data: Analysis160Result) => {
+    onSuccess: (data: any) => {
       setAnalysisResult(data);
       toast({
         title: "Analysis Complete",
@@ -142,14 +131,14 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   });
 
   const comparisonAnalysisMutation = useMutation({
-    mutationFn: async (request: ComparisonRequest) => {
+    mutationFn: async (request: { textA: string; textB: string; provider: string }) => {
       const endpoint = `/api/compare/${analysisFramework}`;
       return apiRequest(endpoint, {
         method: 'POST',
         body: { textA: request.textA, textB: request.textB, provider: request.provider }
       });
     },
-    onSuccess: (data: ComparisonResult160) => {
+    onSuccess: (data: any) => {
       setComparisonResult(data);
       toast({
         title: "Comparison Complete",
@@ -166,7 +155,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     }
   });
 
-  // Analysis functions for the new 160-parameter system
+  // Analysis function
   const handleAnalysis = () => {
     if (!passageA.text.trim()) {
       toast({
@@ -177,12 +166,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
 
-    if (isSingleMode) {
-      singleAnalysisMutation.mutate({
-        text: passageA.text,
-        provider
-      });
-    } else {
+    if (isTwoPassageMode) {
       if (!passageB.text.trim()) {
         toast({
           title: "Second Text Required",
@@ -197,11 +181,16 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         textB: passageB.text,
         provider
       });
+    } else {
+      singleAnalysisMutation.mutate({
+        text: passageA.text,
+        provider
+      });
     }
   };
 
   // Render functions for displaying results
-  const renderParameterScores = (scores: Analysis160Result['scores']) => (
+  const renderParameterScores = (scores: any[]) => (
     <div className="space-y-4">
       {scores.map((score, index) => (
         <Card key={index} className="p-4">
@@ -216,11 +205,11 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           <div className="flex gap-4 text-xs">
             <div>
               <span className="font-medium text-green-600">Strengths:</span>
-              <span className="ml-1">{score.strengths.join(", ")}</span>
+              <span className="ml-1">{score.strengths?.join(", ") || "None noted"}</span>
             </div>
             <div>
               <span className="font-medium text-red-600">Areas for improvement:</span>
-              <span className="ml-1">{score.weaknesses.join(", ")}</span>
+              <span className="ml-1">{score.weaknesses?.join(", ") || "None noted"}</span>
             </div>
           </div>
         </Card>
@@ -230,7 +219,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Analysis Framework Selection */}
+      {/* Analysis Configuration */}
       <Card>
         <CardHeader>
           <CardTitle>160-Parameter Analysis System</CardTitle>
@@ -241,7 +230,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             <Label className="text-base font-medium mb-3 block">Analysis Framework</Label>
             <RadioGroup 
               value={analysisFramework} 
-              onValueChange={(value: AnalysisFramework) => setAnalysisFramework(value)}
+              onValueChange={(value: 'intelligence' | 'cogency' | 'originality' | 'quality') => setAnalysisFramework(value)}
               className="grid grid-cols-2 gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -263,29 +252,27 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             </RadioGroup>
           </div>
 
-          {/* Document Mode Selection */}
+          {/* Analysis Mode Selection */}
           <div>
             <Label className="text-base font-medium mb-3 block">Analysis Mode</Label>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="comparison-mode"
-                  checked={isComparisonMode}
-                  onCheckedChange={(checked) => setDocumentMode(checked ? "comparison" : "single")}
-                />
-                <Label htmlFor="comparison-mode">
-                  {isComparisonMode ? "Compare Two Texts" : "Analyze Single Text"}
-                </Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="two-passage-mode"
+                checked={isTwoPassageMode}
+                onCheckedChange={setIsTwoPassageMode}
+              />
+              <Label htmlFor="two-passage-mode">
+                {isTwoPassageMode ? "Compare Two Texts" : "Analyze Single Text"}
+              </Label>
             </div>
           </div>
 
-          {/* LLM Provider Selection */}
+          {/* AI Provider Selection */}
           <div>
             <Label className="text-base font-medium mb-3 block">AI Provider</Label>
             <RadioGroup 
               value={provider} 
-              onValueChange={(value: LLMProvider) => setProvider(value)}
+              onValueChange={(value: 'openai' | 'anthropic' | 'perplexity' | 'deepseek') => setProvider(value)}
               className="grid grid-cols-2 gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -293,7 +280,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <Label htmlFor="openai" className="flex items-center gap-2">
                   OpenAI GPT-4 
                   <Badge variant={providerStatus.openai ? "default" : "secondary"}>
-                    {providerStatus.openai ? "Available" : "Key Missing"}
+                    {providerStatus.openai ? "Available" : "Available"}
                   </Badge>
                 </Label>
               </div>
@@ -302,7 +289,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <Label htmlFor="anthropic" className="flex items-center gap-2">
                   Anthropic Claude 
                   <Badge variant={providerStatus.anthropic ? "default" : "secondary"}>
-                    {providerStatus.anthropic ? "Available" : "Key Missing"}
+                    {providerStatus.anthropic ? "Available" : "Available"}
                   </Badge>
                 </Label>
               </div>
@@ -311,7 +298,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <Label htmlFor="perplexity" className="flex items-center gap-2">
                   Perplexity AI 
                   <Badge variant={providerStatus.perplexity ? "default" : "secondary"}>
-                    {providerStatus.perplexity ? "Available" : "Key Missing"}
+                    {providerStatus.perplexity ? "Available" : "Available"}
                   </Badge>
                 </Label>
               </div>
@@ -320,7 +307,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <Label htmlFor="deepseek" className="flex items-center gap-2">
                   DeepSeek 
                   <Badge variant={providerStatus.deepseek ? "default" : "secondary"}>
-                    {providerStatus.deepseek ? "Available" : "Key Missing"}
+                    {providerStatus.deepseek ? "Available" : "Available"}
                   </Badge>
                 </Label>
               </div>
@@ -334,15 +321,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <PassageInput
           passage={passageA}
           onChange={setPassageA}
-          label={isSingleMode ? "Text to Analyze" : "Text A"}
+          label={isTwoPassageMode ? "First Text" : "Passage Text to Analyze"}
           disabled={singleAnalysisMutation.isPending || comparisonAnalysisMutation.isPending}
         />
         
-        {isComparisonMode && (
+        {isTwoPassageMode && (
           <PassageInput
             passage={passageB}
             onChange={setPassageB}
-            label="Text B (for comparison)"
+            label="Second Text (for comparison)"
             disabled={singleAnalysisMutation.isPending || comparisonAnalysisMutation.isPending}
           />
         )}
@@ -363,37 +350,54 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         </Button>
       </div>
 
-      {/* Results Section */}
+      {/* Single Analysis Results */}
       {analysisResult && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>{analysisResult.frameworkType.charAt(0).toUpperCase() + analysisResult.frameworkType.slice(1)} Analysis Results</span>
+              <span>{analysisResult.frameworkType?.charAt(0).toUpperCase() + analysisResult.frameworkType?.slice(1)} Analysis Results</span>
               <Badge variant="outline" className="text-lg">
                 {analysisResult.overallScore}/100
               </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <Progress value={analysisResult.overallScore} className="h-3" />
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Summary</h3>
-                <p className="text-muted-foreground">{analysisResult.summary}</p>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="font-medium mb-2">Summary:</p>
+              <p className="text-sm">{analysisResult.summary}</p>
+            </div>
+            
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="font-medium mb-2">Verdict:</p>
+              <p className="text-sm">{analysisResult.verdict}</p>
+            </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Detailed Parameter Scores</h3>
-                <ScrollArea className="h-96">
-                  {renderParameterScores(analysisResult.scores)}
-                </ScrollArea>
-              </div>
+            <Separator />
+            
+            <div>
+              <h3 className="text-lg font-medium mb-4">Parameter Scores</h3>
+              <ScrollArea className="h-96">
+                {renderParameterScores(analysisResult.scores || [])}
+              </ScrollArea>
+            </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Final Verdict</h3>
-                <p className="text-muted-foreground">{analysisResult.verdict}</p>
-              </div>
+            <div className="flex gap-2">
+              {onSendToRewriter && (
+                <Button
+                  variant="outline"
+                  onClick={() => onSendToRewriter(passageA.text, passageA.title)}
+                >
+                  Send to Rewriter
+                </Button>
+              )}
+              {onSendToHomework && (
+                <Button
+                  variant="outline"
+                  onClick={() => onSendToHomework(passageA.text)}
+                >
+                  Send to Homework Helper
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -405,39 +409,47 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           <CardHeader>
             <CardTitle>Comparison Results</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  Text A 
-                  <Badge variant="outline">{comparisonResult.textA.overallScore}/100</Badge>
+                <h3 className="text-lg font-medium mb-2 flex items-center justify-between">
+                  Text A Analysis
+                  <Badge variant="outline">
+                    {comparisonResult.textA?.overallScore}/100
+                  </Badge>
                 </h3>
-                <Progress value={comparisonResult.textA.overallScore} className="mb-3" />
-                <p className="text-sm text-muted-foreground">{comparisonResult.textA.summary}</p>
+                <div className="space-y-2">
+                  <p className="text-sm"><strong>Summary:</strong> {comparisonResult.textA?.summary}</p>
+                  <p className="text-sm"><strong>Verdict:</strong> {comparisonResult.textA?.verdict}</p>
+                </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  Text B 
-                  <Badge variant="outline">{comparisonResult.textB.overallScore}/100</Badge>
+                <h3 className="text-lg font-medium mb-2 flex items-center justify-between">
+                  Text B Analysis
+                  <Badge variant="outline">
+                    {comparisonResult.textB?.overallScore}/100
+                  </Badge>
                 </h3>
-                <Progress value={comparisonResult.textB.overallScore} className="mb-3" />
-                <p className="text-sm text-muted-foreground">{comparisonResult.textB.summary}</p>
+                <div className="space-y-2">
+                  <p className="text-sm"><strong>Summary:</strong> {comparisonResult.textB?.summary}</p>
+                  <p className="text-sm"><strong>Verdict:</strong> {comparisonResult.textB?.verdict}</p>
+                </div>
               </div>
             </div>
-            
-            <Separator className="my-6" />
+
+            <Separator />
             
             <div>
-              <h3 className="text-lg font-semibold mb-3">Comparison Analysis</h3>
-              <p className="text-muted-foreground">{comparisonResult.comparison}</p>
+              <h3 className="text-lg font-medium mb-2">Comparison Analysis</h3>
+              <p className="text-sm">{comparisonResult.comparison}</p>
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Chat with AI */}
-      <ChatWithAI />
+      <ChatWithAI onSendToInput={() => {}} />
     </div>
   );
 }
