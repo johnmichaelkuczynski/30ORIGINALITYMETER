@@ -3,6 +3,9 @@ import { PassageData, SupportingDocument, StyleOption, FeedbackData, SubmitFeedb
 import { splitIntoParagraphs } from "../../client/src/lib/utils";
 import { AnalysisResult } from "@shared/schema";
 
+// 160 METRICS FRAMEWORK - NO CANNED RESPONSES ALLOWED
+// Each metric must include: metric evaluation, direct quotations, explanation of how quotations support the score
+
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 // Use environment variable for OpenAI API key
 const apiKey = process.env.OPENAI_API_KEY;
