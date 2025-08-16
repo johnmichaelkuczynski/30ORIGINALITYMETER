@@ -40,38 +40,6 @@ export interface AdvancedComparisonResult {
 const apiKey = process.env.ANTHROPIC_API_KEY;
 console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 
-const anthropic = new Anthropic({
-  apiKey: apiKey || 'dummy-key'
-});
-
-/**
- * Pure LLM analysis function for 160-parameter system
- */
-export async function analyzeWithAnthropic(prompt: string): Promise<string> {
-  if (!apiKey) {
-    throw new Error("Anthropic API key not configured");
-  }
-
-  try {
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 4000,
-      temperature: 0.1,
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    });
-
-    return response.content[0]?.type === 'text' ? response.content[0].text : "";
-  } catch (error) {
-    console.error("Anthropic analysis error:", error);
-    throw new Error(`Anthropic analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-  }
-}
-
 // Helper function to detect and embed graphs in text
 export async function processGraphRequests(text: string): Promise<string> {
   try {
