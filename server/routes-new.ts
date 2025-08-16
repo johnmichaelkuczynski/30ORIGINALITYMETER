@@ -62,23 +62,7 @@ const audioUpload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Check API provider status (GET endpoint for frontend)
-  app.get("/api/check-providers", async (req, res) => {
-    try {
-      const providers = {
-        deepseek: !!process.env.DEEPSEEK_API_KEY,
-        openai: !!process.env.OPENAI_API_KEY,
-        anthropic: !!process.env.ANTHROPIC_API_KEY,
-        perplexity: !!process.env.PERPLEXITY_API_KEY
-      };
-      res.json(providers);
-    } catch (error) {
-      console.error("Error checking provider status:", error);
-      res.status(500).json({ error: "Failed to check provider status" });
-    }
-  });
-  
-  // Check API provider status (POST endpoint - legacy)
+  // Check API provider status
   app.post("/api/provider-status", async (req, res) => {
     try {
       const providers = {

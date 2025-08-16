@@ -29,11 +29,13 @@ Preferred communication style: Simple, everyday language.
 - **Migrations**: Drizzle Kit
 
 ### Key Features & Technical Implementations
-- **AI Integration**: Orchestrates multiple AI providers for analysis (OpenAI GPT-4, Anthropic Claude, Perplexity AI, AssemblyAI, GPTZero).
-- **Analysis Modules**:
-    - **Core Originality Analysis**: Conceptual lineage, semantic distance, novelty heatmap, derivative index, conceptual parasite detection.
-    - **Quality Metrics**: Coherence, accuracy, depth, clarity.
-    - **Advanced Features**: Argumentative analysis, comparative analysis, AI detection, document chunking, Intelligence Meter, Cogency Meter, Overall Quality Meter, and Originality Meter (each with 20 specific parameters).
+- **AI Integration**: Pure LLM passthrough system using multiple AI providers (OpenAI GPT-4, Anthropic Claude, Perplexity AI, DeepSeek) for analysis.
+- **160-Parameter Analysis System**: Complete replacement of hardcoded evaluation logic with pure LLM analysis against 4 frameworks:
+    - **Intelligence Framework**: 40 precise parameters evaluating compression, abstraction, inference depth, etc.
+    - **Cogency Framework**: 40 parameters for logical validity, evidence strength, argumentative structure, etc.
+    - **Originality Framework**: 40 parameters for novel perspectives, conceptual innovation, creative synthesis, etc.
+    - **Quality Framework**: 40 parameters for clarity, flow, style, engagement, polish, etc.
+- **Pure Passthrough Architecture**: No hardcoded scoring logic - all evaluation performed by LLMs using the 160 parameters as evaluation criteria.
 - **Document Processing Pipeline**:
     - **Text Extraction**: DOCX (Mammoth), PDF (pdf-parse), TXT (direct), Audio (AssemblyAI), Image (OpenAI Vision OCR).
     - **Math Preservation**: Handles LaTeX notation throughout.
@@ -44,7 +46,7 @@ Preferred communication style: Simple, everyday language.
 - **Graph Generation**: AI-driven scenario modeling, user-selectable LLM providers (GPT-4o Mini, GPT-4o, GPT-4, Claude Sonnet 4), mathematical specifications display, and PDF export with SVG graphs.
 - **Cross-Component Communication**: Seamless transfer of outputs between Document Rewriter, Homework Helper, and Analysis modules.
 - **Scoring**: Uses population percentile scoring (0-100, indicating how many people out of 100 could write at this level of sophistication).
-- **"Raw Intelligence Evaluation"**: A mode that prioritizes conceptual brutality, linguistic lethality, strategic dominance, and emotional engineering over academic norms.
+- **Revolutionary Architecture Change (January 2025)**: Completely gutted all hardcoded evaluation logic and rebuilt as pure LLM passthrough system to properly recognize genius-level intellectual work using the 160-parameter framework.
 
 ## External Dependencies
 

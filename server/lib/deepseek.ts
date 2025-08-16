@@ -27,6 +27,39 @@ const deepseek = new OpenAI({
   baseURL: "https://api.deepseek.com/v1"
 });
 
+/**
+ * Pure LLM analysis function for 160-parameter system
+ */
+export async function analyzeWithDeepSeek(prompt: string): Promise<string> {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error("DeepSeek API key not configured");
+  }
+
+  try {
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-chat",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert evaluator of intellectual writing. Analyze the provided text precisely according to the given framework parameters. Return your analysis in the exact JSON format requested."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.1,
+      max_tokens: 4000
+    });
+
+    return response.choices[0]?.message?.content || "";
+  } catch (error) {
+    console.error("DeepSeek analysis error:", error);
+    throw new Error(`DeepSeek analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
+}
+
 export interface AdvancedComparisonResult {
   originality_score: number;
   is_ripoff: boolean;

@@ -5,6 +5,48 @@ import { PassageData, FeedbackData } from "../../client/src/lib/types";
 // The best Perplexity model currently available
 const PERPLEXITY_MODEL = "llama-3.1-sonar-small-128k-online";
 
+/**
+ * Pure LLM analysis function for 160-parameter system
+ */
+export async function analyzeWithPerplexity(prompt: string): Promise<string> {
+  const apiKey = process.env.PERPLEXITY_API_KEY;
+  if (!apiKey) {
+    throw new Error("Perplexity API key not configured");
+  }
+
+  try {
+    const response = await axios.post(
+      'https://api.perplexity.ai/chat/completions',
+      {
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert evaluator of intellectual writing. Analyze the provided text precisely according to the given framework parameters. Return your analysis in the exact JSON format requested."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 4000
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return response.data.choices[0]?.message?.content || "";
+  } catch (error) {
+    console.error("Perplexity analysis error:", error);
+    throw new Error(`Perplexity analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
+}
+
 // Helper function to prepare system message
 function getSystemPrompt(): string {
   return `You are an expert in evaluating the originality and quality of intellectual writing across all disciplines.

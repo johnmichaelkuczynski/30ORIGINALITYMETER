@@ -12,6 +12,34 @@ const openai = new OpenAI({
   apiKey 
 });
 
+/**
+ * Pure LLM analysis function for 160-parameter system
+ */
+export async function analyzeWithOpenAI(prompt: string): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert evaluator of intellectual writing. Analyze the provided text precisely according to the given framework parameters. Return your analysis in the exact JSON format requested."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.1,
+      max_tokens: 4000
+    });
+
+    return response.choices[0]?.message?.content || "";
+  } catch (error) {
+    console.error("OpenAI analysis error:", error);
+    throw new Error(`OpenAI analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
+}
+
 export async function analyzePassages(
   passageA: PassageData,
   passageB: PassageData

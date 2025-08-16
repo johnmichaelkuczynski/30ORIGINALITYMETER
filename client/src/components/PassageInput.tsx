@@ -40,6 +40,11 @@ export default function PassageInput({
   const lastAnalyzedText = useRef<string>('');
   
   useEffect(() => {
+    if (!passage || !passage.text) {
+      setWordCount(0);
+      return;
+    }
+    
     const text = passage.text.trim();
     const count = text.length > 0 ? text.split(/\s+/).length : 0;
     setWordCount(count);
@@ -51,25 +56,28 @@ export default function PassageInput({
       lastAnalyzedText.current = text;
       detectAIContent(text, passageId);
     }
-  }, [passage.text, passageId, detectAIContent]);
+  }, [passage?.text, passageId, detectAIContent]);
+
+  // Provide default values if passage is undefined
+  const safePassage = passage || { title: "", text: "", userContext: "" };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange({
-      ...passage,
+      ...safePassage,
       text: e.target.value,
     });
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({
-      ...passage,
+      ...safePassage,
       title: e.target.value,
     });
   };
   
   const handleUserContextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange({
-      ...passage,
+      ...safePassage,
       userContext: e.target.value,
     });
   };
@@ -170,15 +178,15 @@ export default function PassageInput({
               type="text"
               placeholder={label ? `Passage ${label} Title (Optional)` : "Passage Title (Optional)"}
               className="w-full border-0 p-0 focus:ring-0 bg-transparent text-secondary-800 font-medium placeholder-gray-400 pr-8"
-              value={passage.title}
+              value={safePassage.title}
               onChange={handleTitleChange}
               disabled={disabled}
             />
-            {passage.title && !disabled && (
+            {safePassage.title && !disabled && (
               <button
                 type="button"
                 className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                onClick={() => onChange({ ...passage, title: "" })}
+                onClick={() => onChange({ ...safePassage, title: "" })}
                 aria-label="Clear title"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -201,7 +209,7 @@ export default function PassageInput({
             isDetecting={isDetecting}
             textId={passageId}
             onDetect={() => {
-              const text = passage.text.trim();
+              const text = safePassage.text.trim();
               if (text.length > 50) {
                 detectAIContent(text, passageId);
               }
@@ -214,15 +222,15 @@ export default function PassageInput({
             rows={12}
             placeholder={label ? `Paste or type the ${label === "A" ? "first" : "second"} passage here...` : "Paste or type your passage here..."}
             className="w-full p-0 border-0 focus:ring-0 resize-none bg-transparent text-secondary-800"
-            value={passage.text}
+            value={safePassage.text}
             onChange={handleTextChange}
             disabled={disabled}
           />
-          {passage.text && !disabled && (
+          {safePassage.text && !disabled && (
             <button
               type="button"
               className="absolute top-4 right-4 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-              onClick={() => onChange({ ...passage, text: "" })}
+              onClick={() => onChange({ ...safePassage, text: "" })}
               aria-label="Clear text"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -246,15 +254,15 @@ export default function PassageInput({
                 rows={3}
                 placeholder="Examples: 'This is a draft', 'I'm looking for feedback on the argument structure', 'This is an excerpt from a longer paper'"
                 className="w-full p-2 border border-blue-200 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white text-secondary-800 text-sm"
-                value={passage.userContext || ""}
+                value={safePassage.userContext || ""}
                 onChange={handleUserContextChange}
                 disabled={disabled}
               />
-              {passage.userContext && !disabled && (
+              {safePassage.userContext && !disabled && (
                 <button
                   type="button"
                   className="absolute top-2 right-2 bg-white bg-opacity-75 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  onClick={() => onChange({ ...passage, userContext: "" })}
+                  onClick={() => onChange({ ...safePassage, userContext: "" })}
                   aria-label="Clear context"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -297,12 +305,12 @@ export default function PassageInput({
             <VoiceDictation
               onTranscriptionComplete={(text) => {
                 // Append the dictated text to the existing text with a space if needed
-                const updatedText = passage.text 
-                  ? passage.text.trim() + (passage.text.endsWith('.') ? ' ' : '. ') + text
+                const updatedText = safePassage.text 
+                  ? safePassage.text.trim() + (safePassage.text.endsWith('.') ? ' ' : '. ') + text
                   : text;
                 
                 onChange({
-                  ...passage,
+                  ...safePassage,
                   text: updatedText,
                 });
                 
@@ -319,8 +327,8 @@ export default function PassageInput({
             type="button"
             variant="destructive"
             size="sm"
-            onClick={() => onChange({ ...passage, title: "", text: "", userContext: "" })}
-            disabled={disabled || (!passage.title && !passage.text && !passage.userContext)}
+            onClick={() => onChange({ ...safePassage, title: "", text: "", userContext: "" })}
+            disabled={disabled || (!safePassage.title && !safePassage.text && !safePassage.userContext)}
             className="ml-2"
           >
             Clear All
