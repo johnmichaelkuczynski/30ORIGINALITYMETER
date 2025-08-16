@@ -1,0 +1,110 @@
+descriptivist theory of conception. Many such philosophers believe that, since these two views of theirs are true, it is de rigueur to accept a causal theory of conception. According to such a theory, x has a concept of y if and only if y has certain sorts of effects on x.
+David Kaplan (1968), himself an advocate of this view, made a point that helps bring out the raison d’être for it. Let X be a low-resolution, distorted photograph of Smith. Let Y be a high-resolution, undistorted photograph of somebody who isn’t Smith but looks just like him. X can be thought of as a distorted, low-resolution, inaccurate, description of Smith, and Y can be thought of as a very good and accurate description of some Smith look-alike. The reason that, despite its shortcomings, X is a picture of Smith is that X is an effect of Smith (or, more accurately, of some situation involving Smith—light bounced off Smith and headed in the direction of a certain camera, etc.). And the reason that, despite its encoding a description that Smith satisfies to a tee, Y is not a photograph of Smith is that it lacks just this sort of causal connection to him.
+Advocates of the causal theory of reference hold that concepts of Smith are to Smith what photographs of Smith are to him and that, for any x, concepts of x are to x what photographs of x are to x.
+I reject this view. I accept Kripke’s point that names aren’t definite descriptions. And, with some qualifications to be stated forthwith, I accept Kripke’s theory of reference. I agree that there is a causal component to conception, at least where spatiotemporal entities are concerned. (One’s concept of a non-spatiotemporal entity does not, I believe, have such a component.) But I agree with Russell that one’s concept of Socrates is descriptive. There is, we will see, an ineliminable causal component to it. But that component is internal to a description that singles out Socrates. And I agree with Russell that one’s concept of Socrates is descriptive and is expressed by a definite description. But, contrary to what Russell says, those definite descriptions aren’t at all like the ones that Russell had in mind.
+How can all of this be true? Simple: pre-semantics isn’t semantics. For elucidation, read on.
+5.4 The causal-descriptivist theory of conception
+Imagine the following. There are 30 numerically different, but qualitatively identical men in a certain place. Your friend Bob goes up to one of them, put his hand on his shoulder, and says:
+
+(1) This guy is named “Fred.”
+
+You thus know that:
+
+(2) there is some individual x such that x is uniquely a person whom Bob just picked out; and “Fred” names x.
+
+You thus know to whom “Fred” refers only because you know some true proposition of the form:
+
+(3) something x uniquely has phi; moreover, “Fred” refers to x.
+ 
+Your knowing who “Fred” refers to also depends on your having a causal connection to Fred. Your seeing Fred is important to your having this knowledge, and your seeing him involves your being at the receiving end of a causal process beginning with him. (x cannot see or otherwise sense-perceive y without being affected either by light signals bouncing off y or by other information-bearing processes originating with y.) But it’s involved only because it’s involved in your knowing some truth like (2)—some truth that describes the referent of the expression in question.
+5.4.1 The causal-descriptivist theory of conception (continued)
+Imagine that you are talking with your friends Smith and Jones. They suddenly starting talking about somebody named “Argo.” They are acquainted with Argo, but you are not. At no point in the conversation do they ever say anything like “Argo was my divorce lawyer” or “Argo was the best man at my wedding.” They never explicitly or implicitly tell you anything of the form:
+
+(4) something x uniquely has phi; moreover, “Argo” refers to x.
+
+Suppose that, during this conversation, at time t, Smith says “Argo was a cad.” Obviously the description ‹x is a cad› is indefinite, and many satisfy it. But on that occasion, there was, as you know, exactly one person who Smith was describing as being a cad, and you thus pick up knowledge of some claim along the lines of:
+
+(5) on occasion t, there was exactly one person who Smith described as being a cad, and ‘Argo’ refers to x.
+
+And, of course, (5) has (4) for its form.
+
+So merely by virtue of being in a position to “pick up” use of the term “Argo,” you are ipso facto in a position to know the truth of (1). Thus merely by virtue of being in a position to “pick up” use of the term “Argo” some existence-claim of the form: there is some x such that x uniquely has phi and “Argo” refers to x.
+It is plain that what enables you to pick up the term “Argo” is your knowledge of some claim of the sort just described. Your picking up a term like “Argo” involves your hearing or reading a sentence of the form ‹...Argo...›. It thus involves your encountering a case of somebody’s ascribing a property to Argo. (This is true even if you read such sentence: you are still, in effect, encountering somebody’s using that sentence to make such a statement.)Whenever you hear a token of ‹Argo has phi› you are thereby made aware of the fact that there is somebody x such that, on that occasion, the property of being a phi is being ascribed to x and x alone; and you are also being made aware of the fact that, on that occasion, “Argo” is being used to refer to x. On any such occasion, therefore, you are being apprised of an existence-claim that Argo uniquely satisfies, even though no such claim is being overtly stated.
+We must be careful to distinguish the following claims:
+
+(a) Exactly one person has phi.
+(b) Exactly one person is being described, on some particular occasion, as having phi.
+
+There are many cads. But there are many occasions where only one person is being described as a cad. Your learning who “Argo” refers to doesn’t involve your learning that:
+
+(6) exactly one person x is a cad, and “Argo” refers to x.
+
+You couldn’t possibly “learn” (6), since it’s false, given that there are many cads. Your learning who “Argo” refers to involves your learning that, on some occasion, somebody x is being described by some specific person (Smith) as a “cad.” 
+ 
+What these remarks show is that, even though names are merely labels, we can attach them to their referents only because we know of descriptions that single those referents out. Semantically, “Argo” and “Socrates” are mere labels. But pre-semantically, they are descriptions. The information that one must use to affix them to their referents is descriptive in nature, and so is the information one must work through to interpret utterances containing occurrences of them.
+5.5 The problem of forgotten start-up descriptions
+One typically forgets the existence-claim through which one added a name to one’s lexicon. One typically forgets the first time one heard “Shakespeare” or “Aristotle”; one often forgets one’s first meeting of a person. Given this, one is tempted to say:
+
+You don’t necessarily associate any uniquely individuating description with “Aristotle” or “Smith” or “Jones.” Such a description was needed to enable you to refer to those people, and to think about them. But once that ability is in place, the description drops out. At that point, there can be pure thought about the entities in question. You can just think about Aristotle and Smith; you don’t have to think about them through a uniquely individuating description.
+
+Remember what we said earlier about “Fred.” Your adding “Fred” to your lexicon involves your learning some truth of the form: somebody x uniquely has phi and “Fred” names x.
+Bearing this in mind, suppose that you and a friend are at a party. You see somebody wearing a bowler hat, talking animatedly. At time t, your friend points to that person and says “that is Fred.” Your adding “Fred” to your lexicon involves your knowing some existence-claim along the lines of:
+
+(E1) there is now somebody x who I am sense-perceiving and who is wearing a bowler hat; and “Fred” names x.
+
+Let us suppose that, a minute or so after “Fred” is ostensively defined for you, you go up to him and start talking. Now you have new information about Fred; you have a new uniquely individuating description of him. There are a number of reasons for this, the mere passage of time being one of them. At time t, E1 was your uniquely individuating description. But now that time has passed, E1 has been replaced with:
+
+(E2) there is somebody x whom, a minute or two ago, I was sense-perceiving and attending to, and who was then wearing a bowler hat, and “Fred” names x.
+
+Notice that E2 “interlocks” with E1. The uniquely individuating description changes. But the new one is related to the old one in such a way that some one object uniquely satisfies both of them. The new one thus “inherits” the verifier of the old one. In a moment we will say more about this process of inheritance or transmission.
+Things other than the mere passage of time, will lead to E1’s being replaced. Let’s suppose that you are now engaged in a conversation with Fred. You can see him more clearly than before. (Although, when looked at from afar, he looked healthy and strong, you now see that he is puffy and out of shape.) He is talking about the national debt. As a result, you generate a new uniquely individuating description of Fred, this one being given by an existence-claim along the lines of:
+
+(E3) there is somebody x such that, a minute or two ago, I was sense-perceiving x while standing several feet away from him, and such that, at the present time, I am listening to his puffy and out of shape self talk about the national debt; moreover, “Fred” names x.
+
+Notice that E3 and E2 interlock; E2 transmits its verifier to E3.
+ 
+Now that you have E3, you can drop E2 and E1. You can completely forget them; and that will not jeopardize your ability to think about Fred. Supposing that a moment has passed and that you have stopped talking with Fred, the mere passage of time replaces E3 with a slightly different claim:
+
+(E4) there is some x such that, a moment ago, x was talking about the national debt, and x looked puffy and unhealthy, and “Fred” names x.
+
+Given that you now know E4, you can forget each of E1–E3 without ceasing to be able to think about Fred. And, so long as you are able to think about Fred, this will continue to be the case.
+
+One’s ability to think about, and refer to, something can only be started up by one’s acquiring knowledge of the right kind of existence-claim. Typically, that specific claim is forgotten. But it is replaced by another interlocking existence-claim. And that second one will, in its turn, be replaced by a third; and so on. Thus, an integral part of one’s ability to think about or refer to an external object is one’s having knowledge of an existence-claim that it uniquely satisfies; i.e., it is my having a uniquely individuating description of him.
+None of this belittles the role that causal connections play in conception and reference. I am able to think about, and refer to, Fred precisely because I saw him: and seeing something involves being causally connected to it. But how is the causal connection involved? What enables me to think about Fred is my knowledge of some existence-claim that describes him: there is some guy whom I am now seeing and attending to, who is wearing a bowler hat, and “Fred” names that guy. The causal connection is involved in my seeing Fred; and my seeing Fred, in its turn, is involved in my having a uniquely individuating description of him. So what is doing the work is my knowledge of a uniquely individuating description of Fred; the causal connection, though essential, has a role that is subordinate and internal to my knowledge of that description.
+Here we need to very clear about a certain distinction: the distinction between literal meaning and cognitive content. “Fred” is just a label. The following statement is true:
+
+(F1) There is somebody x who I met on such and such occasion and who looked pale and talked about communism; and the semantic rule for “Fred” is: “Fred” names x.
+
+The following statement is false:
+
+(F2) The semantic rule for “Fred” is this: There is somebody x who I met on such and such occasion and who looked pale and talked about communism; and “Fred” names x.
+
+The following embodies even more falsehoods than F2:
+
+(F3) The semantic rule for “Fred” is this: for any predicate ‹...x...›, ‹...Fred...› means: There is somebody O who I met on such and such occasion, and who looked pale and talked about communism and...O...
+
+There is some x such that the literal meaning of
+
+(*) “Fred looked puffy and pale”
+
+is simply:
+
+(*LM) x looked puffy and pale.
+
+But remember that one knows what “Fred” refers to only insofar as one knows some claim of the form: somebody x uniquely has phi and “Fred” refers to x.
+ 
+Tyler Burge (1941–) overlooked these points. The result of his doing so was a doctrine known as content externalism that, in order to be kept from crashing, has had more epicycles added to it than just about any theory in human history. It is to this dark chapter of intellectual history that we turn.
+
+
+Chapter 9
+Putnam’s Insight and Burge’s Blunder: Semantic Externalism vs. Content-Externalism
+1.0 Is linguistic meaning a strictly psychological notion?
+In Naming and Necessity, Kripke decisively showed that proper names are not definite descriptions. In doing this, Kripke was making a specific point concerning the semantics of a specific class of expressions. It might therefore seem that what Kripke was doing in NN, though non-trivial, was too narrow to be of great philosophical importance.
+But implicit in what Kripke said about proper names are many deep and important principles concerning the very nature of meaning and the relationship between language and thought. In 1975, Hilary Putnam published an article titled The meaning of “meaning” (henceforth, “MM”) in which he explicitly stated one of these principles and cogently argued for it. What he showed is that what we think does not, by itself, establish what our words and sentences mean.
+It’s obvious that what we think largely determines what it is that our expressions mean. The word “snow” could refer to anything; it would be easy to create a language in which it referred, not to so snow, but to Julius Caesar. (Let’s create such a language right now. Let L be a language that is just like English except that, in L, “snow” refers to Julius Caesar and “Julius Caesar” refers to snow. L is a perfectly good language—it’s as expressively powerful a language as English.) It’s obviously at least partly because of what some people were thinking at certain times that “snow” refers to snow, and not to Julius Caesar.
+But Putnam made it clear that there is an important non-psychological dimension to linguistic meaning. Given only that, at any given moment, person X is psychologically and behaviorally indistinguishable from person Y, it does not follow that the words leaving X’s mouth have the same meanings as the words leaving Y’s mouth. So, supposing that at any given moment X is having a given thought if and only if Y is having an exactly similar thought, and that X is producing a given utterance if and only if Y is producing an exactly similar utterance, it does not follow that what is meant by X’s utterance coincides with what is meant by Y’s. Even though the psychological state that gave rise to the one utterance is just like the psychological state that gave rise to the other, the meaning of the one may diverge from that of the other.
+1.1 Putnam’s argument
+Let Twin-Earth be a planet in some distant galaxy that satisfies the following conditions. Given any person x on Earth, there is a person y on Twin-Earth who is an atom-for-atom duplicate of x. At any given moment, y has a given thought if and only if x has that thought; y has a given feeling if and only if x has that very feeling. y acts a certain way if and only if x acts in an exactly similar way; y makes a certain noise if and only if x makes an exactly similar noise. Thus, Earth people are psychologically and behaviorally exactly like Twin-Earth people. They think, feel, do, and say the very same things at the very same times.
+It is merely coincidence that Earth people are in lock-step with Twin-Earth people. There is no causal interaction between Earth people and Twin-Earth people. No messages are sent from one planet to the other; nobody on either planet in any way influences anyone on the other.
+Even though Earth and Twin-Earth are extremely similar, there is an important difference between them. On Twin-Earth, the liquid in bathtubs, drinking glasses, lakes, etc., isn’t H2O—it’s XYZ. (“XYZ” is an abbreviation for some long chemical formula.) With that qualification, Twin-Earth is, at any given moment, exactly like Earth.
+ 

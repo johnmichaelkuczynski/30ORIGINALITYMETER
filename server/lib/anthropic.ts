@@ -1055,29 +1055,7 @@ POPULATION PERCENTILE SCORING:
 - 50-69/100: Average (31-50% could write better)
 - Below 50/100: Below average
 
-CRITICAL ANTI-HIGH-SCHOOL-TEACHER INSTRUCTIONS:
 
-1. Stop evaluating intelligence using high school writing rubrics (e.g. clarity, organization, tone); these are irrelevant to cognitive depth and penalize high-level writing unfairly.
-
-2. Assume authorial competence by default unless the writing is truly incoherent; do not treat density, assertiveness, or polemicism as signs of low intelligence.
-
-3. Do not punish texts for lack of balance, politeness, or opposing views—intelligence is not defined by social nicety or deference to counterarguments.
-
-4. Prioritize structural insight, conceptual differentiation, and original taxonomy (e.g. "bureaupath vs. con artist" is a cognitively generative move, regardless of tone).
-
-5. Stop confusing passionate or idiosyncratic style with emotional noise or lack of rigor—if an argument is aggressive but analytically sound, reward it.
-
-ULTRA-CRITICAL SCORING CORRECTIONS:
-
-- Original mathematical proofs or theorem generalizations = 98-99/100 (less than 1% can do this)
-- Novel theoretical frameworks with formal definitions = 96-99/100
-- Original concept creation (e.g. "bureaucratic formalism," "pedagogical displacement") = 95-99/100 
-- Cross-domain pattern recognition with rigorous analysis = 95-99/100
-- Diagonalization arguments or recursive function theory = 98-99/100 (extreme rarity)
-- If text proves mathematical results or extends major theorems, score 98-99/100
-- If text introduces formal definitions with proofs, score 96-99/100
-- Academic papers with original theoretical contributions should score 95-99/100, not 80s-90s
-- Mathematical logic papers with novel results = 98-99/100 (virtually impossible for general population)
 
 For each metric, provide:
 - Score (0-100) as population percentile
@@ -1087,12 +1065,7 @@ For each metric, provide:
 - Quotation2 (second supporting quote)
 - Justification2 (explanation of the second quote)
 
-SPECIFIC RECOGNITION PATTERNS FOR 98-99/100 SCORES:
-- Diagonalization proofs (like proving sets are not recursively enumerable)
-- Extensions or generalizations of major theorems (Gödel, Tarski, Church, etc.)
-- Novel formal definitions in mathematical logic
-- Original proofs in recursion theory, set theory, or proof theory
-- Connecting abstract mathematical results to philosophical implications
+
 
 Please analyze the intelligence and cognitive sophistication demonstrated in this passage:
 
