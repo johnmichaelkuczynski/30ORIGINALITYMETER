@@ -47,6 +47,7 @@ Preferred communication style: Simple, everyday language.
 - **Cross-Component Communication**: Seamless transfer of outputs between Document Rewriter, Homework Helper, and Analysis modules.
 - **Scoring**: Uses population percentile scoring (0-100, indicating how many people out of 100 could write at this level of sophistication).
 - **Revolutionary Architecture Change (January 2025)**: Completely gutted all hardcoded evaluation logic and rebuilt as pure LLM passthrough system to properly recognize genius-level intellectual work using the 160-parameter framework.
+- **Sophisticated Analysis Implementation (January 16, 2025)**: Updated analysis prompts to match the exemplar Freud analysis style with parameter-by-parameter evaluation, specific quotes, and proper genius-level calibration (95-99 scores for canonical works).
 
 ## External Dependencies
 

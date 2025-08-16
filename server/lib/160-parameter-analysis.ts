@@ -10,6 +10,14 @@
  * Overall Quality (40 metrics)
  */
 
+import {
+  INTELLIGENCE_ANALYSIS_PROMPT,
+  COGENCY_ANALYSIS_PROMPT,
+  ORIGINALITY_ANALYSIS_PROMPT,
+  QUALITY_ANALYSIS_PROMPT,
+  COMPARISON_ANALYSIS_PROMPT
+} from './sophisticated-160-prompts';
+
 // Define the 160 parameters exactly as specified in the user document
 export const INTELLIGENCE_METRICS = [
   "Compression (density of meaning per word)",
@@ -257,37 +265,38 @@ function create160ParameterPrompt(
   frameworkType: string,
   metrics: string[]
 ): string {
-  return `You are analyzing this text against the ${frameworkType.toUpperCase()} framework with 40 precise parameters.
+  // Use sophisticated prompts that model the Freud analysis style
+  let basePrompt: string;
+  
+  switch (frameworkType) {
+    case 'intelligence':
+      basePrompt = INTELLIGENCE_ANALYSIS_PROMPT;
+      break;
+    case 'cogency':
+      basePrompt = COGENCY_ANALYSIS_PROMPT;
+      break;
+    case 'originality':
+      basePrompt = ORIGINALITY_ANALYSIS_PROMPT;
+      break;
+    case 'quality':
+      basePrompt = QUALITY_ANALYSIS_PROMPT;
+      break;
+    default:
+      // Fallback to generic sophisticated prompt
+      basePrompt = INTELLIGENCE_ANALYSIS_PROMPT;
+  }
 
-CRITICAL INSTRUCTION: You are evaluating against the full range of human intellectual capability. 
-
-Scoring Guidelines:
-- 0-20: Below average capability 
-- 21-50: Average capability
-- 51-75: Above average capability
-- 76-90: Superior capability (top 10-25% of humans)
-- 91-99: Exceptional capability (top 1-10% of humans)
-
-Remember: Most people cannot write sophisticated philosophical, mathematical, or literary analysis. If this text demonstrates genuine intellectual sophistication, it should score in the 85-99 range for relevant parameters.
+  return `${basePrompt}
 
 TEXT TO ANALYZE:
 """
 ${text}
 """
 
-For each of the 40 ${frameworkType} metrics below, provide:
-1. Score (0-100 percentile: what percentage of humans could this text outperform on this metric?)
-2. Assessment (2-3 sentences explaining the score)
-3. Strengths (specific textual evidence supporting high performance)
-4. Weaknesses (specific areas for improvement)
-
-METRICS TO EVALUATE:
+PARAMETERS TO EVALUATE:
 ${metrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-After evaluating all 40 metrics, provide:
-- Overall Score (average of all 40 metrics)
-- Summary (2-3 sentences capturing the text's performance across all metrics)
-- Verdict (1-2 sentences: would this text be impressive to an expert in the field?)
+Provide sophisticated analysis for each parameter, using the calibration where genius-level work (Freud, Kant) scores 95-99, exceptional academic work scores 85-94, etc.
 
 Format your response as JSON with this exact structure:
 {
@@ -295,14 +304,14 @@ Format your response as JSON with this exact structure:
     {
       "metric": "metric name",
       "score": number,
-      "assessment": "explanation",
-      "strengths": ["strength1", "strength2"],
-      "weaknesses": ["weakness1", "weakness2"]
+      "assessment": "Sophisticated analysis with quotes and explanation",
+      "strengths": ["Specific textual evidence", "Another strength"],
+      "weaknesses": ["Areas for improvement", "Or note excellence"]
     }
   ],
   "overallScore": number,
-  "summary": "overall summary",
-  "verdict": "final verdict"
+  "summary": "Performance summary in the style of sophisticated academic evaluation",
+  "verdict": "Final assessment of intellectual caliber and population ranking"
 }`;
 }
 
