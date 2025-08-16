@@ -1,0 +1,93 @@
+They’re wrong, as we’ve seen; and, contrary to what they thought, the descriptive nature of conception is perfectly consistent with the supposition that proper names are mere labels.
+What made it possible for them to overlook the flaws in their logic was that they focused on names of historical figures (“Homer,” “Shakespeare,” “Napoleon”) or celestial bodies (“Hesperus,” “Phosphorous”)—names that are likely to be associated with a single definite description. It isn’t likely that “Phosphorous” will stop being “the evening star.” (It could happen; there could be some cataclysm. But it isn’t likely.) And it isn’t likely that “Shakespeare” will stop being synonymous with “the author of Hamlet.“ (It’s possible; it could be discovered that Francis Bacon wrote Hamlet. But it isn’t likely.) So each of “Hesperus” and “Shakespeare” is tethered to a definite description whose aptness events probably won’t threaten.
+But this isn’t true of names of living people. Remember what we said about “Larry.” What makes it so obvious that “Larry” isn’t synonymous with “the man with the handle-bar mustache [etc.]” is that Larry might shave his mustache tomorrow; maybe he already has. And maybe I’m now at some other party and am talking to some other man with a handle-bar mustache, and it is now this other man, not Larry, to whom “the man with the handle-bar mustache [etc.]” corresponds. Since living people change and, as it were, move from definite description to definite description, it’s clear, if one focuses on the names of the living that names aren’t definite descriptions. And it’s clear for the reasons that Mill gave. But Russell and Frege focused on a different class of names, and there it is.
+ 
+1.9.2 Reason #2: Replacing co-referring proper names changes meaning
+Let’s suppose that Mill is right—that names are mere labels and are not “connotative” (descriptive). In that case, there is some object—let O be that object—such that each of “Hesperus” and “Phosphorous” simply labels O. It follows that:
+
+(H1) “Hesperus is less massive than the Earth”
+
+has the very same proposition for its literal meaning as
+
+(P1) “Phosphorous is less massive than the Earth,” namely:
+
+(O1) O is less massive than the Earth;
+
+Indeed, it follows that, for any property psi,
+
+(H*1) ‹Hesperus has psi›
+
+has the very same proposition for its literal meaning as
+
+(P1) ‹Phosphorous has psi›,
+
+namely:
+
+(O*1) O has psi.
+
+In particular, it follows that:
+
+(IHP) “Hesperus is identical with Phosphorous”
+
+has the very same meaning as
+
+(IHH) “Hesperus is identical with Hesperus,”
+
+namely:
+
+(IO) O is identical with O.
+
+But this all seems very wrong. IHP is non-trivial. H1 and P1 convey very different propositions (namely, O*1 and P*1); the same is true, for any property psi of IHP and IHH. Given these facts, it seems de rigueur to accept the Russell-Frege position that “Hesperus” and “Phosphorous” are synonymous with different definite descriptions (“the morning star” and “the evening star,” or whatnot).
+But this reasoning is no good. We’ve already seen why. But let’s adapt what we said earlier to deal with the Hesperus-Phosphorous case. Let’s go back to the time when your friend was first telling you what “Hesperus” refers to. He points to a certain celestial body x, which is clearly the last one to disappear from the morning sky, and tells you that “Hesperus” refers to that thing—that is, that “Hesperus” refers to x. Thus, there is some x such that you know that x is the last celestial body to disappear from the morning sky and such that you are now being told that the semantic rule for “Hesperus” is:
+
+(HSR) “Hesperus” refers to x. 
+ 
+Given these circumstances, an utterance:
+
+(HSR2) “Hesperus is hotter than the Earth”
+
+would convey to you the information that:
+
+(HSR3) something is a last celestial body to disappear from the morning sky and any such thing is hotter than the Earth.
+
+And HSR2 would convey this even though its literal meaning would be the descriptively more impoverished proposition that:
+
+(HSLM) O is hotter than the Earth
+
+for some object O.
+
+In general, for any psi, an utterance of (H*1) would convey the information that:
+
+(HSRG3) something is a last celestial body to disappear from the morning sky and any such thing has psi.
+
+And, echoing what we just said, an utterance of H*1 would convey that even though its literal meaning was simply:
+
+(O*1) O has psi.
+
+And for the same reasons mutatis mutandis, an utterance of P*1 would convey:
+
+(PSRG3) something is a last celestial body to disappear from the morning sky and any such thing has psi
+
+enough that the utterance’s literal meaning would be O*1.
+Russell and Frege overlooked the fact that semantics isn’t learned in a vacuum and that, as a result, the non-semantic information through which semantic rules are learned is sometimes smuggled into the messages borne by utterances.
+Reason #3: Replacing co-referring sometimes proper names changes truth-value
+A person can know that:
+
+(H1) “Hesperus is less massive than the Earth”
+
+expresses a truth without knowing that
+
+(P1) “Phosphorous is less massive than the Earth”
+
+does so as well. Many a person who knows that
+
+(IHH) “Hesperus is identical with Hesperus”
+ 
+is true doesn’t know that
+
+(IHP) “Hesperus is identical with Phosphorous”
+
+is true as well.
+This data is naturally accounted for by supposing that “Hesperus” is synonymous with “the morning star” and “Phosphorous” is synonymous with the evening star. And that’s just what Frege and Russell did suppose. But, as we’ve seen, this isn’t the right way to model the data and it isn’t the only way. The supposition that H1 (IHH) and P1 (IHP) coincide in literal meaning does model that data provided that the points concerning pre-semantic information made earlier are taken into account.
+2.0 Kripke’s revival of Mill
+In 1969, Saul Kripke gave three very clever lectures in which he definitively show
