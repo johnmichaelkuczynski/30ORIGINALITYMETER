@@ -25,7 +25,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisType = "originality" | "cogency" | "intelligence" | "quality" | "comprehensive";
+  type AnalysisType = "originality" | "cogency" | "intelligence" | "quality";
   type DocumentMode = "single" | "comparison";
   
   const [documentMode, setDocumentMode] = useState<DocumentMode>("single");
@@ -822,12 +822,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="originality" id="single-originality" />
-                <div className="flex-1">
-                  <Label htmlFor="single-originality" className="font-medium cursor-pointer block">
-                    Originality (Quick)
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
-                </div>
+                <Label htmlFor="single-originality" className="font-medium cursor-pointer">
+                  Originality
+                </Label>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -836,12 +833,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="cogency" id="single-cogency" />
-                <div className="flex-1">
-                  <Label htmlFor="single-cogency" className="font-medium cursor-pointer block">
-                    Cogency (Quick)
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
-                </div>
+                <Label htmlFor="single-cogency" className="font-medium cursor-pointer">
+                  Cogency
+                </Label>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -850,12 +844,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="intelligence" id="single-intelligence" />
-                <div className="flex-1">
-                  <Label htmlFor="single-intelligence" className="font-medium cursor-pointer block">
-                    Intelligence (Quick)
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
-                </div>
+                <Label htmlFor="single-intelligence" className="font-medium cursor-pointer">
+                  Intelligence
+                </Label>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -864,26 +855,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="quality" id="single-quality" />
-                <div className="flex-1">
-                  <Label htmlFor="single-quality" className="font-medium cursor-pointer block">
-                    Overall Quality (Quick)
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
-                </div>
-              </div>
-              
-              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                documentMode === "single" && analysisType === "comprehensive" 
-                  ? "bg-red-50 border-red-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <RadioGroupItem value="comprehensive" id="single-comprehensive" />
-                <div className="flex-1">
-                  <Label htmlFor="single-comprehensive" className="font-medium cursor-pointer block">
-                    Comprehensive Analysis
-                  </Label>
-                  <p className="text-xs text-gray-500 mt-1">40 metrics, ~10 minutes</p>
-                </div>
+                <Label htmlFor="single-quality" className="font-medium cursor-pointer">
+                  Overall Quality
+                </Label>
               </div>
             </RadioGroup>
           </div>
@@ -1071,15 +1045,14 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <>
                   <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
                   <p className="text-base text-slate-600 mt-2">
-                    {documentMode === "single" && analysisType === "originality" && "Click the button below to perform quick originality analysis (5 metrics, ~1 minute)"}
+                    {documentMode === "single" && analysisType === "originality" && "Click the button below to analyze the semantic originality of your passage"}
                     {documentMode === "comparison" && analysisType === "originality" && "Click the button below to compare the semantic originality of both passages"}
-                    {documentMode === "single" && analysisType === "cogency" && "Click the button below to perform quick cogency analysis (5 metrics, ~1 minute)"}
+                    {documentMode === "single" && analysisType === "cogency" && "Click the button below to analyze the logical convincingness of your document"}
                     {documentMode === "comparison" && analysisType === "cogency" && "Click the button below to determine which paper makes its case better"}
-                    {documentMode === "single" && analysisType === "intelligence" && "Click the button below to perform quick intelligence analysis (5 metrics, ~1 minute)"}
+                    {documentMode === "single" && analysisType === "intelligence" && "Click the button below to analyze the cognitive sophistication of your text"}
                     {documentMode === "comparison" && analysisType === "intelligence" && "Click the button below to compare the cognitive sophistication of both texts"}
-                    {documentMode === "single" && analysisType === "quality" && "Click the button below to perform quick quality analysis (5 metrics, ~1 minute)"}
+                    {documentMode === "single" && analysisType === "quality" && "Click the button below to analyze the overall quality of your text"}
                     {documentMode === "comparison" && analysisType === "quality" && "Click the button below to compare the overall quality of both texts"}
-                    {documentMode === "single" && analysisType === "comprehensive" && "Click the button below to perform comprehensive analysis (40 metrics, ~10 minutes)"}
                   </p>
                 </>
               )}
