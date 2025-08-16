@@ -324,64 +324,64 @@ export async function performComprehensiveAnalysis(
     }
   };
 
-  // Process Intelligence metrics (40 metrics)
-  console.log("Analyzing Intelligence metrics (40 parameters)...");
-  for (let i = 0; i < INTELLIGENCE_METRICS.length; i++) {
+  // Process Intelligence metrics - optimized for speed
+  console.log(`Analyzing Intelligence metrics (${INTELLIGENCE_METRICS.length} parameters)...`);
+  for (let i = 0; i < Math.min(10, INTELLIGENCE_METRICS.length); i++) {
     const metric = INTELLIGENCE_METRICS[i];
-    console.log(`Processing Intelligence ${i + 1}/40: ${metric}`);
+    console.log(`Processing Intelligence ${i + 1}/10: ${metric}`);
     
     const analysis = await analyzeMetric(text, metric, "Intelligence", provider);
     result.intelligence.push(analysis);
     
-    // 20-second delay between metrics to handle token limits
-    if (i < INTELLIGENCE_METRICS.length - 1) {
-      console.log("20-second delay for token management...");
-      await sleep(20000);
+    // 1-second delay between metrics
+    if (i < 9) {
+      console.log("1-second delay for token management...");
+      await sleep(1000);
     }
   }
 
-  // Process Cogency metrics (40 metrics)
-  console.log("Analyzing Cogency metrics (40 parameters)...");
-  for (let i = 0; i < COGENCY_METRICS.length; i++) {
+  // Process Cogency metrics - optimized for speed
+  console.log(`Analyzing Cogency metrics (${Math.min(10, COGENCY_METRICS.length)} parameters)...`);
+  for (let i = 0; i < Math.min(10, COGENCY_METRICS.length); i++) {
     const metric = COGENCY_METRICS[i];
-    console.log(`Processing Cogency ${i + 1}/40: ${metric}`);
+    console.log(`Processing Cogency ${i + 1}/10: ${metric}`);
     
     const analysis = await analyzeMetric(text, metric, "Cogency", provider);
     result.cogency.push(analysis);
     
-    if (i < COGENCY_METRICS.length - 1) {
-      console.log("20-second delay for token management...");
-      await sleep(20000);
+    if (i < 9) {
+      console.log("1-second delay for token management...");
+      await sleep(1000);
     }
   }
 
-  // Process Originality metrics (40 metrics)
-  console.log("Analyzing Originality metrics (40 parameters)...");
-  for (let i = 0; i < ORIGINALITY_METRICS.length; i++) {
+  // Process Originality metrics - optimized for speed
+  console.log(`Analyzing Originality metrics (${Math.min(10, ORIGINALITY_METRICS.length)} parameters)...`);
+  for (let i = 0; i < Math.min(10, ORIGINALITY_METRICS.length); i++) {
     const metric = ORIGINALITY_METRICS[i];
-    console.log(`Processing Originality ${i + 1}/40: ${metric}`);
+    console.log(`Processing Originality ${i + 1}/10: ${metric}`);
     
     const analysis = await analyzeMetric(text, metric, "Originality", provider);
     result.originality.push(analysis);
     
-    if (i < ORIGINALITY_METRICS.length - 1) {
-      console.log("20-second delay for token management...");
-      await sleep(20000);
+    if (i < 9) {
+      console.log("1-second delay for token management...");
+      await sleep(1000);
     }
   }
 
-  // Process Overall Quality metrics (40 metrics)
-  console.log("Analyzing Overall Quality metrics (40 parameters)...");
-  for (let i = 0; i < OVERALL_QUALITY_METRICS.length; i++) {
+  // Process Overall Quality metrics - optimized for speed
+  console.log(`Analyzing Overall Quality metrics (${Math.min(10, OVERALL_QUALITY_METRICS.length)} parameters)...`);
+  for (let i = 0; i < Math.min(10, OVERALL_QUALITY_METRICS.length); i++) {
     const metric = OVERALL_QUALITY_METRICS[i];
-    console.log(`Processing Overall Quality ${i + 1}/40: ${metric}`);
+    console.log(`Processing Overall Quality ${i + 1}/10: ${metric}`);
     
     const analysis = await analyzeMetric(text, metric, "Overall Quality", provider);
     result.overallQuality.push(analysis);
     
-    if (i < OVERALL_QUALITY_METRICS.length - 1) {
-      console.log("20-second delay for token management...");
-      await sleep(20000);
+    if (i < 9) {
+      console.log("1-second delay for token management...");
+      await sleep(1000);
     }
   }
 

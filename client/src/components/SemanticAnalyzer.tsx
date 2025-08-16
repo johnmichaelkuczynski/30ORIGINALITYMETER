@@ -25,7 +25,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const { toast } = useToast();
   
   // Analysis modes
-  type AnalysisType = "originality" | "cogency" | "intelligence" | "quality";
+  type AnalysisType = "originality" | "cogency" | "intelligence" | "quality" | "comprehensive";
   type DocumentMode = "single" | "comparison";
   
   const [documentMode, setDocumentMode] = useState<DocumentMode>("single");
@@ -36,10 +36,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     (analysisType === "originality" ? "single" : 
      analysisType === "cogency" ? "single-cogency" :
      analysisType === "intelligence" ? "intelligence" :
+     analysisType === "comprehensive" ? "comprehensive" :
      "quality") :
     (analysisType === "originality" ? "comparison" :
      analysisType === "cogency" ? "argumentative" :
      analysisType === "intelligence" ? "intelligence" :
+     analysisType === "comprehensive" ? "comprehensive" :
      "quality");
   const isSinglePassageMode = documentMode === "single";
   const isCorpusMode = false; // Removed
@@ -48,6 +50,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const isSingleCogencyMode = documentMode === "single" && analysisType === "cogency";
   const isIntelligenceMode = analysisType === "intelligence";
   const isQualityMode = analysisType === "quality";
+  const isComprehensiveMode = analysisType === "comprehensive";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -284,6 +287,60 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       toast({
         title: "Analysis Failed",
         description: "There was an error analyzing your document quality. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Quick analysis mutation (5 metrics per category, ~1 minute)
+  const quickAnalysisMutation = useMutation({
+    mutationFn: async (params: { text: string; provider: string }) => {
+      console.log("Starting quick analysis");
+      const response = await apiRequest('POST', '/api/analyze/quick', params);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowResults(true);
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Quick analysis error:", error);
+      toast({
+        title: "Quick Analysis Failed",
+        description: "There was an error with the quick analysis. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Comprehensive analysis mutation (40 metrics, ~10 minutes)
+  const comprehensiveAnalysisMutation = useMutation({
+    mutationFn: async (params: { text: string; provider: string }) => {
+      console.log("Starting comprehensive analysis");
+      const response = await apiRequest('POST', '/api/analyze/comprehensive', params);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setAnalysisResult(data);
+      setShowResults(true);
+      setTimeout(() => {
+        const resultsElement = document.getElementById('results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    },
+    onError: (error) => {
+      console.error("Comprehensive analysis error:", error);
+      toast({
+        title: "Comprehensive Analysis Failed", 
+        description: "There was an error with the comprehensive analysis. Please try again.",
         variant: "destructive",
       });
     }
@@ -535,17 +592,58 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
     
+    // For comprehensive analysis mode, call the API directly
+    if (analysisType === "comprehensive") {
+      console.log("Starting comprehensive analysis");
+      const effectiveText = chunkedTextA || passageA.text;
+      comprehensiveAnalysisMutation.mutate({
+        text: effectiveText,
+        provider
+      });
+      return;
+    }
+    
     // For originality analysis mode, call the API directly  
     if (analysisType === "originality") {
-      console.log("Starting originality analysis");
-      originalityMutation.mutate();
+      console.log("Starting quick originality analysis");
+      const effectiveText = chunkedTextA || passageA.text;
+      quickAnalysisMutation.mutate({
+        text: effectiveText,
+        provider
+      });
       return;
     }
     
     // For cogency analysis mode, call the API directly
     if (analysisType === "cogency") {
-      console.log("Starting cogency analysis");
-      cogencyMutation.mutate();
+      console.log("Starting quick cogency analysis");
+      const effectiveText = chunkedTextA || passageA.text;
+      quickAnalysisMutation.mutate({
+        text: effectiveText,
+        provider
+      });
+      return;
+    }
+    
+    // For intelligence analysis mode, call the API directly
+    if (analysisType === "intelligence") {
+      console.log("Starting quick intelligence analysis");
+      const effectiveText = chunkedTextA || passageA.text;
+      quickAnalysisMutation.mutate({
+        text: effectiveText,
+        provider
+      });
+      return;
+    }
+    
+    // For quality analysis mode, call the API directly
+    if (analysisType === "quality") {
+      console.log("Starting quick quality analysis");
+      const effectiveText = chunkedTextA || passageA.text;
+      quickAnalysisMutation.mutate({
+        text: effectiveText,
+        provider
+      });
       return;
     }
     
@@ -724,9 +822,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="originality" id="single-originality" />
-                <Label htmlFor="single-originality" className="font-medium cursor-pointer">
-                  Originality
-                </Label>
+                <div className="flex-1">
+                  <Label htmlFor="single-originality" className="font-medium cursor-pointer block">
+                    Originality (Quick)
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
+                </div>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -735,9 +836,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="cogency" id="single-cogency" />
-                <Label htmlFor="single-cogency" className="font-medium cursor-pointer">
-                  Cogency
-                </Label>
+                <div className="flex-1">
+                  <Label htmlFor="single-cogency" className="font-medium cursor-pointer block">
+                    Cogency (Quick)
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
+                </div>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -746,9 +850,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="intelligence" id="single-intelligence" />
-                <Label htmlFor="single-intelligence" className="font-medium cursor-pointer">
-                  Intelligence
-                </Label>
+                <div className="flex-1">
+                  <Label htmlFor="single-intelligence" className="font-medium cursor-pointer block">
+                    Intelligence (Quick)
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
+                </div>
               </div>
               
               <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
@@ -757,9 +864,26 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                   : "bg-white border-gray-200 hover:border-gray-300"
               }`}>
                 <RadioGroupItem value="quality" id="single-quality" />
-                <Label htmlFor="single-quality" className="font-medium cursor-pointer">
-                  Overall Quality
-                </Label>
+                <div className="flex-1">
+                  <Label htmlFor="single-quality" className="font-medium cursor-pointer block">
+                    Overall Quality (Quick)
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">5 metrics, ~1 minute</p>
+                </div>
+              </div>
+              
+              <div className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                documentMode === "single" && analysisType === "comprehensive" 
+                  ? "bg-red-50 border-red-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <RadioGroupItem value="comprehensive" id="single-comprehensive" />
+                <div className="flex-1">
+                  <Label htmlFor="single-comprehensive" className="font-medium cursor-pointer block">
+                    Comprehensive Analysis
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">40 metrics, ~10 minutes</p>
+                </div>
               </div>
             </RadioGroup>
           </div>
@@ -925,11 +1049,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending || cogencyMutation.isPending) ? (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending || cogencyMutation.isPending || quickAnalysisMutation.isPending || comprehensiveAnalysisMutation.isPending) ? (
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
-                    Please wait while we analyze your text. This may take 15-30 seconds.
+                    {comprehensiveAnalysisMutation.isPending 
+                      ? "Please wait while we perform comprehensive analysis. This will take approximately 10 minutes."
+                      : quickAnalysisMutation.isPending
+                      ? "Please wait while we perform quick analysis. This will take approximately 1 minute."
+                      : "Please wait while we analyze your text. This may take 1-2 minutes."}
                   </p>
                   <div className="mt-4 flex justify-center">
                     <div className="animate-pulse flex space-x-1">
@@ -943,14 +1071,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <>
                   <h3 className="text-xl font-bold text-green-800">Ready to Analyze?</h3>
                   <p className="text-base text-slate-600 mt-2">
-                    {documentMode === "single" && analysisType === "originality" && "Click the button below to analyze the semantic originality of your passage"}
+                    {documentMode === "single" && analysisType === "originality" && "Click the button below to perform quick originality analysis (5 metrics, ~1 minute)"}
                     {documentMode === "comparison" && analysisType === "originality" && "Click the button below to compare the semantic originality of both passages"}
-                    {documentMode === "single" && analysisType === "cogency" && "Click the button below to analyze the logical convincingness of your document"}
+                    {documentMode === "single" && analysisType === "cogency" && "Click the button below to perform quick cogency analysis (5 metrics, ~1 minute)"}
                     {documentMode === "comparison" && analysisType === "cogency" && "Click the button below to determine which paper makes its case better"}
-                    {documentMode === "single" && analysisType === "intelligence" && "Click the button below to analyze the cognitive sophistication of your text"}
+                    {documentMode === "single" && analysisType === "intelligence" && "Click the button below to perform quick intelligence analysis (5 metrics, ~1 minute)"}
                     {documentMode === "comparison" && analysisType === "intelligence" && "Click the button below to compare the cognitive sophistication of both texts"}
-                    {documentMode === "single" && analysisType === "quality" && "Click the button below to analyze the overall quality of your text"}
+                    {documentMode === "single" && analysisType === "quality" && "Click the button below to perform quick quality analysis (5 metrics, ~1 minute)"}
                     {documentMode === "comparison" && analysisType === "quality" && "Click the button below to compare the overall quality of both texts"}
+                    {documentMode === "single" && analysisType === "comprehensive" && "Click the button below to perform comprehensive analysis (40 metrics, ~10 minutes)"}
                   </p>
                 </>
               )}

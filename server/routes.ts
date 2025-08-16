@@ -26,7 +26,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // NEW COMPREHENSIVE 160-METRIC ANALYSIS ENDPOINT
+  // QUICK ANALYSIS ENDPOINT (20 metrics, ~1 minute)
+  app.post("/api/analyze/quick", async (req, res) => {
+    try {
+      const requestSchema = z.object({
+        text: z.string().min(1, "Text is required for quick analysis"),
+        provider: z.enum(["openai", "anthropic", "perplexity"]).optional().default("openai"),
+      });
+
+      const { text, provider } = requestSchema.parse(req.body);
+      
+      console.log("Starting quick 20-metric analysis:", {
+        textLength: text.length,
+        provider,
+        estimatedDuration: "~1 minute"
+      });
+
+      // Import and perform quick analysis
+      const { performQuickAnalysis } = await import("./lib/quickAnalysisEngine");
+      const analysisResult = await performQuickAnalysis(text, provider);
+      
+      console.log("Quick analysis completed successfully");
+      res.json(analysisResult);
+      
+    } catch (error) {
+      console.error("Error in quick analysis:", error);
+      res.status(500).json({
+        error: "Quick analysis failed",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // COMPREHENSIVE ANALYSIS ENDPOINT (40 metrics, ~10 minutes)
   app.post("/api/analyze/comprehensive", async (req, res) => {
     try {
       const requestSchema = z.object({
@@ -36,13 +68,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { text, provider } = requestSchema.parse(req.body);
       
-      console.log("Starting 160-metric comprehensive analysis:", {
+      console.log("Starting comprehensive 40-metric analysis:", {
         textLength: text.length,
         provider,
-        estimatedDuration: "3+ hours for full analysis"
+        estimatedDuration: "~10 minutes"
       });
 
-      // Perform the comprehensive 160-metric analysis
+      // Perform the comprehensive 40-metric analysis
       const analysisResult = await performComprehensiveAnalysis(text, provider);
       
       console.log("Comprehensive analysis completed successfully");
