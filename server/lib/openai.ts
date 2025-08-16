@@ -411,10 +411,7 @@ Return a detailed analysis in the following JSON format with all 20 originality 
         }
       },
       
-      verdict: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
-      
-      // Store the raw 20-parameter analysis for potential future use
-      rawTwentyParameterAnalysis: rawResult
+      verdict: rawResult.verdict || "Comprehensive analysis across 20 originality parameters reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth."
     }
     
     // Ensure clarity data is properly structured
@@ -888,9 +885,6 @@ Return a detailed analysis in the following JSON format using all 20 quality met
       },
       
       verdict: rawResult.verdict || "Comprehensive analysis across 20 quality metrics reveals varying strengths in conceptual innovation, structural coherence, and intellectual depth.",
-      
-      // Store the raw 20-parameter analysis for potential future use
-      rawTwentyParameterAnalysis: rawResult,
       
       // Include the new quality metrics for the frontend
       ...qualityMetrics

@@ -1119,7 +1119,8 @@ Return in this exact JSON format:
     // Parse the response
     let rawResult: any = {};
     try {
-      const responseContent = response.content[0].text ?? "{}";
+      const firstContent = response.content[0];
+      const responseContent = (firstContent.type === 'text' ? firstContent.text : "{}") ?? "{}";
       console.log("Anthropic intelligence analysis response length:", responseContent.length);
       rawResult = JSON.parse(responseContent);
     } catch (parseError) {
