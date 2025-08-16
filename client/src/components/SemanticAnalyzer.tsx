@@ -111,6 +111,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     text: "",
     userContext: ""
   });
+
+  // Track chunked text when documents are large
+  const [chunkedTextA, setChunkedTextA] = useState<string | null>(null);
+  const [chunkedTextB, setChunkedTextB] = useState<string | null>(null);
   
   // Reset passageB when switching to single mode
   useEffect(() => {
@@ -139,8 +143,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     mutationFn: async () => {
       console.log("Analyzing single document cogency");
       const endpoint = '/api/analyze/argumentative';
+      
+      // Use chunked text if available, otherwise use full text
+      const effectivePassageA = chunkedTextA ? {
+        ...passageA,
+        text: chunkedTextA
+      } : passageA;
+      
       const payload = {
-        passageA,
+        passageA: effectivePassageA,
         passageB: null,
         passageATitle: passageA.title || "Document A",
         passageBTitle: null,
@@ -180,8 +191,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     mutationFn: async () => {
       console.log("Analyzing intelligence with provider:", provider);
       const endpoint = '/api/analyze/intelligence';
+      
+      // Use chunked text if available, otherwise use full text
+      const effectivePassageA = chunkedTextA ? {
+        ...passageA,
+        text: chunkedTextA
+      } : passageA;
+      
       const payload = {
-        passageA,
+        passageA: effectivePassageA,
         provider
       };
       
@@ -218,16 +236,28 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       console.log("Analyzing quality");
       
       let endpoint = '/api/analyze/quality';
+      
+      // Use chunked text if available, otherwise use full text
+      const effectivePassageA = chunkedTextA ? {
+        ...passageA,
+        text: chunkedTextA
+      } : passageA;
+      
+      const effectivePassageB = chunkedTextB ? {
+        ...passageB,
+        text: chunkedTextB
+      } : passageB;
+      
       let payload = {
-        passageA,
+        passageA: effectivePassageA,
         provider
       };
       
       // Check if we have passageB for dual analysis
-      if (passageB.text.trim() !== "") {
+      if (effectivePassageB.text.trim() !== "") {
         payload = {
-          passageA,
-          passageB,
+          passageA: effectivePassageA,
+          passageB: effectivePassageB,
           provider
         };
       }
@@ -265,17 +295,29 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       console.log("Analyzing originality");
       
       let endpoint = '/api/analyze/originality';
+      
+      // Use chunked text if available, otherwise use full text
+      const effectivePassageA = chunkedTextA ? {
+        ...passageA,
+        text: chunkedTextA
+      } : passageA;
+      
+      const effectivePassageB = chunkedTextB ? {
+        ...passageB,
+        text: chunkedTextB
+      } : passageB;
+      
       let payload = {
-        passageA,
+        passageA: effectivePassageA,
         provider
       };
       
       // Check if we have passageB for dual analysis
-      if (passageB.text.trim() !== "") {
+      if (effectivePassageB.text.trim() !== "") {
         endpoint = '/api/analyze/originality-dual';
         payload = {
-          passageA,
-          passageB,
+          passageA: effectivePassageA,
+          passageB: effectivePassageB,
           provider
         };
       }
@@ -862,6 +904,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             label={(analysisMode === "single") ? "" : "A"}
             disabled={analysisMutation.isPending}
             showUserContext={true}
+            onChunkedTextChange={setChunkedTextA}
           />
           
           {(analysisMode === "comparison" || analysisMode === "argumentative" || analysisMode === "intelligence") && (
@@ -871,6 +914,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               label="B"
               disabled={analysisMutation.isPending}
               showUserContext={false}
+              onChunkedTextChange={setChunkedTextB}
             />
           )}
         </div>
