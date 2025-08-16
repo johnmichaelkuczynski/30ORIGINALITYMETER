@@ -45,9 +45,9 @@ export default function PassageInput({
     setWordCount(count);
     
     // Only detect AI content if:
-    // 1. There's sufficient text (more than 100 characters)
+    // 1. There's sufficient text (more than 50 characters to match backend)
     // 2. The text has changed significantly (first 100 chars different)
-    if (text.length > 100 && text.substring(0, 100) !== lastAnalyzedText.current.substring(0, 100)) {
+    if (text.length > 50 && text.substring(0, 100) !== lastAnalyzedText.current.substring(0, 100)) {
       lastAnalyzedText.current = text;
       detectAIContent(text, passageId);
     }
