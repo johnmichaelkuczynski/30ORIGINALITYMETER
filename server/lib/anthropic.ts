@@ -978,12 +978,334 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
 
 export async function analyzeIntelligence(passage: PassageData): Promise<any> {
   try {
-    console.log("Anthropic intelligence analysis not implemented, falling back to OpenAI");
-    const openaiService = await import('./openai');
-    return openaiService.analyzeIntelligence(passage);
+    if (!apiKey) {
+      throw new Error("Anthropic API key is not configured");
+    }
+
+    const anthropic = new Anthropic({ apiKey });
+    const paragraphs = splitIntoParagraphs(passage.text);
+    const passageTitle = passage.title || "Your Passage";
+    const userContext = passage.userContext || "";
+
+    const response = await anthropic.messages.create({
+      model: "claude-3-7-sonnet-20250219",
+      max_tokens: 8000,
+      messages: [
+        {
+          role: "user",
+          content: `COMPREHENSIVE INTELLIGENCE SCORING SYSTEM
+
+You are evaluating text using a scientifically-grounded intelligence framework that separates gatekeeping metrics from the core insight function.
+
+STRUCTURAL OVERVIEW:
+- Negative Metrics = Gatekeepers. If text fails these, it is unintelligent. If it passes, it might be intelligent.
+- Affirmative Metric = Generator. If text succeeds here, it is intelligent—regardless of gatekeeper performance.
+
+=== AFFIRMATIVE INTELLIGENCE METRIC ===
+
+1. AFFIRMATIVE INSIGHT FUNCTION (AIF) - PRIMARY INTELLIGENCE MEASURE
+Question: Does this text tell me something I wouldn't have realized on my own, even if I'm very smart?
+• Insight must be non-redundant with respect to the reader's prior semantic topology
+• Must expand awareness in a non-paraphrasable way  
+• Must contain asymmetric novelty: something that once known cannot be "unlearned" without loss
+✅ This is the ONLY metric that directly measures actual intelligence. Everything else screens out pseudo-intelligence.
+
+=== NEGATIVE (GATEKEEPER) METRICS ===
+
+2. Semantic Compression - How much meaning packed into few words?
+High = compact density with implication / Low = padded, verbose, diluted prose
+
+3. Inferential Control - How well are claims logically connected?
+High = tight causal chains or deductive scaffolding / Low = leapfrogging, handwaving
+
+4. Cognitive Risk - Does text make bold, unpopular, or non-obvious claims?
+High = epistemically risky moves / Low = platitudes or obvious truisms
+
+5. Meta-Theoretical Awareness - Is text aware of its own framework or assumptions?
+High = recursive modeling and self-situating / Low = naive or one-layered discourse
+
+6. Conceptual Innovation - Does text create new categories, terms, distinctions?
+High = fresh language or paradigms / Low = jargon recitation or term recycling
+
+7. Epistemic Resistance - How much work does reader have to do?
+High = slows digestion; demands rereading / Low = sugarcoated, frictionless
+
+8. Signal-to-Fluff Ratio - How much prose is intellectually necessary?
+High = no waste, no filler / Low = verbal noise, padding, vague rhetoric
+
+9. Abstraction Control - Can author move between example and principle?
+High = abstraction-flexible / Low = stuck at one tier (too abstract or too concrete)
+
+10. Semantic Asymmetry - Are ideas directionally structured (X implies Y, but not vice versa)?
+High = structural complexity / Low = reciprocal mush
+
+11. Compression-to-Novelty Ratio - Is text both compact and new?
+High = maximum insight per word / Low = verbose redundancy or novelty without clarity
+
+=== SCORING PHILOSOPHY ===
+
+GENIUS = High AIF + High Resistance + High Compression + High Innovation
+PSEUDOINTELLIGENCE = High Coherence + Low Insight + Safe Claims  
+GARBAGE = Fails compression, inference, and signal ratio
+
+POPULATION PERCENTILE SCORING:
+- 95-99/100: Exceptional (only 1-5% could write better) - Advanced academic work
+- 85-94/100: High quality (only 6-15% could write better) - Strong intellectual work
+- 70-84/100: Above average (only 16-30% could write better)
+- 50-69/100: Average (31-50% could write better)
+- Below 50/100: Below average
+
+CRITICAL: Sophisticated philosophical analysis of established figures (Mill, Frege, Russell, Kripke) discussing semantic theory should score 85-99/100 as most people cannot engage at this level.
+
+For each metric, provide:
+- Score (0-100) as population percentile
+- Assessment (detailed evaluation)
+- Quotation1 (direct quote demonstrating the score)
+- Justification1 (explanation of why the quote supports the score)
+- Quotation2 (second supporting quote)
+- Justification2 (explanation of the second quote)
+
+Please analyze the intelligence and cognitive sophistication demonstrated in this passage:
+
+Title: ${passageTitle}
+${userContext ? `Context: ${userContext}` : ""}
+
+Text:
+${passage.text}
+
+Return in this exact JSON format:
+{
+  "affirmativeInsightFunction": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "semanticCompression": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "inferentialControl": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "cognitiveRisk": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "metaTheoreticalAwareness": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "conceptualInnovation": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "epistemicResistance": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "signalToFluffRatio": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "abstractionControl": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "semanticAsymmetry": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "compressionToNoveltyRatio": {
+    "passageA": { "score": number from 0-100, "assessment": "detailed evaluation", "quotation1": "direct quote", "justification1": "explanation", "quotation2": "second quote", "justification2": "explanation" }
+  },
+  "verdict": "comprehensive intelligence assessment focusing on Affirmative Insight Function and gatekeeper metrics"
+}`
+        }
+      ]
+    });
+
+    // Parse the response
+    let rawResult: any = {};
+    try {
+      const responseContent = response.content[0].text ?? "{}";
+      console.log("Anthropic intelligence analysis response length:", responseContent.length);
+      rawResult = JSON.parse(responseContent);
+    } catch (parseError) {
+      console.error("JSON parsing error in Anthropic intelligence analysis:", parseError);
+      throw new Error(`Failed to parse Anthropic intelligence analysis response: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`);
+    }
+    
+    // Extract NEW intelligence metrics for storage
+    const intelligenceMetrics = {
+      affirmativeInsightFunction: rawResult.affirmativeInsightFunction || null,
+      semanticCompression: rawResult.semanticCompression || null,
+      inferentialControl: rawResult.inferentialControl || null,
+      cognitiveRisk: rawResult.cognitiveRisk || null,
+      metaTheoreticalAwareness: rawResult.metaTheoreticalAwareness || null,
+      conceptualInnovation: rawResult.conceptualInnovation || null,
+      epistemicResistance: rawResult.epistemicResistance || null,
+      signalToFluffRatio: rawResult.signalToFluffRatio || null,
+      abstractionControl: rawResult.abstractionControl || null,
+      semanticAsymmetry: rawResult.semanticAsymmetry || null,
+      compressionToNoveltyRatio: rawResult.compressionToNoveltyRatio || null
+    };
+    
+    // Convert NEW intelligence metrics to legacy AnalysisResult format for compatibility
+    const result: AnalysisResult = {
+      // Map affirmativeInsightFunction to conceptualLineage for compatibility
+      conceptualLineage: {
+        passageA: {
+          primaryInfluences: rawResult.affirmativeInsightFunction?.passageA?.assessment || "Affirmative insight function analysis",
+          intellectualTrajectory: rawResult.semanticCompression?.passageA?.assessment || "Semantic compression evaluation"
+        },
+        passageB: {
+          primaryInfluences: "Baseline insight capacity for typical cognitive function",
+          intellectualTrajectory: "Standard semantic compression patterns"
+        }
+      },
+      
+      // Map inferentialControl to semanticDistance
+      semanticDistance: {
+        passageA: {
+          distance: rawResult.inferentialControl?.passageA?.score || 50,
+          label: rawResult.inferentialControl?.passageA?.score >= 85 ? "High Sophistication" : 
+                 rawResult.inferentialControl?.passageA?.score >= 70 ? "Moderate Sophistication" : "Basic Sophistication"
+        },
+        passageB: {
+          distance: 50,
+          label: "Baseline Sophistication"
+        },
+        keyFindings: [
+          rawResult.inferentialControl?.passageA?.assessment || "Analysis of inferential control capabilities",
+          rawResult.cognitiveRisk?.passageA?.assessment || "Evaluation of cognitive risk management",
+          rawResult.epistemicResistance?.passageA?.assessment || "Assessment of epistemic resistance"
+        ],
+        semanticInnovation: rawResult.verdict || "Comprehensive intelligence analysis focusing on Affirmative Insight Function and gatekeeper metrics."
+      },
+      
+      // Map affirmativeInsightFunction to noveltyHeatmap
+      noveltyHeatmap: {
+        passageA: paragraphs.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: Math.round(rawResult.affirmativeInsightFunction?.passageA?.score || 50),
+          quote: rawResult.affirmativeInsightFunction?.passageA?.quotation1 || paragraph.substring(0, 50) + "...",
+          explanation: `Affirmative insight function evaluation: ${rawResult.affirmativeInsightFunction?.passageA?.assessment || "Analysis of genuine insight generation"}`
+        })),
+        passageB: paragraphs.map((paragraph, index) => ({
+          content: paragraph.substring(0, 100) + (paragraph.length > 100 ? "..." : ""),
+          heat: 50,
+          quote: "Standard insight patterns",
+          explanation: "Baseline insight patterns in typical reasoning"
+        }))
+      },
+      
+      // Map cognitiveRisk to derivativeIndex
+      derivativeIndex: {
+        passageA: {
+          score: rawResult.cognitiveRisk?.passageA?.score || 50,
+          components: [
+            {name: "Cognitive Risk", score: rawResult.cognitiveRisk?.passageA?.score || 50},
+            {name: "Epistemic Resistance", score: rawResult.epistemicResistance?.passageA?.score || 50},
+            {name: "Conceptual Innovation", score: rawResult.conceptualInnovation?.passageA?.score || 50}
+          ]
+        },
+        passageB: {
+          score: 50,
+          components: [
+            {name: "Cognitive Risk", score: 50},
+            {name: "Epistemic Resistance", score: 50},
+            {name: "Conceptual Innovation", score: 50}
+          ]
+        }
+      },
+      
+      // Map signalToFluffRatio to conceptualParasite
+      conceptualParasite: {
+        passageA: {
+          level: rawResult.signalToFluffRatio?.passageA?.score >= 85 ? "Low" : 
+                 rawResult.signalToFluffRatio?.passageA?.score >= 70 ? "Moderate" : "High",
+          elements: ["Signal density", "Intellectual necessity", "Fluff elimination"],
+          assessment: rawResult.signalToFluffRatio?.passageA?.assessment || "Analysis of signal-to-fluff ratio"
+        },
+        passageB: {
+          level: "Moderate",
+          elements: ["Typical verbal padding", "Standard rhetorical noise"],
+          assessment: "Baseline signal-to-fluff ratio in typical reasoning"
+        }
+      },
+      
+      // Map metaTheoreticalAwareness to coherence
+      coherence: {
+        passageA: {
+          score: rawResult.metaTheoreticalAwareness?.passageA?.score || 50,
+          assessment: rawResult.metaTheoreticalAwareness?.passageA?.assessment || "Analysis of meta-theoretical awareness",
+          strengths: ["Framework consciousness", "Assumption recognition"],
+          weaknesses: ["Limited self-reflection", "Could improve meta-cognition"]
+        },
+        passageB: {
+          score: 50,
+          assessment: "Baseline meta-theoretical awareness in typical reasoning",
+          strengths: ["Standard reflection patterns", "Conventional awareness"],
+          weaknesses: ["Typical blind spots", "Standard framework issues"]
+        }
+      },
+      
+      // Map abstractionControl to accuracy
+      accuracy: {
+        passageA: {
+          score: rawResult.abstractionControl?.passageA?.score || 50,
+          assessment: rawResult.abstractionControl?.passageA?.assessment || "Analysis of abstraction control",
+          strengths: ["Abstraction flexibility", "Level transitions"],
+          weaknesses: ["Some abstraction gaps", "Could improve control"]
+        },
+        passageB: {
+          score: 50,
+          assessment: "Baseline abstraction control in typical reasoning",
+          strengths: ["Standard abstraction patterns", "Conventional levels"],
+          weaknesses: ["Limited flexibility", "Typical abstraction issues"]
+        }
+      },
+      
+      // Map semanticAsymmetry to depth
+      depth: {
+        passageA: {
+          score: rawResult.semanticAsymmetry?.passageA?.score || 50,
+          assessment: rawResult.semanticAsymmetry?.passageA?.assessment || "Analysis of semantic asymmetry",
+          strengths: ["Directional structure", "Implicational complexity"],
+          weaknesses: ["Some symmetry issues", "Could improve direction"]
+        },
+        passageB: {
+          score: 50,
+          assessment: "Baseline semantic asymmetry in typical reasoning",
+          strengths: ["Standard structure", "Conventional implications"],
+          weaknesses: ["Limited directionality", "Typical symmetry problems"]
+        }
+      },
+      
+      // Map compressionToNoveltyRatio to clarity
+      clarity: {
+        passageA: {
+          score: rawResult.compressionToNoveltyRatio?.passageA?.score || 50,
+          assessment: rawResult.compressionToNoveltyRatio?.passageA?.assessment || "Analysis of compression-to-novelty ratio",
+          strengths: ["Efficient insight", "Dense innovation"],
+          weaknesses: ["Some efficiency gaps", "Could improve compression"]
+        },
+        passageB: {
+          score: 50,
+          assessment: "Baseline compression-to-novelty ratio in typical reasoning",
+          strengths: ["Standard efficiency", "Conventional density"],
+          weaknesses: ["Limited compression", "Typical novelty issues"]
+        }
+      },
+      
+      verdict: rawResult.verdict || "Comprehensive intelligence analysis focusing on Affirmative Insight Function and gatekeeper metrics reveals sophisticated cognitive capabilities.",
+      
+      // Store the raw intelligence analysis
+      rawIntelligenceAnalysis: rawResult,
+      
+      // Include the intelligence metrics for the frontend
+      ...intelligenceMetrics
+    };
+    
+    // Store userContext in the result if provided
+    if (userContext) {
+      result.userContext = userContext;
+    }
+    
+    return result;
   } catch (error) {
     console.error("Error in Anthropic intelligence analysis:", error);
-    throw error;
+    throw new Error(`Failed to analyze intelligence with Anthropic: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
