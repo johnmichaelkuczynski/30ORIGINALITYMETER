@@ -43,86 +43,10 @@ OUTPUT FORMAT: Generate a properly formatted JSON response matching exactly the 
 }
 
 /**
- * Creates a fallback result for when the analysis fails
+ * DESTROYED - NO FALLBACK RESULTS ALLOWED
  */
 function createFallbackResult(): AnalysisResult {
-  return {
-    conceptualLineage: {
-      passageA: {
-        primaryInfluences: "Analysis temporarily unavailable",
-        intellectualTrajectory: "Analysis temporarily unavailable"
-      },
-      passageB: {
-        primaryInfluences: "Standard sources in this domain",
-        intellectualTrajectory: "Follows established patterns"
-      }
-    },
-    semanticDistance: {
-      passageA: {
-        distance: 50,
-        label: "Analysis Unavailable"
-      },
-      passageB: {
-        distance: 50, 
-        label: "Average/Typical Distance (Norm Baseline)"
-      },
-      keyFindings: ["Analysis currently unavailable", "Please try again later", "API connection issue"],
-      semanticInnovation: "Analysis currently unavailable - please try again later."
-    },
-    noveltyHeatmap: {
-      passageA: [
-        {
-          content: "Analysis temporarily unavailable - please try again later.",
-          heat: 50
-        }
-      ],
-      passageB: [
-        {
-          content: "Standard paragraph in this domain.",
-          heat: 50
-        }
-      ]
-    },
-    derivativeIndex: {
-      passageA: {
-        score: 5.0,
-        assessment: "Analysis temporarily unavailable",
-        strengths: ["Please try again later"],
-        weaknesses: ["API connection issue"]
-      },
-      passageB: {
-        score: 5.0,
-        assessment: "Analysis not available for comparison passage",
-        strengths: ["N/A"],
-        weaknesses: ["N/A"]
-      }
-    },
-    conceptualParasite: {
-      passageA: {
-        level: "Moderate",
-        assessment: "Analysis temporarily unavailable",
-        elements: ["Error"]
-      },
-      passageB: {
-        level: "Moderate",
-        assessment: "Analysis not available for comparison passage",
-        elements: ["Error"]
-      }
-    },
-    coherence: {
-      passageA: {
-        score: 5.0,
-        assessment: "Analysis temporarily unavailable",
-        strengths: ["Please try again later"],
-        weaknesses: ["API connection issue"]
-      },
-      passageB: {
-        score: 5.0,
-        assessment: "Analysis not available for comparison passage",
-        strengths: ["N/A"],
-        weaknesses: ["N/A"]
-      }
-    },
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
     accuracy: {
       passageA: {
         score: 5.0,

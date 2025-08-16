@@ -116,13 +116,7 @@ export async function analyzePassages(
   passageA: PassageData,
   passageB: PassageData
 ): Promise<AnalysisResult> {
-  try {
-    if (!apiKey) {
-      throw new Error("Anthropic API key is not configured");
-    }
-
-    const paragraphsA = splitIntoParagraphs(passageA.text);
-    const paragraphsB = splitIntoParagraphs(passageB.text);
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 
     const passageATitle = passageA.title || "Passage A";
     const passageBTitle = passageB.title || "Passage B";

@@ -61,47 +61,7 @@ export async function analyzePassages(
   passageA: PassageData,
   passageB: PassageData
 ): Promise<AnalysisResult> {
-  const prompt = `You are an expert in evaluating the originality and quality of intellectual writing across all disciplines. Your task is to analyze two passages and provide a comprehensive comparison.
-
-PASSAGE A (${passageA.title}):
-${passageA.text}
-
-Context: ${passageA.userContext}
-
-PASSAGE B (${passageB.title}):
-${passageB.text}
-
-Context: ${passageB.userContext}
-
-Analyze these passages across the following nine dimensions, providing scores from 0-10:
-
-1. ORIGINALITY: How novel and innovative are the ideas?
-2. COHERENCE: How logically consistent and well-structured is the writing?
-3. ACCURACY: How factually and inferentially correct is the content?
-4. DEPTH: How profound and non-trivial are the insights?
-5. CLARITY: How clear and accessible is the writing?
-6. DERIVATIVE INDEX: How much does this recycle existing ideas vs. creating new ones? (0 = highly derivative, 10 = highly original)
-7. CONCEPTUAL DISTANCE: How far does this depart from existing paradigms?
-8. LINEAGE SCORE: How well does this build upon intellectual traditions?
-9. SEMANTIC NOVELTY: How semantically distinct are the concepts?
-
-Provide detailed analysis for each dimension, then give overall recommendations.
-
-Respond in valid JSON format with this structure:
-{
-  "originality": number,
-  "coherence": number,
-  "accuracy": number,
-  "depth": number,
-  "clarity": number,
-  "derivative_index": number,
-  "conceptual_distance": number,
-  "lineage_score": number,
-  "semantic_novelty": number,
-  "explanation": "detailed analysis",
-  "recommendations": "specific suggestions for improvement",
-  "comparative_analysis": "comparison between the two passages"
-}`;
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 
   try {
     const response = await deepseek.chat.completions.create({
