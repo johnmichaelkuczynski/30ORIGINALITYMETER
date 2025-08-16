@@ -7,8 +7,6 @@ import { FileDropzone } from "@/components/ui/file-dropzone";
 import { VoiceDictation } from "@/components/ui/voice-dictation";
 import useAIDetection from "@/hooks/use-ai-detection";
 import AIDetectionBadge from "@/components/AIDetectionBadge";
-import { useDocumentChunking } from "@/hooks/use-document-chunking";
-import ChunkSelector from "@/components/ChunkSelector";
 
 interface PassageInputProps {
   passage: PassageData;
@@ -16,7 +14,6 @@ interface PassageInputProps {
   label: string;
   disabled?: boolean;
   showUserContext?: boolean;
-  onChunkedTextChange?: (chunkedText: string | null) => void;
 }
 
 export default function PassageInput({
@@ -25,19 +22,10 @@ export default function PassageInput({
   label,
   disabled = false,
   showUserContext = false,
-  onChunkedTextChange,
 }: PassageInputProps) {
   const [wordCount, setWordCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Document chunking for large texts
-  const { 
-    chunks, 
-    selectedChunk, 
-    selectChunk, 
-    hasMultipleChunks 
-  } = useDocumentChunking(passage.text, 1500);
-
   // AI detection
   const { 
     detectAIContent, 
@@ -47,7 +35,6 @@ export default function PassageInput({
   
   // Generate unique ID for this passage
   const passageId = `passage-${label || 'main'}`;
-  const chunkId = selectedChunk ? `${passageId}-${selectedChunk.id}` : passageId;
 
   // Use a ref to track the last text we analyzed
   const lastAnalyzedText = useRef<string>('');
@@ -56,25 +43,15 @@ export default function PassageInput({
     const text = passage.text.trim();
     const count = text.length > 0 ? text.split(/\s+/).length : 0;
     setWordCount(count);
-  }, [passage.text]);
-
-  // Separate effect for AI detection on selected chunk
-  useEffect(() => {
-    const textToAnalyze = selectedChunk ? selectedChunk.text : passage.text.trim();
-    
-    // Notify parent component about chunked text change
-    if (onChunkedTextChange) {
-      onChunkedTextChange(hasMultipleChunks ? textToAnalyze : null);
-    }
     
     // Only detect AI content if:
-    // 1. There's sufficient text (more than 50 characters to match backend)
+    // 1. There's sufficient text (more than 100 characters)
     // 2. The text has changed significantly (first 100 chars different)
-    if (textToAnalyze.length > 50 && textToAnalyze.substring(0, 100) !== lastAnalyzedText.current.substring(0, 100)) {
-      lastAnalyzedText.current = textToAnalyze;
-      detectAIContent(textToAnalyze, chunkId);
+    if (text.length > 100 && text.substring(0, 100) !== lastAnalyzedText.current.substring(0, 100)) {
+      lastAnalyzedText.current = text;
+      detectAIContent(text, passageId);
     }
-  }, [selectedChunk, passage.text, chunkId, detectAIContent, onChunkedTextChange, hasMultipleChunks]);
+  }, [passage.text, passageId, detectAIContent]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange({
@@ -217,27 +194,16 @@ export default function PassageInput({
         </div>
       </div>
       <CardContent className="p-4 pt-8 flex-grow relative">
-        {/* Document Chunking - Show above text area for large documents */}
-        {hasMultipleChunks && (
-          <div className="mb-4">
-            <ChunkSelector
-              chunks={chunks}
-              selectedChunk={selectedChunk}
-              onSelectChunk={selectChunk}
-            />
-          </div>
-        )}
-
         {/* AI Detection Badge - Positioned above the text area */}
         <div className="absolute top-1 right-2 z-10">
           <AIDetectionBadge
-            result={getDetectionResult(chunkId)}
+            result={getDetectionResult(passageId)}
             isDetecting={isDetecting}
-            textId={chunkId}
+            textId={passageId}
             onDetect={() => {
-              const textToAnalyze = selectedChunk ? selectedChunk.text : passage.text.trim();
-              if (textToAnalyze.length > 50) {
-                detectAIContent(textToAnalyze, chunkId);
+              const text = passage.text.trim();
+              if (text.length > 50) {
+                detectAIContent(text, passageId);
               }
             }}
           />

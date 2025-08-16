@@ -36,12 +36,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     (analysisType === "originality" ? "single" : 
      analysisType === "cogency" ? "single-cogency" :
      analysisType === "intelligence" ? "intelligence" :
-     analysisType === "comprehensive" ? "comprehensive" :
      "quality") :
     (analysisType === "originality" ? "comparison" :
      analysisType === "cogency" ? "argumentative" :
      analysisType === "intelligence" ? "intelligence" :
-     analysisType === "comprehensive" ? "comprehensive" :
      "quality");
   const isSinglePassageMode = documentMode === "single";
   const isCorpusMode = false; // Removed
@@ -50,7 +48,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const isSingleCogencyMode = documentMode === "single" && analysisType === "cogency";
   const isIntelligenceMode = analysisType === "intelligence";
   const isQualityMode = analysisType === "quality";
-  const isComprehensiveMode = analysisType === "comprehensive";
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
@@ -114,10 +111,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     text: "",
     userContext: ""
   });
-
-  // Track chunked text when documents are large
-  const [chunkedTextA, setChunkedTextA] = useState<string | null>(null);
-  const [chunkedTextB, setChunkedTextB] = useState<string | null>(null);
   
   // Reset passageB when switching to single mode
   useEffect(() => {
@@ -146,15 +139,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     mutationFn: async () => {
       console.log("Analyzing single document cogency");
       const endpoint = '/api/analyze/argumentative';
-      
-      // Use chunked text if available, otherwise use full text
-      const effectivePassageA = chunkedTextA ? {
-        ...passageA,
-        text: chunkedTextA
-      } : passageA;
-      
       const payload = {
-        passageA: effectivePassageA,
+        passageA,
         passageB: null,
         passageATitle: passageA.title || "Document A",
         passageBTitle: null,
@@ -194,15 +180,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
     mutationFn: async () => {
       console.log("Analyzing intelligence with provider:", provider);
       const endpoint = '/api/analyze/intelligence';
-      
-      // Use chunked text if available, otherwise use full text
-      const effectivePassageA = chunkedTextA ? {
-        ...passageA,
-        text: chunkedTextA
-      } : passageA;
-      
       const payload = {
-        passageA: effectivePassageA,
+        passageA,
         provider
       };
       
@@ -239,28 +218,16 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       console.log("Analyzing quality");
       
       let endpoint = '/api/analyze/quality';
-      
-      // Use chunked text if available, otherwise use full text
-      const effectivePassageA = chunkedTextA ? {
-        ...passageA,
-        text: chunkedTextA
-      } : passageA;
-      
-      const effectivePassageB = chunkedTextB ? {
-        ...passageB,
-        text: chunkedTextB
-      } : passageB;
-      
       let payload = {
-        passageA: effectivePassageA,
+        passageA,
         provider
       };
       
       // Check if we have passageB for dual analysis
-      if (effectivePassageB.text.trim() !== "") {
+      if (passageB.text.trim() !== "") {
         payload = {
-          passageA: effectivePassageA,
-          passageB: effectivePassageB,
+          passageA,
+          passageB,
           provider
         };
       }
@@ -291,60 +258,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       });
     }
   });
-
-  // Quick analysis mutation (5 metrics per category, ~1 minute)
-  const quickAnalysisMutation = useMutation({
-    mutationFn: async (params: { text: string; provider: string }) => {
-      console.log("Starting quick analysis");
-      const response = await apiRequest('POST', '/api/analyze/quick', params);
-      return await response.json();
-    },
-    onSuccess: (data) => {
-      setAnalysisResult(data);
-      setShowResults(true);
-      setTimeout(() => {
-        const resultsElement = document.getElementById('results-section');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    },
-    onError: (error) => {
-      console.error("Quick analysis error:", error);
-      toast({
-        title: "Quick Analysis Failed",
-        description: "There was an error with the quick analysis. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Comprehensive analysis mutation (40 metrics, ~10 minutes)
-  const comprehensiveAnalysisMutation = useMutation({
-    mutationFn: async (params: { text: string; provider: string }) => {
-      console.log("Starting comprehensive analysis");
-      const response = await apiRequest('POST', '/api/analyze/comprehensive', params);
-      return await response.json();
-    },
-    onSuccess: (data) => {
-      setAnalysisResult(data);
-      setShowResults(true);
-      setTimeout(() => {
-        const resultsElement = document.getElementById('results-section');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    },
-    onError: (error) => {
-      console.error("Comprehensive analysis error:", error);
-      toast({
-        title: "Comprehensive Analysis Failed", 
-        description: "There was an error with the comprehensive analysis. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
   
   // Originality analysis mutation
   const originalityMutation = useMutation({
@@ -352,29 +265,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       console.log("Analyzing originality");
       
       let endpoint = '/api/analyze/originality';
-      
-      // Use chunked text if available, otherwise use full text
-      const effectivePassageA = chunkedTextA ? {
-        ...passageA,
-        text: chunkedTextA
-      } : passageA;
-      
-      const effectivePassageB = chunkedTextB ? {
-        ...passageB,
-        text: chunkedTextB
-      } : passageB;
-      
       let payload = {
-        passageA: effectivePassageA,
+        passageA,
         provider
       };
       
       // Check if we have passageB for dual analysis
-      if (effectivePassageB.text.trim() !== "") {
+      if (passageB.text.trim() !== "") {
         endpoint = '/api/analyze/originality-dual';
         payload = {
-          passageA: effectivePassageA,
-          passageB: effectivePassageB,
+          passageA,
+          passageB,
           provider
         };
       }
@@ -592,58 +493,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return;
     }
     
-    // For comprehensive analysis mode, call the API directly
-    if (analysisType === "comprehensive") {
-      console.log("Starting comprehensive analysis");
-      const effectiveText = chunkedTextA || passageA.text;
-      comprehensiveAnalysisMutation.mutate({
-        text: effectiveText,
-        provider
-      });
-      return;
-    }
-    
     // For originality analysis mode, call the API directly  
     if (analysisType === "originality") {
-      console.log("Starting quick originality analysis");
-      const effectiveText = chunkedTextA || passageA.text;
-      quickAnalysisMutation.mutate({
-        text: effectiveText,
-        provider
-      });
+      console.log("Starting originality analysis");
+      originalityMutation.mutate();
       return;
     }
     
     // For cogency analysis mode, call the API directly
     if (analysisType === "cogency") {
-      console.log("Starting quick cogency analysis");
-      const effectiveText = chunkedTextA || passageA.text;
-      quickAnalysisMutation.mutate({
-        text: effectiveText,
-        provider
-      });
-      return;
-    }
-    
-    // For intelligence analysis mode, call the API directly
-    if (analysisType === "intelligence") {
-      console.log("Starting quick intelligence analysis");
-      const effectiveText = chunkedTextA || passageA.text;
-      quickAnalysisMutation.mutate({
-        text: effectiveText,
-        provider
-      });
-      return;
-    }
-    
-    // For quality analysis mode, call the API directly
-    if (analysisType === "quality") {
-      console.log("Starting quick quality analysis");
-      const effectiveText = chunkedTextA || passageA.text;
-      quickAnalysisMutation.mutate({
-        text: effectiveText,
-        provider
-      });
+      console.log("Starting cogency analysis");
+      cogencyMutation.mutate();
       return;
     }
     
@@ -1002,7 +862,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             label={(analysisMode === "single") ? "" : "A"}
             disabled={analysisMutation.isPending}
             showUserContext={true}
-            onChunkedTextChange={setChunkedTextA}
           />
           
           {(analysisMode === "comparison" || analysisMode === "argumentative" || analysisMode === "intelligence") && (
@@ -1012,7 +871,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               label="B"
               disabled={analysisMutation.isPending}
               showUserContext={false}
-              onChunkedTextChange={setChunkedTextB}
             />
           )}
         </div>
@@ -1023,15 +881,11 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         <CardContent className="p-8 flex justify-center items-center">
           <div className="w-full max-w-md">
             <div className="text-center mb-6">
-              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending || cogencyMutation.isPending || quickAnalysisMutation.isPending || comprehensiveAnalysisMutation.isPending) ? (
+              {(analysisMutation.isPending || singleCogencyMutation.isPending || intelligenceMutation.isPending || qualityMutation.isPending || originalityMutation.isPending || cogencyMutation.isPending) ? (
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
-                    {comprehensiveAnalysisMutation.isPending 
-                      ? "Please wait while we perform comprehensive analysis. This will take approximately 10 minutes."
-                      : quickAnalysisMutation.isPending
-                      ? "Please wait while we perform quick analysis. This will take approximately 1 minute."
-                      : "Please wait while we analyze your text. This may take 1-2 minutes."}
+                    Please wait while we analyze your text. This may take 15-30 seconds.
                   </p>
                   <div className="mt-4 flex justify-center">
                     <div className="animate-pulse flex space-x-1">

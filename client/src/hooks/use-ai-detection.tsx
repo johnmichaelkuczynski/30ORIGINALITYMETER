@@ -23,13 +23,13 @@ export function useAIDetection() {
       clearTimeout(debounceTimers.current[id]);
     }
     
-    // Return early if text is too short (GPTZero needs at least 50 characters)
-    if (!text || text.trim().length < 50) {
+    // Return early if text is too short
+    if (!text || text.trim().length < 100) {
       const result = {
         isAIGenerated: false,
         score: 0,
         confidence: "Low" as const,
-        details: "Text too short for reliable detection (minimum 50 characters)"
+        details: "Text too short for reliable detection"
       };
       setDetectionResults(prev => ({ ...prev, [id]: result }));
       return result;
