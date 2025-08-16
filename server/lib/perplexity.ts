@@ -863,6 +863,139 @@ Return analysis in this JSON format:
   }
 }
 
+// Overall Quality Analysis (40 metrics) - Single Passage
+export async function analyzeOverallQuality(passage: PassageData): Promise<any> {
+  try {
+    const apiKey = process.env.PERPLEXITY_API_KEY;
+    if (!apiKey) {
+      throw new Error("PERPLEXITY_API_KEY environment variable is not set");
+    }
+
+    const request = {
+      model: "llama-3.1-sonar-small-128k-online",
+      messages: [
+        {
+          role: "system",
+          content: "You are evaluating text for OVERALL QUALITY using exactly 40 specific metrics. Use the exact format with quote and analysis for each metric."
+        },
+        {
+          role: "user",
+          content: `You are evaluating text for OVERALL QUALITY using exactly 40 specific metrics. Use the exact format with quote and analysis for each metric.
+
+Return a JSON object with this structure:
+{
+  "analysis": "Overall assessment paragraph",
+  "metrics": [
+    {
+      "name": "Metric Name", 
+      "quote": "Exact quote from text demonstrating this metric",
+      "analysis": "Brief explanation of why this quote demonstrates the metric",
+      "score": X
+    }
+  ],
+  "overallScore": X,
+  "summary": "Brief summary"
+}
+
+The 40 Overall Quality metrics:
+1. Clarity of expression, 2. Flow and readability, 3. Stylistic control, 4. Grammar and syntax precision, 5. Appropriate tone,
+6. Balance of brevity and elaboration, 7. Coherence across sections, 8. Engagement/interest, 9. Rhythm of sentences, 10. Absence of filler,
+11. Clear introduction of themes, 12. Effective closure/resolution, 13. Variety of sentence structure, 14. Apt vocabulary, 15. Avoiding clichés,
+16. Consistency of style, 17. Accessibility, 18. Respect for audience intelligence, 19. Memorability of phrasing, 20. Avoidance of redundancy,
+21. Natural transitions, 22. Balanced paragraphing, 23. Pacing, 24. Smooth handling of complexity, 25. Apt use of examples or illustration,
+26. Ability to hold reader attention, 27. Economy of language, 28. Emphasis where needed, 29. Voice consistency, 30. Avoidance of awkwardness,
+31. Seamless integration of quotes/sources, 32. Good proportion of abstract vs. concrete, 33. Non-mechanical style, 34. Absence of distracting errors, 35. Balance of analysis and narrative,
+36. Cadence, 37. Avoidance of pedantry, 38. Polish, 39. Unifying theme or through-line, 40. Overall reader impact
+
+Passage: ${passage.text}`
+        }
+      ],
+      max_tokens: 8000,
+      temperature: 0.2,
+      top_p: 0.9,
+      stream: false
+    };
+
+    const response = await axios.post<PerplexityResponse>(
+      'https://api.perplexity.ai/chat/completions',
+      request,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const content = response.data.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content received from Perplexity API");
+    }
+
+    const result = JSON.parse(content);
+    return result;
+  } catch (error) {
+    console.error("Error in Perplexity overall quality analysis:", error);
+    throw error;
+  }
+}
+
+// Overall Quality Analysis (40 metrics) - Dual Passage
+export async function analyzeOverallQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    const apiKey = process.env.PERPLEXITY_API_KEY;
+    if (!apiKey) {
+      throw new Error("PERPLEXITY_API_KEY environment variable is not set");
+    }
+
+    const request = {
+      model: "llama-3.1-sonar-small-128k-online",
+      messages: [
+        {
+          role: "system", 
+          content: "You are evaluating two texts for OVERALL QUALITY using exactly 40 specific metrics. Analyze both texts and provide comparative analysis."
+        },
+        {
+          role: "user",
+          content: `You are evaluating two texts for OVERALL QUALITY using exactly 40 specific metrics. Analyze both texts and provide comparative analysis.
+
+Return a JSON object with comparative structure for both passages using the same 40 Overall Quality metrics.
+
+Passage A (${passageA.title || 'Passage A'}): ${passageA.text}
+
+Passage B (${passageB.title || 'Passage B'}): ${passageB.text}`
+        }
+      ],
+      max_tokens: 10000,
+      temperature: 0.2,
+      top_p: 0.9,
+      stream: false
+    };
+
+    const response = await axios.post<PerplexityResponse>(
+      'https://api.perplexity.ai/chat/completions',
+      request,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const content = response.data.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No content received from Perplexity API");
+    }
+
+    const result = JSON.parse(content);
+    return result;
+  } catch (error) {
+    console.error("Error in Perplexity dual overall quality analysis:", error);
+    throw error;
+  }
+}
+
 // Legacy functions for backward compatibility (fallback to OpenAI if needed)
 export async function analyzePassages(passageA: PassageData, passageB: PassageData): Promise<any> {
   try {

@@ -30,6 +30,25 @@ export async function analyzePassages(
           role: "system",
           content: `You are an expert in evaluating the originality and quality of intellectual writing across all disciplines. 
 
+You must analyze text using the EXACT format demonstrated in this uploaded example:
+
+**Example Format:**
+Compression
+"SE and TS don't have the same meaning. They have different propositions for their respective meanings..."
+Elegant condensation of Twin-Earth into one decisive claim.
+Score: 96/100
+
+Abstraction
+"Implicit in what Kripke said about proper names are many deep and important principles concerning the very nature of meaning..."
+Takes a narrow semantic point and raises it to the level of philosophy of mind and meaning.
+Score: 95/100
+
+Each metric MUST follow this format:
+- Metric name
+- Quote from the text demonstrating that metric
+- Brief analysis explaining why the quote demonstrates the metric
+- Score: X/100
+
 Analyze the passages across these 80 comprehensive quality metrics organized into 4 categories:
 
 OVERALL QUALITY METRICS (20):
@@ -461,6 +480,644 @@ Return the analysis in the exact JSON format specified above.`
     return result;
   } catch (error) {
     console.error("Error in OpenAI single passage analysis:", error);
+    throw error;
+  }
+}
+
+// ===== COMPREHENSIVE 40-METRIC ANALYSIS FUNCTIONS =====
+// These functions replicate the exact format from the uploaded 160-metric document
+
+// Intelligence Analysis (40 metrics) - Single Passage
+export async function analyzeIntelligence(passage: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating text for INTELLIGENCE using exactly 40 specific metrics. You must analyze the text in the EXACT format demonstrated in the uploaded example:
+
+**Example Format:**
+Compression
+"SE and TS don't have the same meaning. They have different propositions for their respective meanings..."
+Elegant condensation of Twin-Earth into one decisive claim.
+Score: 96/100
+
+Abstraction
+"Implicit in what Kripke said about proper names are many deep and important principles concerning the very nature of meaning..."
+Takes a narrow semantic point and raises it to the level of philosophy of mind and meaning.
+Score: 95/100
+
+Return a JSON object with this exact structure:
+{
+  "analysis": "Overall assessment paragraph",
+  "metrics": [
+    {
+      "name": "Metric Name",
+      "quote": "Exact quote from text demonstrating this metric",
+      "analysis": "Brief explanation of why this quote demonstrates the metric",
+      "score": X
+    }
+  ],
+  "overallScore": X,
+  "summary": "Brief summary"
+}
+
+The 40 Intelligence metrics you must evaluate:
+1. Compression (density of meaning per word)
+2. Abstraction (ability to move beyond surface detail)
+3. Inference depth (multi-step reasoning)
+4. Epistemic friction (acknowledging uncertainty or limits)
+5. Cognitive distancing (seeing from outside a frame)
+6. Counterfactual reasoning
+7. Analogical depth (quality of comparisons)
+8. Semantic topology (connectedness of ideas)
+9. Asymmetry (unexpected but apt perspective shifts)
+10. Conceptual layering (multiple levels at once)
+11. Original definition-making
+12. Precision of terms
+13. Distinction-tracking (keeping categories straight)
+14. Avoidance of tautology
+15. Avoidance of empty generality
+16. Compression of examples into principle
+17. Ability to invert perspective
+18. Anticipation of objections
+19. Integration of disparate domains
+20. Self-reflexivity (awareness of own stance)
+21. Elimination of redundancy
+22. Conceptual economy (no waste concepts)
+23. Epistemic risk-taking (sticking neck out coherently)
+24. Generativity (producing new questions/angles)
+25. Ability to revise assumptions midstream
+26. Distinguishing signal vs. noise
+27. Recognizing hidden assumptions
+28. Tracking causal chains
+29. Separating correlation from causation
+30. Managing complexity without collapse
+31. Detecting paradox or tension
+32. Apt compression into aphorism
+33. Clarity under pressure (handling difficult material)
+34. Distinguishing levels (fact vs. meta-level)
+35. Relating concrete to abstract seamlessly
+36. Control of scope (not sprawling aimlessly)
+37. Detecting pseudo-intelligence
+38. Balancing simplicity with depth
+39. Strategic omission (knowing what not to say)
+40. Transferability (insight applies beyond the case)
+
+For sophisticated philosophical or academic texts, scores should typically range from 85-99. For lower-quality texts, scores may range from 40-70. Each metric must include a specific quote and targeted analysis that explains exactly why that quote demonstrates the intelligence metric.`
+        },
+        {
+          role: "user",
+          content: `Please analyze this passage for INTELLIGENCE using the exact 40-metric format:
+
+Passage: ${passage.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI intelligence analysis:", error);
+    throw error;
+  }
+}
+
+// Intelligence Analysis (40 metrics) - Dual Passage
+export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating two texts for INTELLIGENCE using exactly 40 specific metrics. You must analyze both texts in the EXACT format demonstrated in the uploaded example, providing comparative analysis.
+
+Return a JSON object with this structure:
+{
+  "passageA": {
+    "analysis": "Overall assessment paragraph",
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage A demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "passageB": {
+    "analysis": "Overall assessment paragraph", 
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage B demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "comparison": "Comparative analysis of both passages across intelligence metrics"
+}
+
+Use the same 40 Intelligence metrics as in single passage analysis.`
+        },
+        {
+          role: "user",
+          content: `Please analyze these two passages for INTELLIGENCE using the exact 40-metric format:
+
+Passage A (${passageA.title || 'Passage A'}): ${passageA.text}
+
+Passage B (${passageB.title || 'Passage B'}): ${passageB.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 10000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI dual intelligence analysis:", error);
+    throw error;
+  }
+}
+
+// Originality Analysis (40 metrics) - Single Passage
+export async function analyzeOriginality(passage: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating text for ORIGINALITY using exactly 40 specific metrics. You must analyze the text in the EXACT format demonstrated in the uploaded example.
+
+Return a JSON object with this exact structure:
+{
+  "analysis": "Overall assessment paragraph",
+  "metrics": [
+    {
+      "name": "Metric Name",
+      "quote": "Exact quote from text demonstrating this metric",
+      "analysis": "Brief explanation of why this quote demonstrates the metric",
+      "score": X
+    }
+  ],
+  "overallScore": X,
+  "summary": "Brief summary"
+}
+
+The 40 Originality metrics you must evaluate:
+1. Novel perspective
+2. Uncommon connections
+3. Surprising but apt analogies
+4. Invention of new distinctions
+5. Reframing of common problem
+6. New conceptual synthesis
+7. Fresh metaphors
+8. Generating new questions
+9. Counterintuitive insight that holds
+10. Unusual compression (shortcuts that work)
+11. Distilling cliché into clarity
+12. Reinterpreting tradition
+13. Productive paradox
+14. Idiosyncratic voice
+15. Unusual but precise phrasing
+16. Structural inventiveness (form matches thought)
+17. Surprising yet valid inference
+18. Non-standard angle on standard issue
+19. Repurposing known concept in new domain
+20. Avoiding mimicry
+21. Shunning jargon clichés
+22. Generating conceptual friction
+23. Independent pattern recognition
+24. Unexpected causal explanation
+25. Tension between domains (philosophy + science, etc.)
+26. Provocative but defensible claim
+27. Lateral connections (cross-field links)
+28. Subversion of default framing
+29. Detection of neglected detail
+30. Reverse engineering assumptions
+31. Productive misfit with genre/style
+32. Intellectually playful but rigorous
+33. Constructive violation of expectations
+34. Voice not reducible to formula
+35. Revaluing the obvious
+36. Absence of derivative cadence
+37. Independent synthesis of sources
+38. Discovery of hidden symmetry
+39. Generating terms others adopt
+40. Staying power (insight lingers after reading)
+
+Each metric must include a specific quote and targeted analysis that explains exactly why that quote demonstrates the originality metric.`
+        },
+        {
+          role: "user",
+          content: `Please analyze this passage for ORIGINALITY using the exact 40-metric format:
+
+Passage: ${passage.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI originality analysis:", error);
+    throw error;
+  }
+}
+
+// Originality Analysis (40 metrics) - Dual Passage
+export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating two texts for ORIGINALITY using exactly 40 specific metrics. You must analyze both texts in the EXACT format demonstrated in the uploaded example, providing comparative analysis.
+
+Return a JSON object with this structure:
+{
+  "passageA": {
+    "analysis": "Overall assessment paragraph",
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage A demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "passageB": {
+    "analysis": "Overall assessment paragraph", 
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage B demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "comparison": "Comparative analysis of both passages across originality metrics"
+}
+
+Use the same 40 Originality metrics as in single passage analysis.`
+        },
+        {
+          role: "user",
+          content: `Please analyze these two passages for ORIGINALITY using the exact 40-metric format:
+
+Passage A (${passageA.title || 'Passage A'}): ${passageA.text}
+
+Passage B (${passageB.title || 'Passage B'}): ${passageB.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 10000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI dual originality analysis:", error);
+    throw error;
+  }
+}
+
+// Cogency Analysis (40 metrics) - Single Passage
+export async function analyzeCogency(passage: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating text for COGENCY using exactly 40 specific metrics. You must analyze the text in the EXACT format demonstrated in the uploaded example.
+
+Return a JSON object with this exact structure:
+{
+  "analysis": "Overall assessment paragraph",
+  "metrics": [
+    {
+      "name": "Metric Name",
+      "quote": "Exact quote from text demonstrating this metric",
+      "analysis": "Brief explanation of why this quote demonstrates the metric",
+      "score": X
+    }
+  ],
+  "overallScore": X,
+  "summary": "Brief summary"
+}
+
+The 40 Cogency metrics you must evaluate:
+1. Logical validity
+2. Absence of contradictions
+3. Strength of evidence/reasons
+4. Proportionality (conclusion matches support)
+5. Avoiding non sequiturs
+6. Explicit structure (clear argument shape)
+7. Distinction between premises and conclusion
+8. Consistent terminology
+9. Focus (avoiding drift)
+10. Avoiding circularity
+11. Handling counterexamples
+12. Responsiveness to objections
+13. Causal adequacy
+14. Inferential tightness
+15. Avoiding overgeneralization
+16. Avoiding straw man reasoning
+17. Recognizing scope limits
+18. Avoiding equivocation
+19. Hierarchy of reasons (primary vs. secondary)
+20. Consistency with background knowledge
+21. Recognizing exceptions
+22. Correct use of examples
+23. Avoidance of loaded language as substitute for reason
+24. Clear priority of claims
+25. Avoiding category mistakes
+26. Explicitness of assumptions
+27. Non-redundancy in support
+28. Alignment between thesis and support
+29. Avoidance of spurious precision
+30. Adequate differentiation (not lumping opposites)
+31. Soundness of analogies
+32. Progressive buildup (no jumps)
+33. Avoidance of double standards
+34. Balance of concession and assertion
+35. Clarity of logical connectives
+36. Preservation of distinctions across argument
+37. Avoiding irrelevant material
+38. Correct handling of probability
+39. Strength of causal explanation vs. correlation
+40. Stability under reformulation (holds when restated)
+
+Each metric must include a specific quote and targeted analysis that explains exactly why that quote demonstrates the cogency metric.`
+        },
+        {
+          role: "user",
+          content: `Please analyze this passage for COGENCY using the exact 40-metric format:
+
+Passage: ${passage.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI cogency analysis:", error);
+    throw error;
+  }
+}
+
+// Cogency Analysis (40 metrics) - Dual Passage
+export async function analyzeCogencyDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating two texts for COGENCY using exactly 40 specific metrics. You must analyze both texts in the EXACT format demonstrated in the uploaded example, providing comparative analysis.
+
+Return a JSON object with this structure:
+{
+  "passageA": {
+    "analysis": "Overall assessment paragraph",
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage A demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "passageB": {
+    "analysis": "Overall assessment paragraph", 
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage B demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "comparison": "Comparative analysis of both passages across cogency metrics"
+}
+
+Use the same 40 Cogency metrics as in single passage analysis.`
+        },
+        {
+          role: "user",
+          content: `Please analyze these two passages for COGENCY using the exact 40-metric format:
+
+Passage A (${passageA.title || 'Passage A'}): ${passageA.text}
+
+Passage B (${passageB.title || 'Passage B'}): ${passageB.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 10000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI dual cogency analysis:", error);
+    throw error;
+  }
+}
+
+// Overall Quality Analysis (40 metrics) - Single Passage
+export async function analyzeOverallQuality(passage: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating text for OVERALL QUALITY using exactly 40 specific metrics. You must analyze the text in the EXACT format demonstrated in the uploaded example.
+
+Return a JSON object with this exact structure:
+{
+  "analysis": "Overall assessment paragraph",
+  "metrics": [
+    {
+      "name": "Metric Name",
+      "quote": "Exact quote from text demonstrating this metric",
+      "analysis": "Brief explanation of why this quote demonstrates the metric",
+      "score": X
+    }
+  ],
+  "overallScore": X,
+  "summary": "Brief summary"
+}
+
+The 40 Overall Quality metrics you must evaluate:
+1. Clarity of expression
+2. Flow and readability
+3. Stylistic control
+4. Grammar and syntax precision
+5. Appropriate tone
+6. Balance of brevity and elaboration
+7. Coherence across sections
+8. Engagement/interest
+9. Rhythm of sentences
+10. Absence of filler
+11. Clear introduction of themes
+12. Effective closure/resolution
+13. Variety of sentence structure
+14. Apt vocabulary (not inflated)
+15. Avoiding clichés
+16. Consistency of style
+17. Accessibility (lay reader can follow)
+18. Respect for audience intelligence
+19. Memorability of phrasing
+20. Avoidance of redundancy
+21. Natural transitions
+22. Balanced paragraphing
+23. Pacing (not rushed, not dragging)
+24. Smooth handling of complexity
+25. Apt use of examples or illustration
+26. Ability to hold reader attention
+27. Economy of language
+28. Emphasis where needed
+29. Voice consistency
+30. Avoidance of awkwardness
+31. Seamless integration of quotes/sources
+32. Good proportion of abstract vs. concrete
+33. Non-mechanical style
+34. Absence of distracting errors
+35. Balance of analysis and narrative
+36. Cadence (natural spoken rhythm)
+37. Avoidance of pedantry
+38. Polish (reads as finished, not drafty)
+39. Unifying theme or through-line
+40. Overall reader impact (leaves an impression)
+
+Each metric must include a specific quote and targeted analysis that explains exactly why that quote demonstrates the overall quality metric.`
+        },
+        {
+          role: "user",
+          content: `Please analyze this passage for OVERALL QUALITY using the exact 40-metric format:
+
+Passage: ${passage.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 8000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI overall quality analysis:", error);
+    throw error;
+  }
+}
+
+// Overall Quality Analysis (40 metrics) - Dual Passage
+export async function analyzeOverallQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are evaluating two texts for OVERALL QUALITY using exactly 40 specific metrics. You must analyze both texts in the EXACT format demonstrated in the uploaded example, providing comparative analysis.
+
+Return a JSON object with this structure:
+{
+  "passageA": {
+    "analysis": "Overall assessment paragraph",
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage A demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "passageB": {
+    "analysis": "Overall assessment paragraph", 
+    "metrics": [
+      {
+        "name": "Metric Name",
+        "quote": "Exact quote from passage B demonstrating this metric",
+        "analysis": "Brief explanation of why this quote demonstrates the metric",
+        "score": X
+      }
+    ],
+    "overallScore": X,
+    "summary": "Brief summary"
+  },
+  "comparison": "Comparative analysis of both passages across overall quality metrics"
+}
+
+Use the same 40 Overall Quality metrics as in single passage analysis.`
+        },
+        {
+          role: "user",
+          content: `Please analyze these two passages for OVERALL QUALITY using the exact 40-metric format:
+
+Passage A (${passageA.title || 'Passage A'}): ${passageA.text}
+
+Passage B (${passageB.title || 'Passage B'}): ${passageB.text}
+
+Return the analysis in the exact JSON format specified above.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 10000,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    return result;
+  } catch (error) {
+    console.error("Error in OpenAI dual overall quality analysis:", error);
     throw error;
   }
 }
