@@ -35,6 +35,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   type ParameterCount = 20 | 40 | 160;
   const [parameterCount, setParameterCount] = useState<ParameterCount>(40);
   
+  // Intelligence Protocol Selection (NEW vs OLD)
+  type IntelligenceProtocol = "primary" | "legacy";
+  const [intelligenceProtocol, setIntelligenceProtocol] = useState<IntelligenceProtocol>("primary");
+  
   // Legacy compatibility
   const analysisMode = documentMode === "single" ? 
     (analysisType === "originality" ? "single" : 
@@ -182,13 +186,23 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   // Intelligence analysis mutation
   const intelligenceMutation = useMutation({
     mutationFn: async () => {
-      console.log("Analyzing intelligence with provider:", provider);
-      const endpoint = '/api/analyze/intelligence';
-      const payload = {
-        passageA,
-        provider,
-        parameterCount
-      };
+      console.log("Analyzing intelligence with provider:", provider, "protocol:", intelligenceProtocol);
+      
+      // Choose endpoint based on protocol selection
+      const endpoint = intelligenceProtocol === "primary" 
+        ? '/api/analyze/primary-intelligence'
+        : '/api/analyze/intelligence';
+      
+      const payload = intelligenceProtocol === "primary"
+        ? {
+            passageA,
+            provider
+          }
+        : {
+            passageA,
+            provider,
+            parameterCount
+          };
       
       console.log("Intelligence analysis request payload:", payload);
       const response = await apiRequest('POST', endpoint, payload);
@@ -860,6 +874,65 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         </div>
         
+        {/* Intelligence Protocol Selection - Only show for Intelligence analysis */}
+        {analysisType === "intelligence" && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mb-3">
+              <h4 className="text-sm font-medium text-purple-700 mb-1">Intelligence Evaluation Protocol</h4>
+              <p className="text-xs text-purple-500">Choose between the new primary protocol and legacy system</p>
+            </div>
+            
+            <RadioGroup
+              value={intelligenceProtocol}
+              onValueChange={(value) => {
+                setIntelligenceProtocol(value as IntelligenceProtocol);
+                if (showResults) {
+                  setAnalysisResult(null);
+                  setShowResults(false);
+                }
+              }}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                intelligenceProtocol === "primary" 
+                  ? "bg-green-50 border-green-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="primary" id="protocol-primary" />
+                  <Label htmlFor="protocol-primary" className="font-medium cursor-pointer text-sm">
+                    🆕 Primary Protocol
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  Advanced question-based evaluation. Focuses on insight, development, organization, and intellectual authenticity.
+                </p>
+              </div>
+              
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                intelligenceProtocol === "legacy" 
+                  ? "bg-orange-50 border-orange-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="legacy" id="protocol-legacy" />
+                  <Label htmlFor="protocol-legacy" className="font-medium cursor-pointer text-sm">
+                    📊 Legacy System
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  160-parameter framework. Uses compression, abstraction, and inference metrics (less reliable).
+                </p>
+              </div>
+            </RadioGroup>
+            
+            <div className="mt-2 text-xs text-gray-500">
+              {intelligenceProtocol === "primary" && "✅ Recommended: Uses sophisticated intelligence questions for better accuracy"}
+              {intelligenceProtocol === "legacy" && "⚠️ Legacy: Parameter-based system with known accuracy issues"}
+            </div>
+          </div>
+        )}
+        
         <div className="mt-4 text-sm text-slate-600 bg-slate-50 p-4 rounded-lg">
           {documentMode === "single" && analysisType === "originality" && (
             <p><strong>Single Originality:</strong> Analyze one document's semantic innovation and conceptual novelty against general intellectual norms.</p>
@@ -874,10 +947,16 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             <p><strong>Compare Cogency:</strong> Test which document makes a more convincing case using consistent logical scoring.</p>
           )}
           {documentMode === "single" && analysisType === "intelligence" && (
-            <p><strong>Single Intelligence:</strong> Analyze cognitive sophistication across 20 metrics: compression capacity, inference architecture, friction tolerance.</p>
+            <p><strong>Single Intelligence:</strong> {intelligenceProtocol === "primary" 
+              ? "Evaluate cognitive sophistication using 18 sophisticated intelligence questions covering insight, development, organization, and authenticity."
+              : "Analyze cognitive sophistication across parameter-based metrics: compression capacity, inference architecture, friction tolerance."
+            }</p>
           )}
           {documentMode === "comparison" && analysisType === "intelligence" && (
-            <p><strong>Compare Intelligence:</strong> Compare cognitive sophistication between two documents across 20 intelligence metrics.</p>
+            <p><strong>Compare Intelligence:</strong> {intelligenceProtocol === "primary" 
+              ? "Compare cognitive sophistication between two documents using the new primary intelligence protocol."
+              : "Compare cognitive sophistication between two documents across parameter-based intelligence metrics."
+            }</p>
           )}
           {documentMode === "single" && analysisType === "quality" && (
             <p><strong>Single Quality:</strong> Comprehensive quality analysis using 20 metrics: conceptual compression, epistemic friction, problem density.</p>

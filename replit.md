@@ -36,6 +36,12 @@ Preferred communication style: Simple, everyday language.
 - ✅ Eliminated anti-jargon bias - complex vocabulary allowed when serving genuine intellectual precision
 - ✅ Fixed SummarySection.tsx score calculation logic to properly aggregate individual metric scores
 - ✅ System now correctly rewards brilliant analytical work regardless of historical authorship
+- ✅ **NEW DUAL PROTOCOL SYSTEM: Primary Intelligence Protocol + Legacy Option**
+- ✅ Added new Primary Intelligence Protocol with 18 sophisticated evaluation questions (DEFAULT)
+- ✅ Kept legacy 160-parameter system as secondary option for users who invested development time
+- ✅ Primary protocol focuses on: insight, development, organization, logic, freshness, authenticity, directness
+- ✅ Users can choose between "Primary Protocol" (recommended) and "Legacy System" (parameter-based)
+- ✅ UI clearly labels Primary as recommended and Legacy as having "known accuracy issues"
 
 ## System Architecture
 

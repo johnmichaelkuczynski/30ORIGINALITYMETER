@@ -11,6 +11,89 @@ console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
+// PRIMARY INTELLIGENCE EVALUATION PROTOCOL
+export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const intelligenceQuestions = [
+    "IS IT INSIGHTFUL?",
+    "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
+    "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
+    "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING?",
+    "ARE THE POINTS CLICHES? OR ARE THEY 'FRESH'?",
+    "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
+    "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
+    "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
+    "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
+    "IS IT REAL OR IS IT PHONY?",
+    "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
+    "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
+    "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
+    "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
+    "IS THE WRITING EVASIVE OR DIRECT?",
+    "ARE THE STATEMENTS AMBIGUOUS?",
+    "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
+    "DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
+  ];
+
+  const prompt = `You are an expert evaluator of intellectual writing. Analyze this passage using the PRIMARY INTELLIGENCE EVALUATION PROTOCOL.
+
+PASSAGE TO ANALYZE:
+${passage.text}
+
+Evaluate this passage against each of the following intelligence questions. For each question:
+1. Provide a direct quotation from the passage that demonstrates the answer
+2. Give a detailed explanation of how the quotation addresses the question
+3. Assign a score from 0-100 (where 100 = exceptional, 70-89 = very good, 50-69 = competent, 30-49 = weak, 0-29 = poor)
+
+INTELLIGENCE EVALUATION QUESTIONS:
+${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Return ONLY this JSON structure with numbered entries (0 through ${intelligenceQuestions.length - 1}):
+{
+  "0": {
+    "question": "${intelligenceQuestions[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this aspect",
+    "explanation": "Detailed explanation of how the quotation addresses this intelligence question"
+  },
+  ... continue for all ${intelligenceQuestions.length} questions
+}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = message.content[0].text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Primary Intelligence JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in Primary Intelligence analysis:", error);
+    throw error;
+  }
+}
+
 export async function analyzePassages(
   passageA: PassageData,
   passageB: PassageData
