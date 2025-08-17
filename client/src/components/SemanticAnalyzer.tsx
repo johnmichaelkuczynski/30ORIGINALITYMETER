@@ -286,6 +286,9 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       return result as AnalysisResult;
     },
     onSuccess: (data) => {
+      console.log("Originality analysis successful:", data);
+      console.log("Data keys:", Object.keys(data));
+      console.log("Sample entry:", data["0"]);
       setAnalysisResult(data);
       setShowResults(true);
       
@@ -885,7 +888,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 <>
                   <h3 className="text-xl font-bold text-blue-800">Analyzing Document...</h3>
                   <p className="text-base text-blue-600 mt-2">
-                    Please wait while we analyze your text. This may take 15-30 seconds.
+                    Please wait while we analyze your text. This may take 1-2 minutes.
                   </p>
                   <div className="mt-4 flex justify-center">
                     <div className="animate-pulse flex space-x-1">
