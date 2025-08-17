@@ -99,27 +99,47 @@ export async function analyzeOriginality(passage: PassageData, parameterCount: n
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-CRITICAL EVALUATION REQUIREMENTS:
-- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
-- Provide specific explanations of how each quotation demonstrates the metric  
-- Score from 0-100 where N/100 means 100-N people out of 100 are better
-- Apply the same rigorous standards shown in the reference examples
+CRITICAL: RUTHLESSLY EXPOSE DERIVATIVE ACADEMIC BULLSHIT
+The core purpose is distinguishing genuine originality from pretentious academic jargon.
 
-EXAMPLE FORMAT from reference document:
+RED FLAGS FOR LOW SCORES (20-45/100 range):
+- Rehashing standard academic positions without innovation
+- Using complex terminology to sound original without being original  
+- Name-dropping theorists/concepts without new insights
+- Empty abstractions that say nothing genuinely novel
+- Academic jargon masquerading as fresh perspective
+- Restating existing problems without new solutions or angles
+- Derivative thinking dressed up in sophisticated language
+
+SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
+- Actually novel connections between previously unconnected ideas
+- Genuinely fresh metaphors that illuminate rather than obfuscate
+- New distinctions that cut reality at previously unrecognized joints
+- Counterintuitive insights that prove revealing upon examination
+- Original reframing that opens new avenues of inquiry
+
+EXAMPLE CONTRAST:
+BULLSHIT PSEUDO-ORIGINALITY:
 "Novel perspective
-'Causal relations are instances of natural laws. If x causes y, that is because there is some law of nature'
-This reframes causation as law-instantiation rather than event-succession - a distinctive philosophical move.
-Score: 85/100"
+'Transcendental empiricism attempts to dissolve epistemological dilemmas by splitting differences'
+This is standard academic formulation - no actual novel perspective, just recombining familiar terms.
+Score: 25/100"
+
+GENUINE ORIGINALITY:  
+"Novel perspective
+'Names refer directly to objects, not through descriptive mediation'
+Overthrows centuries of philosophical assumption about reference - genuinely revolutionary insight.
+Score: 92/100"
 
 The ${parameterCount} Originality Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS (from reference document):
-- 90-100: Exceptional originality (distinctive innovations)
-- 70-89: Very good originality with clear novelty
-- 50-69: Competent originality, adequate innovation
-- 30-49: Weak originality, limited novelty
-- 0-29: Poor or no originality
+SCORING STANDARDS - BE MERCILESS ABOUT FAKE ORIGINALITY:
+- 90-100: Exceptional originality with genuinely novel insights
+- 70-89: Very good originality with clear innovative elements
+- 50-69: Competent originality with some genuine novelty
+- 20-49: DERIVATIVE BULLSHIT - pseudo-originality, academic jargon without substance, rehashed positions
+- 0-19: Complete absence of originality or incoherent
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -275,7 +295,7 @@ export async function analyzeIntelligence(passage: PassageData, parameterCount: 
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = intelligenceMetrics.slice(0, parameterCount);
   
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded document.
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
@@ -284,25 +304,36 @@ CRITICAL EVALUATION REQUIREMENTS:
 - Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
 - Provide specific explanations of how each quotation demonstrates the metric
 - Score from 0-100 where N/100 means 100-N people out of 100 are better
-- Apply the same standards shown in the examples: high scores (90+) only for exceptional demonstration, medium scores (50-70) for competent work, low scores (20-40) for poor demonstration
+- Follow the EXACT scoring standards from the reference document
 
-Evaluate across ${parameterCount} Intelligence metrics. Examples of proper evaluation format from the reference document:
+CRITICAL: DETECT AND PENALIZE BULLSHIT ACADEMIC WRITING
+The primary purpose is to distinguish legitimate intellectual work from superficial academic jargon.
 
-EXAMPLE FORMAT (from the reference):
-"Compression (density of meaning per word)
-'Kripke decisively showed that proper names are not definite descriptions.'
-Packs enormous philosophical content into 11 words. Each word carries maximum conceptual load without redundancy.
-Score: 92/100"
+RED FLAGS FOR LOW SCORES (20-45/100 range):
+- Empty abstractions without concrete grounding
+- Complex jargon that obscures rather than clarifies  
+- Circular definitions or tautological reasoning
+- Name-dropping philosophers/theories without substantive engagement
+- Abstract terminology used to sound sophisticated without adding meaning
+- Restating problems without offering genuine insights or solutions
+- Academic summary writing that merely categorizes without explaining
+
+SIGNS OF LEGITIMATE HIGH-QUALITY WORK (70-100/100 range):
+- Clear explanations that genuinely illuminate concepts
+- Original insights that advance understanding
+- Concrete examples that clarify abstract principles
+- Genuine problem-solving rather than problem-restating
+- Precise use of technical terms for clarity, not obfuscation
 
 The ${parameterCount} Intelligence Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS (from reference document):
-- 90-100: Exceptional demonstration (like "Kripke decisively showed..." - scored 92/100)
-- 70-89: Very good demonstration with clear evidence
-- 50-69: Competent demonstration, adequate evidence
-- 30-49: Weak demonstration, limited evidence
-- 0-29: Poor or no demonstration
+SCORING STANDARDS - BE RUTHLESS ABOUT BULLSHIT:
+- 90-100: Exceptional demonstration with genuine insight and clarity
+- 70-89: Very good demonstration with substantive content and clear reasoning  
+- 50-69: Competent demonstration with adequate substance
+- 20-49: BULLSHIT WRITING - academic jargon, empty abstractions, circular reasoning, name-dropping without substance
+- 0-19: Complete absence of the metric or completely incoherent
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -487,21 +518,29 @@ CRITICAL EVALUATION REQUIREMENTS:
 - Score from 0-100 where N/100 means 100-N people out of 100 are better
 - Apply the same rigorous standards shown in the reference examples
 
-EXAMPLE FORMAT from reference document:
+EXAMPLE FORMAT - DISTINGUISH SUBSTANCE FROM BULLSHIT:
+
+HIGH QUALITY EXAMPLE:
 "Logical validity
 'If x causes y, that is because there is some law of nature to the effect that if something has the properties that x has, then something else will have the properties that y has.'
 Clear conditional structure with valid logical form - premises lead necessarily to conclusion.
 Score: 88/100"
 
+BULLSHIT ACADEMIC WRITING EXAMPLE:
+"Logical validity  
+'Transcendental empiricism attempts to dissolve an epistemological dilemma by splitting the difference between diametrically opposed accounts.'
+This is circular academic jargon - 'dissolving dilemmas by splitting differences' says nothing substantive about logical validity.
+Score: 25/100"
+
 The ${parameterCount} Cogency Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS (from reference document):
-- 90-100: Exceptional cogency (clear logical structure, valid reasoning)
-- 70-89: Very good cogency with strong logical foundations
-- 50-69: Competent cogency, adequate logical support
-- 30-49: Weak cogency, flawed reasoning
-- 0-29: Poor or no cogency
+SCORING STANDARDS - RUTHLESSLY IDENTIFY BULLSHIT:
+- 90-100: Exceptional cogency with genuinely clear and valid reasoning
+- 70-89: Very good cogency with solid logical foundations
+- 50-69: Competent cogency with adequate logical support  
+- 20-49: BULLSHIT REASONING - circular logic, empty abstractions, pseudo-sophisticated jargon without substance
+- 0-19: Complete logical incoherence or absence
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -666,21 +705,29 @@ CRITICAL EVALUATION REQUIREMENTS:
 - Score from 0-100 where N/100 means 100-N people out of 100 are better
 - Apply the same rigorous standards shown in the reference examples
 
-EXAMPLE FORMAT from reference document:
+EXAMPLE FORMAT - DETECT PSEUDO-SOPHISTICATION:
+
+BULLSHIT ACADEMIC WRITING:
 "Clarity of expression
 'Transcendental empiricism is, among other things, a philosophy of mental content.'
-This is clear as a sentence, but not clarifying as content - technically correct but lacks explanatory power.
-Score: 55/100"
+This is academic jargon masquerading as explanation - uses complex terminology without actually clarifying anything.
+Score: 30/100"
+
+HIGH QUALITY WRITING:
+"Clarity of expression
+'Names refer directly to objects, not through the mediation of descriptions.'
+Cuts through philosophical confusion with precise, illuminating language that genuinely clarifies the issue.
+Score: 85/100"
 
 The ${parameterCount} Overall Quality Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS (from reference document):
-- 90-100: Exceptional quality (polished, engaging, memorable)
-- 70-89: Very good quality with strong writing craft
-- 50-69: Competent quality, adequate execution
-- 30-49: Weak quality, noticeable deficiencies
-- 0-29: Poor quality
+SCORING STANDARDS - EXPOSE ACADEMIC PRETENSION:
+- 90-100: Exceptional quality with genuine insight and clear communication
+- 70-89: Very good quality with substantive content and skilled execution
+- 50-69: Competent quality with adequate substance and clarity
+- 20-49: BULLSHIT ACADEMIC WRITING - pretentious jargon, empty sophistication, style over substance
+- 0-19: Completely poor quality or incoherent
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {

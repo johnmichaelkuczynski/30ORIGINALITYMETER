@@ -129,6 +129,13 @@ export default function FrameworkMetricsDisplay({
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h5 className="font-medium text-blue-900">Document A</h5>
+                        {metricData.passageA.score !== undefined && (
+                          <Badge 
+                            className={`${getScoreColor(metricData.passageA.score)} text-white font-bold px-2 py-1 text-sm`}
+                          >
+                            {metricData.passageA.score}/100
+                          </Badge>
+                        )}
                       </div>
                       
                       {metricData.passageA.quotation && (
@@ -154,6 +161,13 @@ export default function FrameworkMetricsDisplay({
                     <div className="p-3 bg-green-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h5 className="font-medium text-green-900">Document B</h5>
+                        {metricData.passageB.score !== undefined && (
+                          <Badge 
+                            className={`${getScoreColor(metricData.passageB.score)} text-white font-bold px-2 py-1 text-sm`}
+                          >
+                            {metricData.passageB.score}/100
+                          </Badge>
+                        )}
                       </div>
                       
                       {metricData.passageB.quotation && (
@@ -186,9 +200,13 @@ export default function FrameworkMetricsDisplay({
                       <h4 className="font-semibold text-base">
                         {metricData.metric || `Metric ${i + 1}`}
                       </h4>
-                      <Badge 
-                      >
-                      </Badge>
+                      {metricData.score !== undefined && (
+                        <Badge 
+                          className={`${getScoreColor(metricData.score)} text-white font-bold px-2 py-1 text-sm`}
+                        >
+                          {metricData.score}/100
+                        </Badge>
+                      )}
                     </div>
                     
                     {metricData.quotation && (
