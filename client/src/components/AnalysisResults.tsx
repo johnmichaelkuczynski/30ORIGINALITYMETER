@@ -78,10 +78,10 @@ export default function AnalysisResults({
 
   const getFrameworkDescription = (type: string) => {
     switch (type) {
-      case "originality": return "20 parameters measuring transformational synthesis, generative power, and conceptual innovation";
-      case "cogency": return "20 parameters measuring argumentative continuity, error resistance, and logical convincingness";
-      case "intelligence": return "20 parameters measuring compression capacity, inference architecture, and cognitive sophistication";
-      case "quality": return "20 parameters measuring conceptual compression, epistemic friction, and overall scholarly merit";
+      case "originality": return "40 parameters measuring transformational synthesis, generative power, and conceptual innovation";
+      case "cogency": return "40 parameters measuring argumentative continuity, error resistance, and logical convincingness";
+      case "intelligence": return "40 parameters measuring compression capacity, inference architecture, and cognitive sophistication";
+      case "quality": return "40 parameters measuring conceptual compression, epistemic friction, and overall scholarly merit";
       default: return "Comprehensive analysis results";
     }
   };
