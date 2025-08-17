@@ -111,40 +111,115 @@ export default function FrameworkMetricsDisplay({
             const metricData = result[i.toString()];
             if (!metricData) return null;
 
-            return (
-              <Card key={i} className="border-l-4 border-l-blue-500">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-semibold text-base">
-                      {metricData.metric || `Metric ${i + 1}`}
-                    </h4>
-                    <Badge 
-                      className={`${getScoreColor(metricData.score || 0)} text-white font-semibold px-2 py-1`}
-                    >
-                      {metricData.score || 0}/100
-                    </Badge>
-                  </div>
-                  
-                  {metricData.quotation && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium text-gray-700 mb-1">Direct Quotation:</p>
-                      <blockquote className="bg-gray-50 p-3 border-l-3 border-blue-300 italic text-gray-800">
-                        "{metricData.quotation}"
-                      </blockquote>
+            // Check if this is dual analysis format with passageA/passageB structure
+            const isDualFormat = metricData.passageA && metricData.passageB;
+
+            if (isDualFormat) {
+              // Handle dual document analysis format
+              return (
+                <Card key={i} className="border-l-4 border-l-purple-500">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className="font-semibold text-base">
+                        {metricData.metric || `Metric ${i + 1}`}
+                      </h4>
                     </div>
-                  )}
-                  
-                  {metricData.explanation && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Analysis:</p>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        <MathRenderer text={metricData.explanation} />
-                      </p>
+
+                    {/* Passage A Analysis */}
+                    <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h5 className="font-medium text-blue-900">Document A</h5>
+                        <Badge className={`${getScoreColor(metricData.passageA.score || 0)} text-white font-semibold px-2 py-1`}>
+                          {metricData.passageA.score || 0}/100
+                        </Badge>
+                      </div>
+                      
+                      {metricData.passageA.quotation && (
+                        <div className="mb-2">
+                          <p className="text-xs font-medium text-blue-800 mb-1">Direct Quotation:</p>
+                          <blockquote className="bg-white p-2 border-l-2 border-blue-300 italic text-gray-800 text-sm">
+                            "{metricData.passageA.quotation}"
+                          </blockquote>
+                        </div>
+                      )}
+                      
+                      {metricData.passageA.explanation && (
+                        <div>
+                          <p className="text-xs font-medium text-blue-800 mb-1">Analysis:</p>
+                          <p className="text-xs text-blue-700 leading-relaxed">
+                            <MathRenderer text={metricData.passageA.explanation} />
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
+
+                    {/* Passage B Analysis */}
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h5 className="font-medium text-green-900">Document B</h5>
+                        <Badge className={`${getScoreColor(metricData.passageB.score || 0)} text-white font-semibold px-2 py-1`}>
+                          {metricData.passageB.score || 0}/100
+                        </Badge>
+                      </div>
+                      
+                      {metricData.passageB.quotation && (
+                        <div className="mb-2">
+                          <p className="text-xs font-medium text-green-800 mb-1">Direct Quotation:</p>
+                          <blockquote className="bg-white p-2 border-l-2 border-green-300 italic text-gray-800 text-sm">
+                            "{metricData.passageB.quotation}"
+                          </blockquote>
+                        </div>
+                      )}
+                      
+                      {metricData.passageB.explanation && (
+                        <div>
+                          <p className="text-xs font-medium text-green-800 mb-1">Analysis:</p>
+                          <p className="text-xs text-green-700 leading-relaxed">
+                            <MathRenderer text={metricData.passageB.explanation} />
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            } else {
+              // Handle single document analysis format
+              return (
+                <Card key={i} className="border-l-4 border-l-blue-500">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <h4 className="font-semibold text-base">
+                        {metricData.metric || `Metric ${i + 1}`}
+                      </h4>
+                      <Badge 
+                        className={`${getScoreColor(metricData.score || 0)} text-white font-semibold px-2 py-1`}
+                      >
+                        {metricData.score || 0}/100
+                      </Badge>
+                    </div>
+                    
+                    {metricData.quotation && (
+                      <div className="mb-3">
+                        <p className="text-sm font-medium text-gray-700 mb-1">Direct Quotation:</p>
+                        <blockquote className="bg-gray-50 p-3 border-l-3 border-blue-300 italic text-gray-800">
+                          "{metricData.quotation}"
+                        </blockquote>
+                      </div>
+                    )}
+                    
+                    {metricData.explanation && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Analysis:</p>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          <MathRenderer text={metricData.explanation} />
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            }
           })
         ) : (
           // Handle legacy format for backwards compatibility  
