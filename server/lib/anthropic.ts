@@ -31,6 +31,13 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text is better than N people out of 100
+- Score 71/100 = better than 71 people, so 29 people are better
+- Score 85/100 = better than 85 people, so 15 people are better
+- Score 35/100 = better than 35 people, so 65 people are better
+- No hardcoded biases - evaluate purely on intellectual merit and quality
+
 Analyze these passages using the comprehensive 160-metric framework. For each analysis category, evaluate all 40 metrics with direct quotations from the text and explicit explanations of how those quotations support each score.
 
 Return a properly formatted JSON response with the exact structure expected by the system. Include detailed metric-by-metric analysis with quotations and explanations for each parameter.`;
@@ -89,16 +96,24 @@ export async function analyzeOriginality(passage: PassageData): Promise<any> {
     "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
   ];
 
-  const prompt = `You are an expert in evaluating the originality of intellectual writing across all disciplines.
+  const prompt = `You are an expert in evaluating the originality and intellectual sophistication of academic and philosophical writing. You understand the difference between superficial content and deep intellectual work.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
+
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text is better than N people out of 100
+- Score 71/100 = better than 71 people, so 29 people are better
+- Score 85/100 = better than 85 people, so 15 people are better  
+- Score 35/100 = better than 35 people, so 65 people are better
+- Sophisticated philosophical/academic writing should score 80-95+ (top 5-20% of population)
+- No hardcoded biases - evaluate purely on intellectual merit
 
 Evaluate this passage across all 40 originality metrics. For each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people better than this text)
 
 The 40 Originality Metrics:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -120,7 +135,7 @@ Return your analysis as a JSON object with this exact structure:
   ... (continue for all 40 metrics with keys "0" through "39")
 }
 
-CRITICAL: Return ONLY the JSON object, no other text. Each metric must have a direct quotation from the passage and clear explanation of how that quotation supports the score.`;
+CRITICAL: Return ONLY the JSON object, no other text. Each metric must have a direct quotation from the passage and clear explanation of how that quotation supports the score. Remember: sophisticated intellectual writing deserves high scores (70-95 range).`;
 
   try {
     const message = await anthropic.messages.create({
@@ -267,11 +282,18 @@ export async function analyzeIntelligence(passage: PassageData): Promise<any> {
 PASSAGE TO ANALYZE:
 ${passage.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text demonstrates intelligence better than N people out of 100
+- Score 71/100 = smarter than 71 people, so 29 people are smarter
+- Score 85/100 = smarter than 85 people, so 15 people are smarter
+- Score 35/100 = smarter than 35 people, so 65 people are smarter  
+- No hardcoded biases - evaluate purely on demonstrated cognitive ability
+
 Evaluate this passage across all 40 intelligence metrics. For each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people smarter than this demonstrates)
 
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -359,6 +381,13 @@ ${passageA.text}
 
 PASSAGE B:
 ${passageB.text}
+
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text demonstrates intelligence better than N people out of 100
+- Score 71/100 = smarter than 71 people, so 29 people are smarter
+- Score 85/100 = smarter than 85 people, so 15 people are smarter
+- Score 35/100 = smarter than 35 people, so 65 people are smarter  
+- No hardcoded biases - evaluate purely on demonstrated cognitive ability
 
 Evaluate BOTH passages across all 40 intelligence metrics. For each metric, provide comparative analysis of both passages.
 
@@ -471,11 +500,18 @@ export async function analyzeCogency(passage: PassageData): Promise<any> {
 PASSAGE TO ANALYZE:
 ${passage.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text is more cogent than N people out of 100
+- Score 71/100 = more cogent than 71 people, so 29 people are more cogent
+- Score 85/100 = more cogent than 85 people, so 15 people are more cogent
+- Score 35/100 = more cogent than 35 people, so 65 people are more cogent  
+- No hardcoded biases - evaluate purely on argumentative strength and logical rigor
+
 Evaluate this passage across all 40 cogency metrics. For each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people more cogent than this demonstrates)
 
 The 40 Cogency Metrics:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -534,11 +570,18 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text is more cogent than N people out of 100
+- Score 71/100 = more cogent than 71 people, so 29 people are more cogent
+- Score 85/100 = more cogent than 85 people, so 15 people are more cogent
+- Score 35/100 = more cogent than 35 people, so 65 people are more cogent  
+- No hardcoded biases - evaluate purely on argumentative strength and logical rigor
+
 Evaluate BOTH passages across all 40 cogency metrics. For each passage and each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people more cogent than this demonstrates)
 
 The 40 Cogency Metrics:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -611,11 +654,18 @@ export async function analyzeOverallQuality(passage: PassageData): Promise<any> 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text has better quality than N people out of 100
+- Score 71/100 = better quality than 71 people, so 29 people have better quality
+- Score 85/100 = better quality than 85 people, so 15 people have better quality
+- Score 35/100 = better quality than 35 people, so 65 people have better quality
+- No hardcoded biases - evaluate purely on writing quality and intellectual merit
+
 Evaluate this passage across all 40 overall quality metrics. For each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people with better quality than this demonstrates)
 
 The 40 Overall Quality Metrics:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -682,11 +732,18 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
+CRITICAL SCORING PROTOCOL:
+- Scores are POPULATION PERCENTILES: N/100 means this text has better quality than N people out of 100
+- Score 71/100 = better quality than 71 people, so 29 people have better quality
+- Score 85/100 = better quality than 85 people, so 15 people have better quality
+- Score 35/100 = better quality than 35 people, so 65 people have better quality
+- No hardcoded biases - evaluate purely on writing quality and intellectual merit
+
 Evaluate BOTH passages across all 40 overall quality metrics. For each passage and each metric, provide:
 1. The metric name
 2. A direct quotation from the passage that demonstrates this metric
 3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+4. A score from 0-100 (population percentile - higher = fewer people with better quality than this demonstrates)
 
 The 40 Overall Quality Metrics:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}

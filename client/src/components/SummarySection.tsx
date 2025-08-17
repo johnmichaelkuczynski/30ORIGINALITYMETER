@@ -21,84 +21,53 @@ export default function SummarySection({
   isSinglePassageMode = false,
 }: SummarySectionProps) {
   const [verdictTone, setVerdictTone] = useState<StyleOption>('academic');
-  // Calculate aggregate scores
-  const calculateAggregateScore = (
-    originalityScore: number, 
-    coherenceScore: number,
-    accuracyScore?: number,
-    depthScore?: number,
-    clarityScore?: number
-  ): number => {
-    // Get scores with defaults if not provided
-    const depth = depthScore || 5;
+  // Calculate aggregate scores from 160-metric analysis
+  const calculateAggregateScoreFromMetrics = (result: any): number => {
+    const scores: number[] = [];
     
-    // Treat originalityScore as conceptualInnovation
-    const conceptualInnovation = originalityScore;
+    // Collect all individual metric scores from the numbered keys (0-39)
+    for (let i = 0; i < 40; i++) {
+      const metricData = result[i.toString()];
+      if (metricData) {
+        if (metricData.score !== undefined) {
+          // Single analysis format
+          scores.push(metricData.score);
+        } else if (metricData.passageA?.score !== undefined) {
+          // Dual analysis format - use passageA score
+          scores.push(metricData.passageA.score);
+        }
+      }
+    }
     
-    // Treat accuracy as insightDensity - with fallback to mid-value if not available
-    const insightDensity = accuracyScore || 5;
-    
-    // Methodological novelty is derived from originality and depth
-    // If no dedicated score exists, we approximate it
-    const methodologicalNovelty = clarityScore || Math.min(10, (originalityScore * 0.6) + (depth * 0.4));
-    
-    // OVERRIDE: Direct implementation of the specified scoring formula
-    // Final score weighting: Conceptual Innovation (25%), Depth (25%), 
-    // Coherence (20%), Insight Density (15%), Methodological Novelty (15%)
-    return (conceptualInnovation * 0.25) + 
-           (depth * 0.25) + 
-           (coherenceScore * 0.20) + 
-           (insightDensity * 0.15) + 
-           (methodologicalNovelty * 0.15);
+    // Calculate average of all metric scores
+    if (scores.length === 0) return 0;
+    const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    return Math.round(average);
   };
 
-  const aggregateScoreA = calculateAggregateScore(
-    result.derivativeIndex.passageA.score,
-    result.coherence.passageA.score,
-    result.accuracy?.passageA?.score,
-    result.depth?.passageA?.score,
-    result.clarity?.passageA?.score
-  );
+  // Use new 160-metric scoring system
+  const aggregateScoreA = calculateAggregateScoreFromMetrics(result);
+  
+  const aggregateScoreB = isSinglePassageMode ? 0 : (() => {
+    const scores: number[] = [];
+    
+    // Collect passageB scores from dual analysis format
+    for (let i = 0; i < 40; i++) {
+      const metricData = (result as any)[i.toString()];
+      if (metricData?.passageB?.score !== undefined) {
+        scores.push(metricData.passageB.score);
+      }
+    }
+    
+    if (scores.length === 0) return 0;
+    const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    return Math.round(average);
+  })();
 
-  const aggregateScoreB = isSinglePassageMode ? 0 : calculateAggregateScore(
-    result.derivativeIndex.passageB.score,
-    result.coherence.passageB.score,
-    result.accuracy?.passageB?.score,
-    result.depth?.passageB?.score,
-    result.clarity?.passageB?.score
-  );
-
-  // Compare passages
+  // Compare overall scores for dual analysis
   const moreOriginal = isSinglePassageMode ? null : 
-    result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score ? 'A' : 
-    result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'B' : null;
-    
-  const moreCoherent = isSinglePassageMode ? null :
-    result.coherence.passageA.score > result.coherence.passageB.score ? 'A' : 
-    result.coherence.passageB.score > result.coherence.passageA.score ? 'B' : null;
-    
-  // For metrics that may be undefined, we use fallback values
-  const getScoreA = (metric: 'accuracy' | 'depth' | 'clarity'): number => {
-    if (!result[metric]) return 0;
-    return result[metric]?.passageA?.score ?? 0;
-  };
-  
-  const getScoreB = (metric: 'accuracy' | 'depth' | 'clarity'): number => {
-    if (!result[metric]) return 0;
-    return result[metric]?.passageB?.score ?? 0; 
-  };
-  
-  const moreAccurate = isSinglePassageMode || !result.accuracy ? null :
-    getScoreA('accuracy') > getScoreB('accuracy') ? 'A' : 
-    getScoreB('accuracy') > getScoreA('accuracy') ? 'B' : null;
-    
-  const moreDepth = isSinglePassageMode || !result.depth ? null :
-    getScoreA('depth') > getScoreB('depth') ? 'A' : 
-    getScoreB('depth') > getScoreA('depth') ? 'B' : null;
-    
-  const moreClear = isSinglePassageMode || !result.clarity ? null :
-    getScoreA('clarity') > getScoreB('clarity') ? 'A' : 
-    getScoreB('clarity') > getScoreA('clarity') ? 'B' : null;
+    aggregateScoreA > aggregateScoreB ? 'A' : 
+    aggregateScoreB > aggregateScoreA ? 'B' : null;
 
   return (
     <Card className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -123,17 +92,17 @@ export default function SummarySection({
                 <h3 className="text-lg font-semibold text-primary-800 mb-2">Overall Quality Score</h3>
                 <div className="flex items-center justify-center">
                   <div className={`text-4xl font-bold ${
-                    aggregateScoreA >= 8 ? 'text-green-600' : 
-                    aggregateScoreA >= 6 ? 'text-green-500' : 
-                    aggregateScoreA >= 4 ? 'text-amber-500' : 
+                    aggregateScoreA >= 85 ? 'text-green-600' : 
+                    aggregateScoreA >= 70 ? 'text-green-500' : 
+                    aggregateScoreA >= 50 ? 'text-amber-500' : 
                     'text-red-500'
                   }`}>
-                    {aggregateScoreA.toFixed(1)}
+                    {aggregateScoreA}
                   </div>
-                  <div className="text-xl text-secondary-500 ml-1">/10</div>
+                  <div className="text-xl text-secondary-500 ml-1">/100</div>
                 </div>
                 <div className="text-sm text-secondary-600 text-center mt-2">
-                  Balances originality (25%) and depth (25%) with coherence (20%), accuracy (15%) and clarity (15%)
+                  Average of all 40 metric scores (0-100 scale)
                 </div>
                 
                 {/* Score bar visualization */}
@@ -141,12 +110,12 @@ export default function SummarySection({
                   <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className={`absolute top-0 left-0 h-full ${
-                        aggregateScoreA >= 8 ? 'bg-green-600' : 
-                        aggregateScoreA >= 6 ? 'bg-green-500' : 
-                        aggregateScoreA >= 4 ? 'bg-amber-500' : 
+                        aggregateScoreA >= 85 ? 'bg-green-600' : 
+                        aggregateScoreA >= 70 ? 'bg-green-500' : 
+                        aggregateScoreA >= 50 ? 'bg-amber-500' : 
                         'bg-red-500'
                       }`}
-                      style={{ width: `${aggregateScoreA * 10}%` }}
+                      style={{ width: `${aggregateScoreA}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-secondary-500 mt-1">
@@ -162,7 +131,7 @@ export default function SummarySection({
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-secondary-800">{passageATitle}</h3>
                 <span className="text-sm text-secondary-500">
-                  Originality Score: <span className="font-semibold">{result.derivativeIndex.passageA.score.toFixed(1)}</span>/10
+                  Analysis Score: <span className="font-semibold">{aggregateScoreA}</span>/100
                 </span>
               </div>
               
@@ -176,15 +145,15 @@ export default function SummarySection({
                   {/* Actual score fill */}
                   <div 
                     className={`absolute top-0 left-0 h-full ${
-                      result.derivativeIndex.passageA.score > 8.4 ? 'bg-green-600' : 
-                      result.derivativeIndex.passageA.score > 6.9 ? 'bg-green-500' : 
-                      result.derivativeIndex.passageA.score > 3.9 ? 'bg-amber-500' : 
+                      aggregateScoreA >= 85 ? 'bg-green-600' : 
+                      aggregateScoreA >= 70 ? 'bg-green-500' : 
+                      aggregateScoreA >= 50 ? 'bg-amber-500' : 
                       'bg-red-500'
                     } transition-all flex items-center justify-end pr-2`}
-                    style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
+                    style={{ width: `${aggregateScoreA}%` }}
                   >
                     <span className="text-white text-xs font-bold">
-                      {result.derivativeIndex.passageA.score.toFixed(1)}
+                      {aggregateScoreA}
                     </span>
                   </div>
                   
@@ -197,7 +166,7 @@ export default function SummarySection({
                   <div 
                     className="absolute top-0 bottom-0 w-1 bg-white shadow-md" 
                     style={{ 
-                      left: `${result.derivativeIndex.passageA.score * 10}%`,
+                      left: `${aggregateScoreA}%`,
                       zIndex: 5
                     }}
                   ></div>
@@ -207,26 +176,26 @@ export default function SummarySection({
                 <div 
                   className="absolute -top-6 bg-white px-2 py-1 text-xs font-semibold text-primary-700 border border-primary-200 rounded-lg shadow-sm"
                   style={{ 
-                    left: `${result.derivativeIndex.passageA.score * 10}%`,
+                    left: `${aggregateScoreA}%`,
                     transform: 'translateX(-50%)',
                     zIndex: 10
                   }}
-                  title="Originality is calculated using conceptual innovation, methodological novelty, and contextual application"
+                  title="Score calculated from 40 individual metrics with direct quotations"
                 >
-                  {result.derivativeIndex.passageA.score.toFixed(1)}/10
+                  {aggregateScoreA}/100
                 </div>
                 
                 {/* Labels */}
                 <div className="flex justify-between text-xs text-secondary-600 px-1 mt-1">
-                  <div>Derivative</div>
-                  <div>Average</div>
-                  <div>Original</div>
-                  <div>Innovative</div>
+                  <div>Poor (0-30)</div>
+                  <div>Average (50-70)</div>
+                  <div>Good (70-85)</div>
+                  <div>Excellent (85-100)</div>
                 </div>
                 
                 {/* Tooltip explanation */}
                 <div className="mt-3 text-xs text-secondary-500 bg-gray-50 p-2 rounded-md">
-                  Originality is calculated using conceptual innovation, methodological novelty, and contextual application. Higher scores indicate greater semantic distance from conventional texts.
+                  Score represents the average of 40 individual metrics, each evaluated with direct quotations and explanations. Higher scores indicate superior intellectual quality.
                 </div>
               </div>
               
