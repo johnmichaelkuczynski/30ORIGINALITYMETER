@@ -47,7 +47,12 @@ Preferred communication style: Simple, everyday language.
 - ✅ Primary originality protocol evaluates intellectual fecundity, NOT historical novelty
 - ✅ System now correctly rates Newton, Darwin, Freud as highly original (not "derivative")
 - ✅ Legacy parameter system kept as secondary option with accuracy warnings
+- ✅ **NEW DUAL OVERALL QUALITY PROTOCOL SYSTEM: Primary Quality Protocol + Legacy Option**
+- ✅ Added Primary Overall Quality Protocol with 20 sophisticated quality questions (DEFAULT)
+- ✅ Primary quality protocol evaluates authentic intellectual quality, NOT academic markers
+- ✅ System judges actual insight, freshness, organic development over surface scholarly appearance
 - ✅ Parameter selection only appears for Legacy protocols or non-protocol analysis types
+- ✅ **COMPLETE TRIPLE PROTOCOL ARCHITECTURE**: Intelligence (18Q), Originality (9Q), Quality (20Q)
 
 ## System Architecture
 

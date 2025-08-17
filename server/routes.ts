@@ -1128,6 +1128,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Primary Overall Quality Analysis (NEW DEFAULT PROTOCOL)
+  app.post("/api/analyze/primary-quality", async (req: Request, res: Response) => {
+    try {
+      const requestSchema = z.object({
+        passageA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+      });
+
+      const { passageA, provider } = requestSchema.parse(req.body);
+      
+      console.log("Primary Quality analysis request:", {
+        title: passageA.title,
+        textLength: passageA.text.length,
+        provider
+      });
+
+      // Use Primary Quality evaluation function
+      const result = await anthropicService.analyzePrimaryQuality(passageA);
+      
+      // Return the result
+      res.json(result);
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error in primary quality analysis:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze primary quality", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
   // Primary Originality Analysis (NEW DEFAULT PROTOCOL)
   app.post("/api/analyze/primary-originality", async (req: Request, res: Response) => {
     try {

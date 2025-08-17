@@ -43,6 +43,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   type OriginalityProtocol = "primary" | "legacy";
   const [originalityProtocol, setOriginalityProtocol] = useState<OriginalityProtocol>("primary");
   
+  // Overall Quality Protocol Selection (NEW vs OLD)
+  type QualityProtocol = "primary" | "legacy";
+  const [qualityProtocol, setQualityProtocol] = useState<QualityProtocol>("primary");
+  
   // Legacy compatibility
   const analysisMode = documentMode === "single" ? 
     (analysisType === "originality" ? "single" : 
@@ -238,21 +242,32 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   // Quality analysis mutation
   const qualityMutation = useMutation({
     mutationFn: async () => {
-      console.log("Analyzing quality");
+      console.log("Analyzing quality with protocol:", qualityProtocol);
       
-      let endpoint = '/api/analyze/quality';
-      let payload = {
-        passageA,
-        provider,
-        parameterCount
-      };
+      // Choose endpoint based on protocol selection
+      let endpoint = qualityProtocol === "primary" 
+        ? '/api/analyze/primary-quality'
+        : '/api/analyze/quality';
       
-      // Check if we have passageB for dual analysis
-      if (passageB.text.trim() !== "") {
+      let payload = qualityProtocol === "primary"
+        ? {
+            passageA,
+            provider
+          }
+        : {
+            passageA,
+            provider,
+            parameterCount
+          };
+      
+      // Check if we have passageB for dual analysis (only for legacy protocol)
+      if (qualityProtocol === "legacy" && passageB.text.trim() !== "") {
+        endpoint = '/api/analyze/quality-dual';
         payload = {
           passageA,
           passageB,
-          provider
+          provider,
+          parameterCount
         };
       }
       
@@ -828,17 +843,77 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         </div>
         
+        {/* Overall Quality Protocol Selection - Only show for Quality analysis */}
+        {analysisType === "quality" && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mb-3">
+              <h4 className="text-sm font-medium text-purple-700 mb-1">Overall Quality Evaluation Protocol</h4>
+              <p className="text-xs text-purple-500">Choose between the new primary protocol and legacy system</p>
+            </div>
+            
+            <RadioGroup
+              value={qualityProtocol}
+              onValueChange={(value) => {
+                setQualityProtocol(value as QualityProtocol);
+                if (showResults) {
+                  setAnalysisResult(null);
+                  setShowResults(false);
+                }
+              }}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                qualityProtocol === "primary" 
+                  ? "bg-purple-50 border-purple-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="primary" id="quality-protocol-primary" />
+                  <Label htmlFor="quality-protocol-primary" className="font-medium cursor-pointer text-sm">
+                    🆕 Primary Protocol
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  Advanced question-based evaluation. Judges actual intellectual quality, not academic markers.
+                </p>
+              </div>
+              
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                qualityProtocol === "legacy" 
+                  ? "bg-orange-50 border-orange-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="legacy" id="quality-protocol-legacy" />
+                  <Label htmlFor="quality-protocol-legacy" className="font-medium cursor-pointer text-sm">
+                    📊 Legacy System
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  Parameter-based framework. May confuse academic markers with genuine insight (less reliable).
+                </p>
+              </div>
+            </RadioGroup>
+            
+            <div className="mt-2 text-xs text-gray-500">
+              {qualityProtocol === "primary" && "✅ Recommended: Evaluates authentic intellectual quality over surface markers"}
+              {qualityProtocol === "legacy" && "⚠️ Legacy: Parameter-based system with known bias toward academic jargon"}
+            </div>
+          </div>
+        )}
+        
         {/* Parameter Count Selection - Only show for non-protocol analysis OR Legacy protocols */}
-        {((analysisType !== "intelligence" && analysisType !== "originality") || 
+        {((analysisType !== "intelligence" && analysisType !== "originality" && analysisType !== "quality") || 
           (analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
-          (analysisType === "originality" && originalityProtocol === "legacy")) && (
+          (analysisType === "originality" && originalityProtocol === "legacy") ||
+          (analysisType === "quality" && qualityProtocol === "legacy")) && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="mb-3">
               <h4 className="text-sm font-medium text-secondary-700 mb-1">
-                {(analysisType === "intelligence" || analysisType === "originality") ? "Legacy Protocol - Analysis Depth" : "Analysis Depth"}
+                {(analysisType === "intelligence" || analysisType === "originality" || analysisType === "quality") ? "Legacy Protocol - Analysis Depth" : "Analysis Depth"}
               </h4>
               <p className="text-xs text-secondary-500">
-                {(analysisType === "intelligence" || analysisType === "originality")
+                {(analysisType === "intelligence" || analysisType === "originality" || analysisType === "quality")
                   ? "Choose how many legacy parameters to evaluate with" 
                   : "Choose how many parameters to evaluate with"
                 }
@@ -1027,6 +1102,18 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             <p><strong>Compare Originality:</strong> {originalityProtocol === "primary" 
               ? "Compare intellectual fecundity between two documents using the primary originality protocol."
               : "Compare two documents to see which is more original using parameter-based semantic metrics."
+            }</p>
+          )}
+          {documentMode === "single" && analysisType === "quality" && (
+            <p><strong>Single Quality:</strong> {qualityProtocol === "primary" 
+              ? "Evaluate authentic intellectual quality using 20 sophisticated questions. Judges actual insight over academic markers."
+              : "Analyze overall quality using parameter-based metrics for scholarly merit and conceptual compression."
+            }</p>
+          )}
+          {documentMode === "comparison" && analysisType === "quality" && (
+            <p><strong>Compare Quality:</strong> {qualityProtocol === "primary" 
+              ? "Compare authentic intellectual quality between two documents using the primary quality protocol."
+              : "Compare two documents to see which has higher overall quality using parameter-based metrics."
             }</p>
           )}
           {documentMode === "single" && analysisType === "cogency" && (

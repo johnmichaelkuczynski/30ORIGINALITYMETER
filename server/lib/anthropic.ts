@@ -12,6 +12,92 @@ console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 // PRIMARY INTELLIGENCE EVALUATION PROTOCOL
+export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const qualityQuestions = [
+    "IS IT INSIGHTFUL?",
+    "IS IT TRUE?",
+    "OR IS TRUE OR FALSE? IN OTHER WORDS, DOES IT MAKE AN ADJUDICABLE CLAIM? (CLAIMS TO THE EFFECT THAT SO AND SO MIGHT HAVE SAID SUCH AND SUCH DO NOT COUNT.)",
+    "DOES IT MAKE A CLAIM ABOUT HOW SOME ISSUE IS TO BE RESOLVE OR ONLY ABOUT HOW SOME 'AUTHORITY' MIGHT FEEL ABOUT SOME ASPECT OF THAT ISSUE?",
+    "IS IT ORGANIC?",
+    "IS IT FRESH?",
+    "IS IT THE PRODUCT OF INSIGHT? OR OF SOMEBODY RECYCLING OLD MATERIAL OR JUST RECYLING SLOGANS/MEMES AND/OR NAME-DROPPING?",
+    "IS IT BORING? IE SETTING ASIDE PEOPLE WHO ARE TOO IMPAIRED TO UNDERSTAND IT AND THEREFORE FIND IT BORING, IT IS BORING TO PEOPLE WHO ARE SMART ENOUGH TO UNDERSTAND IT?",
+    "DOES IT PRESENT A FRESH NEW ANGLE? IF NOT, DOES IT PROVIDE A FRESH NEW WAY OF DEFENDING OR EVALUATING THE SIGNIFICANCE OF A NOT-SO-FRESH POINT?",
+    "WOULD AN INTELLIGENT PERSON WHO WAS NOT UNDER PRESSURE (FROM A PROFESSOR OR COLLEAGUE OR BOSS OF PUBLIC OPINION) LIKELY FIND IT TO BE USEFUL AS AN EPISTEMIC INSTRUMENT (MEANS OF ACQUIRING KNOWLEDGE)?",
+    "IF THE POINT IT DEFENDS IS NOT TECHNICALLY TRUE, IS THAT POINT AT LEAST OPERATIONALLY TRUE (USEFUL TO REGARD AS TRUE IN SOME CONTEXTS)?",
+    "DOES THE PASSAGE GENERATE ORGANICALLY? DO IDEAS DEVELOP? OR IS IT JUST A SERIES OF FORCED STATEMENTS THAT ARE ONLY FORMALLY OR ARTIFICIALLY RELATED TO PREVIOUS STATEMENTS?",
+    "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?",
+    "IF ORIGINAL, IS IT ORIGINAL BY VIRTUE OF BEING INSIGHTFUL OR BY VIRTUE OF BEING DEFECTIVE OR FACETIOUS?",
+    "IF THERE ARE ELEMENTS OF SPONTANEITY, ARE THEY INTERNAL TO A LARGER, WELL-BEHAVED LOGICAL ARCHITECTURE?",
+    "IS THE AUTHOR ABLE TO 'RIFF' (IN A WAY THAT SUPPORTS, RATHER THAN UNDERMINING, THE MAIN POINT AND ARGUMENTATIVE STRUCTURE OF THE PASSAGE)? OR IS IT WOODEN AND BUREAUCRATIC?",
+    "IS IT ACTUALLY SMART OR IS IT 'GEEK'-SMART (SMART IN THE WAY THAT SOMEBODY WHO IS NOT PARTICULARLY SMART BUT WHO WAS ALWAYS LAST TO BE PICKED BY THE SOFTBALL TEAM BECOMES SMART)?",
+    "IS IT MR. SPOCKS SMART (ACTUALLY SMART) OR Lieutenant DATA SMART (WHAT A DUMB PERSON WOULD REGARD AS SMART)?",
+    "IS IT \"SMART\" IN THE SENSE THAT, FOR CULTURAL OR SOCIAL REASONS, WE WOULD PRESUME THAT ONLY A SMART PERSON WOULD DISCUSS SUCH MATTERS? OR IS IT INDEED--SMART?",
+    "IS IT SMART BY VIRTUE BEING ARGUMENTATIVE AND SNIPPY OR BY VIRTUE OF BEING ILLUMINATING?"
+  ];
+
+  const prompt = `You are an expert evaluator of intellectual quality. Analyze this passage using the PRIMARY OVERALL QUALITY EVALUATION PROTOCOL.
+
+CRITICAL INSTRUCTION: Evaluate ACTUAL intellectual quality, not surface-level academic markers. Judge whether the content is genuinely insightful, organically developed, and intellectually illuminating - not just whether it sounds scholarly.
+
+PASSAGE TO ANALYZE:
+${passage.text}
+
+Evaluate this passage against each of the following quality questions. For each question:
+1. Provide a direct quotation from the passage that demonstrates the answer
+2. Give a detailed explanation of how the quotation addresses the question
+3. Assign a score from 0-100 (where 100 = exceptional quality, 70-89 = very high quality, 50-69 = solid quality, 30-49 = mediocre, 0-29 = poor quality)
+
+OVERALL QUALITY EVALUATION QUESTIONS:
+${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Return ONLY this JSON structure with numbered entries (0 through ${qualityQuestions.length - 1}):
+{
+  "0": {
+    "question": "${qualityQuestions[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this aspect",
+    "explanation": "Detailed explanation of how the quotation addresses this quality question"
+  },
+  ... continue for all ${qualityQuestions.length} questions
+}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = (message.content[0] as any).text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Primary Quality JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in Primary Quality analysis:", error);
+    throw error;
+  }
+}
+
 export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
