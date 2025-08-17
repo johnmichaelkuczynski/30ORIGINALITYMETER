@@ -261,13 +261,24 @@ Evaluate this passage across all 40 intelligence metrics. For each metric, provi
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each metric, use this format:
-Metric Name
-"Direct quotation from the text"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
+Return your analysis as a JSON object with this exact structure:
+{
+  "0": {
+    "metric": "Metric Name",
+    "quotation": "Direct quotation from the text",
+    "explanation": "Explanation of how the quotation demonstrates this metric",
+    "score": X
+  },
+  "1": {
+    "metric": "Next Metric Name", 
+    "quotation": "Direct quotation from the text",
+    "explanation": "Explanation of how the quotation demonstrates this metric",
+    "score": X
+  },
+  ... (continue for all 40 metrics with keys "0" through "39")
+}
 
-Provide a comprehensive analysis covering all 40 metrics with quotations and explanations.`;
+CRITICAL: Return ONLY the JSON object, no other text. Each metric must have a direct quotation from the passage and clear explanation of how that quotation supports the score.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -276,7 +287,22 @@ Provide a comprehensive analysis covering all 40 metrics with quotations and exp
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        // If JSON parsing fails, return the text for debugging
+        console.error("Failed to parse Anthropic Intelligence JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic intelligence analysis:", error);
     throw error;

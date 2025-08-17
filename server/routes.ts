@@ -1156,8 +1156,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for intelligence analysis (most suitable for cognitive evaluation)
-      const result = await openaiService.analyzeIntelligence(passageA);
+      // Use Anthropic service for intelligence analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeIntelligence(passageA);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
