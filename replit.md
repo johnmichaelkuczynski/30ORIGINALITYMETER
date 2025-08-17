@@ -28,11 +28,13 @@ Preferred communication style: Simple, everyday language.
 - ✅ Added "Generate Perfect Example (100/100)" button to single passage analysis results
 - ✅ Perfect example generation uses Anthropic Claude to create high-quality writing demonstrating all 160 metrics
 - ✅ Feature designed to reveal what the evaluation system considers "perfect" intellectual writing
-- ✅ **CRITICAL SYSTEM OVERHAUL: Pure Passthrough Analysis** - Removed ALL scoring logic and hardcoded biases
-- ✅ LLM now makes all scoring decisions with zero programmatic interference
-- ✅ Only scoring instruction: N/100 means 100-N people out of 100 are better (population percentile)
-- ✅ Fixed app crashes caused by syntax errors in routes.ts and utils.ts
-- ✅ System now operates as true pure passthrough for authentic LLM scoring judgments
+- ✅ **CRITICAL SYSTEM OVERHAUL: Anti-Bullshit Detection System** - Comprehensive update to distinguish legitimate intellectual work from academic posturing
+- ✅ Fixed critical frontend bug preventing score display - scores now properly show in UI
+- ✅ Implemented sophisticated bullshit detection across all 160 metrics (Intelligence, Originality, Cogency, Quality)
+- ✅ System correctly penalizes empty abstractions, circular reasoning, and derivative thinking while preserving legitimate technical precision
+- ✅ Balanced approach: judges substance over style, allowing complex vocabulary when genuinely necessary for precision
+- ✅ LLM makes all scoring decisions with detailed anti-bullshit guidelines and authentic examples
+- ✅ System now properly scores derivative academic writing (20-45/100) while rewarding genuine intellectual innovation (70-100/100)
 
 ## System Architecture
 

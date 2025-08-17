@@ -103,13 +103,12 @@ CRITICAL: RUTHLESSLY EXPOSE DERIVATIVE ACADEMIC BULLSHIT
 The core purpose is distinguishing genuine originality from pretentious academic jargon.
 
 RED FLAGS FOR LOW SCORES (20-45/100 range):
-- Rehashing standard academic positions without innovation
-- Using complex terminology to sound original without being original  
-- Name-dropping theorists/concepts without new insights
-- Empty abstractions that say nothing genuinely novel
-- Academic jargon masquerading as fresh perspective
+- Rehashing standard positions without genuine innovation
 - Restating existing problems without new solutions or angles
-- Derivative thinking dressed up in sophisticated language
+- Empty abstractions that contribute nothing novel to understanding
+- Name-dropping theorists/concepts without substantial new insights
+- Derivative thinking that adds no genuine value
+- Circular reasoning or tautological formulations
 
 SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
 - Actually novel connections between previously unconnected ideas
@@ -119,11 +118,11 @@ SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
 - Original reframing that opens new avenues of inquiry
 
 EXAMPLE CONTRAST:
-BULLSHIT PSEUDO-ORIGINALITY:
+EXAMPLE OF DERIVATIVE THINKING:
 "Novel perspective
 'Transcendental empiricism attempts to dissolve epistemological dilemmas by splitting differences'
-This is standard academic formulation - no actual novel perspective, just recombining familiar terms.
-Score: 25/100"
+This restates a familiar methodological approach without offering genuine innovation in perspective.
+Score: 35/100"
 
 GENUINE ORIGINALITY:  
 "Novel perspective
@@ -134,12 +133,14 @@ Score: 92/100"
 The ${parameterCount} Originality Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - BE MERCILESS ABOUT FAKE ORIGINALITY:
-- 90-100: Exceptional originality with genuinely novel insights
-- 70-89: Very good originality with clear innovative elements
-- 50-69: Competent originality with some genuine novelty
-- 20-49: DERIVATIVE BULLSHIT - pseudo-originality, academic jargon without substance, rehashed positions
+SCORING STANDARDS - EVALUATE GENUINE INNOVATION:
+- 90-100: Exceptional originality with genuinely novel insights and innovative approaches
+- 70-89: Very good originality with clear innovative elements and fresh perspectives
+- 50-69: Competent originality with some genuine novelty and independent thinking
+- 20-49: DERIVATIVE CONTENT - rehashed positions, lacks genuine innovation, adds little to existing understanding  
 - 0-19: Complete absence of originality or incoherent
+
+IMPORTANT: Originality should be judged by genuine innovation of thought, not vocabulary simplicity. Complex technical arguments can be highly original if they advance understanding in novel ways.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -306,34 +307,36 @@ CRITICAL EVALUATION REQUIREMENTS:
 - Score from 0-100 where N/100 means 100-N people out of 100 are better
 - Follow the EXACT scoring standards from the reference document
 
-CRITICAL: DETECT AND PENALIZE BULLSHIT ACADEMIC WRITING
-The primary purpose is to distinguish legitimate intellectual work from superficial academic jargon.
+CRITICAL: DISTINGUISH LEGITIMATE PRECISION FROM EMPTY JARGON
+The primary purpose is to distinguish substantive intellectual work from vacuous academic posturing.
 
 RED FLAGS FOR LOW SCORES (20-45/100 range):
-- Empty abstractions without concrete grounding
-- Complex jargon that obscures rather than clarifies  
-- Circular definitions or tautological reasoning
-- Name-dropping philosophers/theories without substantive engagement
-- Abstract terminology used to sound sophisticated without adding meaning
-- Restating problems without offering genuine insights or solutions
+- Empty abstractions that say nothing concrete or verifiable
+- Circular reasoning disguised as sophisticated analysis
+- Using complex terms when simpler ones would be clearer and more precise
+- Name-dropping without substantive engagement with the ideas
+- Restating familiar problems without advancing understanding
 - Academic summary writing that merely categorizes without explaining
 
 SIGNS OF LEGITIMATE HIGH-QUALITY WORK (70-100/100 range):
-- Clear explanations that genuinely illuminate concepts
-- Original insights that advance understanding
-- Concrete examples that clarify abstract principles
-- Genuine problem-solving rather than problem-restating
-- Precise use of technical terms for clarity, not obfuscation
+- Technical precision where complex terms serve genuine analytical purposes
+- Clear reasoning that advances understanding, regardless of vocabulary complexity
+- Substantive engagement with difficult concepts requiring specialized language
+- Original insights that may require sophisticated terminology to express accurately
+- Complex arguments that are well-structured and logically sound
+- Genuine problem-solving and conceptual innovation
 
 The ${parameterCount} Intelligence Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - BE RUTHLESS ABOUT BULLSHIT:
-- 90-100: Exceptional demonstration with genuine insight and clarity
-- 70-89: Very good demonstration with substantive content and clear reasoning  
-- 50-69: Competent demonstration with adequate substance
-- 20-49: BULLSHIT WRITING - academic jargon, empty abstractions, circular reasoning, name-dropping without substance
+SCORING STANDARDS - FOCUS ON SUBSTANCE OVER STYLE:
+- 90-100: Exceptional demonstration with genuine insight and analytical depth
+- 70-89: Very good demonstration with substantive content and sound reasoning  
+- 50-69: Competent demonstration with adequate intellectual substance
+- 20-49: VACUOUS CONTENT - empty abstractions, circular reasoning, no genuine advancement of understanding
 - 0-19: Complete absence of the metric or completely incoherent
+
+IMPORTANT: Do NOT penalize legitimate technical precision or complex arguments that require sophisticated vocabulary. Only penalize writing that lacks genuine substance regardless of its complexity level.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -526,21 +529,23 @@ HIGH QUALITY EXAMPLE:
 Clear conditional structure with valid logical form - premises lead necessarily to conclusion.
 Score: 88/100"
 
-BULLSHIT ACADEMIC WRITING EXAMPLE:
+VACUOUS CONTENT EXAMPLE:
 "Logical validity  
 'Transcendental empiricism attempts to dissolve an epistemological dilemma by splitting the difference between diametrically opposed accounts.'
-This is circular academic jargon - 'dissolving dilemmas by splitting differences' says nothing substantive about logical validity.
-Score: 25/100"
+This describes a method abstractly without demonstrating logical validity - no actual logical structure is presented or analyzed.
+Score: 35/100"
 
 The ${parameterCount} Cogency Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - RUTHLESSLY IDENTIFY BULLSHIT:
-- 90-100: Exceptional cogency with genuinely clear and valid reasoning
-- 70-89: Very good cogency with solid logical foundations
-- 50-69: Competent cogency with adequate logical support  
-- 20-49: BULLSHIT REASONING - circular logic, empty abstractions, pseudo-sophisticated jargon without substance
-- 0-19: Complete logical incoherence or absence
+SCORING STANDARDS - EVALUATE LOGICAL SUBSTANCE:
+- 90-100: Exceptional cogency with clear, valid reasoning and strong logical structure
+- 70-89: Very good cogency with solid logical foundations and sound arguments
+- 50-69: Competent cogency with adequate logical support and reasonable structure
+- 20-49: WEAK REASONING - circular logic, unsupported claims, logical fallacies, lack of genuine argumentation
+- 0-19: Complete logical incoherence or absence of reasoning
+
+IMPORTANT: Judge based on logical merit, not vocabulary complexity. Sophisticated arguments using technical terms should score highly if logically sound.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -707,11 +712,11 @@ CRITICAL EVALUATION REQUIREMENTS:
 
 EXAMPLE FORMAT - DETECT PSEUDO-SOPHISTICATION:
 
-BULLSHIT ACADEMIC WRITING:
+EXAMPLE OF EMPTY CATEGORIZATION:
 "Clarity of expression
 'Transcendental empiricism is, among other things, a philosophy of mental content.'
-This is academic jargon masquerading as explanation - uses complex terminology without actually clarifying anything.
-Score: 30/100"
+This merely categorizes without explaining what makes it distinctive or how it works as a philosophy.
+Score: 45/100"
 
 HIGH QUALITY WRITING:
 "Clarity of expression
@@ -722,12 +727,14 @@ Score: 85/100"
 The ${parameterCount} Overall Quality Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - EXPOSE ACADEMIC PRETENSION:
-- 90-100: Exceptional quality with genuine insight and clear communication
+SCORING STANDARDS - EVALUATE GENUINE QUALITY:
+- 90-100: Exceptional quality with genuine insight and effective communication
 - 70-89: Very good quality with substantive content and skilled execution
-- 50-69: Competent quality with adequate substance and clarity
-- 20-49: BULLSHIT ACADEMIC WRITING - pretentious jargon, empty sophistication, style over substance
+- 50-69: Competent quality with adequate substance and reasonable clarity
+- 20-49: POOR QUALITY - lacks substance, unclear communication, no genuine advancement of understanding
 - 0-19: Completely poor quality or incoherent
+
+IMPORTANT: High-quality writing may use complex vocabulary when precision demands it. Judge based on whether the writing effectively serves its intellectual purpose.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
