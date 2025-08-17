@@ -51,7 +51,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
-  const [provider, setProvider] = useState<LLMProvider>("openai");
+  const [provider, setProvider] = useState<LLMProvider>("anthropic");
   const [providerStatus, setProviderStatus] = useState<{
     deepseek: boolean;
     openai: boolean;
@@ -626,10 +626,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             onValueChange={(value) => setProvider(value as LLMProvider)}
             className="grid grid-cols-1 md:grid-cols-4 gap-2"
           >
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "anthropic" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="anthropic" id="anthropic" />
+              <Label htmlFor="anthropic" className="font-medium text-sm">
+                Anthropic (Default)
+              </Label>
+            </div>
+            
             <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "deepseek" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
               <RadioGroupItem value="deepseek" id="deepseek" />
               <Label htmlFor="deepseek" className="font-medium text-sm">
-                DeepSeek (Default)
+                DeepSeek
               </Label>
             </div>
             
@@ -637,13 +644,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
               <RadioGroupItem value="openai" id="openai" />
               <Label htmlFor="openai" className="font-medium text-sm">
                 OpenAI (GPT-4o)
-              </Label>
-            </div>
-            
-            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "anthropic" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
-              <RadioGroupItem value="anthropic" id="anthropic" />
-              <Label htmlFor="anthropic" className="font-medium text-sm">
-                Anthropic (Claude)
               </Label>
             </div>
             
