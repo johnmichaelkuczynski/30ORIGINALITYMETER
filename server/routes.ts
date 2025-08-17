@@ -827,8 +827,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for dual intelligence analysis
-      const result = await openaiService.analyzeIntelligenceDual(passageA, passageB);
+      // Use Anthropic service for dual intelligence analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -863,7 +863,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().optional().default(""),
           userContext: z.string().optional().default(""),
         }).optional(),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, passageB, provider } = requestSchema.parse(req.body);
@@ -877,30 +877,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isDual: !!(passageB?.text?.trim())
       });
 
-      // Use appropriate service based on provider
+      // Use Anthropic service for quality analysis with 40 comprehensive metrics
       let result;
       if (passageB?.text?.trim()) {
         // Dual analysis
-        if (provider === "openai" || provider === "deepseek") {
-          result = await openaiService.analyzeQualityDual(passageA, passageB);
-        } else if (provider === "anthropic") {
-          result = await anthropicService.analyzeQualityDual(passageA, passageB);
-        } else if (provider === "perplexity") {
-          result = await perplexityService.analyzeQualityDual(passageA, passageB);
-        } else {
-          result = await openaiService.analyzeQualityDual(passageA, passageB);
-        }
+        result = await anthropicService.analyzeQualityDual(passageA, passageB);
       } else {
         // Single analysis
-        if (provider === "openai" || provider === "deepseek") {
-          result = await openaiService.analyzeQuality(passageA);
-        } else if (provider === "anthropic") {
-          result = await anthropicService.analyzeQuality(passageA);
-        } else if (provider === "perplexity") {
-          result = await perplexityService.analyzeQuality(passageA);
-        } else {
-          result = await openaiService.analyzeQuality(passageA);
-        }
+        result = await anthropicService.analyzeQuality(passageA);
       }
       
       // Return the result without schema validation to preserve raw analysis data
@@ -987,7 +971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage B text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, passageB, provider } = requestSchema.parse(req.body);
@@ -1000,17 +984,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Route to the correct provider
-      let result;
-      if (provider === "anthropic") {
-        result = await anthropicService.analyzeOriginalityDual(passageA, passageB);
-      } else if (provider === "deepseek") {
-        result = await deepseekService.analyzeOriginalityDual(passageA, passageB);
-      } else if (provider === "perplexity") {
-        result = await perplexityService.analyzeOriginalityDual(passageA, passageB);
-      } else {
-        result = await openaiService.analyzeOriginalityDual(passageA, passageB);
-      }
+      // Use Anthropic service for dual originality analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeOriginalityDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1040,7 +1015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, provider } = requestSchema.parse(req.body);
@@ -1051,15 +1026,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use appropriate service based on provider
-      let result;
-      if (provider === "openai" || provider === "deepseek") {
-        result = await openaiService.analyzeCogency(passageA);
-      } else if (provider === "anthropic") {
-        result = await openaiService.analyzeCogency(passageA); // For now, use OpenAI as fallback
-      } else {
-        result = await openaiService.analyzeCogency(passageA); // Default to OpenAI
-      }
+      // Use Anthropic service for cogency analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeCogency(passageA);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1094,7 +1062,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage B text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, passageB, provider } = requestSchema.parse(req.body);
@@ -1107,15 +1075,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use appropriate service based on provider
-      let result;
-      if (provider === "openai" || provider === "deepseek") {
-        result = await openaiService.analyzeCogencyDual(passageA, passageB);
-      } else if (provider === "anthropic") {
-        result = await openaiService.analyzeCogencyDual(passageA, passageB); // For now, use OpenAI as fallback
-      } else {
-        result = await openaiService.analyzeCogencyDual(passageA, passageB); // Default to OpenAI
-      }
+      // Use Anthropic service for dual cogency analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeCogencyDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1145,7 +1106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, provider } = requestSchema.parse(req.body);

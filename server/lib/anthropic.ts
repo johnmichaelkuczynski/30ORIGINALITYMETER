@@ -569,6 +569,14 @@ Provide a comprehensive analysis covering all 40 metrics with quotations and exp
   }
 }
 
+export async function analyzeQuality(passage: PassageData): Promise<any> {
+  return analyzeOverallQuality(passage);
+}
+
+export async function analyzeQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
+  return analyzeOverallQualityDual(passageA, passageB);
+}
+
 export async function analyzeOverallQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
