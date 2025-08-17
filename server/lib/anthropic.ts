@@ -12,6 +12,81 @@ console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 // PRIMARY INTELLIGENCE EVALUATION PROTOCOL
+export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const originalityQuestions = [
+    "IS IT ORIGINAL (NOT IN THE SENSE THAT IT HAS ALREADY BEEN SAID BUT IN THE SENSE THAT ONLY A FECUND MIND COULD COME UP WITH IT)?",
+    "ARE THE WAYS THE IDEAS ARE INTERCONNECTED ORIGINAL? OR ARE THOSE INTERCONNECTIONS CONVENTION-DRIVEN AND DOCTRINAIRE?",
+    "ARE IDEAS DEVELOPED IN A FRESH AND ORIGINAL WAY? OR IS THE IDEA-DEVELOPMENT MERELY ASSOCIATIVE, COMMONSENSE-BASED (OR COMMON-NONSENSE-BASED), OR DOCTRINAIRE?",
+    "IS IT ORIGINAL RELATIVE TO THE DATASET THAT, JUDGING BY WHAT IT SAYS AND HOW IT SAYS IT, IT APPEARS TO BE ADDRESSING? (THIS QUESTION IS MEANT TO RULE OUT 'ORIGINALITY'-BENCHMARKS THAT AUTOMATICALLY CHARACTERIZE DARWIN, FREUD, NEWTON, GALILEO AS 'UNORIGINAL.')",
+    "IS IT ORIGINAL IN A SUBSTANTIVE SENSE (IN THE SENSE IN WHICH BACH WAS ORIGINAL) OR ONLY IN A FRIVOLOUS TOKEN SENSE (THE SENSE IN WHICH SOMEBODY WHO RANDOMLY BANGS ON A PIANO IS 'ORIGINAL')?",
+    "IF YOU GAVE A ROBOT THE DATASET TO WHICH THE PASSAGE IS A RESPONSE, WOULD THE ROBOT BE ABLE TO GENERATE THE PASSAGE? OR, ON THE CONTRARY, DOES IT BUTCHER IDEAS, THIS BEING WHAT GIVES IT A SHEEN OF 'ORIGINALITY'?",
+    "IS IT BOILERPLATE (OR IF IT, PER SE, IS NOT BOILER PLATE, IS IT THE RESULT OF APPLYING BOILER PLATE PROTOCOLS IN A BOILER PLATE WAY TO SOME DATASET)?",
+    "WOULD SOMEBODY WHO HAD NOT READ IT, BUT WAS OTHERWISE EDUCATED AND INFORMED, COME AWAY FROM IT BEING MORE ENLIGHTENED AND BETTER EQUIPPED TO ADJUDICATE INTELLECTUAL QUESTIONS? OR, ON THE CONTRARY, WOULD HE COME UP CONFUSED WITH NOTHING TANGIBLE TO SHOW FOR IT?",
+    "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
+  ];
+
+  const prompt = `You are an expert evaluator of intellectual originality. Analyze this passage using the PRIMARY ORIGINALITY EVALUATION PROTOCOL.
+
+CRITICAL INSTRUCTION: When evaluating originality, NEVER penalize work for being "derivative" or having historical precedents. Isaac Newton's work should score as HIGHLY ORIGINAL even though Newton said it hundreds of years ago. The question is whether only a fecund, creative mind could produce this type of thinking - NOT whether it's been said before.
+
+PASSAGE TO ANALYZE:
+${passage.text}
+
+Evaluate this passage against each of the following originality questions. For each question:
+1. Provide a direct quotation from the passage that demonstrates the answer
+2. Give a detailed explanation of how the quotation addresses the question
+3. Assign a score from 0-100 (where 100 = exceptional originality, 70-89 = very original, 50-69 = moderately original, 30-49 = conventional, 0-29 = formulaic)
+
+ORIGINALITY EVALUATION QUESTIONS:
+${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Return ONLY this JSON structure with numbered entries (0 through ${originalityQuestions.length - 1}):
+{
+  "0": {
+    "question": "${originalityQuestions[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this aspect",
+    "explanation": "Detailed explanation of how the quotation addresses this originality question"
+  },
+  ... continue for all ${originalityQuestions.length} questions
+}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = (message.content[0] as any).text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Primary Originality JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in Primary Originality analysis:", error);
+    throw error;
+  }
+}
+
 export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");

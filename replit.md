@@ -42,6 +42,12 @@ Preferred communication style: Simple, everyday language.
 - ✅ Primary protocol focuses on: insight, development, organization, logic, freshness, authenticity, directness
 - ✅ Users can choose between "Primary Protocol" (recommended) and "Legacy System" (parameter-based)
 - ✅ UI clearly labels Primary as recommended and Legacy as having "known accuracy issues"
+- ✅ **NEW DUAL ORIGINALITY PROTOCOL SYSTEM: Primary Originality Protocol + Legacy Option**
+- ✅ Added Primary Originality Protocol with 9 sophisticated originality questions (DEFAULT)
+- ✅ Primary originality protocol evaluates intellectual fecundity, NOT historical novelty
+- ✅ System now correctly rates Newton, Darwin, Freud as highly original (not "derivative")
+- ✅ Legacy parameter system kept as secondary option with accuracy warnings
+- ✅ Parameter selection only appears for Legacy protocols or non-protocol analysis types
 
 ## System Architecture
 

@@ -39,6 +39,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   type IntelligenceProtocol = "primary" | "legacy";
   const [intelligenceProtocol, setIntelligenceProtocol] = useState<IntelligenceProtocol>("primary");
   
+  // Originality Protocol Selection (NEW vs OLD)
+  type OriginalityProtocol = "primary" | "legacy";
+  const [originalityProtocol, setOriginalityProtocol] = useState<OriginalityProtocol>("primary");
+  
   // Legacy compatibility
   const analysisMode = documentMode === "single" ? 
     (analysisType === "originality" ? "single" : 
@@ -282,17 +286,26 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   // Originality analysis mutation
   const originalityMutation = useMutation({
     mutationFn: async () => {
-      console.log("Analyzing originality");
+      console.log("Analyzing originality with protocol:", originalityProtocol);
       
-      let endpoint = '/api/analyze/originality';
-      let payload = {
-        passageA,
-        provider,
-        parameterCount
-      };
+      // Choose endpoint based on protocol selection
+      let endpoint = originalityProtocol === "primary" 
+        ? '/api/analyze/primary-originality'
+        : '/api/analyze/originality';
       
-      // Check if we have passageB for dual analysis
-      if (passageB.text.trim() !== "") {
+      let payload = originalityProtocol === "primary"
+        ? {
+            passageA,
+            provider
+          }
+        : {
+            passageA,
+            provider,
+            parameterCount
+          };
+      
+      // Check if we have passageB for dual analysis (only for legacy protocol)
+      if (originalityProtocol === "legacy" && passageB.text.trim() !== "") {
         endpoint = '/api/analyze/originality-dual';
         payload = {
           passageA,
@@ -815,15 +828,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         </div>
         
-        {/* Parameter Count Selection - Only show for non-Intelligence analysis OR Legacy Intelligence */}
-        {(analysisType !== "intelligence" || intelligenceProtocol === "legacy") && (
+        {/* Parameter Count Selection - Only show for non-protocol analysis OR Legacy protocols */}
+        {((analysisType !== "intelligence" && analysisType !== "originality") || 
+          (analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
+          (analysisType === "originality" && originalityProtocol === "legacy")) && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="mb-3">
               <h4 className="text-sm font-medium text-secondary-700 mb-1">
-                {analysisType === "intelligence" ? "Legacy Protocol - Analysis Depth" : "Analysis Depth"}
+                {(analysisType === "intelligence" || analysisType === "originality") ? "Legacy Protocol - Analysis Depth" : "Analysis Depth"}
               </h4>
               <p className="text-xs text-secondary-500">
-                {analysisType === "intelligence" 
+                {(analysisType === "intelligence" || analysisType === "originality")
                   ? "Choose how many legacy parameters to evaluate with" 
                   : "Choose how many parameters to evaluate with"
                 }
@@ -942,12 +957,77 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         )}
         
+        {/* Originality Protocol Selection - Only show for Originality analysis */}
+        {analysisType === "originality" && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mb-3">
+              <h4 className="text-sm font-medium text-green-700 mb-1">Originality Evaluation Protocol</h4>
+              <p className="text-xs text-green-500">Choose between the new primary protocol and legacy system</p>
+            </div>
+            
+            <RadioGroup
+              value={originalityProtocol}
+              onValueChange={(value) => {
+                setOriginalityProtocol(value as OriginalityProtocol);
+                if (showResults) {
+                  setAnalysisResult(null);
+                  setShowResults(false);
+                }
+              }}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                originalityProtocol === "primary" 
+                  ? "bg-green-50 border-green-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="primary" id="originality-protocol-primary" />
+                  <Label htmlFor="originality-protocol-primary" className="font-medium cursor-pointer text-sm">
+                    🆕 Primary Protocol
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  Advanced question-based evaluation. Judges fecund thinking, not historical novelty. Newton scores as highly original.
+                </p>
+              </div>
+              
+              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                originalityProtocol === "legacy" 
+                  ? "bg-orange-50 border-orange-300 shadow-md" 
+                  : "bg-white border-gray-200 hover:border-gray-300"
+              }`}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="legacy" id="originality-protocol-legacy" />
+                  <Label htmlFor="originality-protocol-legacy" className="font-medium cursor-pointer text-sm">
+                    📊 Legacy System
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 ml-6">
+                  Parameter-based framework. May penalize historical work as "derivative" (less reliable).
+                </p>
+              </div>
+            </RadioGroup>
+            
+            <div className="mt-2 text-xs text-gray-500">
+              {originalityProtocol === "primary" && "✅ Recommended: Evaluates intellectual fertility, not historical precedence"}
+              {originalityProtocol === "legacy" && "⚠️ Legacy: Parameter-based system with known bias against historical work"}
+            </div>
+          </div>
+        )}
+        
         <div className="mt-4 text-sm text-slate-600 bg-slate-50 p-4 rounded-lg">
           {documentMode === "single" && analysisType === "originality" && (
-            <p><strong>Single Originality:</strong> Analyze one document's semantic innovation and conceptual novelty against general intellectual norms.</p>
+            <p><strong>Single Originality:</strong> {originalityProtocol === "primary" 
+              ? "Evaluate intellectual fecundity using 9 sophisticated originality questions. Judges whether only a creative mind could produce this thinking."
+              : "Analyze semantic innovation and conceptual novelty against general intellectual norms using parameter-based metrics."
+            }</p>
           )}
           {documentMode === "comparison" && analysisType === "originality" && (
-            <p><strong>Compare Originality:</strong> Compare two documents to see which is more original and how they relate conceptually.</p>
+            <p><strong>Compare Originality:</strong> {originalityProtocol === "primary" 
+              ? "Compare intellectual fecundity between two documents using the primary originality protocol."
+              : "Compare two documents to see which is more original using parameter-based semantic metrics."
+            }</p>
           )}
           {documentMode === "single" && analysisType === "cogency" && (
             <p><strong>Single Cogency:</strong> Test how well one document proves what it sets out to prove using 7 core logical parameters.</p>
