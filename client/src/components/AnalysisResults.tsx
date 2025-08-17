@@ -33,6 +33,38 @@ export default function AnalysisResults({
   onSendToHomework,
   analysisType = "originality",
 }: AnalysisResultsProps) {
+  const [perfectExample, setPerfectExample] = useState<string>("");
+  const [isGeneratingPerfect, setIsGeneratingPerfect] = useState(false);
+  const [showPerfectExample, setShowPerfectExample] = useState(false);
+
+  // Generate Perfect Example functionality
+  const generatePerfectExample = async () => {
+    setIsGeneratingPerfect(true);
+    try {
+      const response = await fetch("/api/generate-perfect-example", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          passage: passageA,
+          provider: "anthropic" // Use Anthropic as default for this feature
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPerfectExample(data.perfectExample);
+        setShowPerfectExample(true);
+      } else {
+        console.error('Failed to generate perfect example');
+      }
+    } catch (error) {
+      console.error('Error generating perfect example:', error);
+    } finally {
+      setIsGeneratingPerfect(false);
+    }
+  };
 
   // TXT Download functionality
   const downloadTxtReport = async () => {
@@ -126,7 +158,7 @@ export default function AnalysisResults({
       </Card>
 
       {/* Action Buttons for Improvement */}
-      {(onSendToRewriter || onSendToHomework) && (
+      {(onSendToRewriter || onSendToHomework || isSinglePassageMode) && (
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-3">
@@ -135,7 +167,7 @@ export default function AnalysisResults({
             <p className="text-muted-foreground mb-4">
               Based on the analysis, you can enhance your content using our improvement tools:
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {onSendToRewriter && (
                 <Button 
                   onClick={() => onSendToRewriter(passageA.text, passageA.title || passageATitle)}
@@ -153,7 +185,41 @@ export default function AnalysisResults({
                   Send to Homework Helper
                 </Button>
               )}
+              {isSinglePassageMode && (
+                <Button 
+                  onClick={generatePerfectExample}
+                  disabled={isGeneratingPerfect}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-generate-perfect"
+                >
+                  {isGeneratingPerfect ? "Generating..." : "Generate Perfect Example (100/100)"}
+                </Button>
+              )}
             </div>
+            
+            {/* Perfect Example Display */}
+            {showPerfectExample && perfectExample && (
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <h4 className="font-semibold text-green-800 dark:text-green-200 mb-2">
+                  Perfect Example (95-99/100 Score)
+                </h4>
+                <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                  This is what the app considers "perfect" writing on the same topic:
+                </p>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded border">
+                  <pre className="whitespace-pre-wrap text-sm">{perfectExample}</pre>
+                </div>
+                <Button 
+                  onClick={() => setShowPerfectExample(false)}
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  data-testid="button-hide-perfect"
+                >
+                  Hide Perfect Example
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

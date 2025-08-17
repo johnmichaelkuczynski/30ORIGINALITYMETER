@@ -121,21 +121,25 @@ ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 Return your analysis as a JSON object with this exact structure:
 {
   "0": {
-    "metric": "Metric Name",
-    "quotation": "Direct quotation from the text",
-    "explanation": "Explanation of how the quotation demonstrates this metric",
-    "score": X
+    "metric": "Novel perspective",
+    "score": X,
+    "quotation": "Direct quotation from the text that best demonstrates this metric",
+    "analysis": "Detailed explanation of how this quotation demonstrates a novel perspective and supports the score."
   },
   "1": {
-    "metric": "Next Metric Name", 
-    "quotation": "Direct quotation from the text",
-    "explanation": "Explanation of how the quotation demonstrates this metric",
-    "score": X
+    "metric": "Uncommon connections", 
+    "score": X,
+    "quotation": "Direct quotation from the text that best demonstrates this metric",
+    "analysis": "Detailed explanation of how this quotation demonstrates uncommon connections and supports the score."
   },
   ... (continue for all 40 metrics with keys "0" through "39")
 }
 
-CRITICAL: Return ONLY the JSON object, no other text. Each metric must have a direct quotation from the passage and clear explanation of how that quotation supports the score. Remember: sophisticated intellectual writing deserves high scores (70-95 range).`;
+EXAMPLES OF PROPER FORMAT:
+HIGH QUALITY (85-99/100): Direct quotations showing sophisticated intellectual work with detailed analysis
+LOW QUALITY (25-55/100): Brief quotations showing lack of originality with clear explanations of weaknesses
+
+CRITICAL: Return ONLY the JSON object. Each metric must include a direct quotation and detailed analysis explaining how that quotation supports the score. Sophisticated intellectual writing should score 70-95+.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -301,21 +305,31 @@ ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 Return your analysis as a JSON object with this exact structure:
 {
   "0": {
-    "metric": "Metric Name",
-    "quotation": "Direct quotation from the text",
-    "explanation": "Explanation of how the quotation demonstrates this metric",
-    "score": X
+    "metric": "Compression (density of meaning per word)",
+    "score": X,
+    "quotation": "Direct quotation from the text that best demonstrates this metric",
+    "analysis": "Detailed explanation of how this quotation demonstrates density of meaning per word and supports the score."
   },
   "1": {
-    "metric": "Next Metric Name", 
-    "quotation": "Direct quotation from the text",
-    "explanation": "Explanation of how the quotation demonstrates this metric",
-    "score": X
+    "metric": "Abstraction (ability to move beyond surface detail)", 
+    "score": X,
+    "quotation": "Direct quotation from the text that best demonstrates this metric",
+    "analysis": "Detailed explanation of how this quotation demonstrates abstraction ability and supports the score."
   },
   ... (continue for all 40 metrics with keys "0" through "39")
 }
 
-CRITICAL: Return ONLY the JSON object, no other text. Each metric must have a direct quotation from the passage and clear explanation of how that quotation supports the score.`;
+EXAMPLES OF PROPER FORMAT:
+HIGH QUALITY (85-99/100): 
+"Compression (density of meaning per word)
+85/100
+Direct Quotation: 'Causal relations are instances of natural laws.'
+Analysis: This opening sentence packs substantial philosophical content into six words, establishing a fundamental theoretical position about the relationship between causation and natural law."
+
+LOW QUALITY (25-55/100):
+Brief quotations with clear explanations showing lack of intellectual sophistication.
+
+CRITICAL: Return ONLY the JSON object. Each metric must include a direct quotation and detailed analysis explaining how that quotation supports the score.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -814,4 +828,53 @@ export async function getHomeworkHelp(query: string): Promise<string> {
 
 export async function generateGraph(analysisData: any, userLLM: string): Promise<any> {
   throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
+
+// NEW FEATURE: Generate Perfect Example (100/100 score) 
+export async function generatePerfectExample(originalPassage: PassageData): Promise<string> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const prompt = `You are an expert writer who can produce writing that scores 95-99/100 on all intellectual metrics.
+
+ORIGINAL PASSAGE (that scored poorly):
+${originalPassage.text}
+
+Your task: Write a passage on the same general topic that would score 95-99/100 across all 160 metrics (Intelligence, Originality, Cogency, Overall Quality). 
+
+KEY REQUIREMENTS:
+1. Same general topic/subject matter as the original
+2. Similar length (but can be longer if needed for quality)
+3. Advocate similar views/arguments where reasonable (within the constraints of creating excellent writing)
+4. Demonstrate ALL the qualities of exceptional intellectual writing:
+
+INTELLIGENCE (95-99/100): High compression of meaning, sophisticated abstraction, multi-step reasoning, epistemic humility, cognitive distancing, counterfactual reasoning, deep analogies, semantic interconnectedness, conceptual layering, precise definitions, etc.
+
+ORIGINALITY (95-99/100): Novel perspectives, uncommon connections, surprising but apt analogies, fresh metaphors, counterintuitive insights that hold, avoiding mimicry, generating conceptual friction, independent pattern recognition, etc.
+
+COGENCY (95-99/100): Logical validity, absence of contradictions, strong evidence, proportional conclusions, explicit structure, tight inferences, handling counterexamples, avoiding overgeneralization, etc.
+
+OVERALL QUALITY (95-99/100): Clear expression, excellent flow, stylistic control, perfect grammar, appropriate tone, coherence, engagement, natural transitions, economy of language, memorability, etc.
+
+Generate a passage that would genuinely score 95-99/100. This will show the user exactly what the evaluation system considers "perfect" writing.
+
+Return ONLY the generated passage text, no other commentary.`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return message.content[0].text;
+  } catch (error) {
+    console.error("Error generating perfect example:", error);
+    throw error;
+  }
 }

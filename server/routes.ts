@@ -2591,6 +2591,43 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     }
   });
 
+  // Generate Perfect Example endpoint
+  app.post("/api/generate-perfect-example", async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        passage: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic")
+      });
+
+      const { passage, provider } = schema.parse(req.body);
+      
+      console.log("Perfect example generation request:", {
+        textLength: passage.text.length,
+        provider
+      });
+
+      const service = getServiceForProvider(provider);
+      const perfectExample = await service.generatePerfectExample(passage);
+
+      res.json({ 
+        perfectExample,
+        originalLength: passage.text.length,
+        perfectLength: perfectExample.length
+      });
+      
+    } catch (error) {
+      console.error("Error generating perfect example:", error);
+      res.status(500).json({ 
+        message: "Failed to generate perfect example",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error("Server error:", err);

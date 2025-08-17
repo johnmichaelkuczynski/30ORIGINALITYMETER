@@ -86,3 +86,7 @@ export async function getHomeworkHelp(query: string): Promise<string> {
 export async function generateGraph(analysisData: any, userLLM: string): Promise<any> {
   throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
+
+export async function generatePerfectExample(originalPassage: PassageData): Promise<string> {
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
