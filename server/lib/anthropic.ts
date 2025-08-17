@@ -436,6 +436,25 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
     throw new Error("Anthropic API key is not configured");
   }
 
+  // Check if texts are too long and need chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (wordsA > 800) {
+    const truncatedText = passageA.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageA = { ...passageA, text: truncatedText };
+    console.log(`Originality Passage A truncated from ${wordsA} to ~800 words`);
+  }
+  
+  if (wordsB > 800) {
+    const truncatedText = passageB.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageB = { ...passageB, text: truncatedText };
+    console.log(`Originality Passage B truncated from ${wordsB} to ~800 words`);
+  }
+
   const anthropic = new Anthropic({
     apiKey: apiKey,
   });
@@ -458,10 +477,10 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
   const prompt = `You are an expert in evaluating the originality of intellectual writing across all disciplines.
 
 PASSAGE A:
-${passageA.text}
+${finalPassageA.text}
 
 PASSAGE B:
-${passageB.text}
+${finalPassageB.text}
 
 Evaluate BOTH passages across all 40 originality metrics. For each metric:
 1. Find direct quotations that demonstrate this metric in each passage
@@ -703,11 +722,35 @@ Return ONLY this JSON structure:
   ... continue for all 40 metrics (indices "0" through "39")
 }`;
 
+  // Add text length checking and chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (wordsA > 800) {
+    const truncatedText = passageA.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageA = { ...passageA, text: truncatedText };
+    console.log(`Passage A truncated from ${wordsA} to ~800 words`);
+  }
+  
+  if (wordsB > 800) {
+    const truncatedText = passageB.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageB = { ...passageB, text: truncatedText };
+    console.log(`Passage B truncated from ${wordsB} to ~800 words`);
+  }
+  
+  // Update the prompt to use truncated texts
+  const truncatedPrompt = prompt
+    .replace(passageA.text, finalPassageA.text)
+    .replace(passageB.text, finalPassageB.text);
+
   try {
     const message = await anthropic.messages.create({
       model: DEFAULT_MODEL_STR,
-      max_tokens: 8000,
-      messages: [{ role: "user", content: prompt }],
+      max_tokens: 8192, // Increased for dual analysis
+      messages: [{ role: "user", content: truncatedPrompt }],
     });
 
     const responseText = message.content[0].text;
@@ -854,6 +897,25 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
     throw new Error("Anthropic API key is not configured");
   }
 
+  // Check if texts are too long and need chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (wordsA > 800) {
+    const truncatedText = passageA.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageA = { ...passageA, text: truncatedText };
+    console.log(`Cogency Passage A truncated from ${wordsA} to ~800 words`);
+  }
+  
+  if (wordsB > 800) {
+    const truncatedText = passageB.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageB = { ...passageB, text: truncatedText };
+    console.log(`Cogency Passage B truncated from ${wordsB} to ~800 words`);
+  }
+
   const anthropic = new Anthropic({
     apiKey: apiKey,
   });
@@ -876,10 +938,10 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
   const prompt = `You are an expert in evaluating the cogency of intellectual writing across all disciplines.
 
 PASSAGE A:
-${passageA.text}
+${finalPassageA.text}
 
 PASSAGE B:
-${passageB.text}
+${finalPassageB.text}
 
 CRITICAL SCORING PROTOCOL:
 - Scores are POPULATION PERCENTILES: N/100 means this text is more cogent than N people out of 100
@@ -1051,6 +1113,25 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
     throw new Error("Anthropic API key is not configured");
   }
 
+  // Check if texts are too long and need chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (wordsA > 800) {
+    const truncatedText = passageA.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageA = { ...passageA, text: truncatedText };
+    console.log(`Quality Passage A truncated from ${wordsA} to ~800 words`);
+  }
+  
+  if (wordsB > 800) {
+    const truncatedText = passageB.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassageB = { ...passageB, text: truncatedText };
+    console.log(`Quality Passage B truncated from ${wordsB} to ~800 words`);
+  }
+
   const anthropic = new Anthropic({
     apiKey: apiKey,
   });
@@ -1073,10 +1154,10 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
   const prompt = `You are an expert in evaluating the overall quality of intellectual writing across all disciplines.
 
 PASSAGE A:
-${passageA.text}
+${finalPassageA.text}
 
 PASSAGE B:
-${passageB.text}
+${finalPassageB.text}
 
 CRITICAL SCORING PROTOCOL:
 - Scores are POPULATION PERCENTILES: N/100 means this text has better quality than N people out of 100

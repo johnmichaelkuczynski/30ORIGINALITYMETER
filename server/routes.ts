@@ -2486,39 +2486,62 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       content += `Document: ${title}\n`;
       content += `Analysis Date: ${new Date().toLocaleDateString()}\n\n`;
       
-      // Process the 40 intelligence metrics (keys 0-39)
-      for (let i = 0; i < 40; i++) {
+      // Check if this is Primary Protocol (18 questions) or Legacy (40 parameters)
+      const isPrimaryProtocol = analysisResult["0"] && analysisResult["0"].question;
+      const maxItems = isPrimaryProtocol ? 18 : 40;
+      const headerTitle = isPrimaryProtocol ? "PRIMARY INTELLIGENCE PROTOCOL - 18 QUESTIONS" : "INTELLIGENCE METER ANALYSIS - 40 PARAMETERS";
+      
+      // Update content header
+      content = content.replace("INTELLIGENCE METER ANALYSIS - 40 PARAMETERS", headerTitle);
+      
+      // Process the metrics (either 18 questions or 40 parameters)
+      for (let i = 0; i < maxItems; i++) {
         const key = i.toString();
         if (analysisResult[key]) {
           const metricData = analysisResult[key];
           
-          content += `${i + 1}. ${metricData.metric}\n`;
-          content += `${'-'.repeat(40)}\n`;
-          
-          if (isSinglePassageMode) {
-            if (metricData.quotation) {
-              content += `Quotation: "${metricData.quotation}"\n`;
-            }
-            if (metricData.explanation) {
-              content += `Explanation: ${metricData.explanation}\n`;
-            }
-            if (metricData.score !== undefined) {
-              content += `Score: ${metricData.score}/100\n`;
-            }
+          if (isPrimaryProtocol) {
+            // Primary Protocol format (question-based)
+            content += `${i + 1}. ${metricData.question}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            content += `Quotation: "${metricData.quotation}"\n`;
+            content += `Explanation: ${metricData.explanation}\n`;
+            content += `Score: ${metricData.score}/100\n\n`;
           } else {
-            // Dual passage mode
-            if (metricData.passageA) {
-              content += `Document A:\n`;
-              content += `  Quotation: "${metricData.passageA.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageA.explanation}\n`;
+            // Legacy format (metric-based)
+            content += `${i + 1}. ${metricData.metric || 'Metric ' + (i + 1)}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            
+            if (isSinglePassageMode) {
+              if (metricData.quotation) {
+                content += `Quotation: "${metricData.quotation}"\n`;
+              }
+              if (metricData.explanation) {
+                content += `Explanation: ${metricData.explanation}\n`;
+              }
+              if (metricData.score !== undefined) {
+                content += `Score: ${metricData.score}/100\n`;
+              }
+            } else {
+              // Dual passage mode
+              if (metricData.passageA) {
+                content += `Document A:\n`;
+                content += `  Quotation: "${metricData.passageA.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageA.explanation}\n`;
+              }
+              if (metricData.passageB) {
+                content += `Document B:\n`;
+                content += `  Quotation: "${metricData.passageB.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageB.explanation}\n`;
+              }
             }
-            if (metricData.passageB) {
-              content += `Document B:\n`;
-              content += `  Quotation: "${metricData.passageB.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageB.explanation}\n`;
-            }
+            content += `\n`;
           }
-          content += `\n`;
+        } else {
+          // Handle missing data gracefully
+          content += `${i + 1}. ${isPrimaryProtocol ? 'Question' : 'Metric'} ${i + 1}\n`;
+          content += `${'-'.repeat(40)}\n`;
+          content += `No data available for this ${isPrimaryProtocol ? 'question' : 'metric'}\n\n`;
         }
       }
       
@@ -2552,39 +2575,62 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       content += `Document: ${title}\n`;
       content += `Analysis Date: ${new Date().toLocaleDateString()}\n\n`;
       
-      // Process the 40 originality metrics (keys 0-39)
-      for (let i = 0; i < 40; i++) {
+      // Check if this is Primary Protocol (9 questions) or Legacy (40 parameters)
+      const isPrimaryProtocol = analysisResult["0"] && analysisResult["0"].question;
+      const maxItems = isPrimaryProtocol ? 9 : 40;
+      const headerTitle = isPrimaryProtocol ? "PRIMARY ORIGINALITY PROTOCOL - 9 QUESTIONS" : "ORIGINALITY METER ANALYSIS - 40 PARAMETERS";
+      
+      // Update content header
+      content = content.replace("ORIGINALITY METER ANALYSIS - 40 PARAMETERS", headerTitle);
+      
+      // Process the metrics (either 9 questions or 40 parameters)
+      for (let i = 0; i < maxItems; i++) {
         const key = i.toString();
         if (analysisResult[key]) {
           const metricData = analysisResult[key];
           
-          content += `${i + 1}. ${metricData.metric}\n`;
-          content += `${'-'.repeat(40)}\n`;
-          
-          if (isSinglePassageMode) {
-            if (metricData.quotation) {
-              content += `Quotation: "${metricData.quotation}"\n`;
-            }
-            if (metricData.explanation) {
-              content += `Explanation: ${metricData.explanation}\n`;
-            }
-            if (metricData.score !== undefined) {
-              content += `Score: ${metricData.score}/100\n`;
-            }
+          if (isPrimaryProtocol) {
+            // Primary Protocol format (question-based)
+            content += `${i + 1}. ${metricData.question}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            content += `Quotation: "${metricData.quotation}"\n`;
+            content += `Explanation: ${metricData.explanation}\n`;
+            content += `Score: ${metricData.score}/100\n\n`;
           } else {
-            // Dual passage mode
-            if (metricData.passageA) {
-              content += `Document A:\n`;
-              content += `  Quotation: "${metricData.passageA.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageA.explanation}\n`;
+            // Legacy format (metric-based)
+            content += `${i + 1}. ${metricData.metric || 'Metric ' + (i + 1)}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            
+            if (isSinglePassageMode) {
+              if (metricData.quotation) {
+                content += `Quotation: "${metricData.quotation}"\n`;
+              }
+              if (metricData.explanation) {
+                content += `Explanation: ${metricData.explanation}\n`;
+              }
+              if (metricData.score !== undefined) {
+                content += `Score: ${metricData.score}/100\n`;
+              }
+            } else {
+              // Dual passage mode
+              if (metricData.passageA) {
+                content += `Document A:\n`;
+                content += `  Quotation: "${metricData.passageA.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageA.explanation}\n`;
+              }
+              if (metricData.passageB) {
+                content += `Document B:\n`;
+                content += `  Quotation: "${metricData.passageB.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageB.explanation}\n`;
+              }
             }
-            if (metricData.passageB) {
-              content += `Document B:\n`;
-              content += `  Quotation: "${metricData.passageB.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageB.explanation}\n`;
-            }
+            content += `\n`;
           }
-          content += `\n`;
+        } else {
+          // Handle missing data gracefully
+          content += `${i + 1}. ${isPrimaryProtocol ? 'Question' : 'Metric'} ${i + 1}\n`;
+          content += `${'-'.repeat(40)}\n`;
+          content += `No data available for this ${isPrimaryProtocol ? 'question' : 'metric'}\n\n`;
         }
       }
       
@@ -2684,39 +2730,62 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
       content += `Document: ${title}\n`;
       content += `Analysis Date: ${new Date().toLocaleDateString()}\n\n`;
       
-      // Process the 40 quality metrics (keys 0-39)
-      for (let i = 0; i < 40; i++) {
+      // Check if this is Primary Protocol (20 questions) or Legacy (40 parameters)
+      const isPrimaryProtocol = analysisResult["0"] && analysisResult["0"].question;
+      const maxItems = isPrimaryProtocol ? 20 : 40;
+      const headerTitle = isPrimaryProtocol ? "PRIMARY OVERALL QUALITY PROTOCOL - 20 QUESTIONS" : "OVERALL QUALITY METER ANALYSIS - 40 PARAMETERS";
+      
+      // Update content header
+      content = content.replace("OVERALL QUALITY METER ANALYSIS - 40 PARAMETERS", headerTitle);
+      
+      // Process the metrics (either 20 questions or 40 parameters)
+      for (let i = 0; i < maxItems; i++) {
         const key = i.toString();
         if (analysisResult[key]) {
           const metricData = analysisResult[key];
           
-          content += `${i + 1}. ${metricData.metric}\n`;
-          content += `${'-'.repeat(40)}\n`;
-          
-          if (isSinglePassageMode) {
-            if (metricData.quotation) {
-              content += `Quotation: "${metricData.quotation}"\n`;
-            }
-            if (metricData.explanation) {
-              content += `Explanation: ${metricData.explanation}\n`;
-            }
-            if (metricData.score !== undefined) {
-              content += `Score: ${metricData.score}/100\n`;
-            }
+          if (isPrimaryProtocol) {
+            // Primary Protocol format (question-based)
+            content += `${i + 1}. ${metricData.question}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            content += `Quotation: "${metricData.quotation}"\n`;
+            content += `Explanation: ${metricData.explanation}\n`;
+            content += `Score: ${metricData.score}/100\n\n`;
           } else {
-            // Dual passage mode
-            if (metricData.passageA) {
-              content += `Document A:\n`;
-              content += `  Quotation: "${metricData.passageA.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageA.explanation}\n`;
+            // Legacy format (metric-based)
+            content += `${i + 1}. ${metricData.metric || 'Metric ' + (i + 1)}\n`;
+            content += `${'-'.repeat(40)}\n`;
+            
+            if (isSinglePassageMode) {
+              if (metricData.quotation) {
+                content += `Quotation: "${metricData.quotation}"\n`;
+              }
+              if (metricData.explanation) {
+                content += `Explanation: ${metricData.explanation}\n`;
+              }
+              if (metricData.score !== undefined) {
+                content += `Score: ${metricData.score}/100\n`;
+              }
+            } else {
+              // Dual passage mode
+              if (metricData.passageA) {
+                content += `Document A:\n`;
+                content += `  Quotation: "${metricData.passageA.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageA.explanation}\n`;
+              }
+              if (metricData.passageB) {
+                content += `Document B:\n`;
+                content += `  Quotation: "${metricData.passageB.quotation}"\n`;
+                content += `  Explanation: ${metricData.passageB.explanation}\n`;
+              }
             }
-            if (metricData.passageB) {
-              content += `Document B:\n`;
-              content += `  Quotation: "${metricData.passageB.quotation}"\n`;
-              content += `  Explanation: ${metricData.passageB.explanation}\n`;
-            }
+            content += `\n`;
           }
-          content += `\n`;
+        } else {
+          // Handle missing data gracefully
+          content += `${i + 1}. ${isPrimaryProtocol ? 'Question' : 'Metric'} ${i + 1}\n`;
+          content += `${'-'.repeat(40)}\n`;
+          content += `No data available for this ${isPrimaryProtocol ? 'question' : 'metric'}\n\n`;
         }
       }
       
