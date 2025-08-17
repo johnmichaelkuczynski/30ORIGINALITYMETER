@@ -8,6 +8,18 @@ The Originality Meter is a web application designed to evaluate the intellectual
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### January 17, 2025
+- ✅ Fixed 160-metric analysis system - now fully functional
+- ✅ Changed waiting message from "15-30 seconds" to "1-2 minutes" 
+- ✅ Resolved frontend display issues preventing results from showing
+- ✅ Updated UI to correctly show "40 parameters" instead of "20 parameters"
+- ✅ Analysis system now provides direct quotations + explanations for each metric
+- ✅ Anthropic set as default LLM provider for all analysis functions
+- ✅ Backend analysis confirmed working with structured JSON responses (numbered keys 0-39)
+- ✅ Frontend successfully displays analysis results with proper formatting
+
 ## System Architecture
 
 ### Frontend Architecture
