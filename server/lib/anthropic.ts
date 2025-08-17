@@ -67,7 +67,7 @@ Return a properly formatted JSON response with the exact structure expected by t
   }
 }
 
-export async function analyzeOriginality(passage: PassageData): Promise<any> {
+export async function analyzeOriginality(passage: PassageData, parameterCount: number = 40): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
   }
@@ -91,34 +91,44 @@ export async function analyzeOriginality(passage: PassageData): Promise<any> {
     "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
   ];
 
-  const prompt = `You are an expert in evaluating the originality of intellectual writing across all disciplines.
+  // Select the appropriate number of metrics based on parameterCount
+  const selectedMetrics = originalityMetrics.slice(0, parameterCount);
+  
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage across all 40 originality metrics. For each metric:
-1. Find a direct quotation that demonstrates this metric
-2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
+CRITICAL EVALUATION REQUIREMENTS:
+- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
+- Provide specific explanations of how each quotation demonstrates the metric  
+- Score from 0-100 where N/100 means 100-N people out of 100 are better
+- Apply the same rigorous standards shown in the reference examples
 
-The 40 Originality Metrics:
-${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+EXAMPLE FORMAT from reference document:
+"Novel perspective
+'Causal relations are instances of natural laws. If x causes y, that is because there is some law of nature'
+This reframes causation as law-instantiation rather than event-succession - a distinctive philosophical move.
+Score: 85/100"
 
-Return ONLY this JSON structure:
+The ${parameterCount} Originality Metrics to evaluate:
+${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING STANDARDS (from reference document):
+- 90-100: Exceptional originality (distinctive innovations)
+- 70-89: Very good originality with clear novelty
+- 50-69: Competent originality, adequate innovation
+- 30-49: Weak originality, limited novelty
+- 0-29: Poor or no originality
+
+Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
   "0": {
-    "metric": "Novel perspective",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  "1": {
-    "metric": "Uncommon connections",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  ... (continue for all 40 metrics with keys "0" through "39")
+    "metric": "${selectedMetrics[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this metric",
+    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+  }
 }`;
 
   try {
@@ -234,7 +244,7 @@ Return ONLY this JSON structure:
   }
 }
 
-export async function analyzeIntelligence(passage: PassageData): Promise<any> {
+export async function analyzeIntelligence(passage: PassageData, parameterCount: number = 40): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
   }
@@ -262,34 +272,46 @@ export async function analyzeIntelligence(passage: PassageData): Promise<any> {
     "Strategic omission (knowing what not to say)", "Transferability (insight applies beyond the case)"
   ];
 
-  const prompt = `You are an expert in evaluating the intelligence of intellectual writing across all disciplines.
+  // Select the appropriate number of metrics based on parameterCount
+  const selectedMetrics = intelligenceMetrics.slice(0, parameterCount);
+  
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded document.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage across all 40 intelligence metrics. For each metric:
-1. Find a direct quotation that demonstrates this metric
-2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
+CRITICAL EVALUATION REQUIREMENTS:
+- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
+- Provide specific explanations of how each quotation demonstrates the metric
+- Score from 0-100 where N/100 means 100-N people out of 100 are better
+- Apply the same standards shown in the examples: high scores (90+) only for exceptional demonstration, medium scores (50-70) for competent work, low scores (20-40) for poor demonstration
 
-The 40 Intelligence Metrics:
-${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+Evaluate across ${parameterCount} Intelligence metrics. Examples of proper evaluation format from the reference document:
 
-Return ONLY this JSON structure:
+EXAMPLE FORMAT (from the reference):
+"Compression (density of meaning per word)
+'Kripke decisively showed that proper names are not definite descriptions.'
+Packs enormous philosophical content into 11 words. Each word carries maximum conceptual load without redundancy.
+Score: 92/100"
+
+The ${parameterCount} Intelligence Metrics to evaluate:
+${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING STANDARDS (from reference document):
+- 90-100: Exceptional demonstration (like "Kripke decisively showed..." - scored 92/100)
+- 70-89: Very good demonstration with clear evidence
+- 50-69: Competent demonstration, adequate evidence
+- 30-49: Weak demonstration, limited evidence
+- 0-29: Poor or no demonstration
+
+Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
   "0": {
-    "metric": "Compression (density of meaning per word)",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  "1": {
-    "metric": "Abstraction (ability to move beyond surface detail)",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  ... (continue for all 40 metrics with keys "0" through "39")
+    "metric": "${selectedMetrics[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this metric",
+    "explanation": "Specific explanation following the reference document's analytical standards"
+  }
 }`;
 
   try {
@@ -427,7 +449,7 @@ Return ONLY this JSON structure:
   }
 }
 
-export async function analyzeCogency(passage: PassageData): Promise<any> {
+export async function analyzeCogency(passage: PassageData, parameterCount: number = 40): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
   }
@@ -451,34 +473,44 @@ export async function analyzeCogency(passage: PassageData): Promise<any> {
     "Correct handling of probability", "Strength of causal explanation vs. correlation", "Stability under reformulation (holds when restated)"
   ];
 
-  const prompt = `You are an expert in evaluating the cogency of intellectual writing across all disciplines.
+  // Select the appropriate number of metrics based on parameterCount
+  const selectedMetrics = cogencyMetrics.slice(0, parameterCount);
+  
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage across all 40 cogency metrics. For each metric:
-1. Find a direct quotation that demonstrates this metric
-2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
+CRITICAL EVALUATION REQUIREMENTS:
+- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
+- Provide specific explanations of how each quotation demonstrates the metric
+- Score from 0-100 where N/100 means 100-N people out of 100 are better
+- Apply the same rigorous standards shown in the reference examples
 
-The 40 Cogency Metrics:
-${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+EXAMPLE FORMAT from reference document:
+"Logical validity
+'If x causes y, that is because there is some law of nature to the effect that if something has the properties that x has, then something else will have the properties that y has.'
+Clear conditional structure with valid logical form - premises lead necessarily to conclusion.
+Score: 88/100"
 
-Return ONLY this JSON structure:
+The ${parameterCount} Cogency Metrics to evaluate:
+${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING STANDARDS (from reference document):
+- 90-100: Exceptional cogency (clear logical structure, valid reasoning)
+- 70-89: Very good cogency with strong logical foundations
+- 50-69: Competent cogency, adequate logical support
+- 30-49: Weak cogency, flawed reasoning
+- 0-29: Poor or no cogency
+
+Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
   "0": {
-    "metric": "Logical validity",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  "1": {
-    "metric": "Absence of contradictions",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  ... (continue for all 40 metrics with keys "0" through "39")
+    "metric": "${selectedMetrics[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this metric",
+    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+  }
 }`;
 
   try {
@@ -488,7 +520,21 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Anthropic Cogency JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic cogency analysis:", error);
     throw error;
@@ -582,7 +628,7 @@ Provide comprehensive analysis covering all 40 metrics for both passages with qu
   }
 }
 
-export async function analyzeOverallQuality(passage: PassageData): Promise<any> {
+export async function analyzeOverallQuality(passage: PassageData, parameterCount: number = 40): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
   }
@@ -606,34 +652,44 @@ export async function analyzeOverallQuality(passage: PassageData): Promise<any> 
     "Overall reader impact (leaves an impression)"
   ];
 
-  const prompt = `You are an expert in evaluating the overall quality of intellectual writing across all disciplines.
+  // Select the appropriate number of metrics based on parameterCount
+  const selectedMetrics = qualityMetrics.slice(0, parameterCount);
+
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage across all 40 overall quality metrics. For each metric:
-1. Find a direct quotation that demonstrates this metric
-2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
+CRITICAL EVALUATION REQUIREMENTS:
+- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
+- Provide specific explanations of how each quotation demonstrates the metric
+- Score from 0-100 where N/100 means 100-N people out of 100 are better
+- Apply the same rigorous standards shown in the reference examples
 
-The 40 Overall Quality Metrics:
-${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+EXAMPLE FORMAT from reference document:
+"Clarity of expression
+'Transcendental empiricism is, among other things, a philosophy of mental content.'
+This is clear as a sentence, but not clarifying as content - technically correct but lacks explanatory power.
+Score: 55/100"
 
-Return ONLY this JSON structure:
+The ${parameterCount} Overall Quality Metrics to evaluate:
+${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING STANDARDS (from reference document):
+- 90-100: Exceptional quality (polished, engaging, memorable)
+- 70-89: Very good quality with strong writing craft
+- 50-69: Competent quality, adequate execution
+- 30-49: Weak quality, noticeable deficiencies
+- 0-29: Poor quality
+
+Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
   "0": {
-    "metric": "Clarity of expression",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  "1": {
-    "metric": "Flow and readability",
-    "score": X,
-    "quotation": "Direct quotation demonstrating this metric",
-    "explanation": "Explanation of how this quotation demonstrates the metric"
-  },
-  ... (continue for all 40 metrics with keys "0" through "39")
+    "metric": "${selectedMetrics[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage demonstrating this metric",
+    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+  }
 }`;
 
   try {
@@ -643,7 +699,21 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Anthropic Overall Quality JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic overall quality analysis:", error);
     throw error;

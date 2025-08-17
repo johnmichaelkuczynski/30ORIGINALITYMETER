@@ -31,6 +31,10 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   const [documentMode, setDocumentMode] = useState<DocumentMode>("single");
   const [analysisType, setAnalysisType] = useState<AnalysisType>("originality");
   
+  // Parameter count selection (20/40/160)
+  type ParameterCount = 20 | 40 | 160;
+  const [parameterCount, setParameterCount] = useState<ParameterCount>(40);
+  
   // Legacy compatibility
   const analysisMode = documentMode === "single" ? 
     (analysisType === "originality" ? "single" : 
@@ -182,7 +186,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       const endpoint = '/api/analyze/intelligence';
       const payload = {
         passageA,
-        provider
+        provider,
+        parameterCount
       };
       
       console.log("Intelligence analysis request payload:", payload);
@@ -220,7 +225,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       let endpoint = '/api/analyze/quality';
       let payload = {
         passageA,
-        provider
+        provider,
+        parameterCount
       };
       
       // Check if we have passageB for dual analysis
@@ -267,7 +273,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       let endpoint = '/api/analyze/originality';
       let payload = {
         passageA,
-        provider
+        provider,
+        parameterCount
       };
       
       // Check if we have passageB for dual analysis
@@ -276,7 +283,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         payload = {
           passageA,
           passageB,
-          provider
+          provider,
+          parameterCount
         };
       }
       
@@ -318,7 +326,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
       let endpoint = '/api/analyze/cogency';
       let payload = {
         passageA,
-        provider
+        provider,
+        parameterCount
       };
       
       // Check if we have passageB for dual analysis
@@ -327,7 +336,8 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
         payload = {
           passageA,
           passageB,
-          provider
+          provider,
+          parameterCount
         };
       }
       
@@ -788,6 +798,65 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 </Label>
               </div>
             </RadioGroup>
+          </div>
+        </div>
+        
+        {/* Parameter Count Selection */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="mb-3">
+            <h4 className="text-sm font-medium text-secondary-700 mb-1">Analysis Depth</h4>
+            <p className="text-xs text-secondary-500">Choose how many parameters to evaluate with</p>
+          </div>
+          
+          <RadioGroup
+            value={parameterCount.toString()}
+            onValueChange={(value) => {
+              setParameterCount(parseInt(value) as ParameterCount);
+              if (showResults) {
+                setAnalysisResult(null);
+                setShowResults(false);
+              }
+            }}
+            className="grid grid-cols-3 gap-3"
+          >
+            <div className={`flex items-center justify-center space-x-2 rounded-lg border-2 p-3 cursor-pointer transition-all ${
+              parameterCount === 20 
+                ? "bg-blue-50 border-blue-300 shadow-md" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            }`}>
+              <RadioGroupItem value="20" id="params-20" />
+              <Label htmlFor="params-20" className="font-medium cursor-pointer text-sm">
+                20 Parameters
+              </Label>
+            </div>
+            
+            <div className={`flex items-center justify-center space-x-2 rounded-lg border-2 p-3 cursor-pointer transition-all ${
+              parameterCount === 40 
+                ? "bg-green-50 border-green-300 shadow-md" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            }`}>
+              <RadioGroupItem value="40" id="params-40" />
+              <Label htmlFor="params-40" className="font-medium cursor-pointer text-sm">
+                40 Parameters
+              </Label>
+            </div>
+            
+            <div className={`flex items-center justify-center space-x-2 rounded-lg border-2 p-3 cursor-pointer transition-all ${
+              parameterCount === 160 
+                ? "bg-purple-50 border-purple-300 shadow-md" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            }`}>
+              <RadioGroupItem value="160" id="params-160" />
+              <Label htmlFor="params-160" className="font-medium cursor-pointer text-sm">
+                160 Parameters
+              </Label>
+            </div>
+          </RadioGroup>
+          
+          <div className="mt-2 text-xs text-gray-500">
+            {parameterCount === 20 && "Focused analysis with core metrics only"}
+            {parameterCount === 40 && "Standard analysis with comprehensive coverage (recommended)"}  
+            {parameterCount === 160 && "Deep analysis with all 160 metrics (takes 1-2 minutes)"}
           </div>
         </div>
         

@@ -848,9 +848,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userContext: z.string().optional().default(""),
         }).optional(),
         provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+        parameterCount: z.number().optional().default(40),
       });
 
-      const { passageA, passageB, provider } = requestSchema.parse(req.body);
+      const { passageA, passageB, provider, parameterCount } = requestSchema.parse(req.body);
       
       console.log("Quality analysis request:", {
         titleA: passageA.title,
@@ -858,17 +859,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         titleB: passageB?.title,
         textLengthB: passageB?.text?.length || 0,
         provider,
+        parameterCount,
         isDual: !!(passageB?.text?.trim())
       });
 
-      // Use Anthropic service for quality analysis with 40 comprehensive metrics
+      // Use Anthropic service for quality analysis with specified parameter count
       let result;
       if (passageB?.text?.trim()) {
         // Dual analysis
         result = await anthropicService.analyzeQualityDual(passageA, passageB);
       } else {
         // Single analysis
-        result = await anthropicService.analyzeQuality(passageA);
+        result = await anthropicService.analyzeQuality(passageA, parameterCount);
       }
       
       // Return the result without schema validation to preserve raw analysis data
@@ -900,9 +902,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userContext: z.string().optional().default(""),
         }),
         provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+        parameterCount: z.number().optional().default(40),
       });
 
-      const { passageA, provider } = requestSchema.parse(req.body);
+      const { passageA, provider, parameterCount } = requestSchema.parse(req.body);
       
       console.log("Originality analysis request:", {
         title: passageA.title,
@@ -913,13 +916,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Route to the correct provider
       let result;
       if (provider === "anthropic") {
-        result = await anthropicService.analyzeOriginality(passageA);
+        result = await anthropicService.analyzeOriginality(passageA, parameterCount);
       } else if (provider === "deepseek") {
-        result = await deepseekService.analyzeOriginality(passageA);
+        result = await deepseekService.analyzeOriginality(passageA, parameterCount);
       } else if (provider === "perplexity") {
-        result = await perplexityService.analyzeOriginality(passageA);
+        result = await perplexityService.analyzeOriginality(passageA, parameterCount);
       } else {
-        result = await openaiService.analyzeOriginality(passageA);
+        result = await openaiService.analyzeOriginality(passageA, parameterCount);
       }
       
       // Return the result without schema validation to preserve raw analysis data
@@ -1000,9 +1003,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userContext: z.string().optional().default(""),
         }),
         provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+        parameterCount: z.number().optional().default(40),
       });
 
-      const { passageA, provider } = requestSchema.parse(req.body);
+      const { passageA, provider, parameterCount } = requestSchema.parse(req.body);
       
       console.log("Cogency analysis request:", {
         title: passageA.title,
@@ -1010,8 +1014,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for cogency analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeCogency(passageA);
+      // Use Anthropic service for cogency analysis with specified parameter count
+      const result = await anthropicService.analyzeCogency(passageA, parameterCount);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1091,9 +1095,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userContext: z.string().optional().default(""),
         }),
         provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+        parameterCount: z.number().optional().default(40),
       });
 
-      const { passageA, provider } = requestSchema.parse(req.body);
+      const { passageA, provider, parameterCount } = requestSchema.parse(req.body);
       
       console.log("Intelligence analysis request:", {
         title: passageA.title,
@@ -1101,8 +1106,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for intelligence analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeIntelligence(passageA);
+      // Use Anthropic service for intelligence analysis with specified parameter count
+      const result = await anthropicService.analyzeIntelligence(passageA, parameterCount);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
