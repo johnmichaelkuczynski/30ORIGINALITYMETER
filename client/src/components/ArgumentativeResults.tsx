@@ -219,6 +219,8 @@ export default function ArgumentativeResults({
                       {getParameterLabel(key)}
                     </div>
                     <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-sm">
+                        Analyzed
                       </Badge>
                     </div>
                   </CardTitle>

@@ -65,6 +65,7 @@ export default function FrameworkMetricsDisplay({
       .trim();
   };
 
+  const getScoreColor = (score: number) => {
     // Scores are already 0-100 population percentiles
     const normalizedScore = score;
     
@@ -128,7 +129,6 @@ export default function FrameworkMetricsDisplay({
                     <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h5 className="font-medium text-blue-900">Document A</h5>
-                        </Badge>
                       </div>
                       
                       {metricData.passageA.quotation && (
@@ -154,7 +154,6 @@ export default function FrameworkMetricsDisplay({
                     <div className="p-3 bg-green-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <h5 className="font-medium text-green-900">Document B</h5>
-                        </Badge>
                       </div>
                       
                       {metricData.passageB.quotation && (
@@ -255,8 +254,6 @@ export default function FrameworkMetricsDisplay({
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium">Your Document</h4>
-                        </Badge>
-                      )}
                     </div>
                     
                     {passageAData?.assessment && (

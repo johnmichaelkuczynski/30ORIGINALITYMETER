@@ -67,6 +67,8 @@ export default function AIDetectionBadge({
             >
               {icon}
               {result.isAIGenerated 
+                ? `AI Content (${result.confidence})` 
+                : `Human-Written (${result.confidence})`}
             </Badge>
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
