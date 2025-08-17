@@ -815,12 +815,20 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         </div>
         
-        {/* Parameter Count Selection */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="mb-3">
-            <h4 className="text-sm font-medium text-secondary-700 mb-1">Analysis Depth</h4>
-            <p className="text-xs text-secondary-500">Choose how many parameters to evaluate with</p>
-          </div>
+        {/* Parameter Count Selection - Only show for non-Intelligence analysis OR Legacy Intelligence */}
+        {(analysisType !== "intelligence" || intelligenceProtocol === "legacy") && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mb-3">
+              <h4 className="text-sm font-medium text-secondary-700 mb-1">
+                {analysisType === "intelligence" ? "Legacy Protocol - Analysis Depth" : "Analysis Depth"}
+              </h4>
+              <p className="text-xs text-secondary-500">
+                {analysisType === "intelligence" 
+                  ? "Choose how many legacy parameters to evaluate with" 
+                  : "Choose how many parameters to evaluate with"
+                }
+              </p>
+            </div>
           
           <RadioGroup
             value={parameterCount.toString()}
@@ -865,14 +873,15 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
                 160 Parameters
               </Label>
             </div>
-          </RadioGroup>
-          
-          <div className="mt-2 text-xs text-gray-500">
-            {parameterCount === 20 && "Focused analysis with core metrics only"}
-            {parameterCount === 40 && "Standard analysis with comprehensive coverage (recommended)"}  
-            {parameterCount === 160 && "Deep analysis with all 160 metrics (takes 1-2 minutes)"}
+            </RadioGroup>
+            
+            <div className="mt-2 text-xs text-gray-500">
+              {parameterCount === 20 && "Focused analysis with core metrics only"}
+              {parameterCount === 40 && "Standard analysis with comprehensive coverage (recommended)"}  
+              {parameterCount === 160 && "Deep analysis with all 160 metrics (takes 1-2 minutes)"}
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Intelligence Protocol Selection - Only show for Intelligence analysis */}
         {analysisType === "intelligence" && (
