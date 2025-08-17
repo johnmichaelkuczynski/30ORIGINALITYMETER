@@ -28,13 +28,14 @@ Preferred communication style: Simple, everyday language.
 - ✅ Added "Generate Perfect Example (100/100)" button to single passage analysis results
 - ✅ Perfect example generation uses Anthropic Claude to create high-quality writing demonstrating all 160 metrics
 - ✅ Feature designed to reveal what the evaluation system considers "perfect" intellectual writing
-- ✅ **CRITICAL SYSTEM OVERHAUL: Anti-Bullshit Detection System** - Comprehensive update to distinguish legitimate intellectual work from academic posturing
-- ✅ Fixed critical frontend bug preventing score display - scores now properly show in UI
-- ✅ Implemented sophisticated bullshit detection across all 160 metrics (Intelligence, Originality, Cogency, Quality)
-- ✅ System correctly penalizes empty abstractions, circular reasoning, and derivative thinking while preserving legitimate technical precision
-- ✅ Balanced approach: judges substance over style, allowing complex vocabulary when genuinely necessary for precision
-- ✅ LLM makes all scoring decisions with detailed anti-bullshit guidelines and authentic examples
-- ✅ System now properly scores derivative academic writing (20-45/100) while rewarding genuine intellectual innovation (70-100/100)
+- ✅ **CRITICAL SYSTEM OVERHAUL: Fixed Intelligence & Originality Evaluation Logic**
+- ✅ Fixed broken intelligence evaluation - now judges semantic control, inferential structure, compression, asymmetry, friction
+- ✅ Fixed broken originality evaluation - now judges intellectual fertility and analytical sophistication, not historical novelty
+- ✅ System no longer penalizes passages for being "derivative" or having historical precedents (Herbert Spencer, etc.)
+- ✅ Intelligence scoring now based on HOW ideas are processed, not WHAT ideas are or who said them first
+- ✅ Eliminated anti-jargon bias - complex vocabulary allowed when serving genuine intellectual precision
+- ✅ Fixed SummarySection.tsx score calculation logic to properly aggregate individual metric scores
+- ✅ System now correctly rewards brilliant analytical work regardless of historical authorship
 
 ## System Architecture
 

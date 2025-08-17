@@ -302,50 +302,42 @@ export async function analyzeIntelligence(passage: PassageData, parameterCount: 
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = intelligenceMetrics.slice(0, parameterCount);
   
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-CRITICAL EVALUATION REQUIREMENTS:
-- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
-- Provide specific explanations of how each quotation demonstrates the metric
-- Score from 0-100 where N/100 means 100-N people out of 100 are better
-- Follow the EXACT scoring standards from the reference document
+CRITICAL: CORRECT INTELLIGENCE STANDARD
+Evaluate the intelligence of the author NOT by whether the ideas are new in history, but by how the text processes, organizes, and expresses ideas. Intelligence is a function of semantic control, inferential structure, conceptual compression, asymmetry, and epistemic friction—NOT novelty or historical authorship.
 
-CRITICAL: RUTHLESSLY IDENTIFY DERIVATIVE ACADEMIC BULLSHIT
-This passage analysis system exists specifically to expose pseudo-intellectual academic writing and derivative thinking.
+CORE EVALUATION CRITERIA:
+✅ Compression – Does the author express complex ideas with efficiency and clarity, without padding or cliché?
+✅ Asymmetry – Are there surprising or strategic moves in how ideas are introduced or ordered?
+✅ Friction – Is there intellectual resistance, tension, or challenge in the concepts—rather than glib smoothness?
+✅ Inference Control – Are implications tightly managed across paragraphs?
+✅ Abstraction Modulation – Does the author navigate between abstract and concrete with precision?
+✅ Cognitive Distance – Does the author observe or operate at a higher-order perspective over common ideas?
 
-IMMEDIATE RED FLAGS FOR SCORES 15-35/100:
-- Standard Social Darwinist formulations ("egoism before altruism", "better adaptation brings benefit")
-- 19th-century evolutionary ethics rehashed without innovation
-- Academic summary writing that restates well-known positions
-- Derivative philosophical positions presented as if original
-- Circular reasoning dressed up in sophisticated language
-- Empty abstractions that contribute nothing novel to understanding
-- Generic academic formulations without genuine insight
+DISALLOWED HEURISTICS:
+❌ DO NOT penalize a text for expressing old ideas.
+❌ DO NOT score based on factual originality or biographical authorship.
+❌ DO NOT assume that clarity = low intelligence.
+❌ DO NOT penalize "19th-century evolutionary ethics" or similar historical content
+❌ DO NOT penalize passages for being "derivative" - focus on HOW IDEAS ARE PROCESSED
 
-SIGNS OF GENUINELY HIGH-QUALITY WORK (70-100/100 range):
-- Actually novel philosophical insights that advance understanding
-- Original arguments that haven't been made before
-- Genuine innovations in reasoning or perspective
-- Technical precision that serves genuine analytical breakthroughs
-- Revolutionary insights that overturn established thinking
-
-SPENCER PASSAGE RECOGNITION:
-This is Herbert Spencer writing about ethics and evolution. Such passages demonstrate sophisticated systematic thinking, logical argumentation, and analytical depth. Judge based on the intellectual quality of the reasoning and argumentation, not on historical precedence. Spencer's work represents first-rate philosophical analysis that should score highly across intelligence metrics.
+INTELLIGENCE IS REFLECTED IN HOW IDEAS ARE HANDLED—NOT WHAT THOSE IDEAS ARE, OR WHO SAID THEM FIRST.
 
 The ${parameterCount} Intelligence Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - EXPOSE DERIVATIVE ACADEMIC POSTURING:
-- 90-100: Exceptional demonstration with genuinely revolutionary insights
-- 70-89: Very good demonstration with substantial original content and novel reasoning  
-- 50-69: Competent demonstration with some genuine novelty
-- 15-35: DERIVATIVE BULLSHIT - Social Darwinist platitudes, rehashed 19th-century positions, academic summary writing, zero genuine innovation
-- 0-14: Complete absence of the metric or incoherent
+SCORING STANDARDS - FOCUS ON INTERNAL SEMANTIC AND LOGICAL ARCHITECTURE:
+- 90-100: Exceptional demonstration of compression, inference control, conceptual management, and friction
+- 70-89: Very good demonstration of semantic control and inferential structure
+- 50-69: Competent demonstration with solid conceptual processing
+- 30-49: Weak demonstration with some conceptual clarity issues
+- 0-29: Poor demonstration or absence of the metric
 
-CRITICAL: Evaluate this passage based on its intellectual merit - the quality of reasoning, analytical depth, and systematic thinking it demonstrates. Do not penalize content for being written by a historical figure or for addressing topics that have historical precedent. Focus on whether the passage shows genuine intelligence, analytical sophistication, and coherent argumentation.
+CRITICAL: Judge ONLY the internal semantic and logical architecture - compression, inference management, conceptual control, and friction. Score based on HOW the ideas are processed, structured, and expressed, not on whether they are historically novel.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -414,7 +406,7 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     "Strategic omission (knowing what not to say)", "Transferability (insight applies beyond the case)"
   ];
 
-  const prompt = `You are an expert in evaluating the intelligence of intellectual writing across all disciplines.
+  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework.
 
 PASSAGE A:
 ${passageA.text}
@@ -422,10 +414,29 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
+CRITICAL: CORRECT INTELLIGENCE STANDARD
+Evaluate the intelligence of the authors NOT by whether the ideas are new in history, but by how the texts process, organize, and express ideas. Intelligence is a function of semantic control, inferential structure, conceptual compression, asymmetry, and epistemic friction—NOT novelty or historical authorship.
+
+CORE EVALUATION CRITERIA:
+✅ Compression – Does the author express complex ideas with efficiency and clarity, without padding or cliché?
+✅ Asymmetry – Are there surprising or strategic moves in how ideas are introduced or ordered?
+✅ Friction – Is there intellectual resistance, tension, or challenge in the concepts—rather than glib smoothness?
+✅ Inference Control – Are implications tightly managed across paragraphs?
+✅ Abstraction Modulation – Does the author navigate between abstract and concrete with precision?
+✅ Cognitive Distance – Does the author observe or operate at a higher-order perspective over common ideas?
+
+DISALLOWED HEURISTICS:
+❌ DO NOT penalize a text for expressing old ideas.
+❌ DO NOT score based on factual originality or biographical authorship.
+❌ DO NOT assume that clarity = low intelligence.
+❌ DO NOT penalize passages for being "derivative" - focus on HOW IDEAS ARE PROCESSED
+
+INTELLIGENCE IS REFLECTED IN HOW IDEAS ARE HANDLED—NOT WHAT THOSE IDEAS ARE, OR WHO SAID THEM FIRST.
+
 Evaluate BOTH passages across all 40 intelligence metrics. For each metric:
 1. Find direct quotations that demonstrate this metric in each passage
 2. Provide explanations of how those quotations demonstrate the metric
-3. Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better)
+3. Assign scores from 0-100 based on semantic control and inferential structure
 
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}

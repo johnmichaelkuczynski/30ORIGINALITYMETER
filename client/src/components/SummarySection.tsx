@@ -26,15 +26,6 @@ export default function SummarySection({
   const calculateAggregateScoreFromMetrics = (result: any): number => {
     const scores: number[] = [];
     
-    console.log("SummarySection calculateAggregateScoreFromMetrics DEBUG:", {
-      resultKeys: Object.keys(result || {}),
-      firstFewEntries: Object.keys(result || {}).slice(0, 5).reduce((acc: any, key) => {
-        acc[key] = result[key];
-        return acc;
-      }, {}),
-      totalEntries: Object.keys(result || {}).length
-    });
-    
     // Collect all individual metric scores from the numbered keys (0-39)
     for (let i = 0; i < 40; i++) {
       const metricData = result[i.toString()];
@@ -42,20 +33,12 @@ export default function SummarySection({
         if (metricData.score !== undefined) {
           // Single analysis format
           scores.push(metricData.score);
-          console.log(`Score ${i}: ${metricData.score} (single format)`);
         } else if (metricData.passageA && metricData.passageA.score !== undefined) {
           // Dual analysis format - use passageA score
           scores.push(metricData.passageA.score);
-          console.log(`Score ${i}: ${metricData.passageA.score} (dual format)`);
         }
       }
     }
-    
-    console.log("SummarySection score collection:", {
-      totalScoresFound: scores.length,
-      scoresArray: scores,
-      average: scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0
-    });
     
     // Calculate average of all metric scores
     if (scores.length === 0) return 0;
