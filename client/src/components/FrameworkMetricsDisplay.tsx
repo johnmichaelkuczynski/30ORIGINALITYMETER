@@ -76,7 +76,7 @@ export default function FrameworkMetricsDisplay({
   };
 
   // Handle the new numbered key format from the 160-metric analysis
-  const rawData = result;
+  const rawData = result as any;
   const metrics = getMetricsForFramework(analysisType);
 
   console.log("FrameworkMetricsDisplay debug:", { 
@@ -84,7 +84,7 @@ export default function FrameworkMetricsDisplay({
     metrics,
     resultKeys: Object.keys(result),
     dataStructure: Object.keys(result).slice(0, 5), // Show first 5 keys
-    sampleEntry: result["0"] ? result["0"] : "No entry at key 0"
+    sampleEntry: rawData["0"] ? rawData["0"] : "No entry at key 0"
   });
 
   // Check if we have the new numbered key structure (0, 1, 2, ...)
@@ -108,7 +108,7 @@ export default function FrameworkMetricsDisplay({
         {hasNumberedKeys ? (
           // Handle new numbered key format (0-39)
           Array.from({ length: 40 }, (_, i) => {
-            const metricData = result[i.toString()];
+            const metricData = rawData[i.toString()];
             if (!metricData) return null;
 
             // Check if this is dual analysis format with passageA/passageB structure
@@ -224,7 +224,7 @@ export default function FrameworkMetricsDisplay({
         ) : (
           // Handle legacy format for backwards compatibility  
           metrics.map((metric) => {
-            const metricData = rawData[metric];
+            const metricData = (rawData as any)[metric];
             if (!metricData) return null;
 
             // Handle both structures: single document (flat) and dual document (nested)
