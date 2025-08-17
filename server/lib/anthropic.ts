@@ -33,7 +33,9 @@ ${passageB.text}
 
 Analyze these passages using the comprehensive 160-metric framework. For each analysis category, evaluate all 40 metrics with direct quotations from the text and explicit explanations.
 
-Return a properly formatted JSON response with the exact structure expected by the system. Include detailed metric-by-metric analysis with quotations, explanations, and scores (0-100) based on your expert judgment for each parameter.`;
+Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better).
+
+Return a properly formatted JSON response with the exact structure expected by the system. Include detailed metric-by-metric analysis with quotations, explanations, and scores for each parameter.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -97,7 +99,7 @@ ${passage.text}
 Evaluate this passage across all 40 originality metrics. For each metric:
 1. Find a direct quotation that demonstrates this metric
 2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 based on your expert judgment
+3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Originality Metrics:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -180,30 +182,31 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
-Evaluate BOTH passages across all 40 originality metrics. For each metric, provide comparative analysis of both passages.
+Evaluate BOTH passages across all 40 originality metrics. For each metric:
+1. Find direct quotations that demonstrate this metric in each passage
+2. Provide explanations of how those quotations demonstrate the metric
+3. Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Originality Metrics:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-Return your analysis as a JSON object with this exact structure for comparative analysis:
+Return ONLY this JSON structure:
 {
   "0": {
     "metric": "Novel perspective",
     "passageA": {
       "quotation": "Direct quotation from Passage A",
-      "explanation": "Explanation of how the quotation demonstrates this metric for Passage A",
+      "explanation": "Explanation of how this demonstrates the metric",
       "score": X
     },
     "passageB": {
-      "quotation": "Direct quotation from Passage B", 
-      "explanation": "Explanation of how the quotation demonstrates this metric for Passage B",
+      "quotation": "Direct quotation from Passage B",
+      "explanation": "Explanation of how this demonstrates the metric",
       "score": X
     }
   },
   ... continue for all 40 metrics (indices "0" through "39")
-}
-
-Provide comprehensive analysis covering all 40 metrics for both passages with direct quotations and explanations. Return ONLY the JSON object, no additional text.`;
+}`;
 
   try {
     const message = await anthropic.messages.create({
@@ -267,7 +270,7 @@ ${passage.text}
 Evaluate this passage across all 40 intelligence metrics. For each metric:
 1. Find a direct quotation that demonstrates this metric
 2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 based on your expert judgment
+3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -357,7 +360,7 @@ ${passageB.text}
 Evaluate BOTH passages across all 40 intelligence metrics. For each metric:
 1. Find direct quotations that demonstrate this metric in each passage
 2. Provide explanations of how those quotations demonstrate the metric
-3. Assign scores from 0-100 based on your expert judgment
+3. Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -456,7 +459,7 @@ ${passage.text}
 Evaluate this passage across all 40 cogency metrics. For each metric:
 1. Find a direct quotation that demonstrates this metric
 2. Provide an explanation of how that quotation demonstrates the metric
-3. Assign a score from 0-100 based on your expert judgment
+3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Cogency Metrics:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
@@ -608,29 +611,30 @@ export async function analyzeOverallQuality(passage: PassageData): Promise<any> 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-CRITICAL SCORING PROTOCOL:
-- Scores are POPULATION PERCENTILES: N/100 means this text has better quality than N people out of 100
-- Score 71/100 = better quality than 71 people, so 29 people have better quality
-- Score 85/100 = better quality than 85 people, so 15 people have better quality
-- Score 35/100 = better quality than 35 people, so 65 people have better quality
-- No hardcoded biases - evaluate purely on writing quality and intellectual merit
-
-Evaluate this passage across all 40 overall quality metrics. For each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100 (population percentile - higher = fewer people with better quality than this demonstrates)
+Evaluate this passage across all 40 overall quality metrics. For each metric:
+1. Find a direct quotation that demonstrates this metric
+2. Provide an explanation of how that quotation demonstrates the metric
+3. Assign a score from 0-100 (where N/100 means 100-N people out of 100 are better)
 
 The 40 Overall Quality Metrics:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each metric, use this format:
-Metric Name
-"Direct quotation from the text"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide a comprehensive analysis covering all 40 metrics with quotations and explanations.`;
+Return ONLY this JSON structure:
+{
+  "0": {
+    "metric": "Clarity of expression",
+    "score": X,
+    "quotation": "Direct quotation demonstrating this metric",
+    "explanation": "Explanation of how this quotation demonstrates the metric"
+  },
+  "1": {
+    "metric": "Flow and readability",
+    "score": X,
+    "quotation": "Direct quotation demonstrating this metric",
+    "explanation": "Explanation of how this quotation demonstrates the metric"
+  },
+  ... (continue for all 40 metrics with keys "0" through "39")
+}`;
 
   try {
     const message = await anthropic.messages.create({
