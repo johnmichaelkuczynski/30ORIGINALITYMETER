@@ -409,14 +409,32 @@ Provide comprehensive analysis covering all 40 metrics for both passages with di
     try {
       return JSON.parse(responseText);
     } catch (parseError) {
+      console.log("Raw response for debugging:", responseText.substring(0, 500));
       // Try to extract JSON from code blocks if wrapped in markdown
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
-      } else {
-        console.error("Failed to parse JSON response for dual intelligence analysis:", parseError);
-        throw new Error("Invalid JSON response from AI service");
+        try {
+          return JSON.parse(jsonMatch[1].trim());
+        } catch (innerError) {
+          console.error("Failed to parse extracted JSON:", innerError);
+          console.error("Extracted content:", jsonMatch[1].substring(0, 200));
+        }
       }
+      
+      // Try to find JSON without code blocks
+      const jsonStart = responseText.indexOf('{');
+      const jsonEnd = responseText.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        try {
+          const jsonStr = responseText.substring(jsonStart, jsonEnd + 1);
+          return JSON.parse(jsonStr);
+        } catch (innerError) {
+          console.error("Failed to parse extracted JSON without code blocks:", innerError);
+        }
+      }
+      
+      console.error("Failed to parse JSON response for dual intelligence analysis:", parseError);
+      throw new Error("Invalid JSON response from AI service");
     }
   } catch (error) {
     console.error("Error in Anthropic dual intelligence analysis:", error);
