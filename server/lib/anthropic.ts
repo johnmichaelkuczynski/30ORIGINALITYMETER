@@ -11,7 +11,7 @@ console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
-// PRIMARY INTELLIGENCE EVALUATION PROTOCOL
+// PRIMARY OVERALL QUALITY EVALUATION PROTOCOL - EXACT USER QUESTIONS
 export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
@@ -27,6 +27,7 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "OR IS TRUE OR FALSE? IN OTHER WORDS, DOES IT MAKE AN ADJUDICABLE CLAIM? (CLAIMS TO THE EFFECT THAT SO AND SO MIGHT HAVE SAID SUCH AND SUCH DO NOT COUNT.)",
     "DOES IT MAKE A CLAIM ABOUT HOW SOME ISSUE IS TO BE RESOLVE OR ONLY ABOUT HOW SOME 'AUTHORITY' MIGHT FEEL ABOUT SOME ASPECT OF THAT ISSUE?",
     "IS IT ORGANIC?",
+    "IS IT INSIGHTFUL?",
     "IS IT FRESH?",
     "IS IT THE PRODUCT OF INSIGHT? OR OF SOMEBODY RECYCLING OLD MATERIAL OR JUST RECYLING SLOGANS/MEMES AND/OR NAME-DROPPING?",
     "IS IT BORING? IE SETTING ASIDE PEOPLE WHO ARE TOO IMPAIRED TO UNDERSTAND IT AND THEREFORE FIND IT BORING, IT IS BORING TO PEOPLE WHO ARE SMART ENOUGH TO UNDERSTAND IT?",
@@ -34,29 +35,20 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "WOULD AN INTELLIGENT PERSON WHO WAS NOT UNDER PRESSURE (FROM A PROFESSOR OR COLLEAGUE OR BOSS OF PUBLIC OPINION) LIKELY FIND IT TO BE USEFUL AS AN EPISTEMIC INSTRUMENT (MEANS OF ACQUIRING KNOWLEDGE)?",
     "IF THE POINT IT DEFENDS IS NOT TECHNICALLY TRUE, IS THAT POINT AT LEAST OPERATIONALLY TRUE (USEFUL TO REGARD AS TRUE IN SOME CONTEXTS)?",
     "DOES THE PASSAGE GENERATE ORGANICALLY? DO IDEAS DEVELOP? OR IS IT JUST A SERIES OF FORCED STATEMENTS THAT ARE ONLY FORMALLY OR ARTIFICIALLY RELATED TO PREVIOUS STATEMENTS?",
-    "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?",
-    "IF ORIGINAL, IS IT ORIGINAL BY VIRTUE OF BEING INSIGHTFUL OR BY VIRTUE OF BEING DEFECTIVE OR FACETIOUS?",
-    "IF THERE ARE ELEMENTS OF SPONTANEITY, ARE THEY INTERNAL TO A LARGER, WELL-BEHAVED LOGICAL ARCHITECTURE?",
-    "IS THE AUTHOR ABLE TO 'RIFF' (IN A WAY THAT SUPPORTS, RATHER THAN UNDERMINING, THE MAIN POINT AND ARGUMENTATIVE STRUCTURE OF THE PASSAGE)? OR IS IT WOODEN AND BUREAUCRATIC?",
-    "IS IT ACTUALLY SMART OR IS IT 'GEEK'-SMART (SMART IN THE WAY THAT SOMEBODY WHO IS NOT PARTICULARLY SMART BUT WHO WAS ALWAYS LAST TO BE PICKED BY THE SOFTBALL TEAM BECOMES SMART)?",
-    "IS IT MR. SPOCKS SMART (ACTUALLY SMART) OR Lieutenant DATA SMART (WHAT A DUMB PERSON WOULD REGARD AS SMART)?",
-    "IS IT \"SMART\" IN THE SENSE THAT, FOR CULTURAL OR SOCIAL REASONS, WE WOULD PRESUME THAT ONLY A SMART PERSON WOULD DISCUSS SUCH MATTERS? OR IS IT INDEED--SMART?",
-    "IS IT SMART BY VIRTUE BEING ARGUMENTATIVE AND SNIPPY OR BY VIRTUE OF BEING ILLUMINATING?"
+    "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?"
   ];
 
-  const prompt = `You are an expert evaluator of intellectual quality. Analyze this passage using the PRIMARY OVERALL QUALITY EVALUATION PROTOCOL.
-
-CRITICAL INSTRUCTION: Evaluate ACTUAL intellectual quality, not surface-level academic markers. Judge whether the content is genuinely insightful, organically developed, and intellectually illuminating - not just whether it sounds scholarly.
+  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage against each of the following quality questions. For each question:
-1. Provide a direct quotation from the passage that demonstrates the answer
-2. Give a detailed explanation of how the quotation addresses the question
-3. Assign a score from 0-100 (where 100 = exceptional quality, 70-89 = very high quality, 50-69 = solid quality, 30-49 = mediocre, 0-29 = poor quality)
+For each question below, provide:
+1. A direct quotation from the passage
+2. An explanation of how the quotation addresses the question
+3. A score from 0-100
 
-OVERALL QUALITY EVALUATION QUESTIONS:
+OVERALL QUALITY QUESTIONS:
 ${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 Return ONLY this JSON structure with numbered entries (0 through ${qualityQuestions.length - 1}):
@@ -64,8 +56,8 @@ Return ONLY this JSON structure with numbered entries (0 through ${qualityQuesti
   "0": {
     "question": "${qualityQuestions[0]}",
     "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this aspect",
-    "explanation": "Detailed explanation of how the quotation addresses this quality question"
+    "quotation": "EXACT quotation from the passage",
+    "explanation": "Explanation of how the quotation addresses this question"
   },
   ... continue for all ${qualityQuestions.length} questions
 }`;
@@ -98,6 +90,166 @@ Return ONLY this JSON structure with numbered entries (0 through ${qualityQuesti
   }
 }
 
+// PRIMARY INTELLIGENCE EVALUATION PROTOCOL - EXACT USER QUESTIONS
+export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const intelligenceQuestions = [
+    "IS IT INSIGHTFUL?",
+    "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
+    "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
+    "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING.",
+    "ARE THE POINTS CLICHES? OR ARE THEY \"FRESH\"?",
+    "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
+    "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
+    "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
+    "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY TEH SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
+    "IS IT REAL OR IS IT PHONY?",
+    "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
+    "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
+    "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
+    "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
+    "IS THE WRITING EVASIVE OR DIRECT?",
+    "ARE THE STATEMENTS AMBIGUOUS?",
+    "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
+    "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
+  ];
+
+  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+
+PASSAGE TO ANALYZE:
+${passage.text}
+
+For each question below, provide:
+1. A direct quotation from the passage
+2. An explanation of how the quotation addresses the question
+3. A score from 0-100
+
+INTELLIGENCE QUESTIONS:
+${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Return ONLY this JSON structure with numbered entries (0 through ${intelligenceQuestions.length - 1}):
+{
+  "0": {
+    "question": "${intelligenceQuestions[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage",
+    "explanation": "Explanation of how the quotation addresses this question"
+  },
+  ... continue for all ${intelligenceQuestions.length} questions
+}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = (message.content[0] as any).text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Primary Quality JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in Primary Quality analysis:", error);
+    throw error;
+  }
+}
+
+// PRIMARY COGENCY EVALUATION PROTOCOL - EXACT USER QUESTIONS
+export async function analyzePrimaryCogency(passage: PassageData): Promise<any> {
+  if (!apiKey) {
+    throw new Error("Anthropic API key is not configured");
+  }
+
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const cogencyQuestions = [
+    "IS THE POINT BEING DEFENDED (IF THERE IS ONE) SHARP ENOUGH THAT IT DOES NOT NEED ARGUMENTATION?",
+    "DOES THE REASONING DEFEND THE POINT BEING ARGUED IN THE RIGHT WAYS?",
+    "DOES THE REASONING ONLY DEFEND THE ARGUED FOR POINT AGAINST STRAWMEN?",
+    "DOES THE REASONING DEVELOP THE POINT PER SE? IE DOES THE REASONING SHOW THAT THE POINT ITSELF IS STRONG? OR DOES IT 'DEFEND' IT ONLY BY SHOWING THAT VARIOUS AUTHORITIES DO OR WOULD APPROVE OF IT?",
+    "IS THE POINT SHARP? IF NOT, IS IT SHARPLY DEFENDED?",
+    "IS THE REASONING GOOD ONLY IN A TRIVIAL 'DEBATING' SENSE? OR IS IT GOOD IN THE SENSE THAT IT WOULD LIKELY MAKE AN INTELLIGENT PERSON RECONSIDER HIS POSITION?",
+    "IS THE REASONING INVOLVED IN DEFENDING THE KEY CLAIM ABOUT ACTUALLY ESTABLISHING THAT CLAIM? OR IS IT MORE ABOUT OBFUSCATING?",
+    "DOES THE REASONING HELP ILLUMINATE THE MERITS OF THE CLAIM? OR DOES IT JUST SHOW THAT THE CLAIM IS ON THE RIGHT SIDE OF SOME (FALSE OR TRIVIAL) PRESUMPTION?",
+    "IS THE 'REASONING' IN FACT REASONING? OR IS IT JUST A SERIES OF LATER STATEMENTS THAT CONNECT ONLY SUPERFICIALLY (E.G. BY REFERENCING THE SAME KEY TERMS OR AUTHORS) TO THE ORIGINAL?",
+    "IF COGENT, IS IT COGENT IN THE SENSE THAT A PERSON OF INTELLIGENCE WHO PREVIOUSLY THOUGHT OTHERWISE WOULD NOW TAKE IT MORE SERIOUSLY? OR IS IT COGENT ONLY IN THE SENSE THAT IT DOES IN FACT PROVIDE AN ARGUMENT AND TOUCH ALL THE RIGHT (MIDDLE-SCHOOL COMPOSITION CLASS) BASES? IN OTHER WORDS, IS THE ARGUMENTATION TOKEN AND PRO FORMA OR DOES IT ACTUALLY SERVE THE FUNCTION OF SHOWING THE IDEA TO HAVE MERIT?",
+    "DOES THE 'ARGUMENTATION' SHOW THAT THE IDEA MAY WELL BE CORRECT? OR DOES IT RATHER SHOW THAT IT HAS TO BE 'ACCEPTED' (IN THE SENSE THAT ONE WILL BE ON THE WRONG SIDE OF SOME PANEL OF 'EXPERTS' IF ONE THINKS OTHERWISE)?",
+    "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
+  ];
+
+  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+
+PASSAGE TO ANALYZE:
+${passage.text}
+
+For each question below, provide:
+1. A direct quotation from the passage
+2. An explanation of how the quotation addresses the question
+3. A score from 0-100
+
+COGENCY QUESTIONS:
+${cogencyQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Return ONLY this JSON structure with numbered entries (0 through ${cogencyQuestions.length - 1}):
+{
+  "0": {
+    "question": "${cogencyQuestions[0]}",
+    "score": [number from 0-100],
+    "quotation": "EXACT quotation from the passage",
+    "explanation": "Explanation of how the quotation addresses this question"
+  },
+  ... continue for all ${cogencyQuestions.length} questions
+}`;
+
+  try {
+    const message = await anthropic.messages.create({
+      model: DEFAULT_MODEL_STR,
+      max_tokens: 8000,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = (message.content[0] as any).text;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse Primary Cogency JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in Primary Cogency analysis:", error);
+    throw error;
+  }
+}
+
 export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
   if (!apiKey) {
     throw new Error("Anthropic API key is not configured");
@@ -119,19 +271,17 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  const prompt = `You are an expert evaluator of intellectual originality. Analyze this passage using the PRIMARY ORIGINALITY EVALUATION PROTOCOL.
-
-CRITICAL INSTRUCTION: When evaluating originality, NEVER penalize work for being "derivative" or having historical precedents. Isaac Newton's work should score as HIGHLY ORIGINAL even though Newton said it hundreds of years ago. The question is whether only a fecund, creative mind could produce this type of thinking - NOT whether it's been said before.
+  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
 
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-Evaluate this passage against each of the following originality questions. For each question:
-1. Provide a direct quotation from the passage that demonstrates the answer
-2. Give a detailed explanation of how the quotation addresses the question
-3. Assign a score from 0-100 (where 100 = exceptional originality, 70-89 = very original, 50-69 = moderately original, 30-49 = conventional, 0-29 = formulaic)
+For each question below, provide:
+1. A direct quotation from the passage
+2. An explanation of how the quotation addresses the question
+3. A score from 0-100
 
-ORIGINALITY EVALUATION QUESTIONS:
+ORIGINALITY QUESTIONS:
 ${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 Return ONLY this JSON structure with numbered entries (0 through ${originalityQuestions.length - 1}):
@@ -139,8 +289,8 @@ Return ONLY this JSON structure with numbered entries (0 through ${originalityQu
   "0": {
     "question": "${originalityQuestions[0]}",
     "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this aspect",
-    "explanation": "Detailed explanation of how the quotation addresses this originality question"
+    "quotation": "EXACT quotation from the passage",
+    "explanation": "Explanation of how the quotation addresses this question"
   },
   ... continue for all ${originalityQuestions.length} questions
 }`;
@@ -169,88 +319,6 @@ Return ONLY this JSON structure with numbered entries (0 through ${originalityQu
     }
   } catch (error) {
     console.error("Error in Primary Originality analysis:", error);
-    throw error;
-  }
-}
-
-export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
-  if (!apiKey) {
-    throw new Error("Anthropic API key is not configured");
-  }
-
-  const anthropic = new Anthropic({
-    apiKey: apiKey,
-  });
-
-  const intelligenceQuestions = [
-    "IS IT INSIGHTFUL?",
-    "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
-    "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
-    "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING?",
-    "ARE THE POINTS CLICHES? OR ARE THEY 'FRESH'?",
-    "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
-    "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
-    "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
-    "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
-    "IS IT REAL OR IS IT PHONY?",
-    "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
-    "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
-    "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
-    "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
-    "IS THE WRITING EVASIVE OR DIRECT?",
-    "ARE THE STATEMENTS AMBIGUOUS?",
-    "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
-    "DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
-  ];
-
-  const prompt = `You are an expert evaluator of intellectual writing. Analyze this passage using the PRIMARY INTELLIGENCE EVALUATION PROTOCOL.
-
-PASSAGE TO ANALYZE:
-${passage.text}
-
-Evaluate this passage against each of the following intelligence questions. For each question:
-1. Provide a direct quotation from the passage that demonstrates the answer
-2. Give a detailed explanation of how the quotation addresses the question
-3. Assign a score from 0-100 (where 100 = exceptional, 70-89 = very good, 50-69 = competent, 30-49 = weak, 0-29 = poor)
-
-INTELLIGENCE EVALUATION QUESTIONS:
-${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
-
-Return ONLY this JSON structure with numbered entries (0 through ${intelligenceQuestions.length - 1}):
-{
-  "0": {
-    "question": "${intelligenceQuestions[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this aspect",
-    "explanation": "Detailed explanation of how the quotation addresses this intelligence question"
-  },
-  ... continue for all ${intelligenceQuestions.length} questions
-}`;
-
-  try {
-    const message = await anthropic.messages.create({
-      model: DEFAULT_MODEL_STR,
-      max_tokens: 8000,
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const responseText = message.content[0].text;
-    
-    // Parse the JSON response
-    try {
-      return JSON.parse(responseText);
-    } catch (parseError) {
-      // Try to extract JSON from code blocks if needed
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
-      } else {
-        console.error("Failed to parse Primary Intelligence JSON response:", responseText);
-        return { error: "Failed to parse JSON", rawResponse: responseText };
-      }
-    }
-  } catch (error) {
-    console.error("Error in Primary Intelligence analysis:", error);
     throw error;
   }
 }
