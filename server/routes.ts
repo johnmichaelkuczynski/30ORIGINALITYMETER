@@ -2460,50 +2460,41 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     try {
       const { analysisResult, passageTitle } = req.body;
       
-      if (!analysisResult || !analysisResult.rawOriginalityAnalysis) {
+      if (!analysisResult) {
         return res.status(400).json({ message: "Originality analysis data is required" });
       }
       
       const title = passageTitle || "Originality Analysis Report";
-      const rawAnalysis = analysisResult.rawOriginalityAnalysis;
       
       // Debug logging
-      console.log("Originality TXT Download Debug - Available metrics in rawAnalysis:");
-      console.log(Object.keys(rawAnalysis));
+      console.log("Originality TXT Download Debug - Analysis result structure:");
+      console.log("Keys:", Object.keys(analysisResult));
+      console.log("Sample entry:", analysisResult["0"]);
       
       // Format the originality analysis for TXT output
       let content = `ORIGINALITY METER ANALYSIS\n`;
       content += `${'='.repeat(50)}\n\n`;
       
-      // Add each originality metric - using the exact keys from the API response
-      const metrics = [
-        'transformationalSynthesis', 'generativePower', 'disciplinaryRepositioning', 'conceptualReframing',
-        'analyticReAlignment', 'unexpectedCrossPollination', 'epistemicReweighting', 'constraintInnovation',
-        'ontologyReSpecification', 'heuristicLeap', 'problemReIndexing', 'axiomaticInnovation',
-        'moralOrPoliticalRecomputation', 'subtextExcavation', 'secondOrderInnovation', 'temporalInversion',
-        'negativeSpaceManipulation', 'unnaturalPairing', 'disciplinaryHijack', 'ontoEpistemicFusion'
-      ];
-      
-      metrics.forEach(metric => {
-        if (rawAnalysis[metric]) {
-          const metricData = rawAnalysis[metric].passageA;
-          content += `${metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1')}\n`;
-          content += `Score: ${metricData.score}/100\n`;
-          content += `Assessment: ${metricData.assessment}\n`;
-          if (metricData.strengths && metricData.strengths.length > 0) {
-            content += `Strengths: ${metricData.strengths.join(', ')}\n`;
+      // Handle new numbered key format (0-39)
+      for (let i = 0; i < 40; i++) {
+        const metricData = analysisResult[i.toString()];
+        if (metricData) {
+          content += `${metricData.metric || `Metric ${i + 1}`}\n`;
+          content += `${'='.repeat(30)}\n`;
+          content += `Score: ${metricData.score || 0}/100\n\n`;
+          
+          if (metricData.quotation) {
+            content += `Direct Quotation:\n`;
+            content += `"${metricData.quotation}"\n\n`;
           }
-          if (metricData.weaknesses && metricData.weaknesses.length > 0) {
-            content += `Weaknesses: ${metricData.weaknesses.join(', ')}\n`;
+          
+          if (metricData.explanation) {
+            content += `Analysis:\n`;
+            content += `${metricData.explanation}\n\n`;
           }
-          content += `\n`;
+          
+          content += `${'-'.repeat(50)}\n\n`;
         }
-      });
-      
-      if (rawAnalysis.verdict) {
-        content += `OVERALL VERDICT\n`;
-        content += `${'-'.repeat(20)}\n`;
-        content += `${rawAnalysis.verdict}\n`;
       }
       
       res.setHeader('Content-Type', 'text/plain');
