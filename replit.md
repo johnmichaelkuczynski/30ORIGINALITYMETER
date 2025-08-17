@@ -19,6 +19,8 @@ Preferred communication style: Simple, everyday language.
 - ✅ **NO MODIFICATIONS**: Questions used verbatim without interpretation or conditioning
 - ✅ **NO EXTRA INSTRUCTIONS**: LLM receives only the exact questions, no additional guidance
 - ✅ **PURE IMPLEMENTATION**: System now uses user's precise intellectual evaluation framework
+- ✅ **CRITICAL FIX**: Removed ALL evaluation guidance and bias against philosophical writing
+- ✅ **MINIMAL PROMPTING**: LLM receives only exact questions with no interpretive instructions
 - ✅ Fixed download functionality to detect Primary vs Legacy protocols automatically
 - ✅ Added text chunking system to prevent JSON parsing crashes on large documents
 - ✅ Applied chunking to all dual analysis functions (Intelligence, Originality, Quality, Cogency)

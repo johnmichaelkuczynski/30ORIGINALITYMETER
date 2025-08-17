@@ -38,27 +38,18 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?"
   ];
 
-  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+  const prompt = `Analyze this passage:
 
-PASSAGE TO ANALYZE:
 ${passage.text}
 
-For each question below, provide:
-1. A direct quotation from the passage
-2. An explanation of how the quotation addresses the question
-3. A score from 0-100
-
-OVERALL QUALITY QUESTIONS:
+Answer each question:
 ${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Return ONLY this JSON structure with numbered entries (0 through ${qualityQuestions.length - 1}):
+For each question provide: quotation, explanation, score 0-100.
+
+JSON format:
 {
-  "0": {
-    "question": "${qualityQuestions[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage",
-    "explanation": "Explanation of how the quotation addresses this question"
-  },
+  "0": {"question": "${qualityQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
   ... continue for all ${qualityQuestions.length} questions
 }`;
 
@@ -121,27 +112,18 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+  const prompt = `Analyze this passage:
 
-PASSAGE TO ANALYZE:
 ${passage.text}
 
-For each question below, provide:
-1. A direct quotation from the passage
-2. An explanation of how the quotation addresses the question
-3. A score from 0-100
-
-INTELLIGENCE QUESTIONS:
+Answer each question:
 ${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Return ONLY this JSON structure with numbered entries (0 through ${intelligenceQuestions.length - 1}):
+For each question provide: quotation, explanation, score 0-100.
+
+JSON format:
 {
-  "0": {
-    "question": "${intelligenceQuestions[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage",
-    "explanation": "Explanation of how the quotation addresses this question"
-  },
+  "0": {"question": "${intelligenceQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
   ... continue for all ${intelligenceQuestions.length} questions
 }`;
 
@@ -198,27 +180,18 @@ export async function analyzePrimaryCogency(passage: PassageData): Promise<any> 
     "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
   ];
 
-  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+  const prompt = `Analyze this passage:
 
-PASSAGE TO ANALYZE:
 ${passage.text}
 
-For each question below, provide:
-1. A direct quotation from the passage
-2. An explanation of how the quotation addresses the question
-3. A score from 0-100
-
-COGENCY QUESTIONS:
+Answer each question:
 ${cogencyQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Return ONLY this JSON structure with numbered entries (0 through ${cogencyQuestions.length - 1}):
+For each question provide: quotation, explanation, score 0-100.
+
+JSON format:
 {
-  "0": {
-    "question": "${cogencyQuestions[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage",
-    "explanation": "Explanation of how the quotation addresses this question"
-  },
+  "0": {"question": "${cogencyQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
   ... continue for all ${cogencyQuestions.length} questions
 }`;
 
@@ -271,27 +244,18 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  const prompt = `You are an expert in evaluating intellectual writing. Analyze this passage using these EXACT questions.
+  const prompt = `Analyze this passage:
 
-PASSAGE TO ANALYZE:
 ${passage.text}
 
-For each question below, provide:
-1. A direct quotation from the passage
-2. An explanation of how the quotation addresses the question
-3. A score from 0-100
-
-ORIGINALITY QUESTIONS:
+Answer each question:
 ${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Return ONLY this JSON structure with numbered entries (0 through ${originalityQuestions.length - 1}):
+For each question provide: quotation, explanation, score 0-100.
+
+JSON format:
 {
-  "0": {
-    "question": "${originalityQuestions[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage",
-    "explanation": "Explanation of how the quotation addresses this question"
-  },
+  "0": {"question": "${originalityQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
   ... continue for all ${originalityQuestions.length} questions
 }`;
 
