@@ -38,18 +38,19 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?"
   ];
 
-  const prompt = `Analyze this passage:
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
+PASSAGE:
 ${passage.text}
 
-Answer each question:
+QUESTIONS:
 ${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-For each question provide: quotation, explanation, score 0-100.
+For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
 {
-  "0": {"question": "${qualityQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
+  "0": {"question": "${qualityQuestions[0]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
   ... continue for all ${qualityQuestions.length} questions
 }`;
 
@@ -112,18 +113,19 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  const prompt = `Analyze this passage:
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
+PASSAGE:
 ${passage.text}
 
-Answer each question:
+QUESTIONS:
 ${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-For each question provide: quotation, explanation, score 0-100.
+For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
 {
-  "0": {"question": "${intelligenceQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
+  "0": {"question": "${intelligenceQuestions[0]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
   ... continue for all ${intelligenceQuestions.length} questions
 }`;
 
@@ -180,18 +182,19 @@ export async function analyzePrimaryCogency(passage: PassageData): Promise<any> 
     "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
   ];
 
-  const prompt = `Analyze this passage:
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
+PASSAGE:
 ${passage.text}
 
-Answer each question:
+QUESTIONS:
 ${cogencyQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-For each question provide: quotation, explanation, score 0-100.
+For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
 {
-  "0": {"question": "${cogencyQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
+  "0": {"question": "${cogencyQuestions[0]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
   ... continue for all ${cogencyQuestions.length} questions
 }`;
 
@@ -244,18 +247,19 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  const prompt = `Analyze this passage:
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
+PASSAGE:
 ${passage.text}
 
-Answer each question:
+QUESTIONS:
 ${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-For each question provide: quotation, explanation, score 0-100.
+For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
 {
-  "0": {"question": "${originalityQuestions[0]}", "score": [number], "quotation": "text", "explanation": "text"},
+  "0": {"question": "${originalityQuestions[0]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
   ... continue for all ${originalityQuestions.length} questions
 }`;
 
@@ -299,7 +303,7 @@ export async function analyzePassages(
     apiKey: apiKey,
   });
 
-  const prompt = `You are an expert in evaluating the originality and quality of intellectual writing across all disciplines.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${passageA.text}
@@ -307,9 +311,7 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
-Analyze these passages using the comprehensive 160-metric framework. For each analysis category, evaluate all 40 metrics with direct quotations from the text and explicit explanations.
-
-Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better).
+Answer all the questions thoroughly with quotations from the text and explicit explanations.
 
 Return a properly formatted JSON response with the exact structure expected by the system. Include detailed metric-by-metric analysis with quotations, explanations, and scores for each parameter.`;
 
@@ -370,68 +372,34 @@ export async function analyzeOriginality(passage: PassageData, parameterCount: n
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = originalityMetrics.slice(0, parameterCount);
   
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
-PASSAGE TO ANALYZE:
+PASSAGE:
 ${passage.text}
 
-CRITICAL: UNDERSTAND WHAT ORIGINALITY ACTUALLY MEANS
-Originality means "rising above the norm" and demonstrating intellectual fertility - NOT being the first person in history to say something.
-
-ORIGINALITY EVALUATION PRINCIPLES:
-- A passage can be highly original even if similar points were made centuries ago by other thinkers
-- Originality is about intellectual quality and fecundity of mind, not historical priority
-- Judge whether the thinking demonstrates genuine insight and analytical power
-- Focus on the quality of reasoning and depth of understanding, not novelty in history
-- A mind that independently arrives at profound insights shows originality regardless of precedent
-
-RED FLAGS FOR LOW SCORES (20-45/100 range):
-- Shallow thinking that lacks analytical depth
-- Superficial treatment of complex issues  
-- Clichéd formulations without genuine understanding
-- Empty abstractions without substantive content
-- Mechanical repetition of talking points without insight
-
-SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
-- Actually novel connections between previously unconnected ideas
-- Genuinely fresh metaphors that illuminate rather than obfuscate
-- New distinctions that cut reality at previously unrecognized joints
-- Counterintuitive insights that prove revealing upon examination
-- Original reframing that opens new avenues of inquiry
-
-EXAMPLE CONTRAST:
-EXAMPLE OF SHALLOW THINKING:
-"Novel perspective
-'We should all just get along and be nice to each other'
-This is superficial moralizing without analytical depth or genuine philosophical insight.
-Score: 25/100"
-
-GENUINE ORIGINALITY:  
-"Novel perspective
-'Names refer directly to objects, not through descriptive mediation'
-Demonstrates profound philosophical insight with analytical precision - shows a mind capable of grasping fundamental principles.
-Score: 92/100"
-
-The ${parameterCount} Originality Metrics to evaluate:
+QUESTIONS:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - RECOGNIZE INTELLECTUAL FERTILITY:
-- 90-100: Exceptional originality - profound insights showing a fecund, first-rate mind
-- 70-89: Very good originality - substantial analytical depth and genuine understanding
-- 50-69: Competent originality - adequate insight and independent reasoning
-- 20-49: SHALLOW THINKING - superficial analysis, lacks genuine intellectual depth
-- 0-19: Complete absence of analytical insight or incoherent
+For each question, provide:
+1. A relevant quotation from the text
+2. A detailed explanation
+3. A numerical score from 0-100
 
-CRITICAL PRINCIPLE: A passage by Herbert Spencer about ethics and evolution should score highly for originality because it demonstrates the kind of profound systematic thinking that rises far above the norm - regardless of when it was written. Judge the intellectual quality and analytical power, not historical precedence.
-
-Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
+Return results in this JSON format:
 {
   "0": {
-    "metric": "${selectedMetrics[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this metric",
-    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+    "parameter": "${selectedMetrics[0]}",
+    "score": 75,
+    "quotation": "exact text from passage",
+    "explanation": "detailed explanation"
+  },
+  "1": {
+    "parameter": "${selectedMetrics[1] || 'parameter'}",
+    "score": 82,
+    "quotation": "exact text from passage", 
+    "explanation": "detailed explanation"
   }
+  // Continue for all ${selectedMetrics.length} parameters
 }`;
 
   try {
@@ -506,7 +474,7 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
     "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
   ];
 
-  const prompt = `You are an expert in evaluating the originality of intellectual writing across all disciplines.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -514,13 +482,13 @@ ${finalPassageA.text}
 PASSAGE B:
 ${finalPassageB.text}
 
-Evaluate BOTH passages across all 40 originality metrics. For each metric:
-1. Find direct quotations that demonstrate this metric in each passage
-2. Provide explanations of how those quotations demonstrate the metric
-3. Assign scores from 0-100 (where N/100 means 100-N people out of 100 are better)
-
-The 40 Originality Metrics:
+QUESTIONS:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+For each question, analyze BOTH passages. Provide:
+1. Direct quotations that relate to this question from each passage
+2. Explanations of your analysis
+3. Scores from 0-100
 
 Return ONLY this JSON structure:
 {
@@ -528,16 +496,16 @@ Return ONLY this JSON structure:
     "metric": "Novel perspective",
     "passageA": {
       "quotation": "Direct quotation from Passage A",
-      "explanation": "Explanation of how this demonstrates the metric",
+      "explanation": "Explanation of analysis",
       "score": X
     },
     "passageB": {
       "quotation": "Direct quotation from Passage B",
-      "explanation": "Explanation of how this demonstrates the metric",
+      "explanation": "Explanation of analysis",
       "score": X
     }
   },
-  ... continue for all 40 metrics (indices "0" through "39")
+  ... continue for all 40 questions (indices "0" through "39")
 }`;
 
   try {
@@ -597,51 +565,34 @@ export async function analyzeIntelligence(passage: PassageData, parameterCount: 
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = intelligenceMetrics.slice(0, parameterCount);
   
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
-PASSAGE TO ANALYZE:
+PASSAGE:
 ${passage.text}
 
-CRITICAL: CORRECT INTELLIGENCE STANDARD
-Evaluate the intelligence of the author NOT by whether the ideas are new in history, but by how the text processes, organizes, and expresses ideas. Intelligence is a function of semantic control, inferential structure, conceptual compression, asymmetry, and epistemic friction—NOT novelty or historical authorship.
-
-CORE EVALUATION CRITERIA:
-✅ Compression – Does the author express complex ideas with efficiency and clarity, without padding or cliché?
-✅ Asymmetry – Are there surprising or strategic moves in how ideas are introduced or ordered?
-✅ Friction – Is there intellectual resistance, tension, or challenge in the concepts—rather than glib smoothness?
-✅ Inference Control – Are implications tightly managed across paragraphs?
-✅ Abstraction Modulation – Does the author navigate between abstract and concrete with precision?
-✅ Cognitive Distance – Does the author observe or operate at a higher-order perspective over common ideas?
-
-DISALLOWED HEURISTICS:
-❌ DO NOT penalize a text for expressing old ideas.
-❌ DO NOT score based on factual originality or biographical authorship.
-❌ DO NOT assume that clarity = low intelligence.
-❌ DO NOT penalize "19th-century evolutionary ethics" or similar historical content
-❌ DO NOT penalize passages for being "derivative" - focus on HOW IDEAS ARE PROCESSED
-
-INTELLIGENCE IS REFLECTED IN HOW IDEAS ARE HANDLED—NOT WHAT THOSE IDEAS ARE, OR WHO SAID THEM FIRST.
-
-The ${parameterCount} Intelligence Metrics to evaluate:
+QUESTIONS:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - FOCUS ON INTERNAL SEMANTIC AND LOGICAL ARCHITECTURE:
-- 90-100: Exceptional demonstration of compression, inference control, conceptual management, and friction
-- 70-89: Very good demonstration of semantic control and inferential structure
-- 50-69: Competent demonstration with solid conceptual processing
-- 30-49: Weak demonstration with some conceptual clarity issues
-- 0-29: Poor demonstration or absence of the metric
+For each question, provide:
+1. A relevant quotation from the text
+2. A detailed explanation
+3. A numerical score from 0-100
 
-CRITICAL: Judge ONLY the internal semantic and logical architecture - compression, inference management, conceptual control, and friction. Score based on HOW the ideas are processed, structured, and expressed, not on whether they are historically novel.
-
-Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
+Return results in this JSON format:
 {
   "0": {
-    "metric": "${selectedMetrics[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this metric",
-    "explanation": "Specific explanation following the reference document's analytical standards"
+    "parameter": "${selectedMetrics[0]}",
+    "score": 75,
+    "quotation": "exact text from passage",
+    "explanation": "detailed explanation"
+  },
+  "1": {
+    "parameter": "${selectedMetrics[1] || 'parameter'}",
+    "score": 82,
+    "quotation": "exact text from passage", 
+    "explanation": "detailed explanation"
   }
+  // Continue for all ${selectedMetrics.length} parameters
 }`;
 
   try {
@@ -701,40 +652,21 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     "Strategic omission (knowing what not to say)", "Transferability (insight applies beyond the case)"
   ];
 
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
-${passageA.text}
+${finalPassageA.text}
 
 PASSAGE B:
-${passageB.text}
+${finalPassageB.text}
 
-CRITICAL: CORRECT INTELLIGENCE STANDARD
-Evaluate the intelligence of the authors NOT by whether the ideas are new in history, but by how the texts process, organize, and express ideas. Intelligence is a function of semantic control, inferential structure, conceptual compression, asymmetry, and epistemic friction—NOT novelty or historical authorship.
-
-CORE EVALUATION CRITERIA:
-✅ Compression – Does the author express complex ideas with efficiency and clarity, without padding or cliché?
-✅ Asymmetry – Are there surprising or strategic moves in how ideas are introduced or ordered?
-✅ Friction – Is there intellectual resistance, tension, or challenge in the concepts—rather than glib smoothness?
-✅ Inference Control – Are implications tightly managed across paragraphs?
-✅ Abstraction Modulation – Does the author navigate between abstract and concrete with precision?
-✅ Cognitive Distance – Does the author observe or operate at a higher-order perspective over common ideas?
-
-DISALLOWED HEURISTICS:
-❌ DO NOT penalize a text for expressing old ideas.
-❌ DO NOT score based on factual originality or biographical authorship.
-❌ DO NOT assume that clarity = low intelligence.
-❌ DO NOT penalize passages for being "derivative" - focus on HOW IDEAS ARE PROCESSED
-
-INTELLIGENCE IS REFLECTED IN HOW IDEAS ARE HANDLED—NOT WHAT THOSE IDEAS ARE, OR WHO SAID THEM FIRST.
-
-Evaluate BOTH passages across all 40 intelligence metrics. For each metric:
-1. Find direct quotations that demonstrate this metric in each passage
-2. Provide explanations of how those quotations demonstrate the metric
-3. Assign scores from 0-100 based on semantic control and inferential structure
-
-The 40 Intelligence Metrics:
+QUESTIONS:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+For each question, analyze BOTH passages. Provide:
+1. Direct quotations that relate to this question from each passage
+2. Explanations of your analysis
+3. Scores from 0-100
 
 Return ONLY this JSON structure:
 {
@@ -742,16 +674,16 @@ Return ONLY this JSON structure:
     "metric": "Compression (density of meaning per word)",
     "passageA": {
       "quotation": "Direct quotation from Passage A",
-      "explanation": "Explanation of how this demonstrates the metric",
+      "explanation": "Explanation of analysis",
       "score": X
     },
     "passageB": {
       "quotation": "Direct quotation from Passage B",
-      "explanation": "Explanation of how this demonstrates the metric",
+      "explanation": "Explanation of analysis",
       "score": X
     }
   },
-  ... continue for all 40 metrics (indices "0" through "39")
+  ... continue for all 40 questions (indices "0" through "39")
 }`;
 
   // Add text length checking and chunking
@@ -849,51 +781,34 @@ export async function analyzeCogency(passage: PassageData, parameterCount: numbe
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = cogencyMetrics.slice(0, parameterCount);
   
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
-PASSAGE TO ANALYZE:
+PASSAGE:
 ${passage.text}
 
-CRITICAL EVALUATION REQUIREMENTS:
-- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
-- Provide specific explanations of how each quotation demonstrates the metric
-- Score from 0-100 where N/100 means 100-N people out of 100 are better
-- Apply the same rigorous standards shown in the reference examples
-
-EXAMPLE FORMAT - DISTINGUISH SUBSTANCE FROM BULLSHIT:
-
-HIGH QUALITY EXAMPLE:
-"Logical validity
-'If x causes y, that is because there is some law of nature to the effect that if something has the properties that x has, then something else will have the properties that y has.'
-Clear conditional structure with valid logical form - premises lead necessarily to conclusion.
-Score: 88/100"
-
-VACUOUS CONTENT EXAMPLE:
-"Logical validity  
-'Transcendental empiricism attempts to dissolve an epistemological dilemma by splitting the difference between diametrically opposed accounts.'
-This describes a method abstractly without demonstrating logical validity - no actual logical structure is presented or analyzed.
-Score: 35/100"
-
-The ${parameterCount} Cogency Metrics to evaluate:
+QUESTIONS:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - EVALUATE LOGICAL SUBSTANCE:
-- 90-100: Exceptional cogency with clear, valid reasoning and strong logical structure
-- 70-89: Very good cogency with solid logical foundations and sound arguments
-- 50-69: Competent cogency with adequate logical support and reasonable structure
-- 20-49: WEAK REASONING - circular logic, unsupported claims, logical fallacies, lack of genuine argumentation
-- 0-19: Complete logical incoherence or absence of reasoning
+For each question, provide:
+1. A relevant quotation from the text
+2. A detailed explanation
+3. A numerical score from 0-100
 
-IMPORTANT: Judge based on logical merit, not vocabulary complexity. Sophisticated arguments using technical terms should score highly if logically sound.
-
-Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
+Return results in this JSON format:
 {
   "0": {
-    "metric": "${selectedMetrics[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this metric",
-    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+    "parameter": "${selectedMetrics[0]}",
+    "score": 75,
+    "quotation": "exact text from passage",
+    "explanation": "detailed explanation"
+  },
+  "1": {
+    "parameter": "${selectedMetrics[1] || 'parameter'}",
+    "score": 82,
+    "quotation": "exact text from passage", 
+    "explanation": "detailed explanation"
   }
+  // Continue for all ${selectedMetrics.length} parameters
 }`;
 
   try {
@@ -967,7 +882,7 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
     "Correct handling of probability", "Strength of causal explanation vs. correlation", "Stability under reformulation (holds when restated)"
   ];
 
-  const prompt = `You are an expert in evaluating the cogency of intellectual writing across all disciplines.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -975,34 +890,31 @@ ${finalPassageA.text}
 PASSAGE B:
 ${finalPassageB.text}
 
-CRITICAL SCORING PROTOCOL:
-- Scores are POPULATION PERCENTILES: N/100 means this text is more cogent than N people out of 100
-- Score 71/100 = more cogent than 71 people, so 29 people are more cogent
-- Score 85/100 = more cogent than 85 people, so 15 people are more cogent
-- Score 35/100 = more cogent than 35 people, so 65 people are more cogent  
-- No hardcoded biases - evaluate purely on argumentative strength and logical rigor
-
-Evaluate BOTH passages across all 40 cogency metrics. For each passage and each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100 (population percentile - higher = fewer people more cogent than this demonstrates)
-
-The 40 Cogency Metrics:
+QUESTIONS:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each passage and metric, use this format:
-PASSAGE A - Metric Name
-"Direct quotation from Passage A"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
+For each question, analyze BOTH passages. Provide:
+1. Direct quotations that relate to this question from each passage
+2. Explanations of your analysis
+3. Scores from 0-100
 
-PASSAGE B - Metric Name
-"Direct quotation from Passage B"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide comprehensive analysis covering all 40 metrics for both passages with quotations and explanations (80 total entries).`;
+Return ONLY this JSON structure:
+{
+  "0": {
+    "metric": "${cogencyMetrics[0]}",
+    "passageA": {
+      "quotation": "Direct quotation from Passage A",
+      "explanation": "Explanation of analysis",
+      "score": X
+    },
+    "passageB": {
+      "quotation": "Direct quotation from Passage B",
+      "explanation": "Explanation of analysis",
+      "score": X
+    }
+  },
+  ... continue for all 40 questions (indices "0" through "39")
+}`;
 
   try {
     const message = await anthropic.messages.create({
@@ -1057,51 +969,34 @@ export async function analyzeOverallQuality(passage: PassageData, parameterCount
   // Select the appropriate number of metrics based on parameterCount
   const selectedMetrics = qualityMetrics.slice(0, parameterCount);
 
-  const prompt = `You are an expert evaluator of intellectual writing using the comprehensive 160-metric framework. You must analyze this passage using the same rigorous methodology demonstrated in the uploaded reference document.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
-PASSAGE TO ANALYZE:
+PASSAGE:
 ${passage.text}
 
-CRITICAL EVALUATION REQUIREMENTS:
-- Use DIRECT QUOTATIONS from the passage for each metric (never generic descriptions)
-- Provide specific explanations of how each quotation demonstrates the metric
-- Score from 0-100 where N/100 means 100-N people out of 100 are better
-- Apply the same rigorous standards shown in the reference examples
-
-EXAMPLE FORMAT - DETECT PSEUDO-SOPHISTICATION:
-
-EXAMPLE OF EMPTY CATEGORIZATION:
-"Clarity of expression
-'Transcendental empiricism is, among other things, a philosophy of mental content.'
-This merely categorizes without explaining what makes it distinctive or how it works as a philosophy.
-Score: 45/100"
-
-HIGH QUALITY WRITING:
-"Clarity of expression
-'Names refer directly to objects, not through the mediation of descriptions.'
-Cuts through philosophical confusion with precise, illuminating language that genuinely clarifies the issue.
-Score: 85/100"
-
-The ${parameterCount} Overall Quality Metrics to evaluate:
+QUESTIONS:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - EVALUATE GENUINE QUALITY:
-- 90-100: Exceptional quality with genuine insight and effective communication
-- 70-89: Very good quality with substantive content and skilled execution
-- 50-69: Competent quality with adequate substance and reasonable clarity
-- 20-49: POOR QUALITY - lacks substance, unclear communication, no genuine advancement of understanding
-- 0-19: Completely poor quality or incoherent
+For each question, provide:
+1. A relevant quotation from the text
+2. A detailed explanation
+3. A numerical score from 0-100
 
-IMPORTANT: High-quality writing may use complex vocabulary when precision demands it. Judge based on whether the writing effectively serves its intellectual purpose.
-
-Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
+Return results in this JSON format:
 {
   "0": {
-    "metric": "${selectedMetrics[0]}",
-    "score": [number from 0-100],
-    "quotation": "EXACT quotation from the passage demonstrating this metric",
-    "explanation": "Specific explanation following the reference document's rigorous analytical standards"
+    "parameter": "${selectedMetrics[0]}",
+    "score": 75,
+    "quotation": "exact text from passage",
+    "explanation": "detailed explanation"
+  },
+  "1": {
+    "parameter": "${selectedMetrics[1] || 'parameter'}",
+    "score": 82,
+    "quotation": "exact text from passage", 
+    "explanation": "detailed explanation"
   }
+  // Continue for all ${selectedMetrics.length} parameters
 }`;
 
   try {
@@ -1183,7 +1078,7 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
     "Overall reader impact (leaves an impression)"
   ];
 
-  const prompt = `You are an expert in evaluating the overall quality of intellectual writing across all disciplines.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -1191,34 +1086,31 @@ ${finalPassageA.text}
 PASSAGE B:
 ${finalPassageB.text}
 
-CRITICAL SCORING PROTOCOL:
-- Scores are POPULATION PERCENTILES: N/100 means this text has better quality than N people out of 100
-- Score 71/100 = better quality than 71 people, so 29 people have better quality
-- Score 85/100 = better quality than 85 people, so 15 people have better quality
-- Score 35/100 = better quality than 35 people, so 65 people have better quality
-- No hardcoded biases - evaluate purely on writing quality and intellectual merit
-
-Evaluate BOTH passages across all 40 overall quality metrics. For each passage and each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100 (population percentile - higher = fewer people with better quality than this demonstrates)
-
-The 40 Overall Quality Metrics:
+QUESTIONS:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each passage and metric, use this format:
-PASSAGE A - Metric Name
-"Direct quotation from Passage A"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
+For each question, analyze BOTH passages. Provide:
+1. Direct quotations that relate to this question from each passage
+2. Explanations of your analysis
+3. Scores from 0-100
 
-PASSAGE B - Metric Name
-"Direct quotation from Passage B"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide comprehensive analysis covering all 40 metrics for both passages with quotations and explanations (80 total entries).`;
+Return ONLY this JSON structure:
+{
+  "0": {
+    "metric": "${qualityMetrics[0]}",
+    "passageA": {
+      "quotation": "Direct quotation from Passage A",
+      "explanation": "Explanation of analysis",
+      "score": X
+    },
+    "passageB": {
+      "quotation": "Direct quotation from Passage B",
+      "explanation": "Explanation of analysis",
+      "score": X
+    }
+  },
+  ... continue for all 40 questions (indices "0" through "39")
+}`;
 
   try {
     const message = await anthropic.messages.create({
