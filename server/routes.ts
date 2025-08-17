@@ -931,7 +931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("openai"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
       });
 
       const { passageA, provider } = requestSchema.parse(req.body);
@@ -942,8 +942,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for originality analysis
-      const result = await openaiService.analyzeOriginality(passageA);
+      // Route to the correct provider
+      let result;
+      if (provider === "anthropic") {
+        result = await anthropicService.analyzeOriginality(passageA);
+      } else if (provider === "deepseek") {
+        result = await deepseekService.analyzeOriginality(passageA);
+      } else if (provider === "perplexity") {
+        result = await perplexityService.analyzeOriginality(passageA);
+      } else {
+        result = await openaiService.analyzeOriginality(passageA);
+      }
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -991,8 +1000,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use OpenAI service for dual originality analysis
-      const result = await openaiService.analyzeOriginalityDual(passageA, passageB);
+      // Route to the correct provider
+      let result;
+      if (provider === "anthropic") {
+        result = await anthropicService.analyzeOriginalityDual(passageA, passageB);
+      } else if (provider === "deepseek") {
+        result = await deepseekService.analyzeOriginalityDual(passageA, passageB);
+      } else if (provider === "perplexity") {
+        result = await perplexityService.analyzeOriginalityDual(passageA, passageB);
+      } else {
+        result = await openaiService.analyzeOriginalityDual(passageA, passageB);
+      }
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
