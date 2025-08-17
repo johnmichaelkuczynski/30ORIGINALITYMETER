@@ -183,27 +183,30 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
-Evaluate BOTH passages across all 40 originality metrics. For each passage and each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+Evaluate BOTH passages across all 40 originality metrics. For each metric, provide comparative analysis of both passages.
 
 The 40 Originality Metrics:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each passage and metric, use this format:
-PASSAGE A - Metric Name
-"Direct quotation from Passage A"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
+Return your analysis as a JSON object with this exact structure for comparative analysis:
+{
+  "0": {
+    "metric": "Novel perspective",
+    "passageA": {
+      "quotation": "Direct quotation from Passage A",
+      "explanation": "Explanation of how the quotation demonstrates this metric for Passage A",
+      "score": X
+    },
+    "passageB": {
+      "quotation": "Direct quotation from Passage B", 
+      "explanation": "Explanation of how the quotation demonstrates this metric for Passage B",
+      "score": X
+    }
+  },
+  ... continue for all 40 metrics (indices "0" through "39")
+}
 
-PASSAGE B - Metric Name
-"Direct quotation from Passage B"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide comprehensive analysis covering all 40 metrics for both passages with quotations and explanations (80 total entries).`;
+Provide comprehensive analysis covering all 40 metrics for both passages with direct quotations and explanations. Return ONLY the JSON object, no additional text.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -212,7 +215,19 @@ Provide comprehensive analysis covering all 40 metrics for both passages with qu
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if wrapped in markdown
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse JSON response for dual originality analysis:", parseError);
+        throw new Error("Invalid JSON response from AI service");
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic dual originality analysis:", error);
     throw error;
@@ -345,27 +360,43 @@ ${passageA.text}
 PASSAGE B:
 ${passageB.text}
 
-Evaluate BOTH passages across all 40 intelligence metrics. For each passage and each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+Evaluate BOTH passages across all 40 intelligence metrics. For each metric, provide comparative analysis of both passages.
 
 The 40 Intelligence Metrics:
 ${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-For each passage and metric, use this format:
-PASSAGE A - Metric Name
-"Direct quotation from Passage A"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
+Return your analysis as a JSON object with this exact structure for comparative analysis:
+{
+  "0": {
+    "metric": "Compression (density of meaning per word)",
+    "passageA": {
+      "quotation": "Direct quotation from Passage A",
+      "explanation": "Explanation of how the quotation demonstrates this metric for Passage A",
+      "score": X
+    },
+    "passageB": {
+      "quotation": "Direct quotation from Passage B", 
+      "explanation": "Explanation of how the quotation demonstrates this metric for Passage B",
+      "score": X
+    }
+  },
+  "1": {
+    "metric": "Next Metric Name",
+    "passageA": {
+      "quotation": "Direct quotation from Passage A",
+      "explanation": "Explanation for Passage A",
+      "score": X
+    },
+    "passageB": {
+      "quotation": "Direct quotation from Passage B",
+      "explanation": "Explanation for Passage B", 
+      "score": X
+    }
+  }
+  ... continue for all 40 metrics (indices "0" through "39")
+}
 
-PASSAGE B - Metric Name
-"Direct quotation from Passage B"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide comprehensive analysis covering all 40 metrics for both passages with quotations and explanations (80 total entries).`;
+Provide comprehensive analysis covering all 40 metrics for both passages with direct quotations and explanations. Return ONLY the JSON object, no additional text.`;
 
   try {
     const message = await anthropic.messages.create({
@@ -374,7 +405,19 @@ Provide comprehensive analysis covering all 40 metrics for both passages with qu
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if wrapped in markdown
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse JSON response for dual intelligence analysis:", parseError);
+        throw new Error("Invalid JSON response from AI service");
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic dual intelligence analysis:", error);
     throw error;
@@ -502,7 +545,19 @@ Provide comprehensive analysis covering all 40 metrics for both passages with qu
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    const responseText = message.content[0].text;
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if wrapped in markdown
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse JSON response for dual cogency analysis:", parseError);
+        throw new Error("Invalid JSON response from AI service");
+      }
+    }
   } catch (error) {
     console.error("Error in Anthropic dual cogency analysis:", error);
     throw error;
