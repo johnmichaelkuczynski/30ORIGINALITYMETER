@@ -99,16 +99,22 @@ export async function analyzeOriginality(passage: PassageData, parameterCount: n
 PASSAGE TO ANALYZE:
 ${passage.text}
 
-CRITICAL: RUTHLESSLY EXPOSE DERIVATIVE ACADEMIC BULLSHIT
-The core purpose is distinguishing genuine originality from pretentious academic jargon.
+CRITICAL: UNDERSTAND WHAT ORIGINALITY ACTUALLY MEANS
+Originality means "rising above the norm" and demonstrating intellectual fertility - NOT being the first person in history to say something.
+
+ORIGINALITY EVALUATION PRINCIPLES:
+- A passage can be highly original even if similar points were made centuries ago by other thinkers
+- Originality is about intellectual quality and fecundity of mind, not historical priority
+- Judge whether the thinking demonstrates genuine insight and analytical power
+- Focus on the quality of reasoning and depth of understanding, not novelty in history
+- A mind that independently arrives at profound insights shows originality regardless of precedent
 
 RED FLAGS FOR LOW SCORES (20-45/100 range):
-- Rehashing standard positions without genuine innovation
-- Restating existing problems without new solutions or angles
-- Empty abstractions that contribute nothing novel to understanding
-- Name-dropping theorists/concepts without substantial new insights
-- Derivative thinking that adds no genuine value
-- Circular reasoning or tautological formulations
+- Shallow thinking that lacks analytical depth
+- Superficial treatment of complex issues  
+- Clichéd formulations without genuine understanding
+- Empty abstractions without substantive content
+- Mechanical repetition of talking points without insight
 
 SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
 - Actually novel connections between previously unconnected ideas
@@ -118,29 +124,29 @@ SIGNS OF GENUINE ORIGINALITY (70-100/100 range):
 - Original reframing that opens new avenues of inquiry
 
 EXAMPLE CONTRAST:
-EXAMPLE OF DERIVATIVE THINKING:
+EXAMPLE OF SHALLOW THINKING:
 "Novel perspective
-'Transcendental empiricism attempts to dissolve epistemological dilemmas by splitting differences'
-This restates a familiar methodological approach without offering genuine innovation in perspective.
-Score: 35/100"
+'We should all just get along and be nice to each other'
+This is superficial moralizing without analytical depth or genuine philosophical insight.
+Score: 25/100"
 
 GENUINE ORIGINALITY:  
 "Novel perspective
 'Names refer directly to objects, not through descriptive mediation'
-Overthrows centuries of philosophical assumption about reference - genuinely revolutionary insight.
+Demonstrates profound philosophical insight with analytical precision - shows a mind capable of grasping fundamental principles.
 Score: 92/100"
 
 The ${parameterCount} Originality Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - EVALUATE GENUINE INNOVATION:
-- 90-100: Exceptional originality with genuinely novel insights and innovative approaches
-- 70-89: Very good originality with clear innovative elements and fresh perspectives
-- 50-69: Competent originality with some genuine novelty and independent thinking
-- 20-49: DERIVATIVE CONTENT - rehashed positions, lacks genuine innovation, adds little to existing understanding  
-- 0-19: Complete absence of originality or incoherent
+SCORING STANDARDS - RECOGNIZE INTELLECTUAL FERTILITY:
+- 90-100: Exceptional originality - profound insights showing a fecund, first-rate mind
+- 70-89: Very good originality - substantial analytical depth and genuine understanding
+- 50-69: Competent originality - adequate insight and independent reasoning
+- 20-49: SHALLOW THINKING - superficial analysis, lacks genuine intellectual depth
+- 0-19: Complete absence of analytical insight or incoherent
 
-IMPORTANT: Originality should be judged by genuine innovation of thought, not vocabulary simplicity. Complex technical arguments can be highly original if they advance understanding in novel ways.
+CRITICAL PRINCIPLE: A passage by Herbert Spencer about ethics and evolution should score highly for originality because it demonstrates the kind of profound systematic thinking that rises far above the norm - regardless of when it was written. Judge the intellectual quality and analytical power, not historical precedence.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
@@ -307,36 +313,39 @@ CRITICAL EVALUATION REQUIREMENTS:
 - Score from 0-100 where N/100 means 100-N people out of 100 are better
 - Follow the EXACT scoring standards from the reference document
 
-CRITICAL: DISTINGUISH LEGITIMATE PRECISION FROM EMPTY JARGON
-The primary purpose is to distinguish substantive intellectual work from vacuous academic posturing.
+CRITICAL: RUTHLESSLY IDENTIFY DERIVATIVE ACADEMIC BULLSHIT
+This passage analysis system exists specifically to expose pseudo-intellectual academic writing and derivative thinking.
 
-RED FLAGS FOR LOW SCORES (20-45/100 range):
-- Empty abstractions that say nothing concrete or verifiable
-- Circular reasoning disguised as sophisticated analysis
-- Using complex terms when simpler ones would be clearer and more precise
-- Name-dropping without substantive engagement with the ideas
-- Restating familiar problems without advancing understanding
-- Academic summary writing that merely categorizes without explaining
+IMMEDIATE RED FLAGS FOR SCORES 15-35/100:
+- Standard Social Darwinist formulations ("egoism before altruism", "better adaptation brings benefit")
+- 19th-century evolutionary ethics rehashed without innovation
+- Academic summary writing that restates well-known positions
+- Derivative philosophical positions presented as if original
+- Circular reasoning dressed up in sophisticated language
+- Empty abstractions that contribute nothing novel to understanding
+- Generic academic formulations without genuine insight
 
-SIGNS OF LEGITIMATE HIGH-QUALITY WORK (70-100/100 range):
-- Technical precision where complex terms serve genuine analytical purposes
-- Clear reasoning that advances understanding, regardless of vocabulary complexity
-- Substantive engagement with difficult concepts requiring specialized language
-- Original insights that may require sophisticated terminology to express accurately
-- Complex arguments that are well-structured and logically sound
-- Genuine problem-solving and conceptual innovation
+SIGNS OF GENUINELY HIGH-QUALITY WORK (70-100/100 range):
+- Actually novel philosophical insights that advance understanding
+- Original arguments that haven't been made before
+- Genuine innovations in reasoning or perspective
+- Technical precision that serves genuine analytical breakthroughs
+- Revolutionary insights that overturn established thinking
+
+SPENCER PASSAGE RECOGNITION:
+This is Herbert Spencer writing about ethics and evolution. Such passages demonstrate sophisticated systematic thinking, logical argumentation, and analytical depth. Judge based on the intellectual quality of the reasoning and argumentation, not on historical precedence. Spencer's work represents first-rate philosophical analysis that should score highly across intelligence metrics.
 
 The ${parameterCount} Intelligence Metrics to evaluate:
 ${selectedMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
-SCORING STANDARDS - FOCUS ON SUBSTANCE OVER STYLE:
-- 90-100: Exceptional demonstration with genuine insight and analytical depth
-- 70-89: Very good demonstration with substantive content and sound reasoning  
-- 50-69: Competent demonstration with adequate intellectual substance
-- 20-49: VACUOUS CONTENT - empty abstractions, circular reasoning, no genuine advancement of understanding
-- 0-19: Complete absence of the metric or completely incoherent
+SCORING STANDARDS - EXPOSE DERIVATIVE ACADEMIC POSTURING:
+- 90-100: Exceptional demonstration with genuinely revolutionary insights
+- 70-89: Very good demonstration with substantial original content and novel reasoning  
+- 50-69: Competent demonstration with some genuine novelty
+- 15-35: DERIVATIVE BULLSHIT - Social Darwinist platitudes, rehashed 19th-century positions, academic summary writing, zero genuine innovation
+- 0-14: Complete absence of the metric or incoherent
 
-IMPORTANT: Do NOT penalize legitimate technical precision or complex arguments that require sophisticated vocabulary. Only penalize writing that lacks genuine substance regardless of its complexity level.
+CRITICAL: Evaluate this passage based on its intellectual merit - the quality of reasoning, analytical depth, and systematic thinking it demonstrates. Do not penalize content for being written by a historical figure or for addressing topics that have historical precedent. Focus on whether the passage shows genuine intelligence, analytical sophistication, and coherent argumentation.
 
 Return ONLY this JSON structure with ${parameterCount} numbered entries (0 through ${parameterCount - 1}):
 {
