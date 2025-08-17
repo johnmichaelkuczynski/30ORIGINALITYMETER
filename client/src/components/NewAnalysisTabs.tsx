@@ -94,23 +94,18 @@ export default function AnalysisTabs({
                     
                     {/* Calculate aggregate - weighted to favor both originality and coherence */}
                     {(() => {
-                      const originalityScore = result.derivativeIndex.passageA.score;
-                      const coherenceScore = result.coherence.passageA.score;
                       
                       // OVERRIDE: Direct implementation of the specified scoring formula
                       // Treat originalityScore as conceptualInnovation
                       const conceptualInnovation = originalityScore;
                       
                       // Get other scores with defaults if not provided
-                      const depth = result.depth?.passageA?.score || 5;
                       
                       // Coherence is already available from the parameter
                       
                       // Treat accuracy as insightDensity
-                      const insightDensity = result.accuracy?.passageA?.score || 5;
                       
                       // Methodological novelty (using clarity as a proxy if available)
-                      const methodologicalNovelty = result.clarity?.passageA?.score || 
                         Math.min(10, (originalityScore * 0.6) + (depth * 0.4));
                       
                       // Final score using the mandated formula: 
@@ -165,12 +160,8 @@ export default function AnalysisTabs({
                   <div>
                     <h5 className="text-sm font-medium text-secondary-700 mb-1">Originality Score</h5>
                     <div className="flex items-center justify-between">
-                      <span className={`text-base font-semibold ${result.derivativeIndex.passageA.score > 7 ? 'text-green-600' : result.derivativeIndex.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
-                        {result.derivativeIndex.passageA.score.toFixed(1)}/10
                       </span>
                       <span className="text-xs text-secondary-500">
-                        {result.derivativeIndex.passageA.score > 7 ? 'High Originality' : 
-                         result.derivativeIndex.passageA.score > 4 ? 'Moderate Originality' : 'Low Originality'}
                       </span>
                     </div>
                   </div>
@@ -178,12 +169,8 @@ export default function AnalysisTabs({
                   <div>
                     <h5 className="text-sm font-medium text-secondary-700 mb-1">Coherence Score</h5>
                     <div className="flex items-center justify-between">
-                      <span className={`text-base font-semibold ${result.coherence.passageA.score > 7 ? 'text-green-600' : result.coherence.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
-                        {result.coherence.passageA.score.toFixed(1)}/10
                       </span>
                       <span className="text-xs text-secondary-500">
-                        {result.coherence.passageA.score > 7 ? 'High Coherence' : 
-                         result.coherence.passageA.score > 4 ? 'Moderate Coherence' : 'Low Coherence'}
                       </span>
                     </div>
                   </div>
@@ -203,7 +190,6 @@ export default function AnalysisTabs({
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
                     <span className="text-sm font-semibold text-primary-700">
-                      {result.coherence.passageA.score.toFixed(1)}/10
                     </span>
                   </div>
                   <div className="space-y-4">
@@ -242,7 +228,6 @@ export default function AnalysisTabs({
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
                       <span className="text-sm font-semibold text-primary-700">
-                        {result.coherence.passageB.score.toFixed(1)}/10
                       </span>
                     </div>
                     <div className="space-y-4">

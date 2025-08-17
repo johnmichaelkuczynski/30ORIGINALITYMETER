@@ -87,17 +87,13 @@ export const analysisResultSchema = z.object({
   }),
   derivativeIndex: z.object({
     passageA: z.object({
-      score: z.number(),
       components: z.array(z.object({
         name: z.string(),
-        score: z.number(),
       })).optional(),
     }),
     passageB: z.object({
-      score: z.number(),
       components: z.array(z.object({
         name: z.string(),
-        score: z.number(),
       })).optional(),
     }),
     feedback: z.object({
@@ -125,13 +121,11 @@ export const analysisResultSchema = z.object({
   }),
   coherence: z.object({
     passageA: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
     }),
     passageB: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
@@ -144,13 +138,11 @@ export const analysisResultSchema = z.object({
   }).optional(),
   accuracy: z.object({
     passageA: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
     }),
     passageB: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
@@ -163,13 +155,11 @@ export const analysisResultSchema = z.object({
   }).optional(),
   depth: z.object({
     passageA: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
     }),
     passageB: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
@@ -182,13 +172,11 @@ export const analysisResultSchema = z.object({
   }).optional(),
   clarity: z.object({
     passageA: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),
     }),
     passageB: z.object({
-      score: z.number(),
       assessment: z.string(),
       strengths: z.array(z.string()),
       weaknesses: z.array(z.string()),

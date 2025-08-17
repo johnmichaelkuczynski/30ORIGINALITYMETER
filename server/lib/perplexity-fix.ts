@@ -305,14 +305,12 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         },
         derivativeIndex: {
           passageA: {
-            score: 5.0,
             assessment: "Analysis temporarily unavailable",
             strengths: ["Please try again later"],
             weaknesses: ["API connection issue"],
             components: []
           },
           passageB: {
-            score: 5.0,
             assessment: "Analysis not available for comparison passage",
             strengths: ["N/A"],
             weaknesses: ["N/A"],
@@ -333,13 +331,11 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         },
         coherence: {
           passageA: {
-            score: 5.0,
             assessment: "Analysis temporarily unavailable",
             strengths: ["Please try again later"],
             weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5.0,
             assessment: "Analysis not available for comparison passage",
             strengths: ["N/A"],
             weaknesses: ["N/A"]
@@ -347,13 +343,11 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         },
         accuracy: {
           passageA: {
-            score: 5.0,
             assessment: "Analysis temporarily unavailable",
             strengths: ["Please try again later"],
             weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5.0,
             assessment: "Analysis not available for comparison passage",
             strengths: ["N/A"],
             weaknesses: ["N/A"]
@@ -361,13 +355,11 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         },
         depth: {
           passageA: {
-            score: 5.0,
             assessment: "Analysis temporarily unavailable",
             strengths: ["Please try again later"],
             weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5.0,
             assessment: "Analysis not available for comparison passage",
             strengths: ["N/A"],
             weaknesses: ["N/A"]
@@ -375,13 +367,11 @@ IMPORTANT: Response must be valid JSON only, no preamble or additional text.`;
         },
         clarity: {
           passageA: {
-            score: 5.0,
             assessment: "Analysis temporarily unavailable",
             strengths: ["Please try again later"],
             weaknesses: ["API connection issue"]
           },
           passageB: {
-            score: 5.0,
             assessment: "Analysis not available for comparison passage",
             strengths: ["N/A"],
             weaknesses: ["N/A"]
@@ -681,17 +671,11 @@ IMPORTANT: This analysis is for a SINGLE passage. Do not include any "passageB" 
       },
       derivativeIndex: {
         passageA: {
-          score: jsonResponse.derivativeIndex.passageA.score,
           components: [
-            { name: "Originality", score: jsonResponse.derivativeIndex.passageA.score },
-            { name: "Conceptual Innovation", score: jsonResponse.derivativeIndex.passageA.score * 0.9 }
           ]
         },
         passageB: {
-          score: 5,
           components: [
-            { name: "Originality", score: 5 },
-            { name: "Conceptual Innovation", score: 5 }
           ]
         }
       },
@@ -705,7 +689,6 @@ IMPORTANT: This analysis is for a SINGLE passage. Do not include any "passageB" 
       },
       coherence: {
         passageA: {
-          score: jsonResponse.coherence.passageA.score,
           assessment: jsonResponse.coherence.passageA.assessment,
           strengths: jsonResponse.coherence.passageA.strengths,
           weaknesses: jsonResponse.coherence.passageA.weaknesses

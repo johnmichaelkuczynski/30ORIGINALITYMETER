@@ -27,7 +27,6 @@ export function useAIDetection() {
     if (!text || text.trim().length < 100) {
       const result = {
         isAIGenerated: false,
-        score: 0,
         confidence: "Low" as const,
         details: "Text too short for reliable detection"
       };
@@ -49,7 +48,6 @@ export function useAIDetection() {
     if (pendingDetections.current[textHash]) {
       return {
         isAIGenerated: false,
-        score: 0,
         confidence: "Low" as const,
         details: "Detection in progress"
       };
@@ -83,7 +81,6 @@ export function useAIDetection() {
           console.error("AI detection error:", error);
           const fallbackResult = {
             isAIGenerated: false,
-            score: 0,
             confidence: "Low" as const,
             details: "Detection failed"
           };

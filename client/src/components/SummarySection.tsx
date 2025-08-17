@@ -29,12 +29,8 @@ export default function SummarySection({
     for (let i = 0; i < 40; i++) {
       const metricData = result[i.toString()];
       if (metricData) {
-        if (metricData.score !== undefined) {
           // Single analysis format
-          scores.push(metricData.score);
-        } else if (metricData.passageA?.score !== undefined) {
           // Dual analysis format - use passageA score
-          scores.push(metricData.passageA.score);
         }
       }
     }
@@ -54,8 +50,6 @@ export default function SummarySection({
     // Collect passageB scores from dual analysis format
     for (let i = 0; i < 40; i++) {
       const metricData = (result as any)[i.toString()];
-      if (metricData?.passageB?.score !== undefined) {
-        scores.push(metricData.passageB.score);
       }
     }
     
@@ -214,23 +208,15 @@ export default function SummarySection({
                             {component.name}
                           </div>
                           <span className={`text-sm font-medium ${
-                            component.score > 8.4 ? 'text-green-600' : 
-                            component.score > 6.9 ? 'text-green-500' : 
-                            component.score > 3.9 ? 'text-amber-500' : 
                             'text-red-500'
                           }`}>
-                            {component.score.toFixed(1)}/10
                           </span>
                         </div>
                         <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div 
                             className={`absolute top-0 left-0 h-full ${
-                              component.score > 8.4 ? 'bg-green-600' : 
-                              component.score > 6.9 ? 'bg-green-500' : 
-                              component.score > 3.9 ? 'bg-amber-500' : 
                               'bg-red-500'
                             }`}
-                            style={{ width: `${component.score * 10}%` }}
                           ></div>
                         </div>
                       </div>
@@ -329,18 +315,14 @@ export default function SummarySection({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-secondary-700">
-                      Passage A – Originality Score: {result.derivativeIndex.passageA.score.toFixed(1)}/10
                     </h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`absolute top-0 left-0 h-full ${
-                          result.derivativeIndex.passageA.score >= 7 ? 'bg-green-500' : 
-                          result.derivativeIndex.passageA.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
                         }`}
-                        style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                       ></div>
                     </div>
                   </div>
@@ -350,18 +332,14 @@ export default function SummarySection({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-secondary-700">
-                      Passage B – Originality Score: {result.derivativeIndex.passageB.score.toFixed(1)}/10
                     </h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`absolute top-0 left-0 h-full ${
-                          result.derivativeIndex.passageB.score >= 7 ? 'bg-green-500' : 
-                          result.derivativeIndex.passageB.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
                         }`}
-                        style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
                       ></div>
                     </div>
                   </div>
@@ -388,18 +366,14 @@ export default function SummarySection({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-secondary-700">
-                      Passage A – Coherence Score: {result.coherence.passageA.score.toFixed(1)}/10
                     </h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`absolute top-0 left-0 h-full ${
-                          result.coherence.passageA.score >= 7 ? 'bg-green-500' : 
-                          result.coherence.passageA.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
                         }`}
-                        style={{ width: `${result.coherence.passageA.score * 10}%` }}
                       ></div>
                     </div>
                   </div>
@@ -409,18 +383,14 @@ export default function SummarySection({
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-secondary-700">
-                      Passage B – Coherence Score: {result.coherence.passageB.score.toFixed(1)}/10
                     </h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         className={`absolute top-0 left-0 h-full ${
-                          result.coherence.passageB.score >= 7 ? 'bg-green-500' : 
-                          result.coherence.passageB.score >= 4 ? 'bg-amber-500' : 
                           'bg-red-500'
                         }`}
-                        style={{ width: `${result.coherence.passageB.score * 10}%` }}
                       ></div>
                     </div>
                   </div>
@@ -448,18 +418,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage A – Accuracy Score: {result.accuracy.passageA.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.accuracy.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.accuracy.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.accuracy.passageA.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -469,18 +435,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage B – Accuracy Score: {result.accuracy.passageB.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.accuracy.passageB.score >= 7 ? 'bg-green-500' : 
-                            result.accuracy.passageB.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.accuracy.passageB.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -509,18 +471,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage A – Depth Score: {result.depth.passageA.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.depth.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.depth.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.depth.passageA.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -530,18 +488,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage B – Depth Score: {result.depth.passageB.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.depth.passageB.score >= 7 ? 'bg-green-500' : 
-                            result.depth.passageB.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.depth.passageB.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -570,18 +524,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage A – Clarity Score: {result.clarity.passageA.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.clarity.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.clarity.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.clarity.passageA.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -591,18 +541,14 @@ export default function SummarySection({
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-secondary-700">
-                        Passage B – Clarity Score: {result.clarity.passageB.score.toFixed(1)}/10
                       </h4>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-grow h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.clarity.passageB.score >= 7 ? 'bg-green-500' : 
-                            result.clarity.passageB.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.clarity.passageB.score * 10}%` }}
                         ></div>
                       </div>
                     </div>
@@ -737,22 +683,10 @@ export default function SummarySection({
                   <div>
                     <h5 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-1 mb-2">Originality</h5>
                     <p className="text-slate-700 leading-relaxed">
-                      {verdictTone === 'academic' && `Passage ${moreOriginal || 'A'} scored ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)} in originality, demonstrating ${
-                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
-                        ? `a more sophisticated intellectual framework compared to Passage B (${result.derivativeIndex.passageB.score.toFixed(1)}). The primary distinction lies in ${passageATitle}'s willingness to engage with conceptual terrain that extends beyond established paradigms.`
-                        : `greater conceptual innovation compared to Passage A (${result.derivativeIndex.passageA.score.toFixed(1)}). The distinguishing factor is ${passageBTitle}'s approach to reframing key concepts in a manner that challenges conventional understanding.`
                       }`}
                       
-                      {verdictTone === 'keep-voice' && `Passage ${moreOriginal || 'A'} is more original (scoring ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)}) because it ${
-                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
-                        ? `introduces fresher ideas and perspectives compared to Passage B (${result.derivativeIndex.passageB.score.toFixed(1)}). The main difference is that ${passageATitle || 'Passage A'} explores concepts that feel less familiar and more thought-provoking.`
-                        : `presents more innovative thinking compared to Passage A (${result.derivativeIndex.passageA.score.toFixed(1)}). What stands out is how ${passageBTitle || 'Passage B'} takes standard ideas but presents them in new, unexpected ways.`
                       }`}
                       
-                      {verdictTone === 'punchy' && `Passage ${moreOriginal || 'A'}: ${moreOriginal === 'A' ? result.derivativeIndex.passageA.score.toFixed(1) : result.derivativeIndex.passageB.score.toFixed(1)}/10. ${
-                        result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score
-                        ? `Bolder, fresher, less derivative than B (${result.derivativeIndex.passageB.score.toFixed(1)}). Breaks new ground while B treads familiar territory.`
-                        : `Innovative approach outshines A's conventionality (${result.derivativeIndex.passageA.score.toFixed(1)}). B dares to reimagine; A plays it safe.`
                       }`}
                     </p>
                   </div>
@@ -761,22 +695,10 @@ export default function SummarySection({
                   <div>
                     <h5 className="text-base font-semibold text-slate-800 border-b border-slate-200 pb-1 mb-2">Coherence</h5>
                     <p className="text-slate-700 leading-relaxed">
-                      {verdictTone === 'academic' && `Passage ${moreCoherent || 'A'} demonstrated superior coherence (${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10), ${
-                        result.coherence.passageA.score > result.coherence.passageB.score
-                        ? `with a more logically structured argument compared to Passage B (${result.coherence.passageB.score.toFixed(1)}). ${passageATitle || 'Passage A'} exhibits stronger internal consistency, with premises that support conclusions in a more disciplined manner.`
-                        : `presenting a more methodical development of ideas than Passage A (${result.coherence.passageA.score.toFixed(1)}). ${passageBTitle || 'Passage B'} maintains clearer transitions between concepts and employs more precise terminology throughout.`
                       }`}
                       
-                      {verdictTone === 'keep-voice' && `Passage ${moreCoherent || 'A'} is more coherent (${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10) because ${
-                        result.coherence.passageA.score > result.coherence.passageB.score
-                        ? `it's easier to follow than Passage B (${result.coherence.passageB.score.toFixed(1)}). The ideas connect better, and the overall structure makes more sense. There's less jumping between topics, and the main points build on each other naturally.`
-                        : `it flows more smoothly than Passage A (${result.coherence.passageA.score.toFixed(1)}). The organization is clearer, and it's easier to see how each part relates to the whole. The argument is laid out step-by-step without confusing detours.`
                       }`}
                       
-                      {verdictTone === 'punchy' && `Passage ${moreCoherent || 'A'}: ${moreCoherent === 'A' ? result.coherence.passageA.score.toFixed(1) : result.coherence.passageB.score.toFixed(1)}/10. ${
-                        result.coherence.passageA.score > result.coherence.passageB.score
-                        ? `Crystal clear compared to B's ${result.coherence.passageB.score.toFixed(1)}. Tight logic, precise flow. B wanders; A marches forward.`
-                        : `Sharp and focused versus A's muddled ${result.coherence.passageA.score.toFixed(1)}. B stays on point; A meanders between ideas.`
                       }`}
                     </p>
                   </div>
@@ -787,26 +709,19 @@ export default function SummarySection({
                     <p className="text-slate-700 leading-relaxed">
                       {verdictTone === 'academic' && `Considering both metrics, ${
                         aggregateScoreA > aggregateScoreB
-                        ? `Passage A emerges as the superior text with a composite score of ${aggregateScoreA.toFixed(1)}/10 compared to Passage B's ${aggregateScoreB.toFixed(1)}/10. While ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'B exhibits greater originality' : 'both show comparable originality'}, A's structural integrity and logical coherence elevate its overall scholarly value.`
                         : aggregateScoreB > aggregateScoreA
-                        ? `Passage B demonstrates greater overall quality with a composite score of ${aggregateScoreB.toFixed(1)}/10 compared to Passage A's ${aggregateScoreA.toFixed(1)}/10. B successfully balances ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'superior originality' : 'strong originality'} with ${result.coherence.passageB.score > result.coherence.passageA.score ? 'exceptional coherence' : 'solid coherence'}.`
                         : `both passages demonstrate equivalent overall quality, each scoring ${aggregateScoreA.toFixed(1)}/10. However, they achieve this through different strengths: Passage ${moreOriginal || 'A'} excels in originality while Passage ${moreCoherent || 'B'} demonstrates superior coherence. This illustrates how equally valuable scholarship can emerge from different intellectual approaches.`
                       }`}
                       
                       {verdictTone === 'keep-voice' && `Looking at both originality and coherence together, ${
                         aggregateScoreA > aggregateScoreB
-                        ? `Passage A is overall better with a score of ${aggregateScoreA.toFixed(1)}/10 compared to Passage B's ${aggregateScoreB.toFixed(1)}/10. The main reason is that ${result.coherence.passageA.score > result.coherence.passageB.score ? 'A is much easier to follow' : 'A has a better balance of new ideas and clear writing'}.`
                         : aggregateScoreB > aggregateScoreA
-                        ? `Passage B comes out on top with a score of ${aggregateScoreB.toFixed(1)}/10, while Passage A scores ${aggregateScoreA.toFixed(1)}/10. B succeeds because it ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? 'brings fresher ideas to the table' : 'combines solid ideas with clear organization'}.`
                         : `both passages are equally strong overall, with identical scores of ${aggregateScoreA.toFixed(1)}/10. They just have different strengths - Passage ${moreOriginal || 'A'} is more original, while Passage ${moreCoherent || 'B'} is easier to follow. This shows there's more than one way to write effectively.`
                       }`}
                       
                       {verdictTone === 'punchy' && (
                         aggregateScoreA > aggregateScoreB
-                        ? `Final verdict: A wins (${aggregateScoreA.toFixed(1)} vs ${aggregateScoreB.toFixed(1)}). ${result.coherence.passageA.score > result.coherence.passageB.score ? "Superior structure trumps B's ambition" : "Better balanced, more complete package"}. Read A for substance, B for inspiration.`
                         : aggregateScoreB > aggregateScoreA
-                        ? `Final verdict: B takes it (${aggregateScoreB.toFixed(1)} vs ${aggregateScoreA.toFixed(1)}). ${result.derivativeIndex.passageB.score > result.derivativeIndex.passageA.score ? "Fresh thinking beats familiar clarity" : "Sharper execution, more compelling overall"}. A plays it safe; B takes the prize.`
-                        : `Final verdict: Dead heat: both ${aggregateScoreA.toFixed(1)}/10. A brings ${result.derivativeIndex.passageA.score > result.derivativeIndex.passageB.score ? "originality" : "coherence"}, B delivers ${result.coherence.passageB.score > result.coherence.passageA.score ? "clarity" : "innovation"}. Different paths, same destination.`
                       )}
                     </p>
                   </div>

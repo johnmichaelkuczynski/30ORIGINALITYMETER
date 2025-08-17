@@ -136,7 +136,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("AI detection result:", {
         isAIGenerated: result.isAIGenerated,
-        score: result.score,
         confidence: result.confidence
       });
       
@@ -246,19 +245,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
               ],
             },
             passageB: {
-              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
               ],
             },
           },
@@ -276,13 +267,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
             },
             passageB: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
@@ -401,7 +390,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             derivativeIndex: {
               passageA: {
-                score: 9.1,
                 assessment: "Remarkably original philosophical framework",
                 strengths: [
                   "Novel epistemological approach",
@@ -414,7 +402,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ]
               },
               passageB: {
-                score: 5.0,
                 assessment: "Not applicable - single passage analysis",
                 strengths: ["Not applicable"],
                 weaknesses: ["Not applicable"]
@@ -437,7 +424,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             coherence: {
               passageA: {
-                score: 9.0,
                 assessment: "Exceptionally coherent philosophical argument",
                 strengths: [
                   "Logical progression from concrete example to abstract principle",
@@ -449,7 +435,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ]
               },
               passageB: {
-                score: 5.0,
                 assessment: "Not applicable - single passage analysis",
                 strengths: ["Not applicable"],
                 weaknesses: ["Not applicable"]
@@ -509,7 +494,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 8.7,
               assessment: "Highly original philosophical framework",
               strengths: [
                 "Novel epistemological framework",
@@ -522,7 +506,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ]
             },
             passageB: {
-              score: 5.0,
               assessment: "Not applicable (single passage analysis)",
               strengths: ["Not applicable"],
               weaknesses: ["Not applicable"]
@@ -545,7 +528,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 8.8,
               assessment: "Highly coherent philosophical argument",
               strengths: [
                 "Clear logical progression",
@@ -557,7 +539,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ]
             },
             passageB: {
-              score: 5.0,
               assessment: "Not applicable (single passage analysis)",
               strengths: ["Not applicable"],
               weaknesses: ["Not applicable"]
@@ -641,19 +622,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
               ],
             },
             passageB: {
-              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
               ],
             },
           },
@@ -671,13 +644,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
             },
             passageB: {
-              score: 5,
               assessment: "Baseline coherence assessment",
               strengths: ["Typical logical structure", "Standard flow of ideas"],
               weaknesses: ["No significant weaknesses identified in the baseline"]
@@ -821,17 +792,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 5,
               components: [
-                { name: "Conceptual Innovation", score: 5 },
-                { name: "Methodological Novelty", score: 5 },
-                { name: "Contextual Application", score: 5 },
               ],
             },
             passageB: {
-              score: 10,
               components: [
-                { name: "Reference Standard", score: 10 },
               ],
             },
           },
@@ -849,13 +814,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
             },
             passageB: {
-              score: 10,
               assessment: "Reference corpus used for comparison.",
               strengths: ["Reference Standard"],
               weaknesses: []

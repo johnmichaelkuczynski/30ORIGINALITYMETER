@@ -8,7 +8,6 @@ import { Gavel, Target, CheckCircle, TrendingUp, FileText, Award, Quote, Downloa
 import { EmailReportDialog } from "./EmailReportDialog";
 
 interface CoreParameter {
-  score: number;
   assessment: string;
   quotes: string[];
 }
@@ -94,7 +93,6 @@ ${analysis.superiorReconstruction}
 CORE PARAMETERS ANALYSIS:
 ${Object.entries(analysis.coreParameters).map(([key, param]: [string, any]) => `
 ${getParameterLabel(key)}:
-Score: ${param.score}/100
 Assessment: ${param.assessment}
 Supporting Quotes: ${param.quotes.map((q: string) => `"${q}"`).join(', ')}
 `).join('\n')}
@@ -124,6 +122,7 @@ export default function ArgumentativeResults({
   passageATitle, 
   passageBTitle 
 }: ArgumentativeResultsProps) {
+  
   const getCogencyColor = (score: number) => {
     if (score >= 90) return "text-green-600 bg-green-50 border-green-200";
     if (score >= 80) return "text-blue-600 bg-blue-50 border-blue-200";
@@ -145,18 +144,7 @@ export default function ArgumentativeResults({
     }
   };
 
-  const getParameterLabel = (parameter: string) => {
-    switch (parameter) {
-      case 'clarityOfArgument': return 'Clarity of Argument';
-      case 'inferentialCohesion': return 'Inferential Cohesion';
-      case 'conceptualPrecision': return 'Conceptual Precision';
-      case 'evidentialSupport': return 'Evidential Support';
-      case 'counterargumentHandling': return 'Counterargument Handling';
-      case 'cognitiveRisk': return 'Cognitive Risk';
-      case 'epistemicControl': return 'Epistemic Control';
-      default: return parameter;
-    }
-  };
+
 
   if (isSingleMode && result.singlePaperAnalysis) {
     const analysis = result.singlePaperAnalysis;
@@ -231,12 +219,9 @@ export default function ArgumentativeResults({
                       {getParameterLabel(key)}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getCogencyColor(param.score)}>
-                        {param.score}/100
                       </Badge>
                     </div>
                   </CardTitle>
-                  <Progress value={param.score} className="w-full" />
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-gray-700 leading-relaxed">

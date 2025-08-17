@@ -321,17 +321,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 5,
               components: [
-                { name: "Originality", score: 5 },
-                { name: "Conceptual Innovation", score: 5 }
               ]
             },
             passageB: {
-              score: 5,
               components: [
-                { name: "Originality", score: 5 },
-                { name: "Conceptual Innovation", score: 5 }
               ]
             },
           },
@@ -349,13 +343,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
             },
             passageB: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
@@ -411,7 +403,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!process.env.GPTZERO_API_KEY) {
         return res.status(400).json({
           isAIGenerated: false,
-          score: 0,
           confidence: "Low",
           details: "GPTZero API key not configured"
         });
@@ -426,7 +417,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error in AI detection endpoint:", error);
       res.status(500).json({
         isAIGenerated: false,
-        score: 0,
         confidence: "Low",
         details: "AI detection service error: " + (error instanceof Error ? error.message : "Unknown error")
       });
@@ -502,7 +492,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             derivativeIndex: {
               passageA: {
-                score: 9.1,
                 assessment: "Remarkably original philosophical framework",
                 strengths: [
                   "Novel epistemological approach",
@@ -529,7 +518,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             coherence: {
               passageA: {
-                score: 9.0,
                 assessment: "Exceptionally coherent philosophical argument",
                 strengths: [
                   "Logical progression from concrete example to abstract principle",
@@ -590,7 +578,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             derivativeIndex: {
               passageA: {
-                score: 8.7,
                 assessment: "Highly original philosophical framework",
                 strengths: [
                   "Novel epistemological framework",
@@ -617,7 +604,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             coherence: {
               passageA: {
-                score: 8.8,
                 assessment: "Highly coherent philosophical argument",
                 strengths: [
                   "Clear logical progression",
@@ -714,7 +700,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           derivativeIndex: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
@@ -731,7 +716,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           coherence: {
             passageA: {
-              score: 5,
               assessment: "Analysis currently unavailable - please try again later.",
               strengths: ["Analysis currently unavailable"],
               weaknesses: ["Analysis currently unavailable"]
@@ -1725,25 +1709,25 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     let overallScore = 0;
     let scoreCount = 0;
     
-    if (derivativeIndex.score && derivativeIndex.score > 0) {
-      overallScore += (derivativeIndex.score * 10); // Convert 0-10 to 0-100 scale
+    if (conceptualLineage.score && conceptualLineage.score > 0) {
+      overallScore += conceptualLineage.score;
       scoreCount++;
     }
     if (semanticDistance.distance && semanticDistance.distance > 0) {
       overallScore += semanticDistance.distance;
       scoreCount++;
     }
-    if (coherence.score && coherence.score > 0) {
-      overallScore += (coherence.score * 10);
+    if (derivativeIndex.score && derivativeIndex.score > 0) {
+      overallScore += derivativeIndex.score;
       scoreCount++;
     }
-    if (depth.score && depth.score > 0) {
-      overallScore += (depth.score * 10);
+    if (coherence.score && coherence.score > 0) {
+      overallScore += coherence.score;
       scoreCount++;
     }
     
     // Use calculated score or fallback to derivative index
-    overallScore = scoreCount > 0 ? Math.round(overallScore / scoreCount) : (derivativeIndex.score ? derivativeIndex.score * 10 : 0);
+    overallScore = scoreCount > 0 ? Math.round(overallScore / scoreCount) : derivativeIndex.score || 75;
     
     const passageText = passageA.text || '';
     const passages = passageText.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0).slice(0, 5); // Limit for performance
@@ -1790,7 +1774,6 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     report += '2. SEMANTIC DISTANCE & ORIGINALITY\n';
     report += '==================================\n\n';
     report += 'Distance from Conventional Writing:\n';
-    report += `Score: ${semanticDistance.distance || derivativeIndex.score || 'Under evaluation'}/100\n`;
     report += `Classification: ${semanticDistance.label || derivativeIndex.assessment || 'Developing originality'}\n\n`;
     report += 'Supporting Analysis:\n';
     
@@ -1809,7 +1792,6 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     // 3. Derivative Index Assessment
     report += '3. DERIVATIVE INDEX ASSESSMENT\n';
     report += '==============================\n\n';
-    report += `Originality Score: ${derivativeIndex.score || 'N/A'}/100\n`;
     report += `Assessment: ${derivativeIndex.assessment || 'Evaluation demonstrates clear engagement with original thinking'}\n\n`;
     
     if (derivativeIndex.strengths) {
@@ -1831,21 +1813,18 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
     const secondPassage = passages.length > 1 ? passages[1]?.substring(0, 200) : passageText.substring(200, 400);
     report += 'Quotation-Based Analysis:\n';
     report += `"${secondPassage}${secondPassage.length >= 200 ? '...' : ''}"\n`;
-    report += `This section exemplifies the ${derivativeIndex.score ? (derivativeIndex.score > 7 ? 'strong originality' : derivativeIndex.score > 5 ? 'moderate originality' : 'developing originality') : 'analytical depth'} evident throughout the work.\n\n`;
     
     // 4. Quality Metrics Analysis
     report += '4. QUALITY METRICS ANALYSIS\n';
     report += '===========================\n\n';
     
     report += 'Coherence Assessment:\n';
-    report += `Score: ${coherence.score || 9}/100\n`;
     report += `Analysis: ${coherence.assessment || 'The passage demonstrates strong logical consistency and clear articulation of concepts, maintaining internal coherence throughout.'}\n\n`;
     const coherenceEvidence = passages[Math.floor(passages.length/2)]?.substring(0, 150) || passageText.substring(Math.floor(passageText.length/2), Math.floor(passageText.length/2) + 150);
     report += 'Coherence Evidence:\n';
     report += `"${coherenceEvidence}${coherenceEvidence.length >= 150 ? '...' : ''}"\n\n`;
     
     report += 'Conceptual Depth:\n';
-    report += `Score: ${depth.score || 8}/100\n`;
     report += `Analysis: ${depth.assessment || 'The work demonstrates significant intellectual depth by introducing frameworks that potentially impact multiple areas of discourse.'}\n\n`;
     const depthIndicators = passages[passages.length - 1]?.substring(0, 150) || passageText.substring(passageText.length - 150);
     report += 'Depth Indicators:\n';
@@ -2401,13 +2380,11 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
               content += `Document A:\n`;
               content += `  Quotation: "${metricData.passageA.quotation}"\n`;
               content += `  Explanation: ${metricData.passageA.explanation}\n`;
-              content += `  Score: ${metricData.passageA.score}/100\n`;
             }
             if (metricData.passageB) {
               content += `Document B:\n`;
               content += `  Quotation: "${metricData.passageB.quotation}"\n`;
               content += `  Explanation: ${metricData.passageB.explanation}\n`;
-              content += `  Score: ${metricData.passageB.score}/100\n`;
             }
           }
           content += `\n`;
@@ -2469,13 +2446,11 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
               content += `Document A:\n`;
               content += `  Quotation: "${metricData.passageA.quotation}"\n`;
               content += `  Explanation: ${metricData.passageA.explanation}\n`;
-              content += `  Score: ${metricData.passageA.score}/100\n`;
             }
             if (metricData.passageB) {
               content += `Document B:\n`;
               content += `  Quotation: "${metricData.passageB.quotation}"\n`;
               content += `  Explanation: ${metricData.passageB.explanation}\n`;
-              content += `  Score: ${metricData.passageB.score}/100\n`;
             }
           }
           content += `\n`;
@@ -2537,13 +2512,11 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
               content += `Document A:\n`;
               content += `  Quotation: "${metricData.passageA.quotation}"\n`;
               content += `  Explanation: ${metricData.passageA.explanation}\n`;
-              content += `  Score: ${metricData.passageA.score}/100\n`;
             }
             if (metricData.passageB) {
               content += `Document B:\n`;
               content += `  Quotation: "${metricData.passageB.quotation}"\n`;
               content += `  Explanation: ${metricData.passageB.explanation}\n`;
-              content += `  Score: ${metricData.passageB.score}/100\n`;
             }
           }
           content += `\n`;
@@ -2605,13 +2578,11 @@ Always provide helpful, accurate, and well-formatted responses. When generating 
               content += `Document A:\n`;
               content += `  Quotation: "${metricData.passageA.quotation}"\n`;
               content += `  Explanation: ${metricData.passageA.explanation}\n`;
-              content += `  Score: ${metricData.passageA.score}/100\n`;
             }
             if (metricData.passageB) {
               content += `Document B:\n`;
               content += `  Quotation: "${metricData.passageB.quotation}"\n`;
               content += `  Explanation: ${metricData.passageB.explanation}\n`;
-              content += `  Score: ${metricData.passageB.score}/100\n`;
             }
           }
           content += `\n`;

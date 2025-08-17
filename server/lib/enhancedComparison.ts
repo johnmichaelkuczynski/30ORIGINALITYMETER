@@ -40,14 +40,12 @@ interface ComparisonVector {
 }
 
 interface RipOffRisk {
-  score: number; // 0-100
   label: string; // "Unrelated", "Possibly derivative", etc.
   explanation: string;
   matchingSections?: string[];
 }
 
 interface DevelopmentRelationship {
-  score: number; // 0-10
   direction: 'A develops B' | 'B develops A' | 'mutual development' | 'no development';
   description: string;
 }

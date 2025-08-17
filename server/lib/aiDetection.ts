@@ -3,7 +3,6 @@ import axios from 'axios';
 // Interface for AI Detection result
 export interface AIDetectionResult {
   isAIGenerated: boolean;
-  score: number;       // 0-1 score, higher means more likely AI generated
   confidence: string;  // "Low", "Medium", "High"
   details?: string;    // Optional explanation
 }
@@ -25,7 +24,6 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
       console.error("Invalid text provided to detectAIContent:", typeof text);
       return {
         isAIGenerated: false,
-        score: 0,
         confidence: "Low",
         details: "Invalid text format for detection"
       };
@@ -38,7 +36,6 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
       console.log("Text too short for reliable detection:", trimmedText.length, "characters");
       return {
         isAIGenerated: false,
-        score: 0,
         confidence: "Low",
         details: "Text too short for reliable detection"
       };
@@ -50,7 +47,6 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
       // Return a generic response if API key is missing
       return {
         isAIGenerated: Math.random() > 0.5, // Random placeholder
-        score: Math.random(),
         confidence: "Low",
         details: "API key not configured - detection service unavailable"
       };
@@ -105,7 +101,6 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
     
     return {
       isAIGenerated: overallScore > 0.5,
-      score: overallScore,
       confidence,
       details
     };
@@ -115,7 +110,6 @@ export async function detectAIContent(text: string): Promise<AIDetectionResult> 
     // Fallback to a safe default
     return {
       isAIGenerated: false,
-      score: 0,
       confidence: "Low",
       details: "GPTZero detection service error: " + (error instanceof Error ? error.message : "Unknown error")
     };

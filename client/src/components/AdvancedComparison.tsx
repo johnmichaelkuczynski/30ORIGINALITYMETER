@@ -8,13 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Brain, Target, Users, FileText } from "lucide-react";
 
 interface AdvancedComparisonResult {
-  originality_score: number;
   is_ripoff: boolean;
   is_development: boolean;
   development_mode: string;
   development_strength: number;
   doctrinal_alignment: {
-    alignment_score: number;
     type: string;
     affinity_axis: string;
   };
@@ -31,7 +29,6 @@ interface AdvancedComparisonResult {
       cognitive_strength: string[];
       posture: string;
     };
-    match_score: number;
     narrative_relationship: string;
   };
   summary: string;
@@ -92,7 +89,6 @@ export default function AdvancedComparison({
     }
   };
 
-  const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     if (score >= 40) return 'text-orange-600';

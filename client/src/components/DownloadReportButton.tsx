@@ -30,7 +30,6 @@ function generateBasicReportHTML(
         h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
         h2 { color: #34495e; margin-top: 25px; }
         .metric { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #3498db; }
-        .score { font-weight: bold; color: #e74c3c; }
         strong { color: #2c3e50; }
     </style>
 </head>
@@ -45,7 +44,6 @@ function generateBasicReportHTML(
     
     ${result.derivativeIndex?.passageA ? `
     <div class="metric">
-        <strong>Derivative Index:</strong> <span class="score">${result.derivativeIndex.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.derivativeIndex.passageA.assessment || 'No assessment available'}
         ${(result.derivativeIndex.passageA as any).strengths ? `<br><strong>Strengths:</strong> ${(result.derivativeIndex.passageA as any).strengths.join(', ')}` : ''}
         ${(result.derivativeIndex.passageA as any).weaknesses ? `<br><strong>Areas for Improvement:</strong> ${(result.derivativeIndex.passageA as any).weaknesses.join(', ')}` : ''}
@@ -66,25 +64,21 @@ function generateBasicReportHTML(
     
     ${result.coherence?.passageA ? `
     <div class="metric">
-        <strong>Coherence:</strong> <span class="score">${result.coherence.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.coherence.passageA.assessment || 'No assessment available'}
     </div>` : ''}
     
     ${result.depth?.passageA ? `
     <div class="metric">
-        <strong>Conceptual Depth:</strong> <span class="score">${result.depth.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.depth.passageA.assessment || 'No assessment available'}
     </div>` : ''}
     
     ${result.accuracy?.passageA ? `
     <div class="metric">
-        <strong>Accuracy:</strong> <span class="score">${result.accuracy.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.accuracy.passageA.assessment || 'No assessment available'}
     </div>` : ''}
     
     ${result.clarity?.passageA ? `
     <div class="metric">
-        <strong>Clarity:</strong> <span class="score">${result.clarity.passageA.score || 'N/A'}/10</span><br>
         <strong>Assessment:</strong> ${result.clarity.passageA.assessment || 'No assessment available'}
     </div>` : ''}
     
@@ -93,7 +87,6 @@ function generateBasicReportHTML(
     <div class="metric">
         <strong>AI Detection:</strong> ${result.aiDetection.passageA.isAIGenerated ? 'Likely AI-generated' : 'Likely human-written'}<br>
         <strong>Confidence:</strong> ${result.aiDetection.passageA.confidence}<br>
-        <strong>Score:</strong> ${((result.aiDetection.passageA.score || 0) * 100).toFixed(1)}%
         ${result.aiDetection.passageA.details ? `<br><strong>Details:</strong> ${result.aiDetection.passageA.details}` : ''}
     </div>` : ''}
     

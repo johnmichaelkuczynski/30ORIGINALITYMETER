@@ -199,17 +199,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
     if (!result.derivativeIndex) {
       result.derivativeIndex = {
         passageA: {
-          score: 5,
           components: [
-            { name: "Originality", score: 5 },
-            { name: "Conceptual Innovation", score: 5 }
           ]
         },
         passageB: {
-          score: 5,
           components: [
-            { name: "Originality", score: 5 },
-            { name: "Conceptual Innovation", score: 5 }
           ]
         }
       };
@@ -235,13 +229,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
     if (!result.coherence) {
       result.coherence = {
         passageA: {
-          score: 7,
           assessment: "Generally coherent (auto-generated assessment)",
           strengths: ["Logical flow"],
           weaknesses: ["Could improve transitions"]
         },
         passageB: {
-          score: 7,
           assessment: "Standard coherence (auto-generated assessment)",
           strengths: ["Follows expected structure"],
           weaknesses: ["Standard limitations"]
@@ -253,13 +245,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
     if (!result.accuracy) {
       result.accuracy = {
         passageA: {
-          score: 7,
           assessment: "Generally accurate (auto-generated assessment)",
           strengths: ["Reasonable claims"],
           weaknesses: ["Some areas need more precision"]
         },
         passageB: {
-          score: 7,
           assessment: "Standard accuracy (auto-generated assessment)",
           strengths: ["Follows conventional knowledge"],
           weaknesses: ["Standard limitations"]
@@ -271,13 +261,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
     if (!result.depth) {
       result.depth = {
         passageA: {
-          score: 6,
           assessment: "Moderate depth (auto-generated assessment)",
           strengths: ["Covers main points"],
           weaknesses: ["Could explore implications further"]
         },
         passageB: {
-          score: 6,
           assessment: "Standard depth (auto-generated assessment)",
           strengths: ["Adequate coverage"],
           weaknesses: ["Expected limitations"]
@@ -289,13 +277,11 @@ OUTPUT FORMAT: Pure JSON only with the structure shown in the system prompt, no 
     if (!result.clarity) {
       result.clarity = {
         passageA: {
-          score: 7,
           assessment: "Generally clear (auto-generated assessment)",
           strengths: ["Readable prose"],
           weaknesses: ["Some technical terms could be explained better"]
         },
         passageB: {
-          score: 7,
           assessment: "Standard clarity (auto-generated assessment)",
           strengths: ["Conventional expression"],
           weaknesses: ["Standard limitations"]

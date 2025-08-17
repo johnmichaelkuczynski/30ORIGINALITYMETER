@@ -60,19 +60,15 @@ export interface AnalysisResult {
   };
   derivativeIndex?: {
     passageA?: {
-      score: number;
       components?: Array<{
         name: string;
-        score: number;
       }>;
       description?: string;
       assessment?: string;
     };
     passageB?: {
-      score: number;
       components?: Array<{
         name: string;
-        score: number;
       }>;
       description?: string;
       assessment?: string;
@@ -104,14 +100,12 @@ export interface AnalysisResult {
   };
   coherence?: {
     passageA?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
       description?: string;
     };
     passageB?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
@@ -121,13 +115,11 @@ export interface AnalysisResult {
   };
   accuracy?: {
     passageA?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
     passageB?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
@@ -136,13 +128,11 @@ export interface AnalysisResult {
   };
   depth?: {
     passageA?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
     passageB?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
@@ -151,13 +141,11 @@ export interface AnalysisResult {
   };
   clarity?: {
     passageA?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
     };
     passageB?: {
-      score: number;
       assessment: string;
       strengths: string[];
       weaknesses: string[];
@@ -166,18 +154,15 @@ export interface AnalysisResult {
   };
   novelty?: {
     passageA?: {
-      score: number;
       description?: string;
       assessment?: string;
     };
     passageB?: {
-      score: number;
       description?: string;
       assessment?: string;
     };
   };
   conceptualOverlap?: {
-    score: number;
     description?: string;
   };
   aiDetection?: {
@@ -239,7 +224,6 @@ export interface GeneratedPassageResult {
 
 export interface AIDetectionResult {
   isAIGenerated: boolean;
-  score: number;       // 0-1 score, higher means more likely AI generated
   confidence: string;  // "Low", "Medium", "High"
   details?: string;    // Optional explanation
 }

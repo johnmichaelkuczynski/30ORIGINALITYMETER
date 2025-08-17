@@ -31,37 +31,30 @@ interface ArgumentativeResult {
     superiorReconstruction: string;
     coreParameters: {
       clarityOfArgument: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       inferentialCohesion: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       conceptualPrecision: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       evidentialSupport: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       counterargumentHandling: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       cognitiveRisk: {
-        score: number;
         assessment: string;
         quotes: string[];
       };
       epistemicControl: {
-        score: number;
         assessment: string;
         quotes: string[];
       };

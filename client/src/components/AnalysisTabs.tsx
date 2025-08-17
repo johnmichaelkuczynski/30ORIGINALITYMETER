@@ -355,15 +355,11 @@ export default function AnalysisTabs({
                 <div className="bg-gray-50 p-5 rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs text-secondary-500">Derivative</span>
-                    <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageA.score.toFixed(1)}/10</span>
                     <span className="text-xs text-secondary-500">Original</span>
                   </div>
                   <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                     <div 
-                      className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.derivativeIndex.passageA.score)} text-white text-xs font-medium`}
-                      style={{ width: `${result.derivativeIndex.passageA.score * 10}%` }}
                     >
-                      {result.derivativeIndex.passageA.score.toFixed(1)}
                     </div>
                     {/* Vertical markers for scale */}
                     <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
@@ -380,8 +376,6 @@ export default function AnalysisTabs({
                         >
                           {component.name}
                         </div>
-                        <span className={`text-sm font-medium ${getScoreTextColorClass(component.score)}`}>
-                          {component.score.toFixed(1)}/10
                         </span>
                       </div>
                     ))}
@@ -395,15 +389,11 @@ export default function AnalysisTabs({
                   <div className="bg-gray-50 p-5 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs text-secondary-500">Derivative</span>
-                      <span className="text-sm font-semibold text-primary-700">{result.derivativeIndex.passageB.score.toFixed(1)}/10</span>
                       <span className="text-xs text-secondary-500">Original</span>
                     </div>
                     <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                       <div 
-                        className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.derivativeIndex.passageB.score)} text-white text-xs font-medium`}
-                        style={{ width: `${result.derivativeIndex.passageB.score * 10}%` }}
                       >
-                        {result.derivativeIndex.passageB.score.toFixed(1)}
                       </div>
                       {/* Vertical markers for scale */}
                       <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
@@ -420,8 +410,6 @@ export default function AnalysisTabs({
                           >
                             {component.name}
                           </div>
-                          <span className={`text-sm font-medium ${getScoreTextColorClass(component.score)}`}>
-                            {component.score.toFixed(1)}/10
                           </span>
                         </div>
                       ))}
@@ -558,15 +546,11 @@ export default function AnalysisTabs({
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
                     <span className="text-sm font-semibold text-primary-700">
-                      {result.coherence.passageA.score.toFixed(1)}/10
                     </span>
                   </div>
                   <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                     <div 
-                      className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.coherence.passageA.score)} text-white text-xs font-medium`}
-                      style={{ width: `${result.coherence.passageA.score * 10}%` }}
                     >
-                      {result.coherence.passageA.score.toFixed(1)}
                     </div>
                     {/* Vertical markers for scale */}
                     <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
@@ -605,15 +589,11 @@ export default function AnalysisTabs({
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-sm font-medium text-secondary-700">Coherence Score</span>
                       <span className="text-sm font-semibold text-primary-700">
-                        {result.coherence.passageB.score.toFixed(1)}/10
                       </span>
                     </div>
                     <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden mb-4">
                       <div 
-                        className={`absolute top-0 bottom-0 left-0 flex items-center justify-center ${getScoreColorClass(result.coherence.passageB.score)} text-white text-xs font-medium`} 
-                        style={{ width: `${result.coherence.passageB.score * 10}%` }}
                       >
-                        {result.coherence.passageB.score.toFixed(1)}
                       </div>
                       {/* Vertical markers for scale */}
                       <div className="absolute top-0 bottom-0 left-1/4 w-px bg-gray-300"></div>
@@ -671,23 +651,18 @@ export default function AnalysisTabs({
                     
                     {/* Calculate aggregate - weighted to favor both originality and coherence */}
                     {(() => {
-                      const originalityScore = result.derivativeIndex.passageA.score;
-                      const coherenceScore = result.coherence.passageA.score;
                       
                       // OVERRIDE: Direct implementation of the specified scoring formula
                       // Treat originalityScore as conceptualInnovation
                       const conceptualInnovation = originalityScore;
                       
                       // Get other scores with defaults if not provided
-                      const depth = result.depth?.passageA?.score || 5;
                       
                       // Coherence is already available from the parameter
                       
                       // Treat accuracy as insightDensity
-                      const insightDensity = result.accuracy?.passageA?.score || 5;
                       
                       // Methodological novelty (using clarity as a proxy if available)
-                      const methodologicalNovelty = result.clarity?.passageA?.score || 
                         Math.min(10, (originalityScore * 0.6) + (depth * 0.4));
                       
                       // Final score using the mandated formula: 
@@ -742,12 +717,8 @@ export default function AnalysisTabs({
                   <div>
                     <h5 className="text-sm font-medium text-secondary-700 mb-1">Originality Score</h5>
                     <div className="flex items-center justify-between">
-                      <span className={`text-base font-semibold ${result.derivativeIndex.passageA.score > 7 ? 'text-green-600' : result.derivativeIndex.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
-                        {result.derivativeIndex.passageA.score.toFixed(1)}/10
                       </span>
                       <span className="text-xs text-secondary-500">
-                        {result.derivativeIndex.passageA.score > 7 ? 'High Originality' : 
-                         result.derivativeIndex.passageA.score > 4 ? 'Moderate Originality' : 'Low Originality'}
                       </span>
                     </div>
                   </div>
@@ -755,12 +726,8 @@ export default function AnalysisTabs({
                   <div>
                     <h5 className="text-sm font-medium text-secondary-700 mb-1">Coherence Score</h5>
                     <div className="flex items-center justify-between">
-                      <span className={`text-base font-semibold ${result.coherence.passageA.score > 7 ? 'text-green-600' : result.coherence.passageA.score > 4 ? 'text-blue-600' : 'text-amber-600'}`}>
-                        {result.coherence.passageA.score.toFixed(1)}/10
                       </span>
                       <span className="text-xs text-secondary-500">
-                        {result.coherence.passageA.score > 7 ? 'High Coherence' : 
-                         result.coherence.passageA.score > 4 ? 'Moderate Coherence' : 'Low Coherence'}
                       </span>
                     </div>
                   </div>
@@ -809,15 +776,10 @@ export default function AnalysisTabs({
                       <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.accuracy.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.accuracy.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.accuracy.passageA.score * 10}%` }}
                         ></div>
                       </div>
-                      <span className={`text-base font-semibold ${result.accuracy.passageA.score > 7 ? 'text-green-600' : result.accuracy.passageA.score > 4 ? 'text-indigo-600' : 'text-amber-600'}`}>
-                        {result.accuracy.passageA.score.toFixed(1)}/10
                       </span>
                     </div>
                   </div>
@@ -858,15 +820,10 @@ export default function AnalysisTabs({
                         <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                           <div 
                             className={`absolute top-0 left-0 h-full ${
-                              result.accuracy.passageB.score >= 7 ? 'bg-green-500' : 
-                              result.accuracy.passageB.score >= 4 ? 'bg-amber-500' : 
                               'bg-red-500'
                             }`}
-                            style={{ width: `${result.accuracy.passageB.score * 10}%` }}
                           ></div>
                         </div>
-                        <span className={`text-base font-semibold ${result.accuracy.passageB.score > 7 ? 'text-green-600' : result.accuracy.passageB.score > 4 ? 'text-indigo-600' : 'text-amber-600'}`}>
-                          {result.accuracy.passageB.score.toFixed(1)}/10
                         </span>
                       </div>
                     </div>
@@ -935,15 +892,10 @@ export default function AnalysisTabs({
                       <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.depth.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.depth.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.depth.passageA.score * 10}%` }}
                         ></div>
                       </div>
-                      <span className={`text-base font-semibold ${result.depth.passageA.score > 7 ? 'text-green-600' : result.depth.passageA.score > 4 ? 'text-amber-600' : 'text-red-600'}`}>
-                        {result.depth.passageA.score.toFixed(1)}/10
                       </span>
                     </div>
                   </div>
@@ -984,15 +936,10 @@ export default function AnalysisTabs({
                         <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                           <div 
                             className={`absolute top-0 left-0 h-full ${
-                              result.depth.passageB.score >= 7 ? 'bg-green-500' : 
-                              result.depth.passageB.score >= 4 ? 'bg-amber-500' : 
                               'bg-red-500'
                             }`}
-                            style={{ width: `${result.depth.passageB.score * 10}%` }}
                           ></div>
                         </div>
-                        <span className={`text-base font-semibold ${result.depth.passageB.score > 7 ? 'text-green-600' : result.depth.passageB.score > 4 ? 'text-amber-600' : 'text-red-600'}`}>
-                          {result.depth.passageB.score.toFixed(1)}/10
                         </span>
                       </div>
                     </div>
@@ -1061,15 +1008,10 @@ export default function AnalysisTabs({
                       <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                         <div 
                           className={`absolute top-0 left-0 h-full ${
-                            result.clarity.passageA.score >= 7 ? 'bg-green-500' : 
-                            result.clarity.passageA.score >= 4 ? 'bg-amber-500' : 
                             'bg-red-500'
                           }`}
-                          style={{ width: `${result.clarity.passageA.score * 10}%` }}
                         ></div>
                       </div>
-                      <span className={`text-base font-semibold ${result.clarity.passageA.score > 7 ? 'text-green-600' : result.clarity.passageA.score > 4 ? 'text-teal-600' : 'text-amber-600'}`}>
-                        {result.clarity.passageA.score.toFixed(1)}/10
                       </span>
                     </div>
                   </div>
@@ -1110,15 +1052,10 @@ export default function AnalysisTabs({
                         <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mr-3">
                           <div 
                             className={`absolute top-0 left-0 h-full ${
-                              result.clarity.passageB.score >= 7 ? 'bg-green-500' : 
-                              result.clarity.passageB.score >= 4 ? 'bg-amber-500' : 
                               'bg-red-500'
                             }`}
-                            style={{ width: `${result.clarity.passageB.score * 10}%` }}
                           ></div>
                         </div>
-                        <span className={`text-base font-semibold ${result.clarity.passageB.score > 7 ? 'text-green-600' : result.clarity.passageB.score > 4 ? 'text-teal-600' : 'text-amber-600'}`}>
-                          {result.clarity.passageB.score.toFixed(1)}/10
                         </span>
                       </div>
                     </div>

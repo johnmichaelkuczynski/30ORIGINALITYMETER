@@ -51,7 +51,7 @@ export function getScoreTextColorClass(score: number): string {
  * @param type The type of score (originality, coherence, etc.)
  * @returns A human-readable label for the score
  */
-export function getScoreLabel(score: number, type: 'originality' | 'coherence' | 'quality' = 'quality'): string {
+export function getScoreLabel(score: number, type: string): string {
   const highLabel = type === 'originality' ? 'High Originality' : 
                     type === 'coherence' ? 'High Coherence' : 'Excellent';
   
