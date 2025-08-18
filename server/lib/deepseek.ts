@@ -255,8 +255,10 @@ Score both on: ${questions.slice(0, 3).join(', ')}
 
 JSON format:
 {
-  "passageA": {"0": {"score": 50, "explanation": "brief analysis"}},
-  "passageB": {"0": {"score": 50, "explanation": "brief analysis"}}
+  "0": {
+    "passageA": {"score": 50, "explanation": "brief analysis"},
+    "passageB": {"score": 50, "explanation": "brief analysis"}
+  }
 }`;
 
   try {
@@ -287,8 +289,10 @@ JSON format:
     } catch (parseError) {
       // Fallback simple result if JSON parsing fails
       result = {
-        passageA: { "0": { score: 50, explanation: "Analysis completed" } },
-        passageB: { "0": { score: 50, explanation: "Analysis completed" } }
+        "0": {
+          passageA: { score: 50, explanation: "Analysis completed" },
+          passageB: { score: 50, explanation: "Analysis completed" }
+        }
       };
     }
 
@@ -303,8 +307,10 @@ JSON format:
     console.error(`Error in ${evaluationType}:`, error);
     // Return fallback result instead of throwing
     return {
-      passageA: { "0": { score: 50, explanation: "Analysis completed with fallback" } },
-      passageB: { "0": { score: 50, explanation: "Analysis completed with fallback" } },
+      "0": {
+        passageA: { score: 50, explanation: "Analysis completed with fallback" },
+        passageB: { score: 50, explanation: "Analysis completed with fallback" }
+      },
       provider: "DeepSeek",
       analysis_type: evaluationType,
       timestamp: new Date().toISOString()
