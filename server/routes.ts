@@ -811,8 +811,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for dual intelligence analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
+      // Route to appropriate service based on provider
+      let result;
+      switch (provider) {
+        case "deepseek":
+          result = await deepseekService.analyzeIntelligenceDual(passageA, passageB);
+          break;
+        case "anthropic":
+          result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
+          break;
+        case "openai":
+          result = await openaiService.analyzeIntelligenceDual(passageA, passageB);
+          break;
+        case "perplexity":
+          result = await perplexityService.analyzeIntelligenceDual(passageA, passageB);
+          break;
+        default:
+          result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
+      }
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
