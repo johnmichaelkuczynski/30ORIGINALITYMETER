@@ -33,6 +33,14 @@ Preferred AI provider: DeepSeek (set as default, confirmed working January 18, 2
   - Eliminated separate dual-specific prompts and scoring criteria
   - All analysis types (intelligence, originality, cogency, quality) now consistent
   - Dual scores will match single document scores using identical methodology
+- ✅ **FOUR-PHASE INTELLIGENCE PROTOCOL IMPLEMENTED**: User's revised protocol with Sniper Amendment
+  - Implemented exact four-phase evaluation protocol for DeepSeek intelligence analysis
+  - Phase 1: Initial evaluation with "Sniper Amendment" (insight hierarchy, Walmart metric)
+  - Phase 2: Pushback for scores <95/100 with concrete superiority challenges
+  - Phase 3: Walmart Metric Enforcement requiring specific examples
+  - Phase 4: Final validation and acceptance of justified scores
+  - Updated to 18 intelligence questions from user's exact specification
+  - Both single and dual intelligence analysis now use four-phase methodology
 - ✅ **SYSTEM STABILITY ACHIEVED**: Server compilation and restart successful
 - ✅ **USER CONFIRMATION**: "EXCELLENT. MUCH BETTER" - system performance validated
 
