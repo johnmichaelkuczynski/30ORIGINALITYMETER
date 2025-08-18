@@ -1328,8 +1328,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Intelligence evaluation function
-      const result = await anthropicService.analyzePrimaryIntelligence(passageA);
+      // Use Primary Intelligence evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryIntelligence(passageA);
       
       // Return the result
       res.json(result);
