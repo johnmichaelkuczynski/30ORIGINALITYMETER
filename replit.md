@@ -31,6 +31,10 @@ Preferred communication style: Simple, everyday language.
 - ✅ Download reports now properly format Primary (question-based) vs Legacy (parameter-based) results
 - ✅ System handles both single-passage and dual-passage analysis modes correctly
 - ✅ Fixed TypeScript errors with Anthropic API response handling
+- ✅ **CRITICAL VALIDATION SYSTEM**: After LLM scores, system pushes back with percentile clarification
+- ✅ **PERCENTILE ENFORCEMENT**: "Score 72/100 means 28 out of 100 people are better than this passage"
+- ✅ **ACADEMIC BIAS REMOVAL**: LLM told to drop all academic standards, grade against full population
+- ✅ **SCORE REVISION**: LLM forced to revise scores that seem influenced by academic grading
 
 ## System Architecture
 
