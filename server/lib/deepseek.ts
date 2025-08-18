@@ -4,8 +4,8 @@ import { AnalysisResult } from "@shared/schema";
 const apiKey = process.env.DEEPSEEK_API_KEY;
 console.log("DeepSeek API Key status:", apiKey ? "Present" : "Missing");
 
-// THREE-PHASE EVALUATION PROTOCOL FOR DEEPSEEK
-async function threePhaseEvaluationDeepSeek(
+// FOUR-PHASE EVALUATION PROTOCOL FOR DEEPSEEK
+async function fourPhaseEvaluationDeepSeek(
   passageText: string, 
   questions: string[], 
   evaluationType: string
@@ -145,11 +145,71 @@ JSON format:
       }
     }
 
-    // PHASE 3: Accept and return final results
-    return phase2Result;
+    // PHASE 3: Walmart test - check score consistency
+    const phase3Prompt = `Your numerical scores need to be consistent with what they mean in percentile terms.
+
+If you give a score of N/100 (e.g., 91/100), that means (100-N)/100 people outperform the author in that respect. 
+
+So if you gave a score of 91/100, that means 9/100 people in Walmart are running rings around this person in terms of the cognitive parameter being measured.
+
+Are your numerical scores consistent with this interpretation? Review your scores and confirm if they accurately reflect what percentage of the general population would outperform this author.
+
+Please provide your final scores with this percentile interpretation in mind:
+
+JSON format:
+{
+  "0": {"question": "${questions[0]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
+  "1": {"question": "${questions[1]}", "score": [number], "quotation": "exact text from passage", "explanation": "thorough explanation"},
+  ... continue for all ${questions.length} questions
+}`;
+
+    // Phase 3: Walmart test
+    const phase3Response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'user', content: phase1Prompt },
+          { role: 'assistant', content: phase1ResponseText },
+          { role: 'user', content: phase2Prompt },
+          { role: 'assistant', content: phase2ResponseText },
+          { role: 'user', content: phase3Prompt }
+        ],
+        max_tokens: 8000,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!phase3Response.ok) {
+      throw new Error(`DeepSeek API error in Phase 3: ${phase3Response.statusText}`);
+    }
+
+    const phase3Data = await phase3Response.json();
+    const phase3ResponseText = phase3Data.choices[0].message.content;
+    
+    // Parse Phase 3 response
+    let phase3Result;
+    try {
+      phase3Result = JSON.parse(phase3ResponseText);
+    } catch (parseError) {
+      const jsonMatch = phase3ResponseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        phase3Result = JSON.parse(jsonMatch[1]);
+      } else {
+        console.warn("Failed to parse Phase 3, using Phase 2 results");
+        return phase2Result;
+      }
+    }
+
+    // PHASE 4: Accept and return final results
+    return phase3Result;
 
   } catch (error) {
-    console.error(`Error in three-phase ${evaluationType} evaluation:`, error);
+    console.error(`Error in four-phase ${evaluationType} evaluation:`, error);
     throw error;
   }
 }
@@ -179,7 +239,7 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  return await threePhaseEvaluationDeepSeek(passage.text, originalityQuestions, "Originality");
+  return await fourPhaseEvaluationDeepSeek(passage.text, originalityQuestions, "Originality");
 }
 
 export async function analyzeOriginality(passage: PassageData): Promise<any> {
@@ -205,8 +265,8 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
   ];
 
   const [resultA, resultB] = await Promise.all([
-    threePhaseEvaluationDeepSeek(passageA.text, originalityQuestions, "Originality"),
-    threePhaseEvaluationDeepSeek(passageB.text, originalityQuestions, "Originality")
+    fourPhaseEvaluationDeepSeek(passageA.text, originalityQuestions, "Originality"),
+    fourPhaseEvaluationDeepSeek(passageB.text, originalityQuestions, "Originality")
   ]);
 
   return {
@@ -245,7 +305,7 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  return await threePhaseEvaluationDeepSeek(passage.text, intelligenceQuestions, "Intelligence");
+  return await fourPhaseEvaluationDeepSeek(passage.text, intelligenceQuestions, "Intelligence");
 }
 
 // PRIMARY COGENCY EVALUATION PROTOCOL - EXACT USER QUESTIONS
@@ -269,7 +329,7 @@ export async function analyzePrimaryCogency(passage: PassageData): Promise<any> 
     "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
   ];
 
-  return await threePhaseEvaluationDeepSeek(passage.text, cogencyQuestions, "Cogency");
+  return await fourPhaseEvaluationDeepSeek(passage.text, cogencyQuestions, "Cogency");
 }
 
 // PRIMARY OVERALL QUALITY EVALUATION PROTOCOL - EXACT USER QUESTIONS
@@ -295,7 +355,7 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "IF ORIGINAL, IS IT ORIGINAL BY VIRTUE OF BEING INSIGHTFUL OR BY VIRTUE OF BEING DEFECTIVE OR FACETIOUS?"
   ];
 
-  return await threePhaseEvaluationDeepSeek(passage.text, qualityQuestions, "Quality");
+  return await fourPhaseEvaluationDeepSeek(passage.text, qualityQuestions, "Quality");
 }
 
 export async function analyzeIntelligence(passage: PassageData): Promise<any> {
@@ -328,10 +388,10 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  // Analyze both passages using three-phase evaluation
+  // Analyze both passages using four-phase evaluation
   const [resultA, resultB] = await Promise.all([
-    threePhaseEvaluationDeepSeek(passageA.text, intelligenceQuestions, "Intelligence"),
-    threePhaseEvaluationDeepSeek(passageB.text, intelligenceQuestions, "Intelligence")
+    fourPhaseEvaluationDeepSeek(passageA.text, intelligenceQuestions, "Intelligence"),
+    fourPhaseEvaluationDeepSeek(passageB.text, intelligenceQuestions, "Intelligence")
   ]);
 
   return {
@@ -368,8 +428,8 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
   ];
 
   const [resultA, resultB] = await Promise.all([
-    threePhaseEvaluationDeepSeek(passageA.text, cogencyQuestions, "Cogency"),
-    threePhaseEvaluationDeepSeek(passageB.text, cogencyQuestions, "Cogency")
+    fourPhaseEvaluationDeepSeek(passageA.text, cogencyQuestions, "Cogency"),
+    fourPhaseEvaluationDeepSeek(passageB.text, cogencyQuestions, "Cogency")
   ]);
 
   return {
@@ -408,8 +468,8 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
   ];
 
   const [resultA, resultB] = await Promise.all([
-    threePhaseEvaluationDeepSeek(passageA.text, qualityQuestions, "Quality"),
-    threePhaseEvaluationDeepSeek(passageB.text, qualityQuestions, "Quality")
+    fourPhaseEvaluationDeepSeek(passageA.text, qualityQuestions, "Quality"),
+    fourPhaseEvaluationDeepSeek(passageB.text, qualityQuestions, "Quality")
   ]);
 
   return {
