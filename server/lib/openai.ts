@@ -31,7 +31,53 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
 }
 
 export async function analyzeIntelligence(passage: PassageData): Promise<any> {
-  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{
+      role: "user",
+      content: `Analyze this text for intelligence metrics. Return as JSON with scores 0-100.
+
+PASSAGE: ${passage.text}
+
+Rate each metric and provide quotation + explanation:
+1. Compression: density of meaning per word
+2. Abstraction: ability to move beyond concrete particulars
+3. Synthesis: bringing together disparate elements
+
+JSON format:
+{
+  "0": {"question": "Compression", "score": [number], "quotation": "exact text", "explanation": "analysis"},
+  "1": {"question": "Abstraction", "score": [number], "quotation": "exact text", "explanation": "analysis"},  
+  "2": {"question": "Synthesis", "score": [number], "quotation": "exact text", "explanation": "analysis"}
+}`
+    }],
+    max_tokens: 2000,
+    temperature: 0.1
+  });
+
+  const responseText = response.choices[0].message.content || "";
+  
+  try {
+    const result = JSON.parse(responseText);
+    return {
+      ...result,
+      provider: "OpenAI",
+      analysis_type: "intelligence",
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+    if (jsonMatch) {
+      const result = JSON.parse(jsonMatch[1]);
+      return {
+        ...result,
+        provider: "OpenAI",
+        analysis_type: "intelligence",
+        timestamp: new Date().toISOString()
+      };
+    }
+    throw new Error("Failed to parse OpenAI response as JSON");
+  }
 }
 
 export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
