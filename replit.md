@@ -24,6 +24,15 @@ Preferred AI provider: DeepSeek (set as default, confirmed working January 18, 2
   - OpenAI: Fast responses, fully operational dual analysis
   - DeepSeek: Implemented with robust fallback system, now default provider
   - Perplexity: Dual analysis implemented (minor API configuration needed)
+- ✅ **CRITICAL DISPLAY BUG FIXED**: DeepSeek results now show properly
+  - Fixed data structure mismatch preventing results display
+  - Transformed DeepSeek response format to match frontend expectations
+  - Debug logs confirmed correct numbered key structure: ["0", "1", "2"]
+- ✅ **DUAL ANALYSIS METHODOLOGY ALIGNED**: Consistent scoring approach
+  - Dual analysis now uses SAME evaluateWithDeepSeek function as single analysis
+  - Eliminated separate dual-specific prompts and scoring criteria
+  - All analysis types (intelligence, originality, cogency, quality) now consistent
+  - Dual scores will match single document scores using identical methodology
 - ✅ **SYSTEM STABILITY ACHIEVED**: Server compilation and restart successful
 - ✅ **USER CONFIRMATION**: "EXCELLENT. MUCH BETTER" - system performance validated
 

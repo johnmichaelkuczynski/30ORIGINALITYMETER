@@ -158,187 +158,130 @@ export async function analyzeOverallQuality(passage: PassageData): Promise<any> 
   return evaluateWithDeepSeek(passage.text, OVERALL_QUALITY_QUESTIONS, "overall_quality");
 }
 
-// Dual analysis functions
+// Dual analysis functions - USE SAME METHODOLOGY AS SINGLE ANALYSIS
 export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  const prompt = `Compare these two texts for intelligence metrics. Return JSON comparing both.
-
-TEXT A: ${passageA.text}
-
-TEXT B: ${passageB.text}
-
-Score each text 0-100 on these metrics:
-${INTELLIGENCE_QUESTIONS.map((q, i) => `${i}. ${q}`).join('\n')}
-
-JSON format:
-{
-  "0": {
-    "question": "${INTELLIGENCE_QUESTIONS[0]}",
-    "passageA": {"score": 50, "quotation": "quote", "explanation": "analysis"},
-    "passageB": {"score": 50, "quotation": "quote", "explanation": "analysis"}
-  },
-  "1": {
-    "question": "${INTELLIGENCE_QUESTIONS[1]}",
-    "passageA": {"score": 50, "quotation": "quote", "explanation": "analysis"},
-    "passageB": {"score": 50, "quotation": "quote", "explanation": "analysis"}
-  }
-}`;
-
+  console.log("Starting dual intelligence analysis using single analysis methodology");
+  
   try {
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1500,
-        temperature: 0.1,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const responseText = data.choices[0].message.content;
+    // Analyze each passage separately using the SAME method as single analysis
+    const resultA = await evaluateWithDeepSeek(passageA.text, INTELLIGENCE_QUESTIONS, "intelligence");
+    const resultB = await evaluateWithDeepSeek(passageB.text, INTELLIGENCE_QUESTIONS, "intelligence");
     
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch (parseError) {
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[1]);
-      } else {
-        // Fallback format with numbered keys for intelligence dual
-        result = {
-          "0": {
-            question: INTELLIGENCE_QUESTIONS[0],
-            passageA: { score: 50, quotation: "Analysis completed", explanation: "Fallback analysis" },
-            passageB: { score: 50, quotation: "Analysis completed", explanation: "Fallback analysis" }
-          }
-        };
-      }
-    }
-
-    // CRITICAL: Transform DeepSeek's response to the expected format if needed
-    // If DeepSeek returns {passageA: {...}, passageB: {...}}, convert to {0: {passageA: {...}, passageB: {...}}}
-    if (result.passageA && result.passageB && !result["0"]) {
-      const transformedResult = {
-        "0": {
-          question: INTELLIGENCE_QUESTIONS[0],
-          passageA: result.passageA["0"] || result.passageA,
-          passageB: result.passageB["0"] || result.passageB
-        }
+    // Combine results into dual format expected by frontend
+    const combinedResult: any = {};
+    
+    // For each metric, combine the results from both passages
+    INTELLIGENCE_QUESTIONS.forEach((question, index) => {
+      const key = index.toString();
+      combinedResult[key] = {
+        question: question,
+        passageA: resultA[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" },
+        passageB: resultB[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" }
       };
-      result = transformedResult;
-    }
-
+    });
+    
     return {
-      ...result,
+      ...combinedResult,
       provider: "DeepSeek",
       analysis_type: "intelligence_dual",
       timestamp: new Date().toISOString()
     };
-
+    
   } catch (error) {
-    console.error(`Error in dual intelligence evaluation:`, error);
+    console.error("Error in dual intelligence evaluation:", error);
     throw error;
   }
 }
 
 export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  return evaluateWithDeepSeekDual(passageA.text, passageB.text, ORIGINALITY_QUESTIONS, "originality_dual");
+  console.log("Starting dual originality analysis using single analysis methodology");
+  
+  try {
+    const resultA = await evaluateWithDeepSeek(passageA.text, ORIGINALITY_QUESTIONS, "originality");
+    const resultB = await evaluateWithDeepSeek(passageB.text, ORIGINALITY_QUESTIONS, "originality");
+    
+    const combinedResult: any = {};
+    ORIGINALITY_QUESTIONS.forEach((question, index) => {
+      const key = index.toString();
+      combinedResult[key] = {
+        question: question,
+        passageA: resultA[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" },
+        passageB: resultB[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" }
+      };
+    });
+    
+    return {
+      ...combinedResult,
+      provider: "DeepSeek",
+      analysis_type: "originality_dual",
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error("Error in dual originality evaluation:", error);
+    throw error;
+  }
 }
 
 export async function analyzeCogencyDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  return evaluateWithDeepSeekDual(passageA.text, passageB.text, COGENCY_QUESTIONS, "cogency_dual");
+  console.log("Starting dual cogency analysis using single analysis methodology");
+  
+  try {
+    const resultA = await evaluateWithDeepSeek(passageA.text, COGENCY_QUESTIONS, "cogency");
+    const resultB = await evaluateWithDeepSeek(passageB.text, COGENCY_QUESTIONS, "cogency");
+    
+    const combinedResult: any = {};
+    COGENCY_QUESTIONS.forEach((question, index) => {
+      const key = index.toString();
+      combinedResult[key] = {
+        question: question,
+        passageA: resultA[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" },
+        passageB: resultB[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" }
+      };
+    });
+    
+    return {
+      ...combinedResult,
+      provider: "DeepSeek",
+      analysis_type: "cogency_dual",
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error("Error in dual cogency evaluation:", error);
+    throw error;
+  }
 }
 
 export async function analyzeOverallQualityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  return evaluateWithDeepSeekDual(passageA.text, passageB.text, OVERALL_QUALITY_QUESTIONS, "quality_dual");
-}
-
-// Helper function for dual analysis
-async function evaluateWithDeepSeekDual(textA: string, textB: string, questions: string[], evaluationType: string): Promise<any> {
-  if (!apiKey) {
-    throw new Error("DeepSeek API key is not configured");
-  }
-
-  const prompt = `Compare these texts and score each 0-100. Return JSON only.
-
-TEXT A: ${textA}
-TEXT B: ${textB}
-
-Score both on: ${questions.slice(0, 3).join(', ')}
-
-JSON format:
-{
-  "0": {
-    "passageA": {"score": 50, "explanation": "brief analysis"},
-    "passageB": {"score": 50, "explanation": "brief analysis"}
-  }
-}`;
-
+  console.log("Starting dual quality analysis using single analysis methodology");
+  
   try {
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 800,
-        temperature: 0.1,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const responseText = data.choices[0].message.content;
+    const resultA = await evaluateWithDeepSeek(passageA.text, OVERALL_QUALITY_QUESTIONS, "overall_quality");
+    const resultB = await evaluateWithDeepSeek(passageB.text, OVERALL_QUALITY_QUESTIONS, "overall_quality");
     
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch (parseError) {
-      // Fallback simple result if JSON parsing fails
-      result = {
-        "0": {
-          passageA: { score: 50, explanation: "Analysis completed" },
-          passageB: { score: 50, explanation: "Analysis completed" }
-        }
+    const combinedResult: any = {};
+    OVERALL_QUALITY_QUESTIONS.forEach((question, index) => {
+      const key = index.toString();
+      combinedResult[key] = {
+        question: question,
+        passageA: resultA[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" },
+        passageB: resultB[key] || { score: 50, quotation: "Analysis unavailable", explanation: "Fallback" }
       };
-    }
-
+    });
+    
     return {
-      ...result,
+      ...combinedResult,
       provider: "DeepSeek",
-      analysis_type: evaluationType,
+      analysis_type: "quality_dual",
       timestamp: new Date().toISOString()
     };
-
   } catch (error) {
-    console.error(`Error in ${evaluationType}:`, error);
-    // Return fallback result instead of throwing
-    return {
-      "0": {
-        passageA: { score: 50, explanation: "Analysis completed with fallback" },
-        passageB: { score: 50, explanation: "Analysis completed with fallback" }
-      },
-      provider: "DeepSeek",
-      analysis_type: evaluationType,
-      timestamp: new Date().toISOString()
-    };
+    console.error("Error in dual quality evaluation:", error);
+    throw error;
   }
 }
+
+// Note: Removed evaluateWithDeepSeekDual function as dual analysis now uses 
+// the same single-document methodology for consistency
 
 // Basic analysis functions (placeholder)
 export async function analyzePassages(passageA: PassageData, passageB: PassageData): Promise<any> {
