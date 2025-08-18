@@ -12,7 +12,9 @@ async function fourPhaseIntelligenceEvaluation(passageText: string): Promise<any
   console.log(`Starting four-phase intelligence evaluation for text length: ${passageText.length}`);
 
   // PHASE 1: Initial evaluation with Sniper Amendment
-  const phase1Prompt = `ANSWER THESE QUESTIONS in connection with this text. (Also give a score out of 100.)
+  const phase1Prompt = `YOU MUST RESPOND WITH VALID JSON ONLY. NO EXPLANATORY TEXT BEFORE OR AFTER THE JSON.
+
+ANSWER THESE QUESTIONS in connection with this text. (Also give a score out of 100.)
 
 TEXT: ${passageText}
 
@@ -38,10 +40,26 @@ CRITICAL INSTRUCTIONS:
 - If a work is a work of genius, you say that, and you say why; you do NOT shy away from giving what might conventionally be regarded as excessively "superlative" scores; you give it the score it deserves, not the score that a midwit committee would say it deserves.
 - Think VERY VERY VERY hard about your answers; do NOT default to cookbook, midwit evaluation protocols.
 
-Return JSON format:
+RESPOND WITH VALID JSON ONLY - NO TEXT BEFORE OR AFTER:
 {
   "0": {"question": "${INTELLIGENCE_QUESTIONS[0]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
-  "1": {"question": "${INTELLIGENCE_QUESTIONS[1]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"}
+  "1": {"question": "${INTELLIGENCE_QUESTIONS[1]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "2": {"question": "${INTELLIGENCE_QUESTIONS[2]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "3": {"question": "${INTELLIGENCE_QUESTIONS[3]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "4": {"question": "${INTELLIGENCE_QUESTIONS[4]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "5": {"question": "${INTELLIGENCE_QUESTIONS[5]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "6": {"question": "${INTELLIGENCE_QUESTIONS[6]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "7": {"question": "${INTELLIGENCE_QUESTIONS[7]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "8": {"question": "${INTELLIGENCE_QUESTIONS[8]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "9": {"question": "${INTELLIGENCE_QUESTIONS[9]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "10": {"question": "${INTELLIGENCE_QUESTIONS[10]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "11": {"question": "${INTELLIGENCE_QUESTIONS[11]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "12": {"question": "${INTELLIGENCE_QUESTIONS[12]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "13": {"question": "${INTELLIGENCE_QUESTIONS[13]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "14": {"question": "${INTELLIGENCE_QUESTIONS[14]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "15": {"question": "${INTELLIGENCE_QUESTIONS[15]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "16": {"question": "${INTELLIGENCE_QUESTIONS[16]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
+  "17": {"question": "${INTELLIGENCE_QUESTIONS[17]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"}
 }`;
 
   try {
@@ -68,44 +86,78 @@ Return JSON format:
     let data = await response.json();
     let phase1Response = data.choices[0].message.content;
     
-    // Parse Phase 1 results with better error handling
-    let phase1Result;
+    // Parse Phase 1 results with comprehensive error handling
+    let phase1Result: any = {};
+    
+    console.log("Phase 1 response full content:", phase1Response);
+    
+    // Try multiple parsing strategies
+    let parseSuccess = false;
+    
+    // Strategy 1: Direct JSON parse
     try {
-      console.log("Phase 1 response preview:", phase1Response.substring(0, 500));
       phase1Result = JSON.parse(phase1Response);
+      parseSuccess = true;
+      console.log("✅ Direct JSON parse successful");
     } catch (parseError) {
-      console.log("Direct JSON parse failed, trying to extract from code blocks...");
+      console.log("❌ Direct JSON parse failed");
+    }
+    
+    // Strategy 2: Extract from code blocks
+    if (!parseSuccess) {
       const jsonMatch = phase1Response.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
       if (jsonMatch) {
         try {
           phase1Result = JSON.parse(jsonMatch[1]);
-          console.log("Successfully parsed JSON from code block");
+          parseSuccess = true;
+          console.log("✅ Code block JSON parse successful");
         } catch (nestedError) {
-          console.log("Code block JSON also failed, using simple scoring fallback");
-          // Create a simple fallback result with high scores for the key questions
-          phase1Result = {};
-          INTELLIGENCE_QUESTIONS.forEach((question, index) => {
-            phase1Result[index.toString()] = {
-              question: question,
-              score: 95, // High score as fallback
-              quotation: "Analysis parsing failed - using fallback",
-              explanation: "Technical issue prevented full analysis"
-            };
-          });
+          console.log("❌ Code block JSON parse failed");
         }
-      } else {
-        console.log("No JSON found, using structured fallback response");
-        // Create a simple fallback result
-        phase1Result = {};
-        INTELLIGENCE_QUESTIONS.forEach((question, index) => {
+      }
+    }
+    
+    // Strategy 3: Extract JSON-like content without code blocks
+    if (!parseSuccess) {
+      const jsonPattern = /{[\s\S]*}/;
+      const jsonMatch = phase1Response.match(jsonPattern);
+      if (jsonMatch) {
+        try {
+          phase1Result = JSON.parse(jsonMatch[0]);
+          parseSuccess = true;
+          console.log("✅ Pattern-based JSON parse successful");
+        } catch (error) {
+          console.log("❌ Pattern-based JSON parse failed");
+        }
+      }
+    }
+    
+    // Strategy 4: Manual parsing if JSON parsing fails completely
+    if (!parseSuccess) {
+      console.log("❌ All JSON parsing failed, attempting manual extraction");
+      
+      // Try to extract scores and quotations manually
+      INTELLIGENCE_QUESTIONS.forEach((question, index) => {
+        const questionPattern = new RegExp(`"${index}"[\\s\\S]*?"score"\\s*:\\s*(\\d+)[\\s\\S]*?"quotation"\\s*:\\s*"([^"]*)"`, 'i');
+        const match = phase1Response.match(questionPattern);
+        
+        if (match) {
           phase1Result[index.toString()] = {
             question: question,
-            score: 95, // High score as fallback  
-            quotation: "Analysis parsing failed - using fallback",
-            explanation: "Technical issue prevented full analysis"
+            score: parseInt(match[1]),
+            quotation: match[2],
+            explanation: "Manually extracted from response"
           };
-        });
-      }
+        } else {
+          // Last resort: return error indication instead of fallback
+          phase1Result[index.toString()] = {
+            question: question,
+            score: 0,
+            quotation: "PARSING FAILED - DEEPSEEK RESPONSE INVALID",
+            explanation: "Unable to parse DeepSeek response"
+          };
+        }
+      });
     }
 
     // Check if any scores are less than 95/100 for Phase 2
