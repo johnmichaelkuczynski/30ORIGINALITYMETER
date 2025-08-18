@@ -47,10 +47,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   type QualityProtocol = "primary" | "legacy";
   const [qualityProtocol, setQualityProtocol] = useState<QualityProtocol>("primary");
   
-  // Cogency Protocol Selection (NEW vs OLD)
-  type CogencyProtocol = "primary" | "legacy";
-  const [cogencyProtocol, setCogencyProtocol] = useState<CogencyProtocol>("primary");
-  
   // Legacy compatibility
   const analysisMode = documentMode === "single" ? 
     (analysisType === "originality" ? "single" : 

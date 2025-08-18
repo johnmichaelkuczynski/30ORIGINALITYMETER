@@ -11,61 +11,6 @@ console.log("Anthropic API Key status:", apiKey ? "Present" : "Missing");
 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
-// Helper function to handle mandatory pushback on ALL scores
-async function pushbackOnAllScores(anthropic: any, prompt: string, responseText: string, analysisType: string): Promise<any> {
-  let parsedResponse;
-  try {
-    parsedResponse = JSON.parse(responseText);
-  } catch (parseError) {
-    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonMatch) {
-      parsedResponse = JSON.parse(jsonMatch[1]);
-    } else {
-      throw parseError;
-    }
-  }
-
-  // MANDATORY PUSHBACK - Find the lowest scoring question and challenge it
-  let lowestScore = 100;
-  Object.values(parsedResponse).forEach((entry: any) => {
-    if (entry.score && entry.score < lowestScore) {
-      lowestScore = entry.score;
-    }
-  });
-
-  // Always pushback on the lowest score
-  const pushbackMessages = {
-    'intelligence': `YOU ARE SAYING THAT ON AVERAGE ${100 - lowestScore}/100 PEOPLE ARE SMARTER THAN THIS AUTHOR???????????????????????????????????????????????????????????????????????????????????????`,
-    'quality': `YOU ARE SAYING THAT ON AVERAGE ${100 - lowestScore}/100 PEOPLE ARE BETTER IN TERMS OF OVERALL QUALITY THAN THIS AUTHOR???????????????????????????????????????????????????????????????????????????????????????`,
-    'originality': `YOU ARE SAYING THAT ON AVERAGE ${100 - lowestScore}/100 PEOPLE ARE MORE ORIGINAL THAN THIS AUTHOR???????????????????????????????????????????????????????????????????????????????????????`,
-    'cogency': `YOU ARE SAYING THAT ON AVERAGE ${100 - lowestScore}/100 PEOPLE ARE MORE COGENT THAN THIS AUTHOR???????????????????????????????????????????????????????????????????????????????????????`
-  };
-  
-  const pushbackMessage = pushbackMessages[analysisType] || pushbackMessages['quality'];
-  
-  const pushbackResponse = await anthropic.messages.create({
-    model: DEFAULT_MODEL_STR,
-    max_tokens: 8000,
-    messages: [
-      { role: "user", content: prompt },
-      { role: "assistant", content: responseText },
-      { role: "user", content: pushbackMessage }
-    ],
-  });
-
-  const revisedResponseText = (pushbackResponse.content[0] as any).text;
-  try {
-    return JSON.parse(revisedResponseText);
-  } catch (parseError) {
-    const jsonMatch = revisedResponseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[1]);
-    }
-  }
-
-  return parsedResponse;
-}
-
 // PRIMARY OVERALL QUALITY EVALUATION PROTOCOL - EXACT USER QUESTIONS
 export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
   if (!apiKey) {
@@ -93,15 +38,13 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?"
   ];
 
-  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE:
 ${passage.text}
 
 QUESTIONS:
 ${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question provide: quotation from passage, explanation, score 0-100.
 
@@ -170,15 +113,13 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE:
 ${passage.text}
 
 QUESTIONS:
 ${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question provide: quotation from passage, explanation, score 0-100.
 
@@ -241,15 +182,13 @@ export async function analyzePrimaryCogency(passage: PassageData): Promise<any> 
     "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
   ];
 
-  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE:
 ${passage.text}
 
 QUESTIONS:
 ${cogencyQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question provide: quotation from passage, explanation, score 0-100.
 
@@ -308,15 +247,13 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
+  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE:
 ${passage.text}
 
 QUESTIONS:
 ${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question provide: quotation from passage, explanation, score 0-100.
 
@@ -366,7 +303,7 @@ export async function analyzePassages(
     apiKey: apiKey,
   });
 
-  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${passageA.text}
@@ -537,7 +474,7 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
     "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
   ];
 
-  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -547,8 +484,6 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -698,34 +633,26 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     apiKey: apiKey,
   });
 
-  // Add text length checking and chunking
-  const wordsA = passageA.text.split(/\s+/).length;
-  const wordsB = passageB.text.split(/\s+/).length;
-  let finalPassageA = passageA;
-  let finalPassageB = passageB;
-
-  const intelligenceQuestions = [
-    "IS IT INSIGHTFUL?",
-    "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
-    "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
-    "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING.",
-    "ARE THE POINTS CLICHES? OR ARE THEY \"FRESH\"?",
-    "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
-    "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
-    "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
-    "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY TEH SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
-    "IS IT REAL OR IS IT PHONY?",
-    "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
-    "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
-    "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
-    "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
-    "IS THE WRITING EVASIVE OR DIRECT?",
-    "ARE THE STATEMENTS AMBIGUOUS?",
-    "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
-    "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
+  const intelligenceMetrics = [
+    "Compression (density of meaning per word)", "Abstraction (ability to move beyond surface detail)",
+    "Inference depth (multi-step reasoning)", "Epistemic friction (acknowledging uncertainty or limits)",
+    "Cognitive distancing (seeing from outside a frame)", "Counterfactual reasoning", "Analogical depth (quality of comparisons)",
+    "Semantic topology (connectedness of ideas)", "Asymmetry (unexpected but apt perspective shifts)",
+    "Conceptual layering (multiple levels at once)", "Original definition-making", "Precision of terms",
+    "Distinction-tracking (keeping categories straight)", "Avoidance of tautology", "Avoidance of empty generality",
+    "Compression of examples into principle", "Ability to invert perspective", "Anticipation of objections",
+    "Integration of disparate domains", "Self-reflexivity (awareness of own stance)", "Elimination of redundancy",
+    "Conceptual economy (no waste concepts)", "Epistemic risk-taking (sticking neck out coherently)",
+    "Generativity (producing new questions/angles)", "Ability to revise assumptions midstream",
+    "Distinguishing signal vs. noise", "Recognizing hidden assumptions", "Tracking causal chains",
+    "Separating correlation from causation", "Managing complexity without collapse", "Detecting paradox or tension",
+    "Apt compression into aphorism", "Clarity under pressure (handling difficult material)",
+    "Distinguishing levels (fact vs. meta-level)", "Relating concrete to abstract seamlessly",
+    "Control of scope (not sprawling aimlessly)", "Detecting pseudo-intelligence", "Balancing simplicity with depth",
+    "Strategic omission (knowing what not to say)", "Transferability (insight applies beyond the case)"
   ];
 
-  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -734,9 +661,7 @@ PASSAGE B:
 ${finalPassageB.text}
 
 QUESTIONS:
-${intelligenceQuestions.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
+${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -746,7 +671,7 @@ For each question, analyze BOTH passages. Provide:
 Return ONLY this JSON structure:
 {
   "0": {
-    "metric": "${intelligenceQuestions[0]}",
+    "metric": "Compression (density of meaning per word)",
     "passageA": {
       "quotation": "Direct quotation from Passage A",
       "explanation": "Explanation of analysis",
@@ -758,8 +683,14 @@ Return ONLY this JSON structure:
       "score": X
     }
   },
-  ... continue for all ${intelligenceQuestions.length} questions (indices "0" through "${intelligenceQuestions.length - 1}")
+  ... continue for all 40 questions (indices "0" through "39")
 }`;
+
+  // Add text length checking and chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
   
   // Truncate if too long to prevent JSON parsing issues
   if (wordsA > 800) {
@@ -951,7 +882,7 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
     "Correct handling of probability", "Strength of causal explanation vs. correlation", "Stability under reformulation (holds when restated)"
   ];
 
-  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -961,8 +892,6 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -1149,7 +1078,7 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
     "Overall reader impact (leaves an impression)"
   ];
 
-  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
+  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -1159,8 +1088,6 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
-
-SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
