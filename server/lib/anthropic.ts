@@ -38,7 +38,7 @@ export async function analyzePrimaryQuality(passage: PassageData): Promise<any> 
     "IS THERE A STRONG OVER-ARCHING IDEA? DOES THIS IDEA GOVERN THE REASONING? OR IS THE REASONING PURELY SEQUENTIAL, EACH STATEMENT BEING A RESPONSE TO THE IMMEDIATELY PRECEDING ONE WITHOUT ALSO IN SOME WAY SUBSTANTIATING THE MAIN ONE?"
   ];
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
 
 PASSAGE:
 ${passage.text}
@@ -115,7 +115,7 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
 
 PASSAGE:
 ${passage.text}
@@ -186,7 +186,7 @@ export async function analyzePrimaryCogency(passage: PassageData): Promise<any> 
     "TO WHAT EXTENT DOES THE COGENCY OF THE POINT/REASONING DERIVE FROM THE POINT ITSELF? AND TO WHAT EXTENT IS IT SUPERIMPOSED ON IT BY TORTURED ARGUMENTATION?"
   ];
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
 
 PASSAGE:
 ${passage.text}
@@ -253,7 +253,7 @@ export async function analyzePrimaryOriginality(passage: PassageData): Promise<a
     "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?"
   ];
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about this passage. Provide quotations and explanations.
 
 PASSAGE:
 ${passage.text}
@@ -311,7 +311,7 @@ export async function analyzePassages(
     apiKey: apiKey,
   });
 
-  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
 
 PASSAGE A:
 ${passageA.text}
@@ -482,7 +482,7 @@ export async function analyzeOriginalityDual(passageA: PassageData, passageB: Pa
     "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
   ];
 
-  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -492,6 +492,8 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -668,7 +670,7 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
-  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -894,7 +896,7 @@ export async function analyzeCogencyDual(passageA: PassageData, passageB: Passag
     "Correct handling of probability", "Strength of causal explanation vs. correlation", "Stability under reformulation (holds when restated)"
   ];
 
-  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -904,6 +906,8 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${cogencyMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -1090,7 +1094,7 @@ export async function analyzeOverallQualityDual(passageA: PassageData, passageB:
     "Overall reader impact (leaves an impression)"
   ];
 
-  const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `Answer these questions about these passages. Provide quotations and explanations.
 
 PASSAGE A:
 ${finalPassageA.text}
@@ -1100,6 +1104,8 @@ ${finalPassageB.text}
 
 QUESTIONS:
 ${qualityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
