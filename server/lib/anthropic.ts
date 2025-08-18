@@ -322,7 +322,7 @@ Return a properly formatted JSON response with the exact structure expected by t
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     
     // Parse the JSON response
     let result;
@@ -409,7 +409,7 @@ Return results in this JSON format:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     
     // Parse the JSON response
     try {
@@ -515,7 +515,7 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     try {
       return JSON.parse(responseText);
     } catch (parseError) {
@@ -602,7 +602,7 @@ Return results in this JSON format:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     
     // Parse the JSON response
     try {
@@ -717,7 +717,7 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: truncatedPrompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     try {
       return JSON.parse(responseText);
     } catch (parseError) {
@@ -818,7 +818,7 @@ Return results in this JSON format:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     
     // Parse the JSON response
     try {
@@ -923,7 +923,7 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     try {
       return JSON.parse(responseText);
     } catch (parseError) {
@@ -1006,7 +1006,7 @@ Return results in this JSON format:
       messages: [{ role: "user", content: prompt }],
     });
 
-    const responseText = message.content[0].text;
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
     
     // Parse the JSON response
     try {
@@ -1119,7 +1119,7 @@ Return ONLY this JSON structure:
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    return message.content[0].type === "text" ? message.content[0].text : "";
   } catch (error) {
     console.error("Error in Anthropic dual overall quality analysis:", error);
     throw error;
@@ -1209,7 +1209,7 @@ Return ONLY the generated passage text, no other commentary.`;
       messages: [{ role: "user", content: prompt }],
     });
 
-    return message.content[0].text;
+    return message.content[0].type === "text" ? message.content[0].text : "";
   } catch (error) {
     console.error("Error generating perfect example:", error);
     throw error;

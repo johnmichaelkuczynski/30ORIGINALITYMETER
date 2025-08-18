@@ -21,12 +21,16 @@ Preferred communication style: Simple, everyday language.
 - ✅ **PURE IMPLEMENTATION**: System now uses user's precise intellectual evaluation framework
 - ✅ **CRITICAL FIX**: Removed ALL evaluation guidance and bias against philosophical writing
 - ✅ **MINIMAL PROMPTING**: LLM receives only exact questions with no interpretive instructions
+- ✅ **FINAL CORE FIX**: LLM never told what questions measure (originality, intelligence, etc.)
+- ✅ **PURE QUESTION MODE**: Prompts say only "Answer these questions" with no context
+- ✅ **FRAMEWORK CONTROL**: User retains full control over evaluation - LLM only supplies answers
 - ✅ Fixed download functionality to detect Primary vs Legacy protocols automatically
 - ✅ Added text chunking system to prevent JSON parsing crashes on large documents
 - ✅ Applied chunking to all dual analysis functions (Intelligence, Originality, Quality, Cogency)
 - ✅ Chunking limits passages to ~800 words per document to ensure stable processing
 - ✅ Download reports now properly format Primary (question-based) vs Legacy (parameter-based) results
 - ✅ System handles both single-passage and dual-passage analysis modes correctly
+- ✅ Fixed TypeScript errors with Anthropic API response handling
 
 ## System Architecture
 
