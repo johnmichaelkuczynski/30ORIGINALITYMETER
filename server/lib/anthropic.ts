@@ -46,6 +46,8 @@ ${passage.text}
 QUESTIONS:
 ${qualityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
+
 For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
@@ -121,6 +123,8 @@ ${passage.text}
 QUESTIONS:
 ${intelligenceQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
+
 For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
@@ -190,6 +194,8 @@ ${passage.text}
 QUESTIONS:
 ${cogencyQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
+
 For each question provide: quotation from passage, explanation, score 0-100.
 
 JSON format:
@@ -254,6 +260,8 @@ ${passage.text}
 
 QUESTIONS:
 ${originalityQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question provide: quotation from passage, explanation, score 0-100.
 
@@ -633,23 +641,31 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
     apiKey: apiKey,
   });
 
-  const intelligenceMetrics = [
-    "Compression (density of meaning per word)", "Abstraction (ability to move beyond surface detail)",
-    "Inference depth (multi-step reasoning)", "Epistemic friction (acknowledging uncertainty or limits)",
-    "Cognitive distancing (seeing from outside a frame)", "Counterfactual reasoning", "Analogical depth (quality of comparisons)",
-    "Semantic topology (connectedness of ideas)", "Asymmetry (unexpected but apt perspective shifts)",
-    "Conceptual layering (multiple levels at once)", "Original definition-making", "Precision of terms",
-    "Distinction-tracking (keeping categories straight)", "Avoidance of tautology", "Avoidance of empty generality",
-    "Compression of examples into principle", "Ability to invert perspective", "Anticipation of objections",
-    "Integration of disparate domains", "Self-reflexivity (awareness of own stance)", "Elimination of redundancy",
-    "Conceptual economy (no waste concepts)", "Epistemic risk-taking (sticking neck out coherently)",
-    "Generativity (producing new questions/angles)", "Ability to revise assumptions midstream",
-    "Distinguishing signal vs. noise", "Recognizing hidden assumptions", "Tracking causal chains",
-    "Separating correlation from causation", "Managing complexity without collapse", "Detecting paradox or tension",
-    "Apt compression into aphorism", "Clarity under pressure (handling difficult material)",
-    "Distinguishing levels (fact vs. meta-level)", "Relating concrete to abstract seamlessly",
-    "Control of scope (not sprawling aimlessly)", "Detecting pseudo-intelligence", "Balancing simplicity with depth",
-    "Strategic omission (knowing what not to say)", "Transferability (insight applies beyond the case)"
+  // Add text length checking and chunking
+  const wordsA = passageA.text.split(/\s+/).length;
+  const wordsB = passageB.text.split(/\s+/).length;
+  let finalPassageA = passageA;
+  let finalPassageB = passageB;
+
+  const intelligenceQuestions = [
+    "IS IT INSIGHTFUL?",
+    "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
+    "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
+    "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING.",
+    "ARE THE POINTS CLICHES? OR ARE THEY \"FRESH\"?",
+    "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
+    "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
+    "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
+    "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY TEH SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
+    "IS IT REAL OR IS IT PHONY?",
+    "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
+    "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
+    "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
+    "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
+    "IS THE WRITING EVASIVE OR DIRECT?",
+    "ARE THE STATEMENTS AMBIGUOUS?",
+    "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
+    "DOES THE AUTHOR USER OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
   ];
 
   const prompt = `Answer these questions about these passages as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
@@ -661,7 +677,9 @@ PASSAGE B:
 ${finalPassageB.text}
 
 QUESTIONS:
-${intelligenceMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+${intelligenceQuestions.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
+
+SCORING PROTOCOL: If you give something a score of N/100 (e.g. 72/100), that means (100 minus N) people out of 100 would do a better job in that respect (e.g. 28/100 people would do a better job).
 
 For each question, analyze BOTH passages. Provide:
 1. Direct quotations that relate to this question from each passage
@@ -671,7 +689,7 @@ For each question, analyze BOTH passages. Provide:
 Return ONLY this JSON structure:
 {
   "0": {
-    "metric": "Compression (density of meaning per word)",
+    "metric": "${intelligenceQuestions[0]}",
     "passageA": {
       "quotation": "Direct quotation from Passage A",
       "explanation": "Explanation of analysis",
@@ -683,14 +701,8 @@ Return ONLY this JSON structure:
       "score": X
     }
   },
-  ... continue for all 40 questions (indices "0" through "39")
+  ... continue for all ${intelligenceQuestions.length} questions (indices "0" through "${intelligenceQuestions.length - 1}")
 }`;
-
-  // Add text length checking and chunking
-  const wordsA = passageA.text.split(/\s+/).length;
-  const wordsB = passageB.text.split(/\s+/).length;
-  let finalPassageA = passageA;
-  let finalPassageB = passageB;
   
   // Truncate if too long to prevent JSON parsing issues
   if (wordsA > 800) {
