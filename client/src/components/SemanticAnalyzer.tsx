@@ -67,7 +67,7 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   
   // LLM Provider
   type LLMProvider = "deepseek" | "openai" | "anthropic" | "perplexity";
-  const [provider, setProvider] = useState<LLMProvider>("anthropic");
+  const [provider, setProvider] = useState<LLMProvider>("deepseek");
   const [providerStatus, setProviderStatus] = useState<{
     deepseek: boolean;
     openai: boolean;
@@ -95,10 +95,11 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           const data = await response.json();
           setProviderStatus(data);
           
-          // Only auto-switch if the current provider is not available AND user hasn't manually selected DeepSeek
-          // This allows users to select DeepSeek even if API key is missing
-          if (!data[provider] && provider !== 'deepseek') {
-            if (data.openai) {
+          // Prioritize DeepSeek as default, fallback only if DeepSeek is unavailable
+          if (!data[provider]) {
+            if (data.deepseek) {
+              setProvider('deepseek');
+            } else if (data.openai) {
               setProvider('openai');
             } else if (data.anthropic) {
               setProvider('anthropic');
@@ -681,17 +682,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             onValueChange={(value) => setProvider(value as LLMProvider)}
             className="grid grid-cols-1 md:grid-cols-4 gap-2"
           >
-            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "anthropic" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
-              <RadioGroupItem value="anthropic" id="anthropic" />
-              <Label htmlFor="anthropic" className="font-medium text-sm">
-                Anthropic (Default)
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "deepseek" ? "bg-green-50 border-green-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="deepseek" id="deepseek" />
+              <Label htmlFor="deepseek" className="font-medium text-sm">
+                DeepSeek (Default)
               </Label>
             </div>
             
-            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "deepseek" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
-              <RadioGroupItem value="deepseek" id="deepseek" />
-              <Label htmlFor="deepseek" className="font-medium text-sm">
-                DeepSeek
+            <div className={`flex items-center space-x-2 rounded-md border p-2 ${provider === "anthropic" ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200"}`}>
+              <RadioGroupItem value="anthropic" id="anthropic" />
+              <Label htmlFor="anthropic" className="font-medium text-sm">
+                Anthropic
               </Label>
             </div>
             
