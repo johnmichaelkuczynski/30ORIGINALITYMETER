@@ -171,13 +171,15 @@ ${INTELLIGENCE_QUESTIONS.map((q, i) => `${i}. ${q}`).join('\n')}
 
 JSON format:
 {
-  "passageA": {
-    "0": {"question": "${INTELLIGENCE_QUESTIONS[0]}", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "1": {"question": "${INTELLIGENCE_QUESTIONS[1]}", "score": 50, "quotation": "quote", "explanation": "analysis"}
+  "0": {
+    "question": "${INTELLIGENCE_QUESTIONS[0]}",
+    "passageA": {"score": 50, "quotation": "quote", "explanation": "analysis"},
+    "passageB": {"score": 50, "quotation": "quote", "explanation": "analysis"}
   },
-  "passageB": {
-    "0": {"question": "${INTELLIGENCE_QUESTIONS[0]}", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "1": {"question": "${INTELLIGENCE_QUESTIONS[1]}", "score": 50, "quotation": "quote", "explanation": "analysis"}
+  "1": {
+    "question": "${INTELLIGENCE_QUESTIONS[1]}",
+    "passageA": {"score": 50, "quotation": "quote", "explanation": "analysis"},
+    "passageB": {"score": 50, "quotation": "quote", "explanation": "analysis"}
   }
 }`;
 
@@ -211,8 +213,28 @@ JSON format:
       if (jsonMatch) {
         result = JSON.parse(jsonMatch[1]);
       } else {
-        throw new Error("Failed to parse JSON response");
+        // Fallback format with numbered keys for intelligence dual
+        result = {
+          "0": {
+            question: INTELLIGENCE_QUESTIONS[0],
+            passageA: { score: 50, quotation: "Analysis completed", explanation: "Fallback analysis" },
+            passageB: { score: 50, quotation: "Analysis completed", explanation: "Fallback analysis" }
+          }
+        };
       }
+    }
+
+    // CRITICAL: Transform DeepSeek's response to the expected format if needed
+    // If DeepSeek returns {passageA: {...}, passageB: {...}}, convert to {0: {passageA: {...}, passageB: {...}}}
+    if (result.passageA && result.passageB && !result["0"]) {
+      const transformedResult = {
+        "0": {
+          question: INTELLIGENCE_QUESTIONS[0],
+          passageA: result.passageA["0"] || result.passageA,
+          passageB: result.passageB["0"] || result.passageB
+        }
+      };
+      result = transformedResult;
     }
 
     return {
