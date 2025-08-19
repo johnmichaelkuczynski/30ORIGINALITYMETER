@@ -441,6 +441,10 @@ Walmart metric is a sanity check, not a gag. If you claim 30/100 Walmart patrons
 QUESTIONS:
 ${ORIGINALITY_QUESTIONS.map((q, i) => `${i}. ${q}`).join('\n')}
 
+CRITICAL SCORING CLARIFICATIONS:
+Question 5 (Boilerplate): If text is NOT boilerplate (original, fresh), score HIGH (90-100). If it IS boilerplate, score LOW (0-20).
+Question 8 (Objective legitimacy): If takeaway HAS objective legitimacy (valid, sound), score HIGH (85-100). If it LACKS legitimacy, score LOW (0-30).
+
 CRITICAL INSTRUCTIONS:
 - A score of N/100 (e.g. 73/100) means that (100-N)/100 (e.g. 27/100) outperform the author with respect to the parameter defined by the question.
 - You are NOT grading; you are answering these questions.
@@ -448,6 +452,7 @@ CRITICAL INSTRUCTIONS:
 - You do NOT make assumptions about the level of the paper; it could be a work of the highest excellence and genius, or it could be the work of a moron.
 - If a work is a work of genius, you say that, and you say why; you do NOT shy away from giving what might conventionally be regarded as excessively "superlative" scores; you give it the score it deserves, not the score that a midwit committee would say it deserves.
 - Think VERY VERY VERY hard about your answers; do NOT default to cookbook, midwit evaluation protocols.
+- FOR INVERTED QUESTIONS: Read carefully - some questions are negatively phrased. Score based on what the question is ACTUALLY asking.
 
 RESPOND WITH VALID JSON ONLY - NO TEXT BEFORE OR AFTER:
 {
@@ -1242,11 +1247,12 @@ export async function analyzeIntelligenceDual(passageA: PassageData, passageB: P
 }
 
 export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  console.log("Starting dual originality analysis using single analysis methodology");
+  console.log("Starting dual originality analysis using four-phase methodology");
   
   try {
-    const resultA = await evaluateWithDeepSeek(passageA.text, ORIGINALITY_QUESTIONS, "originality");
-    const resultB = await evaluateWithDeepSeek(passageB.text, ORIGINALITY_QUESTIONS, "originality");
+    // Use the SAME four-phase method as single analysis for consistency
+    const resultA = await fourPhaseOriginalityEvaluation(passageA.text);
+    const resultB = await fourPhaseOriginalityEvaluation(passageB.text);
     
     const combinedResult: any = {};
     ORIGINALITY_QUESTIONS.forEach((question, index) => {

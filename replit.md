@@ -43,6 +43,14 @@ Preferred AI provider: DeepSeek (set as default, confirmed working January 18, 2
   - Originality analysis now correctly shows scores for all 9 questions (indices 0-8)
   - Metric 6 boilerplate analysis now displays proper score (90/100) matching the analysis
   - DeepSeek four-phase originality evaluation fully operational with accurate score display
+- ✅ **DUAL ANALYSIS ROUTING FIXED**: Two-document comparison now respects provider selection
+  - Updated originality-dual endpoint to use selected provider instead of hardcoded Anthropic
+  - DeepSeek dual analysis now uses four-phase methodology for consistency
+  - Provider switching works correctly for comparative analysis
+- ✅ **SCORING CONSISTENCY FIX IMPLEMENTED**: Added clarifications for confusing questions
+  - Added explicit scoring guidance for Metric 6 (boilerplate) and Metric 9 (objective legitimacy)
+  - Fixed inverted question logic that was causing backwards scores
+  - Analysis comments now match numerical scores correctly
 
 ### January 18, 2025 - Late Session
 - ✅ **DEEPSEEK SET AS DEFAULT PROVIDER**: Complete UI and backend update
