@@ -459,10 +459,7 @@ RESPOND WITH VALID JSON ONLY - NO TEXT BEFORE OR AFTER:
   "5": {"question": "${ORIGINALITY_QUESTIONS[5]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
   "6": {"question": "${ORIGINALITY_QUESTIONS[6]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
   "7": {"question": "${ORIGINALITY_QUESTIONS[7]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
-  "8": {"question": "${ORIGINALITY_QUESTIONS[8]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
-  "9": {"question": "${ORIGINALITY_QUESTIONS[9]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
-  "10": {"question": "${ORIGINALITY_QUESTIONS[10]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"},
-  "11": {"question": "${ORIGINALITY_QUESTIONS[11]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"}
+  "8": {"question": "${ORIGINALITY_QUESTIONS[8]}", "score": [number], "quotation": "exact quote", "explanation": "analysis"}
 }`;
 
   try {
@@ -562,6 +559,14 @@ RESPOND WITH VALID JSON ONLY - NO TEXT BEFORE OR AFTER:
         }
       });
     }
+
+    // Clean up any extra indices (9, 10, 11) that DeepSeek might have added
+    const validIndices = ORIGINALITY_QUESTIONS.map((_, index) => index.toString());
+    Object.keys(phase1Result).forEach(key => {
+      if (!validIndices.includes(key) && key !== 'provider' && key !== 'analysis_type' && key !== 'timestamp' && key !== 'phase_completed') {
+        delete phase1Result[key];
+      }
+    });
 
     // Check if any scores are less than 95/100 for Phase 2
     const scores = Object.values(phase1Result).map((item: any) => item.score).filter(score => typeof score === 'number');
