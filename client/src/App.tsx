@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DocumentRewriterPage from "@/pages/DocumentRewriter";
 import HomeworkHelperPage from "@/pages/HomeworkHelper";
+import OriginalityMeter from "@/components/OriginalityMeter";
 
 function Navigation() {
   const [location] = useLocation();
@@ -96,7 +97,9 @@ function Router() {
         <Navigation />
         
         <Switch>
-          <Route path="/" component={Home}/>
+          <Route path="/">
+            <OriginalityMeter />
+          </Route>
           <Route path="/rewriter" component={DocumentRewriterPage}/>
           <Route path="/homework" component={HomeworkHelperPage}/>
           <Route component={NotFound} />
