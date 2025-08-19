@@ -1,4 +1,9 @@
-import type { PassageData, AnalysisResult, SupportingDocument, StyleOption, SubmitFeedbackRequest } from "../../shared/schema";
+import type { AnalysisResult } from "../../shared/schema";
+
+interface PassageData {
+  title: string;
+  text: string;
+}
 
 const apiKey = process.env.PERPLEXITY_API_KEY;
 console.log("Perplexity API Key status:", apiKey ? "Present" : "Missing");
@@ -158,13 +163,13 @@ export async function analyzePrimaryIntelligence(passage: PassageData, parameter
 
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-JSON:
+Return ONLY valid JSON:
 {
-  "0": {
+  "1": {
     "question": "${selectedQuestions[0]}",
-    "score": ,
-    "quotation": "",
-    "explanation": ""
+    "score": 85,
+    "quotation": "relevant quote",
+    "explanation": "analysis"
   }
 }`;
 

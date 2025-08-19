@@ -1,5 +1,10 @@
 import OpenAI from "openai";
-import type { PassageData, AnalysisResult, SupportingDocument, StyleOption, SubmitFeedbackRequest } from "../../shared/schema";
+import type { AnalysisResult } from "../../shared/schema";
+
+interface PassageData {
+  title: string;
+  text: string;
+}
 
 const apiKey = process.env.OPENAI_API_KEY;
 console.log("OpenAI API Key status:", apiKey ? "Present" : "Missing");
@@ -147,43 +152,200 @@ export async function analyzePrimaryIntelligence(passage: PassageData, parameter
 
   const selectedQuestions = INTELLIGENCE_QUESTIONS.slice(0, parameterCount);
 
-  const prompt = `${finalPassage.text}
+  const phase1Prompt = `ANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT:
+
+${finalPassage.text}
 
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-JSON:
+CRITICAL INSTRUCTIONS:
+- A score of N/100 means that (100-N)/100 outperform the author with respect to the parameter defined by the question
+- You are NOT grading; you are answering these questions
+- You do NOT use a risk-averse standard; you do NOT attempt to be diplomatic; you do NOT attempt to comply with risk-averse, medium-range IQ, academic norms
+- You do NOT make assumptions about the level of the paper; it could be a work of the highest excellence and genius, or it could be the work of a moron
+- If a work is a work of genius, you SAY THAT, and you say WHY; you do NOT shy away from giving what might conventionally be regarded as excessively "superlative" scores; you give it the score it deserves, NOT the score that a midwit committee would say it deserves
+- THINK VERY VERY VERY HARD about your answers; do NOT default to cookbook, midwit evaluation protocols
+
+Before answering the questions, note this non-negotiable standard:
+Insight is a sniper shot, not a town hall. If the text reveals something true but unpopular, penalizing it for lacking 'balance' or 'rigor' is midwit bias. Truth often looks extreme because lies are normalized.
+
+Hierarchy of judgment:
+95-100/100: Unignorable insight. Either genius or so correct it breaks scales.
+80-94/100: Strong but with friction (e.g., clumsy expression, minor gaps).
+<80/100: Degrees of mediocrity or failure.
+
+Walmart metric is a sanity check, not a gag. If you claim 30/100 Walmart patrons outperform the author, you must describe exactly what those 30% know that the author doesn't.
+
+JSON FORMAT:
 {
-  "0": {
+  "1": {
     "question": "${selectedQuestions[0]}",
-    "score": ,
-    "quotation": "",
-    "explanation": ""
+    "score": [number],
+    "quotation": "[exact quote from text]",
+    "explanation": "[your analysis]"
   }
 }`;
 
   try {
-    const response = await openai.chat.completions.create({
+    // PHASE 1: Initial analysis
+    const phase1Response = await openai.chat.completions.create({
       model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content: phase1Prompt }],
       max_tokens: 8000,
       temperature: 0.1,
     });
 
-    const responseText = response.choices[0].message.content || "";
+    const phase1Text = phase1Response.choices[0].message.content || "";
     
-    // Parse the JSON response
+    // Parse phase 1 results
+    let phase1Results;
+    const noteIndex = phase1Text.indexOf('[Note:');
+    let jsonToParseString = noteIndex !== -1 ? phase1Text.substring(0, noteIndex).trim() : phase1Text;
+    
     try {
-      return JSON.parse(responseText);
+      phase1Results = JSON.parse(jsonToParseString);
     } catch (parseError) {
-      // Try to extract JSON from code blocks if needed
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      // Try to extract JSON from code blocks
+      const jsonMatch = jsonToParseString.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
+        try {
+          let jsonContent = jsonMatch[1].replace(/"score":\s*"N\/A"/g, '"score": 0');
+          phase1Results = JSON.parse(jsonContent);
+        } catch (e) {
+          console.error("Failed to parse from code block:", e);
+          return { error: "Failed to parse JSON", rawResponse: phase1Text };
+        }
       } else {
-        console.error("Failed to parse OpenAI Intelligence JSON response:", responseText);
-        return { error: "Failed to parse JSON", rawResponse: responseText };
+        // Try to find JSON object by finding first { and last } before any note
+        const jsonStart = jsonToParseString.indexOf('{');
+        let jsonEnd = jsonToParseString.lastIndexOf('}');
+        
+        // Make sure we stop at the first complete JSON object before any note
+        let bracketCount = 0;
+        let actualJsonEnd = -1;
+        
+        for (let i = 0; i < jsonToParseString.length; i++) {
+          if (jsonToParseString[i] === '{') bracketCount++;
+          if (jsonToParseString[i] === '}') {
+            bracketCount--;
+            if (bracketCount === 0 && i >= jsonStart) {
+              actualJsonEnd = i;
+              break;
+            }
+          }
+        }
+        
+        if (jsonStart !== -1 && actualJsonEnd !== -1) {
+          try {
+            let jsonString = jsonToParseString.substring(jsonStart, actualJsonEnd + 1);
+            // Clean the JSON by handling N/A scores
+            jsonString = jsonString.replace(/"score":\s*"N\/A"/g, '"score": 0');
+            console.log("Attempting to parse extracted JSON:", jsonString.substring(0, 200) + "...");
+            phase1Results = JSON.parse(jsonString);
+          } catch (e) {
+            console.error("Failed to parse extracted JSON:", e);
+            return { error: "Failed to parse JSON", rawResponse: phase1Text };
+          }
+        } else {
+          console.error("No complete JSON structure found");
+          return { error: "Failed to parse JSON", rawResponse: phase1Text };
+        }
       }
     }
+
+    // Check if any scores are below 95 for PHASE 2
+    console.log("OpenAI Phase 1 Results:", JSON.stringify(phase1Results, null, 2));
+    const lowScores = Object.values(phase1Results).filter((result: any) => 
+      typeof result === 'object' && result.score && result.score < 95
+    );
+    console.log(`OpenAI: Found ${lowScores.length} scores below 95:`, lowScores.map((r: any) => r.score));
+
+    if (lowScores.length > 0) {
+      console.log("OpenAI TRIGGERING PHASE 2 - PUSHBACK FOR LOW SCORES");
+      // PHASE 2: Push back on low scores
+      const phase2Prompt = `Your scores were: ${Object.values(phase1Results).map((r: any) => r.score).join(', ')}
+
+For scores below 95/100, let me clarify: Your position is that for a score of N/100, that (100-N)/100 outperform the author with respect to the cognitive metric defined by the question. Is that your position, and are you sure about that?
+
+ANSWER THE FOLLOWING QUESTIONS ABOUT THE TEXT DE NOVO:
+
+${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
+
+Same JSON format. Think harder about whether this text demonstrates genuine insight or cognitive sophistication.`;
+
+      const phase2Response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "user", content: phase1Prompt },
+          { role: "assistant", content: phase1Text },
+          { role: "user", content: phase2Prompt }
+        ],
+        max_tokens: 8000,
+        temperature: 0.1,
+      });
+
+      const phase2Text = phase2Response.choices[0].message.content || "";
+      
+      try {
+        const phase2Results = JSON.parse(phase2Text);
+        
+        // PHASE 3: Walmart metric challenge for remaining low scores
+        const stillLowScores = Object.values(phase2Results).filter((result: any) => 
+          typeof result === 'object' && result.score && result.score < 95
+        );
+
+        if (stillLowScores.length > 0) {
+          console.log(`OpenAI Phase 3: Still ${stillLowScores.length} scores below 95, applying Walmart metric`);
+          const phase3Prompt = `You scored this with some scores below 95/100. For any score of N/100, you're claiming that (100-N)/100 outperform the author. 
+
+Describe the cognitive superiority of those people in concrete terms:
+- What specific insight, skill, or knowledge do they have that the author lacks?
+- How does this superiority manifest in their work?
+
+If you cannot articulate this, revise the score. Are your numerical scores consistent with the fact that if you give 91/100, that means 9/100 people in Walmart are running rings around this person?
+
+Final JSON with revised scores:`;
+
+          const phase3Response = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+              { role: "user", content: phase1Prompt },
+              { role: "assistant", content: phase1Text },
+              { role: "user", content: phase2Prompt },
+              { role: "assistant", content: phase2Text },
+              { role: "user", content: phase3Prompt }
+            ],
+            max_tokens: 8000,
+            temperature: 0.1,
+          });
+
+          const phase3Text = phase3Response.choices[0].message.content || "";
+          
+          try {
+            const finalResults = JSON.parse(phase3Text);
+            return finalResults;
+          } catch (parseError) {
+            const jsonMatch = phase3Text.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+            if (jsonMatch) {
+              return JSON.parse(jsonMatch[1]);
+            } else {
+              return phase2Results; // Fall back to phase 2
+            }
+          }
+        }
+        
+        return phase2Results;
+      } catch (e) {
+        const jsonMatch = phase2Text.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[1]);
+        } else {
+          return phase1Results; // Fall back to phase 1
+        }
+      }
+    }
+
+    return phase1Results;
   } catch (error) {
     console.error("Error in OpenAI Intelligence analysis:", error);
     throw error;

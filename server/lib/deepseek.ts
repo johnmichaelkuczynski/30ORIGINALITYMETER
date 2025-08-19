@@ -1,4 +1,9 @@
-import type { PassageData, AnalysisResult, SupportingDocument, StyleOption, SubmitFeedbackRequest } from "../../shared/schema";
+import type { AnalysisResult } from "../../shared/schema";
+
+interface PassageData {
+  title: string;
+  text: string;
+}
 
 const apiKey = process.env.DEEPSEEK_API_KEY;
 console.log("DeepSeek API Key status:", apiKey ? "Present" : "Missing");
@@ -154,22 +159,36 @@ export async function analyzePrimaryIntelligence(passage: PassageData, parameter
 
   const selectedQuestions = INTELLIGENCE_QUESTIONS.slice(0, parameterCount);
 
-  const prompt = `${finalPassage.text}
+  const prompt = `ANSWER THESE QUESTIONS IN CONNECTION WITH THIS TEXT:
+
+${finalPassage.text}
 
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-JSON:
+CRITICAL INSTRUCTIONS:
+- A score of N/100 means that (100-N)/100 outperform the author with respect to the parameter defined by the question
+- You are NOT grading; you are answering these questions
+- If a work is a work of genius, you SAY THAT, and you say WHY; you do NOT shy away from giving what might conventionally be regarded as excessively "superlative" scores
+- THINK VERY VERY VERY HARD about your answers; do NOT default to cookbook, midwit evaluation protocols
+
+Hierarchy of judgment:
+95-100/100: Unignorable insight. Either genius or so correct it breaks scales.
+80-94/100: Strong but with friction (e.g., clumsy expression, minor gaps).
+<80/100: Degrees of mediocrity or failure.
+
+JSON FORMAT:
 {
-  "0": {
+  "1": {
     "question": "${selectedQuestions[0]}",
-    "score": ,
-    "quotation": "",
-    "explanation": ""
+    "score": [number],
+    "quotation": "[exact quote from text]",
+    "explanation": "[your analysis]"
   }
 }`;
 
+  // PHASE 1: Initial Analysis
   try {
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const phase1Response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -183,26 +202,79 @@ JSON:
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.statusText}`);
+    if (!phase1Response.ok) {
+      throw new Error(`DeepSeek API error: ${phase1Response.statusText}`);
     }
 
-    const data = await response.json();
-    const responseText = data.choices[0].message.content;
+    const phase1Data = await phase1Response.json();
+    const phase1Text = phase1Data.choices[0].message.content;
     
-    // Parse the JSON response
+    // Parse phase 1 results
+    let phase1Results;
     try {
-      return JSON.parse(responseText);
+      phase1Results = JSON.parse(phase1Text);
     } catch (parseError) {
-      // Try to extract JSON from code blocks if needed
-      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      const jsonMatch = phase1Text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
+        let jsonString = jsonMatch[0].replace(/"score":\s*"N\/A"/g, '"score": 0');
+        phase1Results = JSON.parse(jsonString);
       } else {
-        console.error("Failed to parse DeepSeek Intelligence JSON response:", responseText);
-        return { error: "Failed to parse JSON", rawResponse: responseText };
+        console.error("Failed to parse DeepSeek Phase 1:", phase1Text);
+        return { error: "Failed to parse JSON", rawResponse: phase1Text };
       }
     }
+
+    // Check if any scores are below 95 for PHASE 2
+    const lowScores = Object.values(phase1Results).filter((result: any) => 
+      typeof result === 'object' && result.score && result.score < 95
+    );
+
+    if (lowScores.length > 0) {
+      // PHASE 2: Push back on low scores
+      const phase2Prompt = `Your scores were: ${Object.values(phase1Results).map((r: any) => r.score).join(', ')}
+
+For scores below 95/100, let me clarify: Your position is that for a score of N/100, that (100-N)/100 outperform the author with respect to the cognitive metric defined by the question. Is that your position, and are you sure about that?
+
+ANSWER THE FOLLOWING QUESTIONS ABOUT THE TEXT DE NOVO:
+
+${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
+
+Return ONLY valid JSON in the same format.`;
+
+      const phase2Response = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            { role: 'user', content: prompt },
+            { role: 'assistant', content: phase1Text },
+            { role: 'user', content: phase2Prompt }
+          ],
+          max_tokens: 8000,
+          temperature: 0.1,
+        }),
+      });
+
+      const phase2Data = await phase2Response.json();
+      const phase2Text = phase2Data.choices[0].message.content;
+      
+      try {
+        const phase2Results = JSON.parse(phase2Text);
+        return phase2Results;
+      } catch (e) {
+        const jsonMatch = phase2Text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          let jsonString = jsonMatch[0].replace(/"score":\s*"N\/A"/g, '"score": 0');
+          return JSON.parse(jsonString);
+        }
+      }
+    }
+
+    return phase1Results;
   } catch (error) {
     console.error("Error in DeepSeek Intelligence analysis:", error);
     throw error;
