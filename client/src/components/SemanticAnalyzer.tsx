@@ -916,11 +916,12 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         )}
         
-        {/* Parameter Count Selection - Only show for non-protocol analysis OR Legacy protocols */}
-        {((analysisType !== "intelligence" && analysisType !== "originality" && analysisType !== "quality") || 
-          (analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
+        {/* Parameter Count Selection - Only show for Legacy protocols OR non-protocol analysis types */}
+        {((analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
           (analysisType === "originality" && originalityProtocol === "legacy") ||
-          (analysisType === "quality" && qualityProtocol === "legacy")) && (
+          (analysisType === "cogency" && cogencyProtocol === "legacy") ||
+          (analysisType === "quality" && qualityProtocol === "legacy") ||
+          (analysisType !== "intelligence" && analysisType !== "originality" && analysisType !== "cogency" && analysisType !== "quality")) && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="mb-3">
               <h4 className="text-sm font-medium text-secondary-700 mb-1">

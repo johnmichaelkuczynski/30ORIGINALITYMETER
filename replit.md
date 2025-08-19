@@ -11,6 +11,22 @@ Preferred AI provider: DeepSeek (set as default, confirmed working January 18, 2
 
 ## Recent Changes
 
+### January 19, 2025 - UI Bug Fix Session
+- ✅ **CRITICAL UI BUG FIXED**: Primary Protocol parameter selection display corrected
+  - Fixed originality analysis showing legacy 20/40/160 parameter selection in Primary Protocol mode
+  - Updated conditional rendering logic to properly filter parameter selection by protocol type
+  - Primary Protocol now shows clean question-based interface without parameter selection
+  - Legacy System retains parameter selection (20/40/160) as intended
+- ✅ **COMPLETE PROTOCOL SYSTEM OPERATIONAL**: All four metrics with proper mode toggles
+  - Intelligence: Primary (18 questions) vs Legacy (160 parameters) 
+  - Originality: Primary (9 questions) vs Legacy (parameter-based)
+  - Cogency: Primary (12 questions) vs Legacy (parameter-based)
+  - Quality: Primary (14 questions) vs Legacy (parameter-based)
+- ✅ **PRIMARY ENDPOINTS CONFIRMED WORKING**: Server successfully processing Primary Protocol requests
+  - Console logs show "Primary Originality analysis request" with proper DeepSeek processing
+  - Four-phase evaluation protocol executing with authentic question-based evaluation
+  - Real analysis scores returning (85/100, 88/100, etc.) with proper quotations
+
 ### January 18, 2025 - Late Session
 - ✅ **DEEPSEEK SET AS DEFAULT PROVIDER**: Complete UI and backend update
   - Changed default from Anthropic to DeepSeek across all analysis modes
