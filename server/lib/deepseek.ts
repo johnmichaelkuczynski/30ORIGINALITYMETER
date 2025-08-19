@@ -1,11 +1,56 @@
-import { PassageData, SupportingDocument, StyleOption, FeedbackData, SubmitFeedbackRequest } from "../../client/src/lib/types";
-import { AnalysisResult } from "@shared/schema";
-
-// 160 METRICS FRAMEWORK - NO CANNED RESPONSES ALLOWED
-// Each metric must include: metric evaluation, direct quotations, explanation of how quotations support the score
+import type { PassageData, AnalysisResult, SupportingDocument, StyleOption, SubmitFeedbackRequest } from "../../shared/schema";
 
 const apiKey = process.env.DEEPSEEK_API_KEY;
 console.log("DeepSeek API Key status:", apiKey ? "Present" : "Missing");
+
+// EXACT USER PROTOCOL QUESTIONS - NO MODIFICATIONS
+const INTELLIGENCE_QUESTIONS = [
+  "IS IT INSIGHTFUL?",
+  "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
+  "IS THE ORGANIZATION MERELY SEQUENTIAL (JUST ONE POINT AFTER ANOTHER, LITTLE OR NO LOGICAL SCAFFOLDING)? OR ARE THE IDEAS ARRANGED, NOT JUST SEQUENTIALLY BUT HIERARCHICALLY?",
+  "IF THE POINTS IT MAKES ARE NOT INSIGHTFUL, DOES IT OPERATE SKILLFULLY WITH CANONS OF LOGIC/REASONING.",
+  "ARE THE POINTS CLICHES? OR ARE THEY \"FRESH\"?",
+  "DOES IT USE TECHNICAL JARGON TO OBFUSCATE OR TO RENDER MORE PRECISE?",
+  "IS IT ORGANIC? DO POINTS DEVELOP IN AN ORGANIC, NATURAL WAY? DO THEY 'UNFOLD'? OR ARE THEY FORCED AND ARTIFICIAL?",
+  "DOES IT OPEN UP NEW DOMAINS? OR, ON THE CONTRARY, DOES IT SHUT OFF INQUIRY (BY CONDITIONALIZING FURTHER DISCUSSION OF THE MATTERS ON ACCEPTANCE OF ITS INTERNAL AND POSSIBLY VERY FAULTY LOGIC)?",
+  "IS IT ACTUALLY INTELLIGENT OR JUST THE WORK OF SOMEBODY WHO, JUDGING BY THE SUBJECT-MATTER, IS PRESUMED TO BE INTELLIGENT (BUT MAY NOT BE)?",
+  "IS IT REAL OR IS IT PHONY?",
+  "DO THE SENTENCES EXHIBIT COMPLEX AND COHERENT INTERNAL LOGIC?",
+  "IS THE PASSAGE GOVERNED BY A STRONG CONCEPT? OR IS THE ONLY ORGANIZATION DRIVEN PURELY BY EXPOSITORY (AS OPPOSED TO EPISTEMIC) NORMS?",
+  "IS THERE SYSTEM-LEVEL CONTROL OVER IDEAS? IN OTHER WORDS, DOES THE AUTHOR SEEM TO RECALL WHAT HE SAID EARLIER AND TO BE IN A POSITION TO INTEGRATE IT INTO POINTS HE HAS MADE SINCE THEN?",
+  "ARE THE POINTS 'REAL'? ARE THEY FRESH? OR IS SOME INSTITUTION OR SOME ACCEPTED VEIN OF PROPAGANDA OR ORTHODOXY JUST USING THE AUTHOR AS A MOUTH PIECE?",
+  "IS THE WRITING EVASIVE OR DIRECT?",
+  "ARE THE STATEMENTS AMBIGUOUS?",
+  "DOES THE PROGRESSION OF THE TEXT DEVELOP ACCORDING TO WHO SAID WHAT OR ACCORDING TO WHAT ENTAILS OR CONFIRMS WHAT?",
+  "DOES THE AUTHOR USE OTHER AUTHORS TO DEVELOP HIS IDEAS OR TO CLOAK HIS OWN LACK OF IDEAS?"
+];
+
+const ORIGINALITY_QUESTIONS = [
+  "IS IT ORIGINAL (NOT IN THE SENSE THAT IT HAS ALREADY BEEN SAID BUT IN THE SENSE THAT ONLY A FECUND MIND COULD COME UP WITH IT)?",
+  "ARE THE WAYS THE IDEAS ARE INTERCONNECTED ORIGINAL? OR ARE THOSE INTERCONNECTIONS CONVENTION-DRIVEN AND DOCTRINAIRE?",
+  "ARE IDEAS DEVELOPED IN A FRESH AND ORIGINAL WAY? OR IS THE IDEA-DEVELOPMENT MERELY ASSOCIATIVE, COMMONSENSE-BASED (OR COMMON-NONSENSE-BASED), OR DOCTRINAIRE?",
+  "IS IT ORIGINAL RELATIVE TO THE DATASET THAT, JUDGING BY WHAT IT SAYS AND HOW IT SAYS IT, IT APPEARS TO BE ADDRESSING? (THIS QUESTION IS MEANT TO RULE OUT 'ORIGINALITY'-BENCHMARKS THAT AUTOMATICALLY CHARACTERIZE DARWIN, FREUD, NEWTON, GALILEO AS 'UNORIGINAL.')",
+  "IS IT ORIGINAL IN A SUBSTANTIVE SENSE (IN THE SENSE IN WHICH BACH WAS ORIGINAL) OR ONLY IN A FRIVOLOUS TOKEN SENSE (THE SENSE IN WHICH SOMEBODY WHO RANDOMLY BANGS ON A PIANO IS 'ORIGINAL')?",
+  "IS IT BOILERPLATE (OR IF IT, PER SE, IS NOT BOILER PLATE, IS IT THE RESULT OF APPLYING BOILER PLATE PROTOCOLS IN A BOILER PLATE WAY TO SOME DATASET)?",
+  "WOULD SOMEBODY WHO HAD NOT READ IT, BUT WAS OTHERWISE EDUCATED AND INFORMED, COME WAY FROM IT BEING MORE ENGLIGHTED AND BETTER EQUIPPED TO ADJUDICATE INTELLECTUAL QUESTIONS? OR, ON THE CONTRARY, WOULD HE COME UP CONFUSED WITH NOTHING TANGIBLE TO SHOW FOR IT?",
+  "WOULD SOMEBODY READING IT COME AWAY FROM THE EXPERIENCE WITH INSIGHTS THAT WOULD OTHERWISE BE HARD TO ACQUIRE THAT HOLD UP IN GENERAL? OR WOULD WHATEVER HIS TAKEAWAY WAS HAVE VALIDITY ONLY RELATIVE TO VALIDITIES THAT ARE SPECIFIC TO SOME AUTHOR OR SYSTEM AND PROBABLY DO NOT HAVE MUCH OBJECTIVE LEGITIMACY?",
+  "IF YOU GAVE A ROBOT THE DATASET TO WHICH THE PASSAGE IS A RESPONSE, WOULD THE ROBOT BE ABLE TO GENERATE IT (OR SOMETHING VERY MUCH LIKE IT)? OR, ON THE CONTRARY, DOES IT BUTCHER IDEAS, THIS BEING WHAT GIVES IT A SHEEN OF 'ORIGINALITY'?"
+];
+
+const COGENCY_QUESTIONS = [
+  "IS THE POINT BEING DEFENDED (IF THERE IS ONE) SHARP ENOUGH THAT IT DOES NOT NEED ARGUMENTATION?",
+  "DOES THE REASONING DEFEND THE POINT BEING ARGUED IN THE RIGHT WAYS?",
+  "DOES THE REASONING ONLY DEFEND THE ARGUED FOR POINT AGAINST STRAWMEN?",
+  "DOES THE REASONING DEVELOP THE POINT PER SE? IE DOES THE REASONING SHOW THAT THE POINT ITSELF IS STRONG? OR DOES IT 'DEFEND' IT ONLY BY SHOWING THAT VARIOUS AUTHORITIES DO OR WOULD APPROVE OF IT?",
+  "IS THE POINT SHARP? IF NOT, IS IT SHARPLY DEFENDED?",
+  "IS THE REASONING GOOD ONLY IN A TRIVIAL 'DEBATING' SENSE? OR IS IT GOOD IN THE SENSE THAT IT WOULD LIKELY MAKE AN INTELLIGENT PERSON RECONSIDER HIS POSITION?",
+  "IS THE REASONING INVOLVED IN DEFENDING THE KEY CLAIM ABOUT ACTUALLY ESTABLISHING THAT CLAIM? OR IS IT MORE ABOUT OBFUSCATING?",
+  "DOES THE PIECE HAVE A CONCLUSION? IF SO, DO THE PREMISES LEAD UP TO IT? IF NOT, WHY NOT?",
+  "ARE THE CLAIMS DEFENDED AGAINST THE RIGHT OBJECTIONS? OR DOES THE AUTHOR IGNORE THE STRONGEST OBJECTIONS AND RESPOND ONLY TO WEAK ONES?",
+  "DOES THE TEXT HAVE A 'THROUGH-LINE'? DO INDIVIDUAL POINTS BUILD ON EACH OTHER? OR IS THE TEXT JUST A SEQUENCE OF SEPARATE POINTS HAVING ONLY A ROUGH TOPICAL OVERLAP?",
+  "IF INFERENCES ARE DRAWN, ARE THEY LEGITIMATE? OR ARE THEY OF THE 'DOES NOT FOLLOW' VARIETY?",
+  "IS THE ARGUMENT CLEAR? IN PARTICULAR, CAN THE READER RECONSTRUCT THE LOGICAL SHAPE OF THE ARGUMENT BEING MADE?"
+];
 
 export async function analyzePassages(
   passageA: PassageData,
@@ -15,46 +60,40 @@ export async function analyzePassages(
 }
 
 export async function analyzeOriginality(passage: PassageData): Promise<any> {
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
+
+export async function analyzePrimaryOriginality(passage: PassageData, parameterCount: number = 9): Promise<any> {
   if (!apiKey) {
     throw new Error("DeepSeek API key is not configured");
   }
 
-  const originalityMetrics = [
-    "Novel perspective", "Uncommon connections", "Surprising but apt analogies", "Invention of new distinctions",
-    "Reframing of common problem", "New conceptual synthesis", "Fresh metaphors", "Generating new questions",
-    "Counterintuitive insight that holds", "Unusual compression (shortcuts that work)", "Distilling cliché into clarity",
-    "Reinterpreting tradition", "Productive paradox", "Idiosyncratic voice", "Unusual but precise phrasing",
-    "Structural inventiveness (form matches thought)", "Surprising yet valid inference", "Non-standard angle on standard issue",
-    "Repurposing known concept in new domain", "Avoiding mimicry", "Shunning jargon clichés", "Generating conceptual friction",
-    "Independent pattern recognition", "Unexpected causal explanation", "Tension between domains (philosophy + science, etc.)",
-    "Provocative but defensible claim", "Lateral connections (cross-field links)", "Subversion of default framing",
-    "Detection of neglected detail", "Reverse engineering assumptions", "Productive misfit with genre/style",
-    "Intellectually playful but rigorous", "Constructive violation of expectations", "Voice not reducible to formula",
-    "Revaluing the obvious", "Absence of derivative cadence", "Independent synthesis of sources",
-    "Discovery of hidden symmetry", "Generating terms others adopt", "Staying power (insight lingers after reading)"
-  ];
+  // Check if text is too long and needs chunking
+  const words = passage.text.split(/\s+/).length;
+  let finalPassage = passage;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (words > 800) {
+    const truncatedText = passage.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassage = { ...passage, text: truncatedText };
+    console.log(`DeepSeek Originality passage truncated from ${words} to ~800 words`);
+  }
 
-  const prompt = `You are an expert in evaluating the originality of intellectual writing across all disciplines.
+  const selectedQuestions = ORIGINALITY_QUESTIONS.slice(0, parameterCount);
 
-PASSAGE TO ANALYZE:
-${passage.text}
+  const prompt = `${finalPassage.text}
 
-Evaluate this passage across all 40 originality metrics. For each metric, provide:
-1. The metric name
-2. A direct quotation from the passage that demonstrates this metric
-3. An explanation of how that quotation supports the characterization/score
-4. A score from 0-100
+${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-The 40 Originality Metrics:
-${originalityMetrics.map((metric, i) => `${i + 1}. ${metric}`).join('\n')}
-
-For each metric, use this format:
-Metric Name
-"Direct quotation from the text"
-Explanation of how the quotation demonstrates this metric.
-Score: X/100
-
-Provide a comprehensive analysis covering all 40 metrics with quotations and explanations.`;
+JSON:
+{
+  "0": {
+    "question": "${selectedQuestions[0]}",
+    "score": ,
+    "quotation": "",
+    "explanation": ""
+  }
+}`;
 
   try {
     const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -76,9 +115,169 @@ Provide a comprehensive analysis covering all 40 metrics with quotations and exp
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    const responseText = data.choices[0].message.content;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse DeepSeek Originality JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
   } catch (error) {
-    console.error("Error in DeepSeek originality analysis:", error);
+    console.error("Error in DeepSeek Originality analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzePrimaryIntelligence(passage: PassageData, parameterCount: number = 18): Promise<any> {
+  if (!apiKey) {
+    throw new Error("DeepSeek API key is not configured");
+  }
+
+  // Check if text is too long and needs chunking
+  const words = passage.text.split(/\s+/).length;
+  let finalPassage = passage;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (words > 800) {
+    const truncatedText = passage.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassage = { ...passage, text: truncatedText };
+    console.log(`DeepSeek Intelligence passage truncated from ${words} to ~800 words`);
+  }
+
+  const selectedQuestions = INTELLIGENCE_QUESTIONS.slice(0, parameterCount);
+
+  const prompt = `${finalPassage.text}
+
+${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
+
+JSON:
+{
+  "0": {
+    "question": "${selectedQuestions[0]}",
+    "score": ,
+    "quotation": "",
+    "explanation": ""
+  }
+}`;
+
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 8000,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`DeepSeek API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const responseText = data.choices[0].message.content;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse DeepSeek Intelligence JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in DeepSeek Intelligence analysis:", error);
+    throw error;
+  }
+}
+
+export async function analyzePrimaryCogency(passage: PassageData, parameterCount: number = 12): Promise<any> {
+  if (!apiKey) {
+    throw new Error("DeepSeek API key is not configured");
+  }
+
+  // Check if text is too long and needs chunking
+  const words = passage.text.split(/\s+/).length;
+  let finalPassage = passage;
+  
+  // Truncate if too long to prevent JSON parsing issues
+  if (words > 800) {
+    const truncatedText = passage.text.split(/\s+/).slice(0, 800).join(' ') + '\n\n[Document continues...]';
+    finalPassage = { ...passage, text: truncatedText };
+    console.log(`DeepSeek Cogency passage truncated from ${words} to ~800 words`);
+  }
+
+  const selectedQuestions = COGENCY_QUESTIONS.slice(0, parameterCount);
+
+  const prompt = `${finalPassage.text}
+
+${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
+
+JSON:
+{
+  "0": {
+    "question": "${selectedQuestions[0]}",
+    "score": ,
+    "quotation": "",
+    "explanation": ""
+  }
+}`;
+
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 8000,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`DeepSeek API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const responseText = data.choices[0].message.content;
+    
+    // Parse the JSON response
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from code blocks if needed
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1]);
+      } else {
+        console.error("Failed to parse DeepSeek Cogency JSON response:", responseText);
+        return { error: "Failed to parse JSON", rawResponse: responseText };
+      }
+    }
+  } catch (error) {
+    console.error("Error in DeepSeek Cogency analysis:", error);
     throw error;
   }
 }
@@ -145,6 +344,18 @@ export async function generateQuestions(text: string): Promise<string[]> {
 }
 
 export async function getHomeworkHelp(query: string): Promise<string> {
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
+
+export async function fourPhaseIntelligenceEvaluation(text: string): Promise<any> {
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
+
+export async function fourPhaseOriginalityEvaluation(text: string): Promise<any> {
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
+}
+
+export async function evaluateWithDeepSeek(text: string, metric: string): Promise<any> {
   throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 

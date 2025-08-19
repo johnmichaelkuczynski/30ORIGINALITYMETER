@@ -811,8 +811,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for dual intelligence analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
+      // Use selected provider service for dual intelligence analysis
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeIntelligenceDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -863,14 +864,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isDual: !!(passageB?.text?.trim())
       });
 
-      // Use Anthropic service for quality analysis with specified parameter count
+      // Use selected provider service for quality analysis with specified parameter count
+      const service = getServiceForProvider(provider);
       let result;
       if (passageB?.text?.trim()) {
         // Dual analysis
-        result = await anthropicService.analyzeQualityDual(passageA, passageB);
+        result = await service.analyzeQualityDual(passageA, passageB);
       } else {
         // Single analysis
-        result = await anthropicService.analyzeQuality(passageA, parameterCount);
+        result = await service.analyzeQuality(passageA, parameterCount);
       }
       
       // Return the result without schema validation to preserve raw analysis data
@@ -913,17 +915,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Route to the correct provider
-      let result;
-      if (provider === "anthropic") {
-        result = await anthropicService.analyzeOriginality(passageA, parameterCount);
-      } else if (provider === "deepseek") {
-        result = await deepseekService.analyzeOriginality(passageA, parameterCount);
-      } else if (provider === "perplexity") {
-        result = await perplexityService.analyzeOriginality(passageA, parameterCount);
-      } else {
-        result = await openaiService.analyzeOriginality(passageA, parameterCount);
-      }
+      // Use selected provider service for originality analysis
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeOriginality(passageA, parameterCount);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -971,8 +965,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for dual originality analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeOriginalityDual(passageA, passageB);
+      // Use selected provider service for dual originality analysis
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeOriginalityDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1014,8 +1009,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for cogency analysis with specified parameter count
-      const result = await anthropicService.analyzeCogency(passageA, parameterCount);
+      // Use selected provider service for cogency analysis with specified parameter count
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeCogency(passageA, parameterCount);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1063,8 +1059,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for dual cogency analysis with 40 comprehensive metrics
-      const result = await anthropicService.analyzeCogencyDual(passageA, passageB);
+      // Use selected provider service for dual cogency analysis
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeCogencyDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1106,8 +1103,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Anthropic service for intelligence analysis with specified parameter count
-      const result = await anthropicService.analyzeIntelligence(passageA, parameterCount);
+      // Use selected provider service for intelligence analysis with specified parameter count
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzeIntelligence(passageA, parameterCount);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1148,8 +1146,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Quality evaluation function
-      const result = await anthropicService.analyzePrimaryQuality(passageA);
+      // Use Primary Quality evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryQuality(passageA);
       
       // Return the result
       res.json(result);
@@ -1190,8 +1189,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Originality evaluation function
-      const result = await anthropicService.analyzePrimaryOriginality(passageA);
+      // Use Primary Originality evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryOriginality(passageA);
       
       // Return the result
       res.json(result);
@@ -1232,8 +1232,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Intelligence evaluation function
-      const result = await anthropicService.analyzePrimaryIntelligence(passageA);
+      // Use Primary Intelligence evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryIntelligence(passageA);
       
       // Return the result
       res.json(result);
