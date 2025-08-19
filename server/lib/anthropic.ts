@@ -27,7 +27,7 @@ const DEFAULT_MODEL_STR = "claude-3-5-sonnet-20241022";
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 
-// EXACT USER PROTOCOL QUESTIONS - NO MODIFICATIONS
+// EXACT USER UPLOADED QUESTIONS - NO MODIFICATIONS
 const INTELLIGENCE_QUESTIONS = [
   "IS IT INSIGHTFUL?",
   "DOES IT DEVELOP POINTS? (OR, IF IT IS A SHORT EXCERPT, IS THERE EVIDENCE THAT IT WOULD DEVELOP POINTS IF EXTENDED)?",
@@ -326,6 +326,7 @@ export async function analyzePrimaryOriginality(passage: PassageData, parameterC
   }
 
   const selectedQuestions = ORIGINALITY_QUESTIONS.slice(0, parameterCount);
+  console.log(`Processing ${parameterCount} originality questions:`, selectedQuestions.length);
 
   // PHASE 1: EXACT USER PROTOCOL - Questions only with anti-bias instructions  
   const phase1Prompt = `TEXT:
