@@ -43,10 +43,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   type OriginalityProtocol = "primary" | "legacy";
   const [originalityProtocol, setOriginalityProtocol] = useState<OriginalityProtocol>("primary");
   
-  // Cogency Protocol Selection (NEW vs OLD)
-  type CogencyProtocol = "primary" | "legacy";
-  const [cogencyProtocol, setCogencyProtocol] = useState<CogencyProtocol>("primary");
-  
   // Overall Quality Protocol Selection (NEW vs OLD)
   type QualityProtocol = "primary" | "legacy";
   const [qualityProtocol, setQualityProtocol] = useState<QualityProtocol>("primary");
@@ -368,26 +364,17 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
   // Cogency analysis mutation
   const cogencyMutation = useMutation({
     mutationFn: async () => {
-      console.log("Analyzing cogency with protocol:", cogencyProtocol);
+      console.log("Analyzing cogency");
       
-      // Choose endpoint based on protocol selection  
-      let endpoint = cogencyProtocol === "primary" 
-        ? '/api/analyze/primary-cogency'
-        : '/api/analyze/cogency';
+      let endpoint = '/api/analyze/cogency';
+      let payload = {
+        passageA,
+        provider,
+        parameterCount
+      };
       
-      let payload = cogencyProtocol === "primary"
-        ? {
-            passageA,
-            provider
-          }
-        : {
-            passageA,
-            provider,
-            parameterCount
-          };
-      
-      // Check if we have passageB for dual analysis (only for legacy protocol)
-      if (cogencyProtocol === "legacy" && passageB.text.trim() !== "") {
+      // Check if we have passageB for dual analysis
+      if (passageB.text.trim() !== "") {
         endpoint = '/api/analyze/cogency-dual';
         payload = {
           passageA,
@@ -916,12 +903,11 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
           </div>
         )}
         
-        {/* Parameter Count Selection - Only show for Legacy protocols OR non-protocol analysis types */}
-        {((analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
+        {/* Parameter Count Selection - Only show for non-protocol analysis OR Legacy protocols */}
+        {((analysisType !== "intelligence" && analysisType !== "originality" && analysisType !== "quality") || 
+          (analysisType === "intelligence" && intelligenceProtocol === "legacy") ||
           (analysisType === "originality" && originalityProtocol === "legacy") ||
-          (analysisType === "cogency" && cogencyProtocol === "legacy") ||
-          (analysisType === "quality" && qualityProtocol === "legacy") ||
-          (analysisType !== "intelligence" && analysisType !== "originality" && analysisType !== "cogency" && analysisType !== "quality")) && (
+          (analysisType === "quality" && qualityProtocol === "legacy")) && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="mb-3">
               <h4 className="text-sm font-medium text-secondary-700 mb-1">
@@ -1043,180 +1029,6 @@ export default function SemanticAnalyzer({ onSendToRewriter, onSendToHomework }:
             <div className="mt-2 text-xs text-gray-500">
               {intelligenceProtocol === "primary" && "✅ Recommended: Uses sophisticated intelligence questions for better accuracy"}
               {intelligenceProtocol === "legacy" && "⚠️ Legacy: Parameter-based system with known accuracy issues"}
-            </div>
-          </div>
-        )}
-
-        {analysisType === "originality" && (
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-emerald-700 mb-1">Originality Evaluation Protocol</h4>
-              <p className="text-xs text-emerald-500">Choose between the new primary protocol and legacy system</p>
-            </div>
-            
-            <RadioGroup
-              value={originalityProtocol}
-              onValueChange={(value) => {
-                setOriginalityProtocol(value as OriginalityProtocol);
-                if (showResults) {
-                  setAnalysisResult(null);
-                  setShowResults(false);
-                }
-              }}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                originalityProtocol === "primary" 
-                  ? "bg-green-50 border-green-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="primary" id="originality-primary" />
-                  <Label htmlFor="originality-primary" className="font-medium cursor-pointer text-sm">
-                    🆕 Primary Protocol
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Four-phase evaluation with authentic originality questions. Focuses on fecund minds, fresh interconnections, substantive vs token originality.
-                </p>
-              </div>
-              
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                originalityProtocol === "legacy" 
-                  ? "bg-orange-50 border-orange-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="legacy" id="originality-legacy" />
-                  <Label htmlFor="originality-legacy" className="font-medium cursor-pointer text-sm">
-                    📊 Legacy System
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Parameter-based framework. Uses transformational synthesis, semantic distance metrics (less accurate).
-                </p>
-              </div>
-            </RadioGroup>
-            
-            <div className="mt-2 text-xs text-gray-500">
-              {originalityProtocol === "primary" && "✅ Recommended: Uses authentic originality questions with four-phase validation"}
-              {originalityProtocol === "legacy" && "⚠️ Legacy: Generic parameter system with limited accuracy"}
-            </div>
-          </div>
-        )}
-
-        {analysisType === "cogency" && (
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-blue-700 mb-1">Cogency Evaluation Protocol</h4>
-              <p className="text-xs text-blue-500">Choose between the new primary protocol and legacy system</p>
-            </div>
-            
-            <RadioGroup
-              value={cogencyProtocol}
-              onValueChange={(value) => {
-                setCogencyProtocol(value as CogencyProtocol);
-                if (showResults) {
-                  setAnalysisResult(null);
-                  setShowResults(false);
-                }
-              }}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                cogencyProtocol === "primary" 
-                  ? "bg-green-50 border-green-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="primary" id="cogency-primary" />
-                  <Label htmlFor="cogency-primary" className="font-medium cursor-pointer text-sm">
-                    🆕 Primary Protocol
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Four-phase evaluation with specialized cogency questions. Focuses on reasoning quality, argumentation strength, and logical coherence.
-                </p>
-              </div>
-              
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                cogencyProtocol === "legacy" 
-                  ? "bg-orange-50 border-orange-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="legacy" id="cogency-legacy" />
-                  <Label htmlFor="cogency-legacy" className="font-medium cursor-pointer text-sm">
-                    📊 Legacy System
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Parameter-based framework. Uses generic argumentative continuity and logical consistency metrics.
-                </p>
-              </div>
-            </RadioGroup>
-            
-            <div className="mt-2 text-xs text-gray-500">
-              {cogencyProtocol === "primary" && "✅ Recommended: Uses specialized cogency questions with four-phase validation"}
-              {cogencyProtocol === "legacy" && "⚠️ Legacy: Generic parameter system with basic evaluation"}
-            </div>
-          </div>
-        )}
-
-        {analysisType === "quality" && (
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <div className="mb-3">
-              <h4 className="text-sm font-medium text-amber-700 mb-1">Overall Quality Evaluation Protocol</h4>
-              <p className="text-xs text-amber-500">Choose between the new primary protocol and legacy system</p>
-            </div>
-            
-            <RadioGroup
-              value={qualityProtocol}
-              onValueChange={(value) => {
-                setQualityProtocol(value as QualityProtocol);
-                if (showResults) {
-                  setAnalysisResult(null);
-                  setShowResults(false);
-                }
-              }}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                qualityProtocol === "primary" 
-                  ? "bg-green-50 border-green-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="primary" id="quality-primary" />
-                  <Label htmlFor="quality-primary" className="font-medium cursor-pointer text-sm">
-                    🆕 Primary Protocol
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Four-phase evaluation with comprehensive quality questions. Focuses on insight, truth, organic development, and intellectual authenticity.
-                </p>
-              </div>
-              
-              <div className={`flex flex-col space-y-2 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                qualityProtocol === "legacy" 
-                  ? "bg-orange-50 border-orange-300 shadow-md" 
-                  : "bg-white border-gray-200 hover:border-gray-300"
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="legacy" id="quality-legacy" />
-                  <Label htmlFor="quality-legacy" className="font-medium cursor-pointer text-sm">
-                    📊 Legacy System
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600 ml-6">
-                  Parameter-based framework. Uses conceptual compression, intellectual density, and clarity metrics.
-                </p>
-              </div>
-            </RadioGroup>
-            
-            <div className="mt-2 text-xs text-gray-500">
-              {qualityProtocol === "primary" && "✅ Recommended: Uses comprehensive quality questions with four-phase validation"}
-              {qualityProtocol === "legacy" && "⚠️ Legacy: Generic parameter system with basic metrics"}
             </div>
           </div>
         )}
