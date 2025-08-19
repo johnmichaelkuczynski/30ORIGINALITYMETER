@@ -18,6 +18,22 @@ export async function analyzeOriginality(passage: PassageData): Promise<any> {
   throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 
+export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
+  throw new Error("Perplexity Primary Intelligence analysis not yet implemented");
+}
+
+export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
+  throw new Error("Perplexity Primary Originality analysis not yet implemented");
+}
+
+export async function analyzePrimaryCogency(passage: PassageData): Promise<any> {
+  throw new Error("Perplexity Primary Cogency analysis not yet implemented");
+}
+
+export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
+  throw new Error("Perplexity Primary Quality analysis not yet implemented");
+}
+
 
 
 export async function analyzeIntelligence(passage: PassageData): Promise<any> {

@@ -1177,6 +1177,18 @@ export async function analyzePrimaryIntelligence(passage: PassageData): Promise<
   return fourPhaseIntelligenceEvaluation(passage.text);
 }
 
+export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
+  return fourPhaseOriginalityEvaluation(passage.text);
+}
+
+export async function analyzePrimaryCogency(passage: PassageData): Promise<any> {
+  return fourPhaseCogencyEvaluation(passage.text);
+}
+
+export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
+  return fourPhaseOverallQualityEvaluation(passage.text);
+}
+
 export async function analyzeOriginality(passage: PassageData): Promise<any> {
   return fourPhaseOriginalityEvaluation(passage.text);
 }

@@ -26,6 +26,22 @@ export async function analyzeOriginality(passage: PassageData): Promise<any> {
   throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 
+export async function analyzePrimaryIntelligence(passage: PassageData): Promise<any> {
+  throw new Error("OpenAI Primary Intelligence analysis not yet implemented");
+}
+
+export async function analyzePrimaryOriginality(passage: PassageData): Promise<any> {
+  throw new Error("OpenAI Primary Originality analysis not yet implemented");
+}
+
+export async function analyzePrimaryCogency(passage: PassageData): Promise<any> {
+  throw new Error("OpenAI Primary Cogency analysis not yet implemented");
+}
+
+export async function analyzePrimaryQuality(passage: PassageData): Promise<any> {
+  throw new Error("OpenAI Primary Quality analysis not yet implemented");
+}
+
 export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
