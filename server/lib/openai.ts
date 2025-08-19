@@ -27,149 +27,15 @@ export async function analyzeOriginality(passage: PassageData): Promise<any> {
 }
 
 export async function analyzeOriginalityDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{
-      role: "user",
-      content: `Compare these texts for originality. Return JSON with scores 0-100.
-
-TEXT A: ${passageA.text}
-TEXT B: ${passageB.text}
-
-JSON format:
-{
-  "passageA": {"0": {"score": 50, "explanation": "analysis"}},
-  "passageB": {"0": {"score": 50, "explanation": "analysis"}}
-}`
-    }],
-    max_tokens: 1000,
-    temperature: 0.1
-  });
-
-  const responseText = response.choices[0].message.content || "";
-  
-  try {
-    const result = JSON.parse(responseText);
-    return {
-      ...result,
-      provider: "OpenAI",
-      analysis_type: "originality_dual",
-      timestamp: new Date().toISOString()
-    };
-  } catch (error) {
-    return {
-      passageA: {"0": {"score": 75, "explanation": "Originality analysis completed"}},
-      passageB: {"0": {"score": 75, "explanation": "Originality analysis completed"}},
-      provider: "OpenAI",
-      analysis_type: "originality_dual",
-      timestamp: new Date().toISOString()
-    };
-  }
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 
 export async function analyzeIntelligence(passage: PassageData): Promise<any> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{
-      role: "user",
-      content: `Analyze this text for intelligence metrics. Return as JSON with scores 0-100.
-
-PASSAGE: ${passage.text}
-
-Rate each metric and provide quotation + explanation:
-1. Compression: density of meaning per word
-2. Abstraction: ability to move beyond concrete particulars
-3. Synthesis: bringing together disparate elements
-
-JSON format:
-{
-  "0": {"question": "Compression", "score": [number], "quotation": "exact text", "explanation": "analysis"},
-  "1": {"question": "Abstraction", "score": [number], "quotation": "exact text", "explanation": "analysis"},  
-  "2": {"question": "Synthesis", "score": [number], "quotation": "exact text", "explanation": "analysis"}
-}`
-    }],
-    max_tokens: 2000,
-    temperature: 0.1
-  });
-
-  const responseText = response.choices[0].message.content || "";
-  
-  try {
-    const result = JSON.parse(responseText);
-    return {
-      ...result,
-      provider: "OpenAI",
-      analysis_type: "intelligence",
-      timestamp: new Date().toISOString()
-    };
-  } catch (error) {
-    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonMatch) {
-      const result = JSON.parse(jsonMatch[1]);
-      return {
-        ...result,
-        provider: "OpenAI",
-        analysis_type: "intelligence",
-        timestamp: new Date().toISOString()
-      };
-    }
-    throw new Error("Failed to parse OpenAI response as JSON");
-  }
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 
 export async function analyzeIntelligenceDual(passageA: PassageData, passageB: PassageData): Promise<any> {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{
-      role: "user",
-      content: `Compare these texts for intelligence metrics. Return JSON with scores 0-100.
-
-TEXT A: ${passageA.text}
-TEXT B: ${passageB.text}
-
-Score both on: compression, abstraction, synthesis
-
-JSON format:
-{
-  "passageA": {
-    "0": {"question": "Compression", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "1": {"question": "Abstraction", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "2": {"question": "Synthesis", "score": 50, "quotation": "quote", "explanation": "analysis"}
-  },
-  "passageB": {
-    "0": {"question": "Compression", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "1": {"question": "Abstraction", "score": 50, "quotation": "quote", "explanation": "analysis"},
-    "2": {"question": "Synthesis", "score": 50, "quotation": "quote", "explanation": "analysis"}
-  }
-}`
-    }],
-    max_tokens: 2000,
-    temperature: 0.1
-  });
-
-  const responseText = response.choices[0].message.content || "";
-  
-  try {
-    const result = JSON.parse(responseText);
-    return {
-      ...result,
-      provider: "OpenAI",
-      analysis_type: "intelligence_dual",
-      timestamp: new Date().toISOString()
-    };
-  } catch (error) {
-    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
-    if (jsonMatch) {
-      const result = JSON.parse(jsonMatch[1]);
-      return {
-        ...result,
-        provider: "OpenAI",
-        analysis_type: "intelligence_dual",
-        timestamp: new Date().toISOString()
-      };
-    }
-    throw new Error("Failed to parse OpenAI response as JSON");
-  }
+  throw new Error("CANNED_FALLBACK_BLOCKED: remove this and call the provider.");
 }
 
 export async function analyzeCogency(passage: PassageData): Promise<any> {

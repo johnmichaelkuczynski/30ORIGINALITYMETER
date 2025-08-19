@@ -423,80 +423,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Single document analysis endpoint (new protocol)
-  app.post("/api/analyze-single", async (req, res) => {
-    try {
-      const requestSchema = z.object({
-        passage: z.object({
-          title: z.string().optional().default(""),
-          text: z.string().min(1, "Passage text is required"),
-        }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
-        analysisType: z.enum(["intelligence", "originality", "cogency", "quality"]).optional().default("intelligence"),
-      });
-
-      const { passage, provider, analysisType } = requestSchema.parse(req.body);
-      
-      console.log("New single document analysis request:", {
-        title: passage.title,
-        textLength: passage.text.length,
-        provider,
-        analysisType
-      });
-      
-      // Only DeepSeek has the new four-phase protocol functions
-      let analysisResult;
-      
-      // All providers use the same function names now
-      const service = getServiceForProvider(provider);
-      switch (analysisType) {
-        case "intelligence":
-          analysisResult = await service.analyzeIntelligence(passage);
-          break;
-        case "originality":
-          analysisResult = await service.analyzeOriginality(passage);
-          break;
-        case "cogency":
-          analysisResult = await service.analyzeCogency(passage);
-          break;
-        case "quality":
-          analysisResult = await service.analyzeOverallQuality(passage);
-          break;
-        default:
-          analysisResult = await service.analyzeIntelligence(passage);
-      }
-      
-      // Add metadata
-      const resultWithMetadata = {
-        ...analysisResult,
-        provider,
-        analysis_type: `${analysisType}_single`,
-        timestamp: new Date().toISOString()
-      };
-      
-      res.json(resultWithMetadata);
-    } catch (error) {
-      console.error("Error in single document analysis:", error);
-      res.status(500).json({ 
-        error: "Failed to analyze document",
-        message: error instanceof Error ? error.message : "Unknown error" 
-      });
-    }
-  });
-  
   app.post("/api/analyze/single", async (req, res) => {
     try {
       const requestSchema = z.object({
-        passage: z.object({
+        passageA: z.object({
           title: z.string().optional().default(""),
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
         provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
-        analysisType: z.enum(["intelligence", "originality", "cogency", "quality"]).optional().default("intelligence"),
       });
 
-      const { passage: passageA, provider, analysisType } = requestSchema.parse(req.body);
+      const { passageA, provider } = requestSchema.parse(req.body);
       
       console.log("Single passage analysis request:", {
         title: passageA.title,
@@ -690,25 +628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Get analysis of the single passage from the selected provider
         const service = getServiceForProvider(provider);
-        let analysisResult;
-        
-        // Route to correct analysis function based on analysisType
-        switch (analysisType) {
-          case "intelligence":
-            analysisResult = await service.analyzePrimaryIntelligence(passageA);
-            break;
-          case "originality":
-            analysisResult = await service.analyzePrimaryOriginality(passageA);
-            break;
-          case "cogency":
-            analysisResult = await service.analyzePrimaryCogency(passageA);
-            break;
-          case "quality":
-            analysisResult = await service.analyzePrimaryQuality(passageA);
-            break;
-          default:
-            analysisResult = await service.analyzePrimaryIntelligence(passageA);
-        }
+        const analysisResult = await service.analyzeSinglePassage(passageA);
         
         // Add metadata for tracking provider and timestamp
         const resultWithMetadata = {
@@ -891,24 +811,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Route to appropriate service based on provider
-      let result;
-      switch (provider) {
-        case "deepseek":
-          result = await deepseekService.analyzeIntelligenceDual(passageA, passageB);
-          break;
-        case "anthropic":
-          result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
-          break;
-        case "openai":
-          result = await openaiService.analyzeIntelligenceDual(passageA, passageB);
-          break;
-        case "perplexity":
-          result = await perplexityService.analyzeIntelligenceDual(passageA, passageB);
-          break;
-        default:
-          result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
-      }
+      // Use Anthropic service for dual intelligence analysis with 40 comprehensive metrics
+      const result = await anthropicService.analyzeIntelligenceDual(passageA, passageB);
       
       // Return the result without schema validation to preserve raw analysis data
       res.json(result);
@@ -1328,9 +1232,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Intelligence evaluation function with selected provider
-      const service = getServiceForProvider(provider);
-      const result = await service.analyzePrimaryIntelligence(passageA);
+      // Use Primary Intelligence evaluation function
+      const result = await anthropicService.analyzePrimaryIntelligence(passageA);
       
       // Return the result
       res.json(result);
