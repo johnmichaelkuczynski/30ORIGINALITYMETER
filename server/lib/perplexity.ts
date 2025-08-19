@@ -23,6 +23,7 @@ const perplexityProvider: LLMProvider = {
         messages: [{ role: 'user', content: prompt }],
         max_tokens: maxTokens,
         temperature: 0.1,
+        stream: false
       }),
     });
 
