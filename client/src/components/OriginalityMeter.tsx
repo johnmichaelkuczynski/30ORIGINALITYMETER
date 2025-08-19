@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Upload, Loader2 } from "lucide-react";
+import { Download, Upload, Loader2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PassageData {
@@ -33,6 +33,10 @@ interface ComparisonResult {
 
 export default function OriginalityMeter() {
   const { toast } = useToast();
+  
+  // File upload refs
+  const fileInputARef = useRef<HTMLInputElement>(null);
+  const fileInputBRef = useRef<HTMLInputElement>(null);
   
   // UI State
   const [mode, setMode] = useState<'intelligence' | 'originality' | 'cogency' | 'overall_quality'>('originality');
@@ -173,6 +177,103 @@ export default function OriginalityMeter() {
       });
     }
   });
+
+  // File Upload Mutation
+  const fileUploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/process-document', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'File upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data, file) => {
+      toast({
+        title: "File Processed",
+        description: `${file.name} has been processed successfully.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "File Processing Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle file upload for passage A
+  const handleFileUploadA = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a TXT, PDF, or DOCX file.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const result = await fileUploadMutation.mutateAsync(file);
+      setPassageA(prev => ({
+        ...prev,
+        text: result.content,
+        title: result.filename || prev.title
+      }));
+    } catch (error) {
+      // Error handling is done in mutation
+    }
+    
+    // Reset file input
+    if (fileInputARef.current) {
+      fileInputARef.current.value = '';
+    }
+  };
+
+  // Handle file upload for passage B
+  const handleFileUploadB = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload a TXT, PDF, or DOCX file.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const result = await fileUploadMutation.mutateAsync(file);
+      setPassageB(prev => ({
+        ...prev,
+        text: result.content,
+        title: result.filename || prev.title
+      }));
+    } catch (error) {
+      // Error handling is done in mutation
+    }
+    
+    // Reset file input
+    if (fileInputBRef.current) {
+      fileInputBRef.current.value = '';
+    }
+  };
 
   const handleSingleAnalysis = () => {
     if (!passageA.text.trim()) {
@@ -491,9 +592,36 @@ export default function OriginalityMeter() {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Text Content</label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Text Content</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept=".txt,.pdf,.docx"
+                    onChange={handleFileUploadA}
+                    ref={fileInputARef}
+                    className="hidden"
+                    data-testid="file-input-a"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputARef.current?.click()}
+                    disabled={fileUploadMutation.isPending}
+                    data-testid="button-upload-a"
+                  >
+                    {fileUploadMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : (
+                      <FileText className="h-4 w-4 mr-1" />
+                    )}
+                    Upload File
+                  </Button>
+                </div>
+              </div>
               <Textarea
-                placeholder="Paste or type your text here..."
+                placeholder="Paste or type your text here, or upload a document (TXT, PDF, DOCX)..."
                 value={passageA.text}
                 onChange={(e) => setPassageA({ ...passageA, text: e.target.value })}
                 rows={12}
@@ -527,9 +655,36 @@ export default function OriginalityMeter() {
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium">Text Content</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Text Content</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept=".txt,.pdf,.docx"
+                      onChange={handleFileUploadB}
+                      ref={fileInputBRef}
+                      className="hidden"
+                      data-testid="file-input-b"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputBRef.current?.click()}
+                      disabled={fileUploadMutation.isPending}
+                      data-testid="button-upload-b"
+                    >
+                      {fileUploadMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      ) : (
+                        <FileText className="h-4 w-4 mr-1" />
+                      )}
+                      Upload File
+                    </Button>
+                  </div>
+                </div>
                 <Textarea
-                  placeholder="Paste or type your text here..."
+                  placeholder="Paste or type your text here, or upload a document (TXT, PDF, DOCX)..."
                   value={passageB.text}
                   onChange={(e) => setPassageB({ ...passageB, text: e.target.value })}
                   rows={12}
