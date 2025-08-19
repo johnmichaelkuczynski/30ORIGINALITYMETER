@@ -1,5 +1,26 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { PassageData, AnalysisResult, SupportingDocument, StyleOption, SubmitFeedbackRequest } from "../../shared/schema";
+// Define types locally to avoid import issues
+interface PassageData {
+  title: string;
+  text: string;
+  userContext?: string;
+}
+
+interface AnalysisResult {
+  [key: string]: any;
+}
+
+interface SupportingDocument {
+  [key: string]: any;
+}
+
+interface StyleOption {
+  [key: string]: any;
+}
+
+interface SubmitFeedbackRequest {
+  [key: string]: any;
+}
 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
