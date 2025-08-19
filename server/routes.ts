@@ -1275,7 +1275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           text: z.string().min(1, "Passage text is required"),
           userContext: z.string().optional().default(""),
         }),
-        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("anthropic"),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
       });
 
       const { passageA, provider } = requestSchema.parse(req.body);
@@ -1286,8 +1286,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         provider
       });
 
-      // Use Primary Originality evaluation function
-      const result = await anthropicService.analyzePrimaryOriginality(passageA);
+      // Use Primary Originality evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryOriginality(passageA);
       
       // Return the result
       res.json(result);
@@ -1345,6 +1346,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error in primary intelligence analysis:", error);
         res.status(500).json({ 
           message: "Failed to analyze primary intelligence", 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        });
+      }
+    }
+  });
+
+  // Primary Cogency Analysis (NEW DEFAULT PROTOCOL)
+  app.post("/api/analyze/primary-cogency", async (req: Request, res: Response) => {
+    try {
+      const requestSchema = z.object({
+        passageA: z.object({
+          title: z.string().optional().default(""),
+          text: z.string().min(1, "Passage text is required"),
+          userContext: z.string().optional().default(""),
+        }),
+        provider: z.enum(["deepseek", "openai", "anthropic", "perplexity"]).optional().default("deepseek"),
+      });
+
+      const { passageA, provider } = requestSchema.parse(req.body);
+      
+      console.log("Primary Cogency analysis request:", {
+        title: passageA.title,
+        textLength: passageA.text.length,
+        provider
+      });
+
+      // Use Primary Cogency evaluation function with selected provider
+      const service = getServiceForProvider(provider);
+      const result = await service.analyzePrimaryCogency(passageA);
+      
+      // Return the result
+      res.json(result);
+      
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ 
+          message: "Invalid request data", 
+          errors: error.errors 
+        });
+      } else {
+        console.error("Error in primary cogency analysis:", error);
+        res.status(500).json({ 
+          message: "Failed to analyze primary cogency", 
           error: error instanceof Error ? error.message : "Unknown error" 
         });
       }
