@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+
 // Define types locally to avoid import issues
 interface PassageData {
   title: string;
@@ -22,7 +23,7 @@ interface SubmitFeedbackRequest {
   [key: string]: any;
 }
 
-const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL_STR = "claude-3-5-sonnet-20241022";
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -97,34 +98,18 @@ export async function analyzePrimaryIntelligence(passage: PassageData, parameter
 
   const selectedQuestions = INTELLIGENCE_QUESTIONS.slice(0, parameterCount);
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `${finalPassage.text}
 
-PASSAGE:
-${finalPassage.text}
-
-QUESTIONS:
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-For each question, provide:
-1. A relevant quotation from the text
-2. A detailed explanation
-3. A numerical score from 0-100
-
-Return results in this JSON format:
+JSON:
 {
   "0": {
     "question": "${selectedQuestions[0]}",
-    "score": 75,
-    "quotation": "exact text from passage",
-    "explanation": "detailed explanation"
-  },
-  "1": {
-    "question": "${selectedQuestions[1] || 'question'}",
-    "score": 82,
-    "quotation": "exact text from passage", 
-    "explanation": "detailed explanation"
+    "score": ,
+    "quotation": "",
+    "explanation": ""
   }
-  // Continue for all ${selectedQuestions.length} questions
 }`;
 
   try {
@@ -177,34 +162,18 @@ export async function analyzePrimaryOriginality(passage: PassageData, parameterC
 
   const selectedQuestions = ORIGINALITY_QUESTIONS.slice(0, parameterCount);
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `${finalPassage.text}
 
-PASSAGE:
-${finalPassage.text}
-
-QUESTIONS:
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-For each question, provide:
-1. A relevant quotation from the text
-2. A detailed explanation
-3. A numerical score from 0-100
-
-Return results in this JSON format:
+JSON:
 {
   "0": {
     "question": "${selectedQuestions[0]}",
-    "score": 75,
-    "quotation": "exact text from passage",
-    "explanation": "detailed explanation"
-  },
-  "1": {
-    "question": "${selectedQuestions[1] || 'question'}",
-    "score": 82,
-    "quotation": "exact text from passage", 
-    "explanation": "detailed explanation"
+    "score": ,
+    "quotation": "",
+    "explanation": ""
   }
-  // Continue for all ${selectedQuestions.length} questions
 }`;
 
   try {
@@ -257,34 +226,18 @@ export async function analyzePrimaryCogency(passage: PassageData, parameterCount
 
   const selectedQuestions = COGENCY_QUESTIONS.slice(0, parameterCount);
 
-  const prompt = `Answer these questions about this passage as intelligently and thoroughly as possible. Provide quotations and explanations. Do not assume what these questions are measuring. Give substantive answers.
+  const prompt = `${finalPassage.text}
 
-PASSAGE:
-${finalPassage.text}
-
-QUESTIONS:
 ${selectedQuestions.map((question, i) => `${i + 1}. ${question}`).join('\n')}
 
-For each question, provide:
-1. A relevant quotation from the text
-2. A detailed explanation
-3. A numerical score from 0-100
-
-Return results in this JSON format:
+JSON:
 {
   "0": {
     "question": "${selectedQuestions[0]}",
-    "score": 75,
-    "quotation": "exact text from passage",
-    "explanation": "detailed explanation"
-  },
-  "1": {
-    "question": "${selectedQuestions[1] || 'question'}",
-    "score": 82,
-    "quotation": "exact text from passage", 
-    "explanation": "detailed explanation"
+    "score": ,
+    "quotation": "",
+    "explanation": ""
   }
-  // Continue for all ${selectedQuestions.length} questions
 }`;
 
   try {
