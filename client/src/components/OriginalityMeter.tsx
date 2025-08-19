@@ -57,6 +57,14 @@ export default function OriginalityMeter() {
     userContext: ''
   });
   
+  // Chunk selection state
+  const [chunksA, setChunksA] = useState<string[]>([]);
+  const [chunksB, setChunksB] = useState<string[]>([]);
+  const [selectedChunksA, setSelectedChunksA] = useState<number[]>([]);
+  const [selectedChunksB, setSelectedChunksB] = useState<number[]>([]);
+  const [showChunkSelectorA, setShowChunkSelectorA] = useState(false);
+  const [showChunkSelectorB, setShowChunkSelectorB] = useState(false);
+
   // Results
   const [singleResult, setSingleResult] = useState<AnalysisResult | null>(null);
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
@@ -211,6 +219,19 @@ export default function OriginalityMeter() {
     }
   });
 
+  // Function to split text into chunks
+  const splitIntoChunks = (text: string, maxWords = 1000): string[] => {
+    const words = text.split(/\s+/);
+    if (words.length <= maxWords) return [text];
+    
+    const chunks: string[] = [];
+    for (let i = 0; i < words.length; i += maxWords) {
+      const chunk = words.slice(i, i + maxWords).join(' ');
+      chunks.push(chunk);
+    }
+    return chunks;
+  };
+
   // Handle file upload for passage A
   const handleFileUploadA = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -233,6 +254,19 @@ export default function OriginalityMeter() {
         text: result.content,
         title: result.filename || prev.title
       }));
+      
+      // Check if chunking is needed and set up chunk selector
+      const wordCount = result.content.split(/\s+/).filter(Boolean).length;
+      if (wordCount > 1000) {
+        const chunks = splitIntoChunks(result.content);
+        setChunksA(chunks);
+        setSelectedChunksA(Array.from({length: chunks.length}, (_, i) => i)); // Select all by default
+        setShowChunkSelectorA(true);
+      } else {
+        setChunksA([]);
+        setSelectedChunksA([]);
+        setShowChunkSelectorA(false);
+      }
     } catch (error) {
       // Error handling is done in mutation
     }
@@ -265,6 +299,19 @@ export default function OriginalityMeter() {
         text: result.content,
         title: result.filename || prev.title
       }));
+      
+      // Check if chunking is needed and set up chunk selector
+      const wordCount = result.content.split(/\s+/).filter(Boolean).length;
+      if (wordCount > 1000) {
+        const chunks = splitIntoChunks(result.content);
+        setChunksB(chunks);
+        setSelectedChunksB(Array.from({length: chunks.length}, (_, i) => i)); // Select all by default
+        setShowChunkSelectorB(true);
+      } else {
+        setChunksB([]);
+        setSelectedChunksB([]);
+        setShowChunkSelectorB(false);
+      }
     } catch (error) {
       // Error handling is done in mutation
     }
@@ -272,6 +319,44 @@ export default function OriginalityMeter() {
     // Reset file input
     if (fileInputBRef.current) {
       fileInputBRef.current.value = '';
+    }
+  };
+
+  // Handle text change for passage A (detect chunking need)
+  const handlePassageATextChange = (text: string) => {
+    setPassageA(prev => ({ ...prev, text }));
+    
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    if (wordCount > 1000) {
+      const chunks = splitIntoChunks(text);
+      setChunksA(chunks);
+      if (selectedChunksA.length === 0) {
+        setSelectedChunksA(Array.from({length: chunks.length}, (_, i) => i)); // Select all by default
+      }
+      setShowChunkSelectorA(true);
+    } else {
+      setChunksA([]);
+      setSelectedChunksA([]);
+      setShowChunkSelectorA(false);
+    }
+  };
+
+  // Handle text change for passage B (detect chunking need)
+  const handlePassageBTextChange = (text: string) => {
+    setPassageB(prev => ({ ...prev, text }));
+    
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    if (wordCount > 1000) {
+      const chunks = splitIntoChunks(text);
+      setChunksB(chunks);
+      if (selectedChunksB.length === 0) {
+        setSelectedChunksB(Array.from({length: chunks.length}, (_, i) => i)); // Select all by default
+      }
+      setShowChunkSelectorB(true);
+    } else {
+      setChunksB([]);
+      setSelectedChunksB([]);
+      setShowChunkSelectorB(false);
     }
   };
 
@@ -285,8 +370,14 @@ export default function OriginalityMeter() {
       return;
     }
 
+    // If document needs chunking and chunks are selected, use only selected chunks
+    let textToAnalyze = passageA.text;
+    if (showChunkSelectorA && selectedChunksA.length > 0 && selectedChunksA.length < chunksA.length) {
+      textToAnalyze = selectedChunksA.map(index => chunksA[index]).join('\n\n');
+    }
+
     singleAnalysisMutation.mutate({
-      passage: passageA,
+      passage: { ...passageA, text: textToAnalyze },
       mode,
       analysisMode
     });
@@ -302,9 +393,21 @@ export default function OriginalityMeter() {
       return;
     }
 
+    // If documents need chunking and chunks are selected, use only selected chunks
+    let textToAnalyzeA = passageA.text;
+    let textToAnalyzeB = passageB.text;
+    
+    if (showChunkSelectorA && selectedChunksA.length > 0 && selectedChunksA.length < chunksA.length) {
+      textToAnalyzeA = selectedChunksA.map(index => chunksA[index]).join('\n\n');
+    }
+    
+    if (showChunkSelectorB && selectedChunksB.length > 0 && selectedChunksB.length < chunksB.length) {
+      textToAnalyzeB = selectedChunksB.map(index => chunksB[index]).join('\n\n');
+    }
+
     comparisonAnalysisMutation.mutate({
-      passageA,
-      passageB,
+      passageA: { ...passageA, text: textToAnalyzeA },
+      passageB: { ...passageB, text: textToAnalyzeB },
       mode,
       analysisMode
     });
@@ -623,7 +726,7 @@ export default function OriginalityMeter() {
               <Textarea
                 placeholder="Paste or type your text here, or upload a document (TXT, PDF, DOCX)..."
                 value={passageA.text}
-                onChange={(e) => setPassageA({ ...passageA, text: e.target.value })}
+                onChange={(e) => handlePassageATextChange(e.target.value)}
                 rows={12}
                 data-testid="textarea-content-a"
               />
@@ -634,6 +737,73 @@ export default function OriginalityMeter() {
                 }
               </p>
             </div>
+
+            {/* Chunk Selector for Document A */}
+            {showChunkSelectorA && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Select Chunks to Analyze</label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedChunksA(Array.from({length: chunksA.length}, (_, i) => i))}
+                      data-testid="button-select-all-a"
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedChunksA([])}
+                      data-testid="button-select-none-a"
+                    >
+                      Select None
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border rounded p-3">
+                  {chunksA.map((chunk, index) => {
+                    const wordCount = chunk.split(/\s+/).filter(Boolean).length;
+                    const preview = chunk.substring(0, 100) + (chunk.length > 100 ? '...' : '');
+                    const isSelected = selectedChunksA.includes(index);
+                    
+                    return (
+                      <div key={index} className="flex items-start gap-3 p-2 border rounded">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedChunksA([...selectedChunksA, index]);
+                            } else {
+                              setSelectedChunksA(selectedChunksA.filter(i => i !== index));
+                            }
+                          }}
+                          className="mt-1"
+                          data-testid={`checkbox-chunk-a-${index}`}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium">Chunk {index + 1}</span>
+                            <span className="text-xs text-muted-foreground">({wordCount} words)</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">{preview}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {selectedChunksA.length} of {chunksA.length} chunks selected
+                  {selectedChunksA.length > 0 && selectedChunksA.length < chunksA.length && 
+                    " (This will significantly reduce processing time)"
+                  }
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -686,7 +856,7 @@ export default function OriginalityMeter() {
                 <Textarea
                   placeholder="Paste or type your text here, or upload a document (TXT, PDF, DOCX)..."
                   value={passageB.text}
-                  onChange={(e) => setPassageB({ ...passageB, text: e.target.value })}
+                  onChange={(e) => handlePassageBTextChange(e.target.value)}
                   rows={12}
                   data-testid="textarea-content-b"
                 />
@@ -697,6 +867,73 @@ export default function OriginalityMeter() {
                   }
                 </p>
               </div>
+
+              {/* Chunk Selector for Document B */}
+              {showChunkSelectorB && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Select Chunks to Analyze</label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedChunksB(Array.from({length: chunksB.length}, (_, i) => i))}
+                        data-testid="button-select-all-b"
+                      >
+                        Select All
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedChunksB([])}
+                        data-testid="button-select-none-b"
+                      >
+                        Select None
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border rounded p-3">
+                    {chunksB.map((chunk, index) => {
+                      const wordCount = chunk.split(/\s+/).filter(Boolean).length;
+                      const preview = chunk.substring(0, 100) + (chunk.length > 100 ? '...' : '');
+                      const isSelected = selectedChunksB.includes(index);
+                      
+                      return (
+                        <div key={index} className="flex items-start gap-3 p-2 border rounded">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedChunksB([...selectedChunksB, index]);
+                              } else {
+                                setSelectedChunksB(selectedChunksB.filter(i => i !== index));
+                              }
+                            }}
+                            className="mt-1"
+                            data-testid={`checkbox-chunk-b-${index}`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-medium">Chunk {index + 1}</span>
+                              <span className="text-xs text-muted-foreground">({wordCount} words)</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">{preview}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedChunksB.length} of {chunksB.length} chunks selected
+                    {selectedChunksB.length > 0 && selectedChunksB.length < chunksB.length && 
+                      " (This will significantly reduce processing time)"
+                    }
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
